@@ -330,6 +330,9 @@ export default {
   padding: 2rem;
   grid-template-columns: 1fr 1fr;
   font-weight: normal;
+  position:absolute;
+  top:0px;
+  left:0px;
 }
 
 header {
@@ -384,6 +387,7 @@ input {
 
 #headerDiv {
   visibility:hidden;
+  height:100vh;
 }
 
 .toggle__button {
