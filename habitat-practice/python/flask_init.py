@@ -383,10 +383,10 @@ def res_text():
             text_in_html = browser.page.find('div',class_="maincontent").text
             # ## NLTK PROCESSING
             # ## =================================
-            text_df = pd.DataFrame(columns=["title_url","unique_tokens","sentences","sentiment_per_sentence","avg_tokens_per_sentence","document_entities","suggested_entities","most_common_words", "tagged_lems","suggested_price","suggested_publisher"])
-            if len(text_df) !=  0:
-                text_df['indicator'] = text_df.apply(assign_indicator, axis=1)
-            text_df['title_url'] = r['titleUrl']
+            text_obj = {}
+            # if len(text_obj) !=  0:
+            #     text_obj['indicator'] = text_obj.apply(assign_indicator, axis=1)
+            text_obj['title_url'] = r['titleUrl']
             import nltk
 
             # Sample corpus.
@@ -401,6 +401,32 @@ def res_text():
             tokenizer = RegexpTokenizer(r'\w+')
             words = tokenizer.tokenize(corpus)
             words_no_blanks = list(filter(None, words))
+            sents = nltk.sent_tokenize(corpus)
+            print(f'sen lenfgth### {len(sents)}')
+            # sents_filtered = []
+            # for s in sents:
+            #     st = tokenizer.tokenize(s)
+            #     for t in st:
+            #         if t.lower() == "page":
+            #             del t
+            #         if t.lower() == "[unnumbered]":
+            #             del t
+            #         if t.lower() == "previous":
+            #             del t
+            #         if t.lower() == "section":
+            #             del t
+            #         if t.lower() == "next":
+            #             del t
+            #         if t.lower() == "<<":
+            #             del t
+            #         if t.lower() == "bookbag":
+            #             del t
+            #         if t.lower() == "<<":
+            #             del t
+            #         if t.lower() == ">>":
+            #             del t
+            #         if s not in sents_filtered:
+            #             sents_filtered.append(s)
             for item in words_no_blanks:
                 if item.lower() == "page":
                     words_no_blanks.remove(item)
@@ -426,23 +452,24 @@ def res_text():
                             # return no_nums_tagged_lems
             # print(f"words no blanks: {words_no_blanks}")
             print("The number of tokens is", len(words_no_blanks))
-
+            print(f'filtrered sen lenfgth### {len(sents)}')
             unique_tokens = set(words_no_blanks)
             print("The number of unique tokens are", len(unique_tokens))
-            text_df['unique_tokens'] = pd.Series([unique_tokens])
+            text_obj['unique_tokens'] = unique_tokens
             from nltk.corpus import stopwords
             stop_words = set(stopwords.words('english'))
             final_tokens = []
             for each in words_no_blanks:
                 if each not in stop_words:
                     final_tokens.append(each)
-            sents = nltk.sent_tokenize(corpus)
+
+            # sents = nltk.sent_tokenize(corpus)
             print(f"SENTS===::: {sents}")
-            text_df['sentences'] = pd.Series(sents)
+            text_obj['sentences'] = set(sents)
             print("The number of sentences is", len(sents))
             average_tokens = round(len(words_no_blanks)/len(sents))
             print("The average number of tokens per sentence is",average_tokens)
-            text_df["avg_tokens_per_sentence"] = int(average_tokens)
+            text_obj["avg_tokens_per_sentence"] = int(average_tokens)
 
             from nltk.stem import WordNetLemmatizer
             nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
@@ -450,14 +477,16 @@ def res_text():
             words = final_tokens
             lemmatizer = WordNetLemmatizer()   
             #an instance of Word Net Lemmatizer
-            lemmatized_words = [lemmatizer.lemmatize(word) for word in words] 
-            print("Lemmatized word length: ", len(lemmatized_words)) 
-            #prints the lemmatized words
-            lemmatized_words_pos = [lemmatizer.lemmatize(word, pos = "v") for word in words]
-            print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
-            #prints POS tagged lemmatized words
-            tagged_lems = nltk.pos_tag(lemmatized_words_pos)
-            print(f"tagged lems length: {len(tagged_lems)}")
+            lemmatized_words = []
+            if words and lemmatized_words == []:
+                # lemmatized_words = [lemmatizer.lemmatize(word) for word in words] 
+                # print("Lemmatized word length: ", len(lemmatized_words)) 
+                #prints the lemmatized words
+                lemmatized_words_pos = [lemmatizer.lemmatize(word, pos = "v") for word in words]
+                print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
+                #prints POS tagged lemmatized words
+                tagged_lems = nltk.pos_tag(lemmatized_words_pos)
+                print(f"tagged lems length: {len(tagged_lems)}")
 
             lemma_sentence=[]
             for s in sents:
@@ -503,7 +532,7 @@ def res_text():
                 for k in sorted(ss):
                     print('{0}: {1}, '.format(k, ss[k]), end='')
                     
-                text_df['sentiment_per_sentence'] = pd.Series(sentim_per_sent)
+                text_obj['sentiment_per_sentence'] = sentim_per_sent
                 print()
             ### =================================================
 
@@ -533,7 +562,8 @@ def res_text():
                 europeana_suggestions = []
                 europeana_sugg_object = {}
                 
-                if X.label_ != "CARDINAL" and X.label_ != "DATE":
+                # if X.label_ != "CARDINAL" and X.label_ != "DATE":
+                if X.label_ == "PERSON":
                     # if X.label_ == "PERSON":
                     print("GETTING IN HERE")
                         # if next(cycle_ents).label_ == "PERSON":
@@ -544,7 +574,10 @@ def res_text():
                         #         last_X_text = last_X_text + ' ' + X.text
                         #         print(f'last x text 2: {last_X_text}')
                     url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
+                    url_place = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=place&text=' + X.text + '"'
                     suggested_ents = requests.get(url, timeout=10.00)
+                    suggested_places = requests.get(url_place, timeout=10.0)
+
                 # try:
                     # url = 'https://api.europeana.eu/entity/suggest' + api_key + '&text=' + X.text + '"'
                     # suggested_ents = requests.get(url, timeout=10.00)
@@ -555,27 +588,16 @@ def res_text():
         
                     sugg_response = {}
                     try:
+                        ## AGENTS
                         if(json.loads(suggested_ents.text)['items'] is not None):
-                            text_df['items'] = pd.Series(json.loads(suggested_ents.text)['items'][0])
-                            europeana_suggestion_ent = json.loads(suggested_ents.text)['items']
-                        # print(f"europeana suggests ITEMS!!!: {europeana_suggestion_ent['items']['id']}")
-                            #print(f"D - O - B: {json.loads(suggested_ents.text)['items']['dateOfBirth']}")
-                           ## print(f'SUGG RESPONSE: {json.loads(suggested_ents.text)["items"]}')
-                            # sugg_response['id'] = europeana_suggestion_ent['id']
-                            # sugg_response['type'] = europeana_suggestion_ent['type']
-                            # sugg_response['isShownBy'] = europeana_suggestion_ent['isShownBy']
-                            # # sugg_response['dateOfBirth'] = europeana_suggestion_ent['items']
-                            # sugg_response['prefLabel'] = europeana_suggestion_ent['prefLabel']
-                           # print(f"SUGG RESPONSE FULL: {(json.loads(europeana_suggestion_ent))}")
-                           # print(f"SUGG RESPONSE: {(json.loads(europeana_suggestion_ent)['items'])}")
-                            print("WTF>!")
+                            text_obj['items'] = json.loads(suggested_ents.text)['items'][0]
+
                             if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
                                 
                                 print(f"!!!! {type(json.loads(suggested_ents.text)['items'][0])}")
                                 print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
                                 try:
                                     d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
-                                  
                                     if d1 is None:
                                         d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
                                     # d2 = datetime(1800,1,1)
@@ -592,15 +614,33 @@ def res_text():
                                     # print(f"TTTEEESSSTTT 2: {datetime(int(d1))}")
                                     try:
                                         if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
+                                            print(f"fucking kill me: {json.loads(suggested_ents.text)['items'][0]}")
                                             search_url = json.loads(suggested_ents.text)['items'][0]['id'] + api_key
-                                            retrieve_agent = requests.get(search_url, timeout=5.0)
-                                            print(f'hey an agent type: {type(retrieve_agent)}')
-                                            print(f"RETRIEVE AGENT!!! {json.loads(retrieve_agent.text)}")
-                                            text_df['entities'] = json.loads(retrieve_agent.text)
+                                            ##retrieve_agent = requests.get(search_url, timeout=10.0)
+                                            
+                                            print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['prefLabel']['en']}")
+                                            print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['id']}")
+                                            print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['isShownBy']}")
+                                            print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['dateOfBirth']}")
+                                            
+                                            # items = [x.text for x in doc.ents]
+                                            items = {
+                                                'name': json.loads(suggested_ents.text)['items'][0]['prefLabel']['en'],
+                                                'id': json.loads(suggested_ents.text)['items'][0]['id'],
+                                                'shown_by': json.loads(suggested_ents.text)['items'][0]['isShownBy']
+                                            }
+                                            text_obj["agent_entities"].append(items).copy()
+                                            
+                                            # text_obj['entities'] = json.loads(retrieve_agent.text)
                                     except:
-                                        print("can't retrive agent")
+                                        print("can't retrieve agent")
                                 except:
                                     print('no DOB')
+                            elif json.loads(suggested_ents.text)['items'][0]['type'] == 'Place':
+                                print(f"A PLACEE!@!! {json.loads(suggested_ents.text)['items'][0]}")
+                                text_obj["place_entities"].append(json.loads(suggested_ents.text)['items'][0]).copy()
+                            else:
+                                print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
                                 # try:
                                 #     search_url = json.loads(suggested_ents.text)['items'][0]['id'] + api_key
                                 #     retrieve_agent = requests.get(search_url, timeout=5.0)
@@ -670,8 +710,7 @@ def res_text():
                             # except:
                             #     print('error line 515')
                             
-                            if json.loads(suggested_ents.text)['items'][0]['type'] == 'Place':
-                                print(f"A PLACEE!@!! {json.loads(suggested_ents.text)['items'][0]}")
+
                             print('=======================================================')
                     except:
                         print('no items')                                
@@ -689,10 +728,9 @@ def res_text():
     ####        
                  
             labels = [x.label_ for x in doc.ents]
-            
-            print(f"LABELS: {Counter(labels)}")
             items = [x.text for x in doc.ents]
-            text_df["document_entities"] = pd.Series(items)
+            print(f"LABELS: {Counter(labels)}")
+
             print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
             # for z in Counter(items).most_common(5):
             #     disp_plot = corpus.dispersion_plot(z)
@@ -702,32 +740,32 @@ def res_text():
             # for c in Counter(items).most_common(3):
             #     # conc_list = corpus.concordance_list(c)
             #     print(f"CONC LIST::: {conc_list}")
-            text_df["most_common_words"] = pd.Series(Counter(items).most_common(20))
-            for x in doc.ents:
-                if x.label_ == "PERSON":
-                    print(f'FOUND A PERSON!! {x.text}')
-                    url = 'https://api.europeana.eu/entity/suggest' + api_key + '&text=' + x.text + '"'
-                    suggested_ents = requests.get(url, timeout=10.00)
-                    try: 
-                        d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
+            text_obj["most_common_words"] = Counter(items).most_common(20)
+#             for x in doc.ents:
+#                 if x.label_ == "PERSON":
+#                     print(f'FOUND A PERSON!! {x.text}')
+#                     url = 'https://api.europeana.eu/entity/suggest' + api_key + '&text=' + x.text + '"'
+#                     suggested_ents = requests.get(url, timeout=10.00)
+#                     try: 
+#                         d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
                         
-                        if d1 is None:
-                            d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
-                        # d2 = datetime(1800,1,1)
-                        # print(f"typeof d1 {type(d1)} type d2 {type(d2)} d1 {d1} / d2 {d2}")
-                        # print(f"DOB COMPARISON: {d1 < d2}")
-                        print(f"AHHHHH TYPE DOB {type(d1)} // thing::::::: {d1}")
-                        if(d1):
-                            arr = d1.split('-')
+#                         if d1 is None:
+#                             d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
+#                         # d2 = datetime(1800,1,1)
+#                         # print(f"typeof d1 {type(d1)} type d2 {type(d2)} d1 {d1} / d2 {d2}")
+#                         # print(f"DOB COMPARISON: {d1 < d2}")
+#                         print(f"AHHHHH TYPE DOB {type(d1)} // thing::::::: {d1}")
+#                         if(d1):
+#                             arr = d1.split('-')
     
-                            print(f"CHECH CHECK CHECHKH{arr}")
-                            print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
-                            if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
-                                print(f"SSS UU GG EEE NNN TTT SSSS {json.loads(suggested_ents.text)['items'][0]}")
-                    except:
-                        print("no peopole too suggest")
-           ## displacy.render(nlp(str(corpus[20])), style='ent')
-#########
+#                             print(f"CHECH CHECK CHECHKH{arr}")
+#                             print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
+#                             if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
+#                                 print(f"SSS UU GG EEE NNN TTT SSSS {json.loads(suggested_ents.text)['items'][0]}")
+#                     except:
+#                         print("no peopole too suggest")
+#            ## displacy.render(nlp(str(corpus[20])), style='ent')
+# #########
             
 
             print("The number of total tokens after removing stopwords are", len((final_tokens)))
@@ -755,7 +793,7 @@ def res_text():
             # import matplotlib.pyplot as plt
             finder = BigramCollocationFinder.from_words(words_no_blanks)
             print(f"BIGRAM FINDER {finder.__dict__}")
-            print(f"DID WEE GET DATAFRAME???: {text_df}")
+            # print(f"DID WEE GET DATAFRAME???: {text_obj}")
       
             # words_no_blanks_cycle = cycle(words_no_blanks)
             # first_price = ''
@@ -816,4 +854,4 @@ def res_text():
             # print(f'DID WE GET THE DATAFRAME? {text_df.to_dict()}')
             
             #return json.dumps({'lemma_sentence':lemma_sentence})
-            return text_df.to_json() 
+            return json.dumps(list(text_obj)) 
