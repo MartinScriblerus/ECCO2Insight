@@ -32,7 +32,7 @@ async function scrape_text(url){
     }).then(response => response.json()).then(result => {
             if(result){
                 rawtextfromtoc.value = result;
-                console.log("here's the text: ", rawtextfromtoc.value);
+                console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
                 return rawtextfromtoc.value;
             } else {
               return null;
@@ -83,7 +83,7 @@ async function scrape_text(url){
     left: 0%;
     width: 50%;
     height: 100vh;
-    animation: animate-text-scrape 2s linear;
+    animation: animate-text-scrape 1s linear;
     background: var(--color-background);
     backdrop-filter: blur(8px);
     overflow-y: scroll;

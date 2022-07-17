@@ -65,7 +65,7 @@ async function scrape_text(url){
     }).then(response => response.json()).then(result => {
             if(result.length){
               rawTextData.value = result;
-              console.log("here's the text: ", rawTextData.value);
+              console.log("here's the text: ", ...rawTextData.value);
               return rawTextData.value;
             } else {
               return null;

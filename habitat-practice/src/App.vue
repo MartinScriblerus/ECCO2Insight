@@ -81,7 +81,7 @@ export default {
         setTimeout(()=>{
           document.getElementById("main").style.visibility = "visible";
           document.getElementById("headerDiv").style.visibility = "visible";
-        }, 2000);
+        }, 1000);
       }   
     });
 
