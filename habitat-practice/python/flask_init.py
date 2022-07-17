@@ -384,16 +384,15 @@ def res_text():
             # ## NLTK PROCESSING
             # ## =================================
             text_obj = {}
-            # if len(text_obj) !=  0:
-            #     text_obj['indicator'] = text_obj.apply(assign_indicator, axis=1)
-            keyList =["title_url","entities","spacy_entities","sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos","avg_tokens_sentence","most_common_words","places","summary","lemmatized_words"]
+            keyList =["title_url","entities","spacy_entities","sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos","avg_tokens_sentence","unique_words","most_common_words","places","summary","lemmatized_words"]
 
             old_df= {key: None for key in keyList}
-            #pd.DataFrame(columns=["title_url", "entities", "sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos",'avg_tokens_sentence','most_common_words','places','summary','lemmatized_words'])
+           
             old_df_entities = []
             old_df['title_url'] = r['titleUrl']
             old_df_sentences = []
-            print(f"WHAT THA FUCK IS DF: {old_df}")
+            old_df_unique = []
+ 
             import nltk
 
             # Sample corpus.
@@ -411,71 +410,28 @@ def res_text():
             words = tokenizer.tokenize(corpus)
             words_no_blanks = list(filter(None, words))
             sents = nltk.sent_tokenize(corpus)
-            print(f'sen lenfgth### {len(sents)}')
-            # sents_filtered = []
-            # for s in sents:
-            #     st = tokenizer.tokenize(s)
-            #     for t in st:
-            #         if t.lower() == "page":
-            #             del t
-            #         if t.lower() == "[unnumbered]":
-            #             del t
-            #         if t.lower() == "previous":
-            #             del t
-            #         if t.lower() == "section":
-            #             del t
-            #         if t.lower() == "next":
-            #             del t
-            #         if t.lower() == "<<":
-            #             del t
-            #         if t.lower() == "bookbag":
-            #             del t
-            #         if t.lower() == "<<":
-            #             del t
-            #         if t.lower() == ">>":
-            #             del t
-            #         if s not in sents_filtered:
-            #             sents_filtered.append(s)
+
             processed_sents = []
-            # for item in corpus:
-            #     if item.lower() == "page":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "[unnumbered]":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "previous":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "section":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "next":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "<<":
-            #         words_no_blanks.remove(item)
-            #     if item.lower() == "bookbag":
-            #         words_no_blanks.remove(item)
-            #     if item == "<<":
-            #         words_no_blanks.remove(item)
-            #     if item == ">>":
-            #         words_no_blanks.remove(item)
-                            # if item.isdigit and len(item) != 4:
-                            #     tagged_lems.remove(item) 
-                           # print(f"noo nums tagged lems: {no_nums_tagged_lems}")
-                            # return no_nums_tagged_lems
-            # print(f"words no blanks: {words_no_blanks}")
-            print("The number of tokens is", len(words_no_blanks))
-            print(f'filtrered sen lenfgth### {len(sents)}')
-            unique_tokens = set(words_no_blanks)
-            print("The number of unique tokens are", len(unique_tokens))
+
+            unique_tokens = list(words_no_blanks)
+            print("The number of unique tokens is", len(unique_tokens))
+            old_df_unique.append(unique_tokens)
 
             text_obj['unique_tokens'] = unique_tokens
             from nltk.corpus import stopwords
             stop_words = set(stopwords.words('english'))
             final_tokens = []
-            
+            banned_words = ["[unnumbered]","Previous", "Next", "section", "Page", "How","cite","bookbag", "|","<<",">>", "add"]
             for each in words_no_blanks:
-                if each not in stop_words:
-                    final_tokens.append(each)
+                if each not in stop_words and each not in banned_words:
+                        final_tokens.append(each)
+                      
+            print(f"final tokeensS {final_tokens}")   
             
             for se in sents:
+
+
+
                 not_this = "Previous"
                 if not_this in se:
                     se.replace(not_this,'')
@@ -501,9 +457,7 @@ def res_text():
                     if wo not in stop_words:
                         if wo != "[unnumbered]" and wo != "next" and wo != "section" and wo != "page" and wo.isalpha() and wo != "How" and wo != "cite" and wo != "bookbag":
                             se = ''.join(wo)
-            # sents = nltk.sent_tokenize(corpus)
-            # print(f"SENTS===::: {sents}")
-            text_obj['sentences'] = set(processed_sents)
+
             
             print("The number of sentences is", len(sents))
             average_tokens = round(len(words_no_blanks)/len(sents))
@@ -519,8 +473,6 @@ def res_text():
             #an instance of Word Net Lemmatizer
             lemmatized_words = []
             if words and lemmatized_words == []:
-                # lemmatized_words = [lemmatizer.lemmatize(word) for word in words] 
-                # print("Lemmatized word length: ", len(lemmatized_words)) 
                 #prints the lemmatized words
                 lemmatized_words_pos = [lemmatizer.lemmatize(word, pos = "v") for word in words]
                 print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
@@ -528,7 +480,6 @@ def res_text():
                 tagged_lems = nltk.pos_tag(lemmatized_words_pos)
                 print(f"tagged lems length: {len(tagged_lems)}")
                 lemmatized_words.append(tagged_lems)
-            print(f"WHAT ARE LEMMATIZED WORDS? {lemmatized_words}")
             old_df['lemmatized_words'] = lemmatized_words
 
             word_frequencies = {}
@@ -567,7 +518,7 @@ def res_text():
                                         sentence_scores[sent] += word_frequencies[word]
                     import heapq
                     summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
-                    #print(f'SUMM SEN LEN {summary_sentences}')
+                  
                     summary = ' '.join(summary_sentences)
                     print(f"SUMMARY! {summary}")
                     
@@ -623,19 +574,11 @@ def res_text():
                 sid = SentimentIntensityAnalyzer()
                 print(sentence)
                 ss = sid.polarity_scores(sentence)
-                
-                # if ss:
-                #     sentim_per_sent.append(ss)
-                
+                                
                 for k in (sorted(ss)):
-                    # print("k {k}")
-                    # print("ss {ss}")
+
                     print('{0}: {1}, '.format(k, ss[k]), end='')
-                    
-           
-                    # for t in df["sentences"]:
-                    #     print(f"K is {k}")
-                    #     print(f"SS K is {ss[k]}")
+
                     if k == "compound":
                         sentence_sentiment_compound.append({"compound":ss[k]})
                     if k == "neg":
@@ -644,36 +587,14 @@ def res_text():
                         sentence_sentiment_neu.append({"neu":ss[k]})
                     if k == "pos":
                         sentence_sentiment_pos.append({"pos":ss[k]})
-            
                 old_df["sentence_sentiment_compound"] = sentence_sentiment_compound
                 old_df["sentence_sentiment_neg"] = sentence_sentiment_neg
                 old_df["sentence_sentiment_neu"] = sentence_sentiment_neu
                 old_df["sentence_sentiment_pos"] = sentence_sentiment_pos
-            
-                    # sen_json = sen_dict["sentence"]
-                    # if sen_json in sen_arr:
-                    #     print("no dupes!")
-                    # else:
-                    #     sen_arr.append(({"sentence":sen_json["sentence"],  "sentence_sentiment":sen_json[ "sentence_sentiment"]}))
-                    # if len(sen_arr) > 0:
-                    #     df['sentences'] = sen_arr
-                    
-   
-         
-               
-             
-             
-                    # df['sentence'] = [ss[k]]
-                    # df['sen_sentiment'] = ['{0}: {1}, '.format(k, ss[k])]
-
-        
-                #print(f"DOES THIS {len(df['sentences']['sentence'])} == {len(df['sentences']['sentence_sentiment'])}")
-                # text_obj['sentiment_per_sentence'] = sentim_per_sent
-
-            
                 print()
             old_df["sentences"] = old_df_sentences
             old_df["entities"] = old_df_entities
+            old_df["unique_words"] = old_df_unique
             ### =================================================
             index = index + 1
 ######### spacy entity recognition
