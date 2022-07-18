@@ -297,94 +297,22 @@ def res_text():
             # browser.open(text_loc)
             # text_in_html = browser.page.find('div',class_="maincontent").text
             # print(f'Text in html: {text_in_html}')
-            # # ## NLTK PROCESSING
-            # # ## =================================
-            
-            # import nltk
 
-            # # Sample corpus.
-            # from nltk.corpus import inaugural
-            # #corpus = inaugural.raw('1789-Washington.txt')
-            # corpus = text_in_html
-            # corpus_lc = [entry.lower() for entry in corpus]
-   
-            # from nltk.tokenize import RegexpTokenizer,sent_tokenize
-            # from nltk import pos_tag
-
-            # tokenizer = RegexpTokenizer(r'\w+')
-            # sents = nltk.sent_tokenize(corpus)
-            
-            # print("The number of sentences is", len(sents))
-            # words = tokenizer.tokenize(corpus)
-            # words_no_blanks = list(filter(None, words))
-            # print(f"words no blanks: {words_no_blanks}")
-            # print("The number of tokens is", len(words))
-            # average_tokens = round(len(words)/len(sents))
-            # print("The average number of tokens per sentence is",average_tokens)
-            # unique_tokens = set(words)
-            # print("The number of unique tokens are", len(unique_tokens))
-            # from nltk.corpus import stopwords
-            # stop_words = set(stopwords.words('english'))
-            # final_tokens = []
-            # for each in words:
-            #     if each not in stop_words:
-            #         final_tokens.append(each)
-            # print("The number of total tokens after removing stopwords are", len((final_tokens)))
-
-
-            # from nltk.stem import PorterStemmer
-            # from nltk.stem import SnowballStemmer 
-            # # Snowball Stemmer has language as a parameter.
-            # words = final_tokens
-            # #Create instances of both stemmers, and stem the words using them.
-            # stemmer_ps = PorterStemmer()  
-            # #an instance of Porter Stemmer
-            # stemmed_words_ps = [stemmer_ps.stem(word) for word in words]
-            # print("Porter stemmed words: ", len(stemmed_words_ps))
-            # stemmer_ss = SnowballStemmer("english")   
-            # #an instance of Snowball Stemmer
-            # stemmed_words_ss = [stemmer_ss.stem(word) for word in words]
-            # print("Snowball stemmed words: ", len(stemmed_words_ss))
-
-            # from nltk.stem import WordNetLemmatizer
-            # nltk.download('wordnet')
-
-            # words = final_tokens
-            # lemmatizer = WordNetLemmatizer()   
-            # #an instance of Word Net Lemmatizer
-            # lemmatized_words = [lemmatizer.lemmatize(word) for word in words] 
-            # print("The lemmatized words: ", lemmatized_words) 
-            # #prints the lemmatized words
-            # lemmatized_words_pos = [lemmatizer.lemmatize(word, pos = "v") for word in words]
-            # print("The lemmatized words using a POS tag: ", lemmatized_words_pos) 
-            # print(f"what is this {type(lemmatized_words_pos)}")
-            # tagged_lems = nltk.pos_tag(list(lemmatized_words_pos))
-            # print(f"HERE ARE TAGGED LEMS: {tagged_lems}")
-            # #prints POS tagged lemmatized words
-            
-            # stem_sentence=[]
-            # for s in sents:
-            #     token_words=tokenizer.tokenize(s) #we need to tokenize the sentence or else stemming will return the entire sentence as is.
-            #     for word in token_words:
-            #         stem_sentence.append(stemmer_ps.stem(word))
-            #         stem_sentence.append(" ") #adding a space so that we can join all the words at the end to form the sentence again.
-            #     "".join(stem_sentence)
-            #     lemma_sentence=[]
-            #     for word in token_words:
-            #         lemma_sentence.append(lemmatizer.lemmatize(word))
-            #         lemma_sentence.append(" ")
-            #     return "".join(lemma_sentence)
-            # print(f"stemmed sentence: {stem_sentence.remove(' ')}")
 
             return json.dumps(text_in_html)
         
-        
+        ########################################################################
+        ########################################################################
+        ################################ NLTK ##################################
+        ########################################################################
+        ########################################################################
+
         else:
             text_in_html = browser.page.find('div',class_="maincontent").text
             # ## NLTK PROCESSING
             # ## =================================
             text_obj = {}
-            keyList =["title_url","entities","spacy_entities","sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos","avg_tokens_sentence","unique_words","most_common_words","places","summary","lemmatized_words"]
+            keyList =["title_url","entities","spacy_entities","sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos","avg_tokens_sentence","unique_words","most_common_words","places","orgs","summary","lemmatized_words"]
 
             old_df= {key: None for key in keyList}
            
@@ -402,23 +330,21 @@ def res_text():
             #corpus = inaugural.raw('1789-Washington.txt')
             corpus = text_in_html
             corpus_lc = [entry.lower() for entry in corpus]
-            
-          
-            ### Pre-Processing Text w NLTK
-            ### =================================================
-           
+                       
             words = tokenizer.tokenize(corpus)
             words_no_blanks = list(filter(None, words))
             sents = nltk.sent_tokenize(corpus)
 
-            processed_sents = []
-
+            old_df_places = []
+            old_df_orgs = []
             unique_tokens = list(words_no_blanks)
             print("The number of unique tokens is", len(unique_tokens))
             old_df_unique.append(unique_tokens)
 
             text_obj['unique_tokens'] = unique_tokens
+            
             from nltk.corpus import stopwords
+            
             stop_words = set(stopwords.words('english'))
             final_tokens = []
             banned_words = ["[unnumbered]","Previous", "Next", "section", "Page", "How","cite","bookbag", "|","<<",">>", "add"]
@@ -426,12 +352,14 @@ def res_text():
                 if each not in stop_words and each not in banned_words:
                         final_tokens.append(each)
                       
-            print(f"final tokeensS {final_tokens}")   
+            print(f'CHECK FINAL TKS {"bookbag" in final_tokens}')   
+
             
             for se in sents:
-
-
-
+                for each in se:
+                    if each in banned_words or each in stop_words:
+                        se.replace(each,'')
+                print(f'CHECK IN SENTS {"Page" in se}')      
                 not_this = "Previous"
                 if not_this in se:
                     se.replace(not_this,'')
@@ -457,7 +385,7 @@ def res_text():
                     if wo not in stop_words:
                         if wo != "[unnumbered]" and wo != "next" and wo != "section" and wo != "page" and wo.isalpha() and wo != "How" and wo != "cite" and wo != "bookbag":
                             se = ''.join(wo)
-
+                print(f'Double CHECK IN SENTS {"Page" in se}') 
             
             print("The number of sentences is", len(sents))
             average_tokens = round(len(words_no_blanks)/len(sents))
@@ -482,6 +410,10 @@ def res_text():
                 lemmatized_words.append(tagged_lems)
             old_df['lemmatized_words'] = lemmatized_words
 
+
+
+
+
             word_frequencies = {}
          
             summary = ''
@@ -493,6 +425,7 @@ def res_text():
             sentence_sentiment_neg = []
             sentence_sentiment_pos = []
             sentence_sentiment_neu = []
+            
             old_df_summary = []
             for index,word in enumerate(words_no_blanks):
                 if word not in word_frequencies.keys():
@@ -535,45 +468,41 @@ def res_text():
                     lemma_sentence.append(lemmatizer.lemmatize(word))
                     lemma_sentence.append(" ")
                 "".join(lemma_sentence)
+
             ### =================================================
 
             ### Sentiment Analysis w/ NLTK Naive Bayesian Classification
             ### =================================================
-            n_instances = 100
-            subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
-            obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
-            # len(subj_docs), len(obj_docs)
-            train_subj_docs = subj_docs[:80]
-            test_subj_docs = subj_docs[80:100]
-            train_obj_docs = obj_docs[:80]
-            test_obj_docs = obj_docs[80:100]
-            training_docs = train_subj_docs+train_obj_docs
-            testing_docs = test_subj_docs+test_obj_docs
-            sentim_analyzer = SentimentAnalyzer()
-            all_words_neg = sentim_analyzer.all_words([mark_negation(doc) for doc in training_docs])
-            unigram_feats = sentim_analyzer.unigram_word_feats(all_words_neg, min_freq=4)
-            len(unigram_feats)
-            sentim_analyzer.add_feat_extractor(extract_unigram_feats, unigrams=unigram_feats)
-            training_set = sentim_analyzer.apply_features(training_docs)
-            test_set = sentim_analyzer.apply_features(testing_docs)
-            trainer = NaiveBayesClassifier.train
-            classifier = sentim_analyzer.train(trainer, training_set)
-            print(f'CLASSIFIER ACCURACY: {nltk.classify.accuracy(classifier, test_set)}')
-            for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
-                print('{0}: {1}'.format(key, value))
-            sentim_per_sent = []
-      
-            sen_dict = {}
-            sen_arr = []
-            
-            
-            old_df_sentences.append(sents)
-           
-            for ix, sentence in enumerate(sents):
+                n_instances = 100
+                subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
+                obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
+                # len(subj_docs), len(obj_docs)
+                train_subj_docs = subj_docs[:80]
+                test_subj_docs = subj_docs[80:100]
+                train_obj_docs = obj_docs[:80]
+                test_obj_docs = obj_docs[80:100]
+                training_docs = train_subj_docs+train_obj_docs
+                testing_docs = test_subj_docs+test_obj_docs
+                sentim_analyzer = SentimentAnalyzer()
+                all_words_neg = sentim_analyzer.all_words([mark_negation(doc) for doc in training_docs])
+                unigram_feats = sentim_analyzer.unigram_word_feats(all_words_neg, min_freq=4)
+                len(unigram_feats)
+                sentim_analyzer.add_feat_extractor(extract_unigram_feats, unigrams=unigram_feats)
+                training_set = sentim_analyzer.apply_features(training_docs)
+                test_set = sentim_analyzer.apply_features(testing_docs)
+                trainer = NaiveBayesClassifier.train
+                classifier = sentim_analyzer.train(trainer, training_set)
+                print(f'CLASSIFIER ACCURACY: {nltk.classify.accuracy(classifier, test_set)}')
+                for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
+                    print('{0}: {1}'.format(key, value))
                 
+                old_df_sentences.append(sents)
+            
+            # for sentence in sents:
+                    
                 sid = SentimentIntensityAnalyzer()
-                print(sentence)
-                ss = sid.polarity_scores(sentence)
+                print(s)
+                ss = sid.polarity_scores(s)
                                 
                 for k in (sorted(ss)):
 
@@ -595,6 +524,8 @@ def res_text():
             old_df["sentences"] = old_df_sentences
             old_df["entities"] = old_df_entities
             old_df["unique_words"] = old_df_unique
+            old_df['places'] = old_df_places
+            old_df['orgs'] = old_df_orgs
             ### =================================================
             index = index + 1
 ######### spacy entity recognition
@@ -622,11 +553,21 @@ def res_text():
             last_X_text = ''
 
             for X in doc.ents:
+                items = [x.text for x in doc.ents]
+                labels = [x.label_ for x in doc.ents]
+                print(f"LABELS: {Counter(labels)}")
+
+                print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
+                old_df['most_common_words'] = Counter(items).most_common(20)
+                finder = BigramCollocationFinder.from_words(Counter(items).most_common(20))
+                text_obj["common_bigrams"] = finder
+                print(f"BIGRAM FINDER {finder.__dict__}")
                 ##print(f"SPACY text {X.text} // SPACY label {X.label_}")
 
-                if X.label_ == "PLACE":
-                    old_df['places'].append(X.text)
-
+                if X.label_ == "LOC":
+                    old_df_places.append(X.text)
+                # if X.label_ == "ORG":
+                #     old_df_orgs.append(X.text)
                 if X.label_ == "PERSON":
                     print("GETTING IN HERE")
                     url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
@@ -638,76 +579,37 @@ def res_text():
                             text_obj['items'] = json.loads(suggested_ents.text)['items'][0]
 
                             if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
-                                
-                                print(f"!!!! {type(json.loads(suggested_ents.text)['items'][0])}")
                                 print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
                                 try:
                                     d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
                                     if d1 is None:
                                         d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
-
-                                    print(f"AHHHHH TYPE DOB {type(d1)} // thing::::::: {d1}")
                                     if(d1):
-                                        arr = d1.split('-')
-                
-                                        print(f"CHECH CHECK CHECHKH{arr}")
-                                        print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
-                                    frust_arr = []
+                                        arr = d1.split('-')             
+                                        # print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
                                     try:
                                         if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
-                                            print(f"fucking kill me: {json.loads(suggested_ents.text)['items'][0]}")
-                                            
-                                            # search_url = 'https://api.europeana.eu/record/v2/search.json?query=' +json.loads(suggested_ents.text)['items'][0]['id'] + api_key
-                                            # print(f"HEY SEARCH URL ############## : {search_url}")
-                                            ##retrieve_agent = requests.get(search_url, timeout=10.0)
-                                            
-                                            # print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['prefLabel']['en']}")
-                                            # print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['id']}")
-                                            # print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['isShownBy']}")
-                                            # print(f"RETRIEVE AGENT!!! {json.loads(suggested_ents.text)['items'][0]['dateOfBirth']}")
-                                            # df["entities"] = pd.concat({
-                                            #     "id" : json.loads(suggested_ents.text)['items'][0]['id'],
-                                            #     "prefLabel" : json.loads(suggested_ents.text)['items'][0]['prefLabel']['en'],
-                                            #     "shownBy": json.loads(suggested_ents.text)['items'][0]['isShownBy'],
-                                            #     "dateOfBirth": json.loads(suggested_ents.text)['items'][0]['dateOfBirth']
-                                            # })
+                                            print(f"SUGGESTED ENTITIES::::::: {json.loads(suggested_ents.text)['items'][0]}")
                                             old_df_entities.append(json.loads(suggested_ents.text)['items'][0])
-                                            # for x in old_df['entities']:
-                                            # try:
-                                            #     search_url = 'https://api.europeana.eu/record/v2/search.json?query=' + x['prefLabel'][0] + api_key
-                                            #     print(f"SEARCH WORKING??? {search_url}")
-                                            # except:
-                                            #     print(f"WTF FRUSTRATING")
-                        # text_obj['entities'] = json.loads(retrieve_agent.text)
-
-                                            # items = [x.text for x in doc.ents]
-                                            # items = {
-                                            #     'name': json.loads(suggested_ents.text)['items'][0]['prefLabel']['en'],
-                                            #     'id': json.loads(suggested_ents.text)['items'][0]['id'],
-                                            #     'shown_by': json.loads(suggested_ents.text)['items'][0]['isShownBy']
-                                            # }
-                                            # text_obj["agent_entities"].append(items).copy()
                                     except:
                                         print("can't retrieve agent")
                                 except:
                                     print('no DOB')
-
                             else:
                                 print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
-
                             print('=======================================================')
                     except:
                         print('no items')                                
                     print("")
 
-            labels = [x.label_ for x in doc.ents]
-            items = [x.text for x in doc.ents]
-            print(f"LABELS: {Counter(labels)}")
+            # labels = [x.label_ for x in doc.ents]
+            # items = [x.text for x in doc.ents]
+            # print(f"LABELS: {Counter(labels)}")
 
-            print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
-            old_df['most_common_words'] = Counter(items).most_common(20)
+            # print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
+            # old_df['most_common_words'] = Counter(items).most_common(20)
 
-            text_obj["most_common_words"] = Counter(items).most_common(20)
+           # text_obj["most_common_words"] = Counter(items).most_common(20)
 
 
             print("The number of total tokens after removing stopwords are", len((final_tokens)))
@@ -717,10 +619,10 @@ def res_text():
             # old_df["sentence_sentiment_neg"] = old_df["sentence_sentiment_neg"].append(sentence_sentiment_neg)
             # old_df["sentence_sentiment_neu"] = old_df["sentence_sentiment_neu"].append(sentence_sentiment_neu)
             # old_df["sentence_sentiment_pos"] = old_df["sentence_sentiment_pos"].append(sentence_sentiment_pos)
-            print(f'FFUUUUUCK {old_df["sentence_sentiment_pos"]}')
-            finder = BigramCollocationFinder.from_words(Counter(items).most_common(20))
-            text_obj["common_bigrams"] = finder
-            print(f"BIGRAM FINDER {finder.__dict__}")
+
+            # finder = BigramCollocationFinder.from_words(Counter(items).most_common(20))
+            # text_obj["common_bigrams"] = finder
+            # print(f"BIGRAM FINDER {finder.__dict__}")
             print(f"WHAT IS DF: {old_df}")
             
             return old_df 
