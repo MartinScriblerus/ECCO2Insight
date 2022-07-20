@@ -1,3 +1,4 @@
+from mimetypes import init
 from flask import Flask, request
 from matplotlib.pyplot import title
 # from cli import book_arr
@@ -8,17 +9,31 @@ from flask_cors import CORS
 import requests
 from models import Book
 import re
+import math
+import string
 from crud import Session
 import mechanicalsoup
+import pyphen
+import pronouncing
+from langdetect import detect
 import itertools as _itertools
 from datetime import date, datetime
 from itertools import cycle
 from config import API_KEY
 
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, euclidean_distances, jaccard_score
 
-
+from tsfresh.examples import load_robot_execution_failures
+from tsfresh.transformers import RelevantFeatureAugmenter
+from tsfresh.utilities.dataframe_functions import impute
+from tsfresh.feature_extraction import extract_features
+from tsfresh.feature_extraction import settings
 
 from nltk.collocations import *
+from nltk.text import Text
 # these two unused imports are referenced in collocations.doctest
 from nltk.metrics import (
     BigramAssocMeasures,
@@ -36,6 +51,16 @@ from nltk.corpus import subjectivity
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import *
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+from nltk import Nonterminal, nonterminals, Production, CFG
+import pickle
+import subprocess
+import sys
+
+from google_trans_new import google_translator
+from langdetect import detect_langs, DetectorFactory
+
+
 import spacy
 from spacy import displacy
 from collections import Counter
@@ -44,7 +69,9 @@ nlp = en_core_web_sm.load()
 
 s = Session()
 
+initial_text = {}
 
+DetectorFactory.seed = 0
 
 app = Flask(__name__)
 CORS(app)
@@ -311,168 +338,384 @@ def res_text():
             text_in_html = browser.page.find('div',class_="maincontent").text
             # ## NLTK PROCESSING
             # ## =================================
-            text_obj = {}
-            keyList =["title_url","entities","spacy_entities","sentences","sentence_sentiment_compound","sentence_sentiment_neg","sentence_sentiment_neu","sentence_sentiment_pos","avg_tokens_sentence","unique_words","most_common_words","places","orgs","summary","lemmatized_words"]
+            keyList =[
+                "title_url",
+                "entities",
+                "spacy_entities",
+                "sentence_id", 
+                "lines_per_sentence", 
+                "sentences",
+                "sentence_sentiment_compound",
+                "sentence_sentiment_neg",
+                "sentence_sentiment_neu",
+                "sentence_sentiment_pos",
+                "spacy_tokens",
+                "avg_tokens_sentence",
+                "unique_words",
+                "last_word_per_line",
+                "common_bigrams",
+                "most_common_words",
+                "poetic_form",
+                "perc_poetry",
+                "perc_drama",
+                "places",
+                "orgs",
+                "summary",
+                "lemmatized_words",
+                "internal_rhyme_most_recent"
+                "internal_rhyme_second_most_recent",
+                ]
+            fullKeyList =[
+                "title_url",
+                "entities",
+                "spacy_entities",
+                "sentence_id", 
+                "lines_per_sentence", 
+                "sentences",
+                "sentence_sentiment_compound",
+                "sentence_sentiment_neg",
+                "sentence_sentiment_neu",
+                "sentence_sentiment_pos",
+                "spacy_tokens",
+                "avg_tokens_sentence",
+                "unique_words",
+                "last_word_per_line",
+                "common_bigrams",
+                "most_common_words",
+                "poetic_form",
+                "perc_poetry",
+                "perc_drama",
+                "places",
+                "orgs",
+                "summary",
+                "lemmatized_words",
+                "internal_rhyme_most_recent"
+                "internal_rhyme_second_most_recent",
+                "old_df_vectorized_features",
+                "old_df_vectorized_vocab",
+                "old_df_vectorized_tfidf",
+                "old_df_euclidean_distance_since_last_self"
+                ]
 
             old_df= {key: None for key in keyList}
+            global initial_text 
+            initial_text = {key: None for key in fullKeyList}
            
             old_df_entities = []
             old_df['title_url'] = r['titleUrl']
             old_df_sentences = []
             old_df_unique = []
- 
+            old_df_places = []
+            old_df_orgs = []
+            old_df_spacy_ents = []
+            old_df_sentences_grammars = []
+            old_df_syllables_per_line = []
+            old_df_last_word_per_line = []           
+            old_df_poetic_form = []
+            old_df_perc_drama = 0
+            old_df_perc_poetry = 0
+            old_df_spacy_tokens = []
+            old_df_internal_rhyme_most_recent = []
+            old_df_internal_rhyme_second_most_recent = []
+            old_df_vectorized_features = []
+            old_df_vectorized_vocab = []
+            old_df_vectorized_tfidf = []
+            old_df_euclidean_distance_since_last_self = []
+
+            final_tokens = []
+            
+            banned_words = ["[unnumbered]","previous", "next", "section", "page", "how","cite","bookbag", "|","<<",">>", "add"]
+            word_frequencies = {}
+            lines_per_sentence = []
+            
+            isPoeticLine = 0
+            poetry_count = 0
+            drama_count = 0
+            summary = ''
+            index = 0
+            # sentences = []
+
+            sentence_sentiment_compound = []
+            sentence_sentiment_neg = []
+            sentence_sentiment_pos = []
+            sentence_sentiment_neu = []
+
             import nltk
 
             # Sample corpus.
             from nltk.corpus import inaugural
             from nltk.tokenize import RegexpTokenizer,sent_tokenize
+            from nltk.stem import WordNetLemmatizer
+            lemmatizer = WordNetLemmatizer()   
+            nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
+
             tokenizer = RegexpTokenizer(r'\w+')
             #corpus = inaugural.raw('1789-Washington.txt')
             corpus = text_in_html
-            corpus_lc = [entry.lower() for entry in corpus]
-                       
+
+            #corpus = [entry.lower() for entry in corpus]
+
+                        ### Analysis of lines
+            lines_in_corpus = corpus.split("\n")
+            
+            pyphen.language_fallback('nl_NL_variant1')
+            'nl_NL' in pyphen.LANGUAGES
+            dic = pyphen.Pyphen(lang='nl_NL')
+            syllables_per_line = []
+            last_line_internal = {"most_recent":[],"second_most_recent": []}
+            last_line_internal_fodder = []
+            second_last_internal_fodder = []
+            
+            for li in lines_in_corpus:
+                hyphenated = dic.inserted(li)
+                hyphen_to_array = hyphenated.split('-')
+                count = len(hyphen_to_array)
+                syllables_per_line.append(hyphen_to_array)
+                old_df_syllables_per_line.append(count)
+                tokens_in_line = tokenizer.tokenize(li)
+
+                for w in tokens_in_line:
+                    if w in Counter(tokenizer.tokenize(corpus)).most_common(20):
+                        print(f"IMPORTANT LINE!!! {li}")
+                    if w == tokens_in_line[-1]:
+                        old_df_last_word_per_line.append(w) 
+                        second_last_internal_fodder = last_line_internal_fodder
+                    else: 
+                        if len(w) > 3 and w.isalpha() is True:
+                            last_line_internal_fodder.append(w)
+                last_line_internal['most_recent'] = last_line_internal_fodder
+                last_line_internal['second_most_recent'] = second_last_internal_fodder
+
+            split_syllables_per_line_arr = []
+            syllables_per_line = list(filter(None, syllables_per_line))
+            
+            
+            for u in syllables_per_line:
+                if len(u) < 14 and len(u) > 4:
+                    isPoeticLine = isPoeticLine + 1
+                    percentage_poetry_by_syllable = isPoeticLine / len(lines_in_corpus)
+                    print(f"PERC POETRY {percentage_poetry_by_syllable}")
+            
+            not_words = [">>","<<","[unnumbered]","unnumbered","page","previous","section","cite","bookbag","next","table","contents","add","|","how","or","cite"]
+         
+            querywords = corpus.split()
+
+            resultwords  = [word for word in querywords if word.lower() not in not_words]
+            resultwords 
+            corpus = ' '.join(resultwords)
+
+
             words = tokenizer.tokenize(corpus)
+            colons_in_text = words.count(":")
+            old_df_perc_drama = float((colons_in_text)/len(lines_in_corpus))
+
+            words = [word.lower() for word in words]
             words_no_blanks = list(filter(None, words))
+   
             sents = nltk.sent_tokenize(corpus)
 
-            old_df_places = []
-            old_df_orgs = []
+            line_division = len(lines_in_corpus)/len(sents)
+            lines_per_sentence.append(line_division)
+
             unique_tokens = list(words_no_blanks)
             print("The number of unique tokens is", len(unique_tokens))
             old_df_unique.append(unique_tokens)
-
-            text_obj['unique_tokens'] = unique_tokens
             
             from nltk.corpus import stopwords
             
             stop_words = set(stopwords.words('english'))
-            final_tokens = []
-            banned_words = ["[unnumbered]","Previous", "Next", "section", "Page", "How","cite","bookbag", "|","<<",">>", "add"]
-            for each in words_no_blanks:
-                if each not in stop_words and each not in banned_words:
-                        final_tokens.append(each)
-                      
-            print(f'CHECK FINAL TKS {"bookbag" in final_tokens}')   
 
-            
-            for se in sents:
-                for each in se:
-                    if each in banned_words or each in stop_words:
-                        se.replace(each,'')
-                print(f'CHECK IN SENTS {"Page" in se}')      
-                not_this = "Previous"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = "section"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = "| How to cite"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = "bookbag"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = "next"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = "<<"
-                if not_this in se:
-                    se.replace(not_this,'')
-                not_this = ">>"
-                if not_this in se:
-                    se.replace(not_this,'')
-                for wo in se:
-                    if wo not in stop_words:
-                        if wo != "[unnumbered]" and wo != "next" and wo != "section" and wo != "page" and wo.isalpha() and wo != "How" and wo != "cite" and wo != "bookbag":
-                            se = ''.join(wo)
-                print(f'Double CHECK IN SENTS {"Page" in se}') 
-            
+            for each in words_no_blanks:
+                for n in each:
+                    if n.isalpha() is False:
+                        each.replace(n,'')
+                    
+                if each not in stop_words:
+                    if each not in banned_words:
+                        final_tokens.append(each)
+                
+            final_tokens = [lemmatizer.lemmatize(word) for word in final_tokens]
+
+            print(f'CHECK FINAL TKS {"Page" in final_tokens}')   
             print("The number of sentences is", len(sents))
             average_tokens = round(len(words_no_blanks)/len(sents))
             print("The average number of tokens per sentence is",average_tokens)
             old_df['avg_tokens_sentence'] = average_tokens
-            text_obj["avg_tokens_per_sentence"] = average_tokens
-
-            from nltk.stem import WordNetLemmatizer
-            nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
-
-            words = final_tokens
-            lemmatizer = WordNetLemmatizer()   
-            #an instance of Word Net Lemmatizer
-            lemmatized_words = []
-            if words and lemmatized_words == []:
-                #prints the lemmatized words
-                lemmatized_words_pos = [lemmatizer.lemmatize(word, pos = "v") for word in words]
-                print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
-                #prints POS tagged lemmatized words
-                tagged_lems = nltk.pos_tag(lemmatized_words_pos)
-                print(f"tagged lems length: {len(tagged_lems)}")
-                lemmatized_words.append(tagged_lems)
-            old_df['lemmatized_words'] = lemmatized_words
-
-
-
-
-
-            word_frequencies = {}
-         
-            summary = ''
-            index = 0
-            sentences = []
-
-       
-            sentence_sentiment_compound = []
-            sentence_sentiment_neg = []
-            sentence_sentiment_pos = []
-            sentence_sentiment_neu = []
-            
-            old_df_summary = []
-            for index,word in enumerate(words_no_blanks):
-                if word not in word_frequencies.keys():
-                    word_frequencies[word] = 1
-                else:
-                    word_frequencies[word] += 1
-
-                # print(f"WTF FREQQQQ {word_frequencies}")
-                maximum_frequncy = max(word_frequencies.values())
-             
-                for word in word_frequencies.keys():
-                    word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
-
-                if(index == len(words_no_blanks)-1):    
-                    sentence_scores = {}
-                    for sent in sents:
-                        for word in nltk.word_tokenize(sent.lower()):
-                            if word in word_frequencies.keys():
-                                if len(sent.split(' ')) < 30:
-                                    if sent not in sentence_scores.keys():
-                                        sentence_scores[sent] = word_frequencies[word]
-                                    else:
-                                        sentence_scores[sent] += word_frequencies[word]
-                    import heapq
-                    summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
-                  
-                    summary = ' '.join(summary_sentences)
-                    print(f"SUMMARY! {summary}")
-                    
-                    old_df_summary.append(' '.join(summary_sentences))
-                 
-            old_df['summary'] = old_df_summary[0]
 
             lemma_sentence=[]
-           
-            for s in sents:
-                token_words=tokenizer.tokenize(s) 
+            
+            idx_array = []
 
-                for word in token_words:
-                    lemma_sentence.append(lemmatizer.lemmatize(word))
-                    lemma_sentence.append(" ")
-                "".join(lemma_sentence)
+            
+            for idx,s in enumerate(sents):
+   
+                s_tok = tokenizer.tokenize(s)
 
-            ### =================================================
+                for each in s_tok:
+                    if each.lower() in banned_words or each.lower() in stop_words:
+                        try:
+                            s_tok.remove(each)
+                        except:
+                            print(f"s_tok: {s_tok}")
+                    if each.isalpha() is False:
+                        try:
+                            s_tok.remove(each)
+                        except:
+                            print(f"s_tok: {s_tok}")
+                    if each.lower() == "page" or each.lower() == "previous" or each.lower() == "section" or each.lower() == "cite" or each.lower() == "bookbag" or each.lower == "next" or each == "<<" or each == ">>":
+                        try:
+                            s_tok.remove(each)
+                        except:
+                            print(f"s_tok: {s_tok}")
+                s = " ".join(s_tok)
 
-            ### Sentiment Analysis w/ NLTK Naive Bayesian Classification
-            ### =================================================
+                words = s
+                # lemmatizer = WordNetLemmatizer()   
+                #an instance of Word Net Lemmatizer
+                lemmatized_words = []
+                from nltk.tree import Tree
+                from sklearn.feature_extraction.text import CountVectorizer
+                from sklearn.metrics.pairwise import euclidean_distances
+                from sklearn.feature_extraction.text import TfidfVectorizer
+
+                if words and lemmatized_words == []:
+                    #prints the lemmatized words
+
+                    lemmatized_words_pos = [lemmatizer.lemmatize(s, pos = "v") for s in sents]
+
+                    print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
+                    #prints POS tagged lemmatized words
+                    tagged_lems = nltk.pos_tag(lemmatized_words_pos)
+                    string_lems = []
+                    for i in tagged_lems:
+                        string_lems.append(i[0])
+                    string_lems = ' '.join(string_lems)
+                    old_df['most_common_words'] = [Counter(i[0]).most_common(20) for i in tagged_lems]
+                    grammar = "NP: {<DT>?<JJ>*<NN>}"
+                    cp = nltk.RegexpParser(grammar)
+                    result = cp.parse(tagged_lems)
+                    print(f"NLTK PARSER: {result[0]}")
+                    
+
+
+
+
+                    # tree = Tree(result)
+                    # tree.pretty_print()
+
+
+                    vectorizer = CountVectorizer()
+                    features = vectorizer.fit_transform(sents).todense() 
+                    #features2 = vectorizer.fit_transform(list("This is test sentence")).todense()
+                    print(f"VECTORIZED VOCAB: {vectorizer.vocabulary_}")
+                    print(f"FEATURES!@ COUNT VECTORIZER {features}")
+                    old_df_vectorized_features.append(features)
+                    old_df_vectorized_vocab.append(vectorizer.vocabulary_)
+
+                    tfidf = TfidfVectorizer()
+                    y = tfidf.fit_transform([s])
+                    # y.toarray()
+                    tfidf.get_feature_names()
+                    df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
+                    print(f"df feat TFIDF!!!! {type(df_feat)}")
+  
+                    old_df_vectorized_tfidf.append(df_feat)
+
+                    for i, f in enumerate(features):
+                        print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
+                        old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
+                    
+                    
+                    old_df_sentences_grammars.append(result)
+                    print(f"LEMMA GRAMMAR LEN: {len(result)}")
+
+                    print(f"tagged lems length: {len(tagged_lems)}")
+                    lemmatized_words.append(tagged_lems)
+                    
+                    
+                old_df['lemmatized_words'] = lemmatized_words
+                
+       
+
+                ########################################################################
+                ########################################################################
+                ########################### ENTITY ANALYSIS ############################
+                ########################################################################
+                ########################################################################
+
+
+            # for idx, s in enumerate(sents):
+                idx_array.append(idx)
+                
+                ######### spacy entity recognition
+                doc = nlp(s)
+                     
+                # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
+                tokens = []
+                for token in doc:
+                    print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
+
+                #     if token.pos_ == 'PUNCT':
+                #         del token                
+                #         #print(f'spacy analysis {token.text}, {token.lemma_}, {token.pos_}, {token.tag_}, {token.dep_}, {token.shape_}, {token.is_alpha}, {token.is_stop}')
+                    tokens.append(token)
+                old_df_spacy_tokens.append({"sentence_idx":idx,"token_text": [i.text for i in tokens],"token_pos": [i.pos_ for i in tokens],"token_tag":[i.tag_ for i in tokens]})
+
+                ######## europeana data links  < = >  spacy
+                api_key=API_KEY
+                # cycle_ents = cycle(doc.ents)
+                # last_X_text = ''
+             
+      
+                for X in doc.ents:
+                    
+                    old_df_spacy_ents.append({idx:{X.text:X.label_}})
+                    
+                    
+                    
+                    if X.label_ == "LOC":
+                        old_df_places.append(X.text)
+                        print(f'DOCUMENT ENTITIES: {X.text}:{X.label_}')
+                        
+                    if X.label_ == "PERSON":
+                        url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
+                        suggested_ents = requests.get(url, timeout=10.00)
+                        print(f"X.text: {X.text}")
+        
+                        try:
+                            print("ENTITY CHECK: ", json.loads(suggested_ents.text)['items'][0])
+                            ## AGENTS
+                            if(json.loads(suggested_ents.text)['items'] is not None):  
+                                if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
+                                    print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
+                                    try:
+                                        d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
+                                        if d1 is None:
+                                            d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
+                                        if(d1):
+                                            arr = d1.split('-')             
+                                            # print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
+                                        try:
+                                            if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
+                                                print(f"SUGGESTED ENTITIES::::::: {json.loads(suggested_ents.text)['items'][0]}")
+                                                old_df_entities.append(json.loads(suggested_ents.text)['items'][0])
+                                        except:
+                                            print("can't retrieve agent")
+                                    except:
+                                        print('no DOB')
+                                else:
+                                    print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
+                                # print('=======================================================')
+                        except:
+                            print('no items')                                
+                        # print("")
+
+
+                ########################################################################
+                ########################################################################
+                ######################### SENTIMENT ANALYSIS ###########################
+                ########################################################################
+                ########################################################################
                 n_instances = 100
                 subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
                 obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
@@ -493,15 +736,16 @@ def res_text():
                 trainer = NaiveBayesClassifier.train
                 classifier = sentim_analyzer.train(trainer, training_set)
                 print(f'CLASSIFIER ACCURACY: {nltk.classify.accuracy(classifier, test_set)}')
-                for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
-                    print('{0}: {1}'.format(key, value))
+                # for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
+                    # print('{0}: {1}'.format(key, value))
                 
-                old_df_sentences.append(sents)
-            
+                old_df_sentences.append(s)
+        
             # for sentence in sents:
                     
                 sid = SentimentIntensityAnalyzer()
-                print(s)
+                print(f"THE SENTENCE IS... {s}")
+                # ss = sid.polarity_scores(s)
                 ss = sid.polarity_scores(s)
                                 
                 for k in (sorted(ss)):
@@ -516,120 +760,393 @@ def res_text():
                         sentence_sentiment_neu.append({"neu":ss[k]})
                     if k == "pos":
                         sentence_sentiment_pos.append({"pos":ss[k]})
+                
+
+                
+                ### poetry check 
+                for index, i in enumerate(old_df_last_word_per_line):
+                    if(index > 1):
+                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
+                            print("PROBABLY A COUPLET!")
+                            print(f"couplet test 1: {old_df_last_word_per_line[index-1]}")
+                            print(f"couplet test 2: {i}")
+                            old_df_poetic_form.append("heroic_couplet")
+                            poetry_count = poetry_count + 1
+
+                    if(index > 2):
+                        most_rec_internal = last_line_internal['most_recent']
+                        second_most_rec_internal = last_line_internal['second_most_recent']
+                        rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index])
+                        last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 1])
+                        second_last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 2])
+                        for d in most_rec_internal:
+                            if d in rhyme_to_check and len(d) > 3:
+                                # print(f"found an INTERNAL RHYME ONE LINE AWAY!! {d} // {old_df_last_word_per_line[index]}")
+                                old_df_internal_rhyme_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index],"internal_rhyme":d}})
+                                if d in last_rhyme_to_check and len(d) > 3:
+                                    print(f"found an INTERNAL RHYME ONE LINE AWAY!! {d} // {old_df_last_word_per_line[index]}")
+                                    old_df_internal_rhyme_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d}})
+                                if d in second_last_rhyme_to_check and len(d) > 3:
+                                    print(f"found an INTERNAL RHYME Two LINES AWAY!! {d} // {old_df_last_word_per_line[index]}")
+                                    old_df_internal_rhyme_second_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index - 2],"internal_rhyme":d}})
+
+                             
+                        # for a in second_most_rec_internal:
+                        #     if a in rhyme_to_check and len(d) > 3:
+                        #         print(f"found an INTERNAL RHYME TWO LINES AWAY!! {a} // {old_df_last_word_per_line[index]}")
+                        #         old_df_internal_rhyme_second_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index],"internal_rhyme":d}})
+                        
+                        #check for couplets
+                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
+                            if old_df_last_word_per_line[index] not in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
+                                print("PROBABLY AN INTERLOCKING QUATRAIN!")
+                                print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
+                                old_df_poetic_form.append("interlocking_quatrain")
+                                poetry_count = poetry_count + 1
+                    old_df_perc_poetry = poetry_count/len(lines_in_corpus)
+
+                old_df["sentence_id"] = idx_array
+                old_df['lines_per_sentence'] = lines_per_sentence
                 old_df["sentence_sentiment_compound"] = sentence_sentiment_compound
                 old_df["sentence_sentiment_neg"] = sentence_sentiment_neg
                 old_df["sentence_sentiment_neu"] = sentence_sentiment_neu
-                old_df["sentence_sentiment_pos"] = sentence_sentiment_pos
-                print()
+                old_df["sentence_sentiment_pos"] = sentence_sentiment_pos   
+                old_df["sentence_grammar"] = old_df_sentences_grammars 
+                old_df["last_word_per_line"] = old_df_last_word_per_line
+                old_df["syllables_per_line"] = old_df_syllables_per_line
+                old_df['poetic_form'] = old_df_poetic_form
+                old_df['perc_poetry'] = old_df_perc_poetry
+                old_df['perc_drama'] = old_df_perc_drama
+                old_df['vectorized_features'] = old_df_vectorized_features
+
+                old_df['vectorized_vocab'] = old_df_vectorized_vocab
+                old_df['vectorized_tfidf'] = old_df_vectorized_tfidf
+                old_df['euclidean_distance_since_last_self'] = old_df_euclidean_distance_since_last_self
+                
+            print()
+            
+            
+
+            ########################################################################
+            ########################################################################
+            ############################# Summarize ################################
+            ########################################################################
+            ########################################################################
+
+            old_df_summary = []
+            for index,word in enumerate(final_tokens):
+                if word not in word_frequencies.keys():
+                    word_frequencies[word] = 1
+                else:
+                    word_frequencies[word] += 1
+
+                maximum_frequncy = max(word_frequencies.values())
+             
+                for word in word_frequencies.keys():
+                    word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
+
+                if(index == len(final_tokens)-1):    
+                    sentence_scores = {}
+                    for sent in sents:
+                        for word in nltk.word_tokenize(sent.lower()):
+                            if word in word_frequencies.keys():
+                                if len(sent.split(' ')) < 30:
+                                    if sent not in sentence_scores.keys():
+                                        sentence_scores[sent] = word_frequencies[word]
+                                    else:
+                                        sentence_scores[sent] += word_frequencies[word]
+                    import heapq
+                    summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
+                  
+                    summary = ' '.join(summary_sentences)
+                    # cleaned_summary = []
+                    # for i in summary_sentences:
+                    #     if i.isalpha() is True:
+                    #         cleaned_summary.append(i)
+                   
+                    print(f"SUMMARY! {summary}")
+                    regex = re.compile('[^a-zA-Z]')
+                    cleaned_summary1 = re.sub("[^a-zA-Z.]+", " ", summary)
+                    pattern = r"\b(?=[MDCLXVIΙ])M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})([IΙ]X|[IΙ]V|V?[IΙ]{0,3})\b\.?"
+                    cleaned_summary = re.sub(pattern, '', cleaned_summary1)
+                    print(f"CLEANED SUMMARY ANY BETTER? {cleaned_summary}")
+                    
+                    old_df_summary.append(' '.join(summary_sentences))
+                 
+            old_df['summary'] = old_df_summary[0]
+
+
+            
+            
+            
+            old_df['spacy_entities'] = old_df_spacy_ents
             old_df["sentences"] = old_df_sentences
             old_df["entities"] = old_df_entities
             old_df["unique_words"] = old_df_unique
             old_df['places'] = old_df_places
             old_df['orgs'] = old_df_orgs
+            old_df['spacy_tokens'] = old_df_spacy_tokens
+
+            for k,v in old_df.items():
+                print(f"wHAT TYPE IS THIS??? {k}: {type(v)}")
+
+            res = []
+            for idx, i in enumerate(old_df_internal_rhyme_most_recent):
+                for g in i: 
+                    if g not in res:
+                        res.append({idx:g})
+            old_df['internal_rhyme_most_recent'] = old_df_internal_rhyme_most_recent
+            old_df['internal_rhyme_second_most_recent'] = old_df_internal_rhyme_second_most_recent
+
+            # old_df['most_common_words'] = Counter(final_tokens).most_common(20)
+            pre_lemma_tokens = []
+            post_lemma_tokens = []
+            for i in old_df_spacy_tokens:
+                pre_lemma_tokens.append(i)
+            print(f"WHAT ARE PRELEMMA TOKENS? {pre_lemma_tokens}")
+            for g in pre_lemma_tokens:
+                g = g['token_text']
+                for y in g:
+                    x = [lemmatizer.lemmatize(i) for i in y] 
+                    post_lemma_tokens.append(x) 
+            for z in post_lemma_tokens:
+                if z != ".":
+                    post_lem_token_string = ' '.join(z)
+                else:
+                    post_lem_token_string = ''.join(z)
+            bigram_measures = nltk.collocations.BigramAssocMeasures() # measures
+       
+            finder = BigramCollocationFinder.from_words(post_lem_token_string)
+            finder.apply_freq_filter(2) # filter on bigram min frequencies 
+            
+            # finder.apply_freq_filter(2)
+            #bigram_measures = nltk.collocations.BigramAssocMeasures()
+            finder_new = finder.nbest(bigram_measures.pmi, 10)
+            old_df['common_bigrams'] = finder_new
+            print(f"BIGRAM FINDER {finder_new}")
+
             ### =================================================
+            
             index = index + 1
-######### spacy entity recognition
-            doc = nlp(corpus)
-            old_df_spacy_ents = []
-            
-            for X in doc.ents:
-                old_df_spacy_ents.append( {X.text:X.label_})
-                print(f'DOCUMENT ENTITIES: {X.text}:{X.label_}')
-                print(f'CHURCK: {X}')
-                # text_df["document_entities"].append({X.label_ :X.text}).copy()
-            #print(f'NAMES AND LABELS: {[(X.text, X.label_) for X in doc.ents]}')
-            
-            for token in doc:
-                print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
-                if token.pos_ == 'PUNCT':
-                    del token                
-               
-                    #print(f'spacy analysis {token.text}, {token.lemma_}, {token.pos_}, {token.tag_}, {token.dep_}, {token.shape_}, {token.is_alpha}, {token.is_stop}')
-    #### europeana data links
-        
-            old_df['spacy_entities'] = old_df_spacy_ents
-            api_key=API_KEY
-            cycle_ents = cycle(doc.ents)
-            last_X_text = ''
-
-            for X in doc.ents:
-                items = [x.text for x in doc.ents]
-                labels = [x.label_ for x in doc.ents]
-                print(f"LABELS: {Counter(labels)}")
-
-                print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
-                old_df['most_common_words'] = Counter(items).most_common(20)
-                finder = BigramCollocationFinder.from_words(Counter(items).most_common(20))
-                text_obj["common_bigrams"] = finder
-                print(f"BIGRAM FINDER {finder.__dict__}")
-                ##print(f"SPACY text {X.text} // SPACY label {X.label_}")
-
-                if X.label_ == "LOC":
-                    old_df_places.append(X.text)
-                # if X.label_ == "ORG":
-                #     old_df_orgs.append(X.text)
-                if X.label_ == "PERSON":
-                    print("GETTING IN HERE")
-                    url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
-                    suggested_ents = requests.get(url, timeout=10.00)
-                    
-                    try:
-                        ## AGENTS
-                        if(json.loads(suggested_ents.text)['items'] is not None):
-                            text_obj['items'] = json.loads(suggested_ents.text)['items'][0]
-
-                            if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
-                                print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
-                                try:
-                                    d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
-                                    if d1 is None:
-                                        d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
-                                    if(d1):
-                                        arr = d1.split('-')             
-                                        # print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
-                                    try:
-                                        if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
-                                            print(f"SUGGESTED ENTITIES::::::: {json.loads(suggested_ents.text)['items'][0]}")
-                                            old_df_entities.append(json.loads(suggested_ents.text)['items'][0])
-                                    except:
-                                        print("can't retrieve agent")
-                                except:
-                                    print('no DOB')
-                            else:
-                                print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
-                            print('=======================================================')
-                    except:
-                        print('no items')                                
-                    print("")
-
-            # labels = [x.label_ for x in doc.ents]
-            # items = [x.text for x in doc.ents]
-            # print(f"LABELS: {Counter(labels)}")
-
-            # print(f"MOST COMMON WORDS: {Counter(items).most_common(20)}")
-            # old_df['most_common_words'] = Counter(items).most_common(20)
-
-           # text_obj["most_common_words"] = Counter(items).most_common(20)
-
 
             print("The number of total tokens after removing stopwords are", len((final_tokens)))
 
-            # old_df["sentences"] = old_df["sentences"].append(sents)
-            # old_df["sentence_sentiment_compound"] = old_df["sentence_sentiment_compound"].append(sentence_sentiment_compound)
-            # old_df["sentence_sentiment_neg"] = old_df["sentence_sentiment_neg"].append(sentence_sentiment_neg)
-            # old_df["sentence_sentiment_neu"] = old_df["sentence_sentiment_neu"].append(sentence_sentiment_neu)
-            # old_df["sentence_sentiment_pos"] = old_df["sentence_sentiment_pos"].append(sentence_sentiment_pos)
 
-            # finder = BigramCollocationFinder.from_words(Counter(items).most_common(20))
-            # text_obj["common_bigrams"] = finder
-            # print(f"BIGRAM FINDER {finder.__dict__}")
-            print(f"WHAT IS DF: {old_df}")
+            ########################################################################
+            ########################################################################
+            ######################### FEATURE ANALYSIS #############################
+            ########################################################################
+            ########################################################################
+
+
+            from sklearn.feature_extraction.text import TfidfVectorizer
             
+            text_df = pd.DataFrame.from_dict(old_df, orient='index')
+            text_df = text_df.transpose()
+            
+            tfidf = TfidfVectorizer(stop_words="english")
+            df_abstracts_tfidf = tfidf.fit_transform(text_df)    
+            print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
+
+            df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
+            print(f"TUUUUST: {df}")
+            settings_minimal = settings.MinimalFCParameters() 
+            # print(f"MIN SEETT TUUST: {settings_minimal}")
+
+            settings.ComprehensiveFCParameters, settings.EfficientFCParameters, settings.MinimalFCParameters
+            print(f"DF COLS:::: ", df.columns)
+            # X_tsfresh = extract_features(df, column_id='id', default_fc_parameters=settings_minimal)
+            # X_tsfresh.head()
+            # fc_parameters_pressure = {"length": None, 
+            #                         "sum_values": None}
+
+            # fc_parameters_temperature = {"maximum": None, 
+            #                             "minimum": None}
+
+            # kind_to_fc_parameters = {
+            #     "temperature": fc_parameters_temperature,
+            #     "pressure": fc_parameters_pressure
+            # }
+
+            # print(kind_to_fc_parameters)
+
+
+
+            # display dataset structure with the pandas .info() method
+            # print(text_df.info())
+
+            # # show first 5 rows
+            # print(text_df.head(5))
+
+            # # display some statistics
+            # print(text_df.describe())
+
+            from sklearn.preprocessing import StandardScaler as SS # z-score standardization 
+            from sklearn.cluster import KMeans, DBSCAN # clustering algorithms
+            from sklearn.decomposition import PCA # dimensionality reduction
+            from sklearn.metrics import silhouette_score # used as a metric to evaluate the cohesion in a cluster
+            from sklearn.neighbors import NearestNeighbors # for selecting the optimal eps value when using DBSCAN
+            import numpy as np
+
+            # plotting libraries
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            from yellowbrick.cluster import SilhouetteVisualizer
+            def silhouettePlot(range_, data):
+                '''
+                we will use this function to plot a silhouette plot that helps us to evaluate the cohesion in clusters (k-means only)
+                '''
+                half_length = int(len(range_)/2)
+                range_list = list(range_)
+                fig, ax = plt.subplots(half_length, 2, figsize=(15,8))
+                for _ in range_:
+                    kmeans = KMeans(n_clusters=_, random_state=42)
+                    q, mod = divmod(_ - range_list[0], 2)
+                    sv = SilhouetteVisualizer(kmeans, colors="yellowbrick", ax=ax[q][mod])
+                    ax[q][mod].set_title("Silhouette Plot with n={} Cluster".format(_))
+                    sv.fit(data)
+                fig.tight_layout()
+                fig.show()
+                fig.savefig("silhouette_plot.png")
+
+            def elbowPlot(range_, data, figsize=(10,10)):
+                '''
+                the elbow plot function helps to figure out the right amount of clusters for a dataset
+                '''
+                inertia_list = []
+                for n in range_:
+                    kmeans = KMeans(n_clusters=n, random_state=42)
+                    kmeans.fit(data)
+                    inertia_list.append(kmeans.inertia_)
+                    
+                # plotting
+                fig = plt.figure(figsize=figsize)
+                ax = fig.add_subplot(111)
+                sns.lineplot(y=inertia_list, x=range_, ax=ax)
+                ax.set_xlabel("Cluster")
+                ax.set_ylabel("Inertia")
+                ax.set_xticks(list(range_))
+                fig.show()
+                fig.savefig("elbow_plot.png")
+
+            def findOptimalEps(n_neighbors, data):
+                '''
+                function to find optimal eps distance when using DBSCAN; based on this article: https://towardsdatascience.com/machine-learning-clustering-dbscan-determine-the-optimal-value-for-epsilon-eps-python-example-3100091cfbc
+                '''
+                neigh = NearestNeighbors(n_neighbors=n_neighbors)
+                nbrs = neigh.fit(data)
+                distances, indices = nbrs.kneighbors(data)
+                distances = np.sort(distances, axis=0)
+                distances = distances[:,1]
+                plt.plot(distances)
+
+            def progressiveFeatureSelection(df, n_clusters=3, max_features=4,):
+                '''
+                very basic implementation of an algorithm for feature selection (unsupervised clustering); inspired by this post: https://datascience.stackexchange.com/questions/67040/how-to-do-feature-selection-for-clustering-and-implement-it-in-python
+                '''
+                feature_list = list(df.columns)
+                selected_features = list()
+                # select starting feature
+                initial_feature = ""
+                high_score = 0
+                for feature in feature_list:
+                    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                    data_ = df[feature]
+                    labels = kmeans.fit_predict(data_.to_frame())
+                    score_ = silhouette_score(data_.to_frame(), labels)
+                    print("Proposed new feature {} with score {}". format(feature, score_))
+                    if score_ >= high_score:
+                        initial_feature = feature
+                        high_score = score_
+                print("The initial feature is {} with a silhouette score of {}.".format(initial_feature, high_score))
+                feature_list.remove(initial_feature)
+                selected_features.append(initial_feature)
+                for _ in range(max_features-1):
+                    high_score = 0
+                    selected_feature = ""
+                    print("Starting selection {}...".format(_))
+                    for feature in feature_list:
+                        selection_ = selected_features.copy()
+                        selection_.append(feature)
+                        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                        data_ = df[selection_]
+                        labels = kmeans.fit_predict(data_)
+                        score_ = silhouette_score(data_, labels)
+                        print("Proposed new feature {} with score {}". format(feature, score_))
+                        if score_ > high_score:
+                            selected_feature = feature
+                            high_score = score_
+                    selected_features.append(selected_feature)
+                    feature_list.remove(selected_feature)
+                    print("Selected new feature {} with score {}". format(selected_feature, high_score))
+                return selected_features
+
+            scaler = SS()
+            for (columnName, columnData) in text_df.iteritems():
+                if type(columnData) is list and type(columnData[0]) is float: 
+                    print(f"AWESOME!!! {columnName}")
+                    print(f"AWESOME BUT WTF IS THIS? {text_df['sentence_id'][0]}")
+                    DNP_text_standardized = scaler.fit_transform(text_df['sentence_id'][0], text_df[columnName])
+                    df_text_standardized = pd.DataFrame(DNP_text_standardized, index_col=columnName)
+                    df_text_standardized = df_text_standardized.set_index(text_df.index)
+
+                    print(df_text_standardized.info())
+
+                    # show first 5 rows
+                    print(df_text_standardized.head(5))
+
+                    # display some statistics
+                    print(df_text_standardized.describe())
+
+                    selected_features = progressiveFeatureSelection(df_text_standardized, max_features=3, n_clusters=3)
+                    optimal_features = optimal_features(df_text_standardized)
+                    print("SELECTED FEATURES: ", selected_features)
+                    df_standardized_sliced = df_text_standardized[selected_features]
+
+                    print( df_standardized_sliced.info())
+
+                    # show first 5 rows
+                    print( df_standardized_sliced.head(5))
+
+                    # display some statistics
+                    print( df_standardized_sliced.describe())
+
+                    elbowPlot(range(1,11), df_standardized_sliced)
+                    silhouettePlot(range(3,9), df_standardized_sliced)
+                    
+                    
+                    kmeans = KMeans(n_clusters=5, random_state=42)
+                    cluster_labels = kmeans.fit_predict(df_standardized_sliced)
+                    df_standardized_sliced["clusters"] = cluster_labels
+
+                    # using PCA to reduce the dimensionality
+                    pca = PCA(n_components=2, whiten=False, random_state=42)
+                    authors_standardized_pca = pca.fit_transform(df_standardized_sliced)
+                    df_authors_standardized_pca = pd.DataFrame(data=authors_standardized_pca, columns=["pc_1", "pc_2"])
+                    df_authors_standardized_pca["clusters"] = cluster_labels
+
+                    # plotting the clusters with seaborn
+                    sns.scatterplot(x="pc_1", y="pc_2", hue="clusters", data=df_authors_standardized_pca)
+            
+            initial_text = old_df
+
+            old_df.pop('vectorized_features',None)
+            old_df.pop('vectorized_vocab',None)
+            old_df.pop('vectorized_tfidf',None)
+            old_df.pop('euclidean_distance_since_last_self', None)
+
             return old_df 
-        #     #return json.dumps({'lemma_sentence':lemma_sentence})
-        #     old_df = [i.strip('[]') for i in old_df]
-        #     print(f"AHHHH {type(old_df)}")
-        #     return json.dumps(old_df,
-        #   separators=(',', ':'), 
-        #   sort_keys=True, 
-        #   indent=4)
+
+@app.route('/testing', methods=['POST'])
+def res_t():
+    print(f"initiialllll {initial_text}")
+    text_df_test = pd.DataFrame.from_dict(initial_text, orient='index')
+    text_df_test = text_df_test.transpose()
+    print( "Yasaaa", text_df_test.info())
+
+    # show first 5 rows
+    print( "ytsss", text_df_test.head(5))
+
+    # display some statistics
+    print( "wooohooo", text_df_test.describe())
+    return {'keys':"hi"}
