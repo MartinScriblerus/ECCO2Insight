@@ -343,7 +343,7 @@ def res_text():
             from nltk.corpus import stopwords
             
             stop_words = set(stopwords.words('english'))
-            not_words = [">>","<<","[unnumbered]","unnumbered","page","previous","section","cite","bookbag","next","table","contents","add","|","how","or","cite"]
+            not_words = [">>","<<","[unnumbered]","unnumbered","page","Page","previous","Previous","Next","section","cite","bookbag","next","table","Table","contents","add","|","how","or","cite"]
 
             lemmatizer = WordNetLemmatizer()   
             nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
@@ -462,8 +462,14 @@ def res_text():
             syllables_per_line = []
             last_line_internal = {"most_recent":[],"second_most_recent": []}
             last_line_internal_fodder = []
-            # second_last_internal_fodder = []
             lines_in_corpus = []
+            # lemmatizer = WordNetLemmatizer()   
+            #an instance of Word Net Lemmatizer
+            lemmatized_words = []
+            from nltk.tree import Tree
+            from sklearn.feature_extraction.text import CountVectorizer
+            from sklearn.metrics.pairwise import euclidean_distances
+            from sklearn.feature_extraction.text import TfidfVectorizer
 
             # ------------------------------------------------------------
             # GET DATA / CLEAN WHOLE TEXT / TOKENIZED LIST OF ALL WORDS
@@ -478,6 +484,24 @@ def res_text():
             corpus = re.sub(pattern_corpus, '', cleaned_corpus1)
             # print("\n" in corpus) 
             
+            
+            for m in not_words:
+                try:
+                    corpus = corpus.replace(m,'')
+                except:
+                    print(f"NO SIGN OF {m}")
+            for r in not_words:
+                if r in corpus:
+                    print("WHAT THE FUCK? ", r)
+                    corpus = corpus.replace(r,'')
+                    if r in corpus:
+                        print("AGGGGGGGGG")
+                else:
+                    print("GOOOOOD!")
+            if "Page" in corpus:
+                    print("ERRRR???")
+            else:
+                print('ok cool')
             split_corpus = corpus.split("\n")
             almost_lines_in_corpus = []
             for c in split_corpus:
@@ -637,8 +661,6 @@ def res_text():
             
             sents = nltk.sent_tokenize(corpus)
 
-            
-
             line_division = len(lines_in_corpus)/len(sents)
             lines_per_sentence.append(line_division)
   
@@ -678,13 +700,6 @@ def res_text():
                 s = " ".join(s_tok)
 
                 words = s
-                # lemmatizer = WordNetLemmatizer()   
-                #an instance of Word Net Lemmatizer
-                lemmatized_words = []
-                from nltk.tree import Tree
-                from sklearn.feature_extraction.text import CountVectorizer
-                from sklearn.metrics.pairwise import euclidean_distances
-                from sklearn.feature_extraction.text import TfidfVectorizer
 
                 ### lemmatize the words in each sentence
                 # (this may not be necessary)
@@ -701,36 +716,11 @@ def res_text():
                     for i in tagged_lems:
                         string_lems.append(i[0])
                     string_lems = ' '.join(string_lems)
-                    #old_df['most_common_words'] = Counter([i[0] for i in tagged_lems]).most_common(20)
-                    
-                    ### GRAMMAR WHY ARE WE PARSING TAGGED LEMS??? 
+
                     grammar = "NP: {<DT>?<JJ>*<NN>}"
                     cp = nltk.RegexpParser(grammar)
                     result = cp.parse(tagged_lems)
                     print(f"NLTK PARSER: {result[0]}")
-                    
-                    ### vectorize features in array of sentences
-                    vectorizer = CountVectorizer()
-                    features = vectorizer.fit_transform(sents).todense() 
-                    #features2 = vectorizer.fit_transform(list("This is test sentence")).todense()
-                    print(f"VECTORIZED VOCAB: {vectorizer.vocabulary_}")
-                    print(f"FEATURES!@ COUNT VECTORIZER {features}")
-                    old_df_vectorized_features.append(features)
-                    old_df_vectorized_vocab.append(vectorizer.vocabulary_)
-
-                    tfidf = TfidfVectorizer()
-                    y = tfidf.fit_transform([s])
-                    # y.toarray()
-                    tfidf.get_feature_names()
-                    df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
-                    print(f"df feat TFIDF!!!! {type(df_feat)}")
-  
-                    old_df_vectorized_tfidf.append(df_feat)
-
-                    ## WE'll want to bring this back!!!
-                    for i, f in enumerate(features):
-                        print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
-                        old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
                     
                     ## add grammars to the object
                     old_df_sentences_grammars.append(result)
@@ -738,7 +728,7 @@ def res_text():
 
                     print(f"tagged lems length: {len(tagged_lems)}")
                     lemmatized_words.append(tagged_lems)
-                    
+ 
                 ## WHY DO WE NEED TO ADD LEMMATIZED WORDS FROM SENTENCES (& not corpus) -- is this a sentence-level thing?
                 old_df['lemmatized_words'] = lemmatized_words
                 
@@ -772,7 +762,6 @@ def res_text():
                 # cycle_ents = cycle(doc.ents)
                 # last_X_text = ''
              
-      
                 for X in doc.ents:
                     
                     old_df_spacy_ents.append({idx:{X.text:X.label_}})
@@ -988,6 +977,34 @@ def res_text():
             tfidf = TfidfVectorizer(stop_words="english")
             df_abstracts_tfidf = tfidf.fit_transform(text_df)    
             print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
+
+
+            for idx, s in enumerate(sents):
+                ### vectorize features in array of sentences
+                vectorizer = CountVectorizer()
+                features = vectorizer.fit_transform(sents).todense() 
+                #features2 = vectorizer.fit_transform(list("This is test sentence")).todense()
+                print(f"VECTORIZED VOCAB: {vectorizer.vocabulary_}")
+                print(f"FEATURES!@ COUNT VECTORIZER {features}")
+                old_df_vectorized_features.append(features)
+                old_df_vectorized_vocab.append(vectorizer.vocabulary_)
+
+                tfidf = TfidfVectorizer()
+                y = tfidf.fit_transform([s])
+                # y.toarray()
+                tfidf.get_feature_names()
+                df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
+                print(f"df feat TFIDF!!!! {type(df_feat)}")
+
+                old_df_vectorized_tfidf.append(df_feat)
+
+                ## WE'll want to bring this back!!!
+                for i, f in enumerate(features):
+                    print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
+                    old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
+                
+
+
 
             df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
             print(f"TUUUUST: {df}")
