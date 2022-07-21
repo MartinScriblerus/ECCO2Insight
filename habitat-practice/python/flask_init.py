@@ -320,11 +320,6 @@ def res_text():
     for a in h:
         if a.text == "View entire text":
             print(f'Text in html: {text_in_html}')
-            # text_loc = a["href"].split('?')[0] + '?rgn=main;view=fulltext'
-            # browser.open(text_loc)
-            # text_in_html = browser.page.find('div',class_="maincontent").text
-            # print(f'Text in html: {text_in_html}')
-
 
             return json.dumps(text_in_html)
         
@@ -335,9 +330,31 @@ def res_text():
         ########################################################################
 
         else:
-            text_in_html = browser.page.find('div',class_="maincontent").text
-            # ## NLTK PROCESSING
-            # ## =================================
+            # ------------------------------------------------------------
+            # PREPARE IMPORTS AND VARIABLES
+            # ------------------------------------------------------------
+
+            import nltk
+
+            # Sample corpus.
+            from nltk.corpus import inaugural
+            from nltk.tokenize import RegexpTokenizer,sent_tokenize
+            from nltk.stem import WordNetLemmatizer
+            from nltk.corpus import stopwords
+            
+            stop_words = set(stopwords.words('english'))
+            not_words = [">>","<<","[unnumbered]","unnumbered","page","previous","section","cite","bookbag","next","table","contents","add","|","how","or","cite"]
+
+            lemmatizer = WordNetLemmatizer()   
+            nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
+
+            tokenizer = RegexpTokenizer(r'\w+')
+            #corpus = inaugural.raw('1789-Washington.txt')
+            
+            pyphen.language_fallback('nl_NL_variant1')
+            'nl_NL' in pyphen.LANGUAGES
+            dic = pyphen.Pyphen(lang='nl_NL')
+            
             keyList =[
                 "title_url",
                 "entities",
@@ -356,13 +373,14 @@ def res_text():
                 "common_bigrams",
                 "most_common_words",
                 "poetic_form",
-                "perc_poetry",
+                "perc_poetry_syllables",
+                "perc_poetry_rhymes",
                 "perc_drama",
                 "places",
                 "orgs",
                 "summary",
                 "lemmatized_words",
-                "internal_rhyme_most_recent"
+                "internal_rhyme_most_recent",
                 "internal_rhyme_second_most_recent",
                 ]
             fullKeyList =[
@@ -383,13 +401,14 @@ def res_text():
                 "common_bigrams",
                 "most_common_words",
                 "poetic_form",
-                "perc_poetry",
+                "perc_poetry_syllables",
+                "perc_poetry_rhymes",
                 "perc_drama",
                 "places",
                 "orgs",
                 "summary",
                 "lemmatized_words",
-                "internal_rhyme_most_recent"
+                "internal_rhyme_most_recent",
                 "internal_rhyme_second_most_recent",
                 "old_df_vectorized_features",
                 "old_df_vectorized_vocab",
@@ -413,7 +432,8 @@ def res_text():
             old_df_last_word_per_line = []           
             old_df_poetic_form = []
             old_df_perc_drama = 0
-            old_df_perc_poetry = 0
+            old_df_perc_poetry_syllables = 0
+            old_df_perc_poetry_rhymes = 0
             old_df_spacy_tokens = []
             old_df_internal_rhyme_most_recent = []
             old_df_internal_rhyme_second_most_recent = []
@@ -424,7 +444,7 @@ def res_text():
 
             final_tokens = []
             
-            banned_words = ["[unnumbered]","previous", "next", "section", "page", "how","cite","bookbag", "|","<<",">>", "add"]
+            #banned_words = ["[unnumbered]","previous", "next", "section", "page", "how","cite","bookbag", "|","<<",">>", "add"]
             word_frequencies = {}
             lines_per_sentence = []
             
@@ -439,132 +459,220 @@ def res_text():
             sentence_sentiment_neg = []
             sentence_sentiment_pos = []
             sentence_sentiment_neu = []
-
-            import nltk
-
-            # Sample corpus.
-            from nltk.corpus import inaugural
-            from nltk.tokenize import RegexpTokenizer,sent_tokenize
-            from nltk.stem import WordNetLemmatizer
-            lemmatizer = WordNetLemmatizer()   
-            nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
-
-            tokenizer = RegexpTokenizer(r'\w+')
-            #corpus = inaugural.raw('1789-Washington.txt')
-            corpus = text_in_html
-
-            #corpus = [entry.lower() for entry in corpus]
-
-                        ### Analysis of lines
-            lines_in_corpus = corpus.split("\n")
-            
-            pyphen.language_fallback('nl_NL_variant1')
-            'nl_NL' in pyphen.LANGUAGES
-            dic = pyphen.Pyphen(lang='nl_NL')
             syllables_per_line = []
             last_line_internal = {"most_recent":[],"second_most_recent": []}
             last_line_internal_fodder = []
-            second_last_internal_fodder = []
+            # second_last_internal_fodder = []
+            lines_in_corpus = []
+
+            # ------------------------------------------------------------
+            # GET DATA / CLEAN WHOLE TEXT / TOKENIZED LIST OF ALL WORDS
+            # ------------------------------------------------------------
             
-            for li in lines_in_corpus:
-                hyphenated = dic.inserted(li)
-                hyphen_to_array = hyphenated.split('-')
-                count = len(hyphen_to_array)
-                syllables_per_line.append(hyphen_to_array)
-                old_df_syllables_per_line.append(count)
-                tokens_in_line = tokenizer.tokenize(li)
-
-                for w in tokens_in_line:
-                    if w in Counter(tokenizer.tokenize(corpus)).most_common(20):
-                        print(f"IMPORTANT LINE!!! {li}")
-                    if w == tokens_in_line[-1]:
-                        old_df_last_word_per_line.append(w) 
-                        second_last_internal_fodder = last_line_internal_fodder
-                    else: 
-                        if len(w) > 3 and w.isalpha() is True:
-                            last_line_internal_fodder.append(w)
-                last_line_internal['most_recent'] = last_line_internal_fodder
-                last_line_internal['second_most_recent'] = second_last_internal_fodder
-
-            split_syllables_per_line_arr = []
-            syllables_per_line = list(filter(None, syllables_per_line))
+            text_in_html = browser.page.find('div',class_="maincontent").text
+            corpus = text_in_html
+            print("\n" in corpus) 
+            # initial clean of whole text
+            cleaned_corpus1= re.sub("[^a-zA-Z,;:.\n]+", " ", corpus)
+            pattern_corpus = r"\b(?=[MDCLXVIΙ])M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})([IΙ]X|[IΙ]V|V?[IΙ]{0,3})\b\.?"
+            corpus = re.sub(pattern_corpus, '', cleaned_corpus1)
+            # print("\n" in corpus) 
             
-            
-            for u in syllables_per_line:
-                if len(u) < 14 and len(u) > 4:
-                    isPoeticLine = isPoeticLine + 1
-                    percentage_poetry_by_syllable = isPoeticLine / len(lines_in_corpus)
-                    print(f"PERC POETRY {percentage_poetry_by_syllable}")
-            
-            not_words = [">>","<<","[unnumbered]","unnumbered","page","previous","section","cite","bookbag","next","table","contents","add","|","how","or","cite"]
-         
-            querywords = corpus.split()
-
-            resultwords  = [word for word in querywords if word.lower() not in not_words]
-            resultwords 
-            corpus = ' '.join(resultwords)
-
-
+            split_corpus = corpus.split("\n")
+            almost_lines_in_corpus = []
+            for c in split_corpus:
+                almost_lines_in_corpus.append(c)
+            all_lines = []
+            for i in almost_lines_in_corpus:
+                querywords = i.split()
+                resultwords  = [word for word in querywords if word.lower() not in not_words]
+                line = ' '.join(resultwords)
+                all_lines.append(line)
+            lines_in_corpus = all_lines
+     
             words = tokenizer.tokenize(corpus)
-            colons_in_text = words.count(":")
-            old_df_perc_drama = float((colons_in_text)/len(lines_in_corpus))
 
             words = [word.lower() for word in words]
             words_no_blanks = list(filter(None, words))
-   
-            sents = nltk.sent_tokenize(corpus)
-
-            line_division = len(lines_in_corpus)/len(sents)
-            lines_per_sentence.append(line_division)
 
             unique_tokens = list(words_no_blanks)
             print("The number of unique tokens is", len(unique_tokens))
             old_df_unique.append(unique_tokens)
             
-            from nltk.corpus import stopwords
-            
-            stop_words = set(stopwords.words('english'))
-
-            for each in words_no_blanks:
-                for n in each:
-                    if n.isalpha() is False:
-                        each.replace(n,'')
-                    
-                if each not in stop_words:
-                    if each not in banned_words:
-                        final_tokens.append(each)
-                
+            for each_word in words_no_blanks:
+                if each_word not in stop_words:
+                    if each_word not in not_words:
+                        final_tokens.append(each_word)
+ 
             final_tokens = [lemmatizer.lemmatize(word) for word in final_tokens]
 
-            print(f'CHECK FINAL TKS {"Page" in final_tokens}')   
+            countable_words = []
+            for e_w in final_tokens:
+                z = e_w
+                for letter in z:
+                    if letter.isalpha() is False:
+                        z.replace(letter,'')
+                countable_words.append(z)
+            
+            final_tokens_as_single_string = ' '.join(final_tokens)
+          
+            print(f"HERE IS THE CORPUS: {final_tokens_as_single_string}")
+
+            old_df['most_common_words'] = Counter(final_tokens).most_common(20)
+
+
+            # ------------------------------------------------------------
+            # LINE LEVEL FOCUS -> INIT ANALYSIS OF POETRY / DRAMA FEATURES
+            # ------------------------------------------------------------
+
+            ## Is it a drama?
+            colons_in_text = final_tokens_as_single_string.count(":")
+            old_df_perc_drama = (colons_in_text)/len(lines_in_corpus)
+            
+            clean_lines = []
+            lines_in_corpus = list(filter(None, lines_in_corpus))
+     
+            for clean_l in lines_in_corpus:
+                clean_l = re.sub("[^a-zA-Z.,;:\n]+", " ", clean_l)
+                pattern_li = r"\b(?=[MDCLXVIΙ])M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})([IΙ]X|[IΙ]V|V?[IΙ]{0,3})\b\.?"
+                clean_l = re.sub(pattern_li, '', clean_l)
+                clean_lines.append(clean_l)
+            lines_in_corpus = clean_lines
+                        
+            ### loop through every line in array of lines
+            
+            ### Time to Analyze Poetic Characteristics...
+            ## begin by looping through every line in the array of lines
+            for li in lines_in_corpus:
+                if li is None or li == '':
+                    del li
+                
+                hyphenated = dic.inserted(li)
+                hyphen_to_array = hyphenated.split('-')
+                count = len(hyphen_to_array)
+                
+         
+                old_df_syllables_per_line.append(count)
+                tokens_in_line = tokenizer.tokenize(li)
+
+                ### Loop through every word in line 
+                ## find last word in each line
+                ## make a bank of internal words for later rhyme analysis
+                for w in tokens_in_line:
+                    if w == tokens_in_line[-1]:
+                        old_df_last_word_per_line.append(w)
+                        print(f"check old df last word per line: {old_df_last_word_per_line}")
+                    else: 
+                        if len(w) > 3 and w.isalpha() is True:
+                            last_line_internal_fodder.append(w)
+                last_line_internal['most_recent'] = last_line_internal_fodder
+            
+                ### poetry check 
+                for index, i in enumerate(old_df_last_word_per_line):
+                    
+                    #couplet check
+                    isPoetic = False
+                    if index > 1:
+                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1]):
+                            print("PROBABLY A COUPLET! ", index)
+                            print(f"couplet test 1: {old_df_last_word_per_line[index-1]}")
+                            print(f"couplet test 2: {i}")
+                        
+                            old_df_poetic_form.append({index-1:"heroic_couplet"})
+                            isPoetic = True
+                    
+                    #check for quatrains
+                    if index > 2 and old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
+                        isPoetic = True
+                        if old_df_last_word_per_line[index] not in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
+                            print("PROBABLY AN INTERLOCKING QUATRAIN! ", index)
+                            print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
+                            old_df_poetic_form.append("interlocking_quatrain")
+
+                    #check for tercets
+                    if index > 2 and old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
+                        isPoetic = True
+                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
+                            print("PROBABLY A TERCET! ", index)
+                            print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 1 ]} and {old_df_last_word_per_line[index - 2 ]}?")
+                            old_df_poetic_form.append("tercet")
+
+                    last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 1])
+    
+                    for d in last_line_internal['most_recent']:
+                        if d in last_rhyme_to_check and len(d) > 3:
+                            old_df_internal_rhyme_most_recent.append({"index": index,"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d})
+    
+                    if isPoetic is True:
+                        poetry_count = poetry_count+1
+                        isPoetic = False
+                    old_df_perc_poetry_rhymes = poetry_count/len(lines_in_corpus)
+
+                res = []
+                for i in old_df_internal_rhyme_most_recent:
+                    if i not in res:    
+                        res.append(i)
+                    if i['internal_rhyme'] == i['end_rhyme']:
+                        old_df_internal_rhyme_most_recent.remove(i)
+                    if i['index'] == 0:
+                        print('removing id=0 ', i)
+                        old_df_internal_rhyme_most_recent.remove(i)
+                        
+                old_df['internal_rhyme_most_recent'] = res
+
+            syllables_per_line = list(filter(None, syllables_per_line))
+
+            ## loop through every syllable in the line 
+            for u in old_df_syllables_per_line:
+                if u < 14 and u > 4:
+                    isPoeticLine = isPoeticLine + 1
+                    percentage_poetry_by_syllable = isPoeticLine / len(lines_in_corpus)
+                    print(f"PERC POETRY {percentage_poetry_by_syllable}")
+                    old_df_perc_poetry_syllables = percentage_poetry_by_syllable
+            
+   
+            ### ------------------------------------------------------------
+            ### Analysis of sentence-level stuff
+            ### ------------------------------------------------------------
+            
+            sents = nltk.sent_tokenize(corpus)
+
+            
+
+            line_division = len(lines_in_corpus)/len(sents)
+            lines_per_sentence.append(line_division)
+  
             print("The number of sentences is", len(sents))
             average_tokens = round(len(words_no_blanks)/len(sents))
             print("The average number of tokens per sentence is",average_tokens)
             old_df['avg_tokens_sentence'] = average_tokens
 
-            lemma_sentence=[]
-            
             idx_array = []
 
-            
+            ### loop through the array of sentences 
             for idx,s in enumerate(sents):
    
                 s_tok = tokenizer.tokenize(s)
 
+                ## loop through each token in this single sentence 
+                # (this cleanup should be done by now...)
                 for each in s_tok:
-                    if each.lower() in banned_words or each.lower() in stop_words:
+                    if each.lower() in not_words or each.lower() in stop_words:
                         try:
                             s_tok.remove(each)
+                            print(f"why are we here: {each}")
                         except:
                             print(f"s_tok: {s_tok}")
                     if each.isalpha() is False:
                         try:
                             s_tok.remove(each)
+                            print(f"why are we here in alpha: {each}")
                         except:
                             print(f"s_tok: {s_tok}")
                     if each.lower() == "page" or each.lower() == "previous" or each.lower() == "section" or each.lower() == "cite" or each.lower() == "bookbag" or each.lower == "next" or each == "<<" or each == ">>":
                         try:
                             s_tok.remove(each)
+                            print(f"why are we here in stopwords: {s_tok}")
                         except:
                             print(f"s_tok: {s_tok}")
                 s = " ".join(s_tok)
@@ -578,32 +686,30 @@ def res_text():
                 from sklearn.metrics.pairwise import euclidean_distances
                 from sklearn.feature_extraction.text import TfidfVectorizer
 
+                ### lemmatize the words in each sentence
+                # (this may not be necessary)
                 if words and lemmatized_words == []:
                     #prints the lemmatized words
 
                     lemmatized_words_pos = [lemmatizer.lemmatize(s, pos = "v") for s in sents]
 
-                    print("Length of lemmatized words using a POS tag: ", len(lemmatized_words_pos)) 
+                    ## print("Length of lemmatized words using a POS tag: ", lemmatized_words_pos) 
                     #prints POS tagged lemmatized words
                     tagged_lems = nltk.pos_tag(lemmatized_words_pos)
+                    ## print(f"TAGGED LEMS {tagged_lems}")
                     string_lems = []
                     for i in tagged_lems:
                         string_lems.append(i[0])
                     string_lems = ' '.join(string_lems)
-                    old_df['most_common_words'] = [Counter(i[0]).most_common(20) for i in tagged_lems]
+                    #old_df['most_common_words'] = Counter([i[0] for i in tagged_lems]).most_common(20)
+                    
+                    ### GRAMMAR WHY ARE WE PARSING TAGGED LEMS??? 
                     grammar = "NP: {<DT>?<JJ>*<NN>}"
                     cp = nltk.RegexpParser(grammar)
                     result = cp.parse(tagged_lems)
                     print(f"NLTK PARSER: {result[0]}")
                     
-
-
-
-
-                    # tree = Tree(result)
-                    # tree.pretty_print()
-
-
+                    ### vectorize features in array of sentences
                     vectorizer = CountVectorizer()
                     features = vectorizer.fit_transform(sents).todense() 
                     #features2 = vectorizer.fit_transform(list("This is test sentence")).todense()
@@ -621,18 +727,19 @@ def res_text():
   
                     old_df_vectorized_tfidf.append(df_feat)
 
+                    ## WE'll want to bring this back!!!
                     for i, f in enumerate(features):
                         print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
                         old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
                     
-                    
+                    ## add grammars to the object
                     old_df_sentences_grammars.append(result)
                     print(f"LEMMA GRAMMAR LEN: {len(result)}")
 
                     print(f"tagged lems length: {len(tagged_lems)}")
                     lemmatized_words.append(tagged_lems)
                     
-                    
+                ## WHY DO WE NEED TO ADD LEMMATIZED WORDS FROM SENTENCES (& not corpus) -- is this a sentence-level thing?
                 old_df['lemmatized_words'] = lemmatized_words
                 
        
@@ -643,23 +750,22 @@ def res_text():
                 ########################################################################
                 ########################################################################
 
-
-            # for idx, s in enumerate(sents):
+                # for idx, s in enumerate(sents):
                 idx_array.append(idx)
                 
                 ######### spacy entity recognition
                 doc = nlp(s)
                      
-                # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
-                tokens = []
-                for token in doc:
-                    print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
+                # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
+                # tokens = []
+                # for token in doc:
+                #     print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
 
-                #     if token.pos_ == 'PUNCT':
-                #         del token                
-                #         #print(f'spacy analysis {token.text}, {token.lemma_}, {token.pos_}, {token.tag_}, {token.dep_}, {token.shape_}, {token.is_alpha}, {token.is_stop}')
-                    tokens.append(token)
-                old_df_spacy_tokens.append({"sentence_idx":idx,"token_text": [i.text for i in tokens],"token_pos": [i.pos_ for i in tokens],"token_tag":[i.tag_ for i in tokens]})
+                # #     if token.pos_ == 'PUNCT':
+                # #         del token                
+                # #         #print(f'spacy analysis {token.text}, {token.lemma_}, {token.pos_}, {token.tag_}, {token.dep_}, {token.shape_}, {token.is_alpha}, {token.is_stop}')
+                #     tokens.append(token)
+                # old_df_spacy_tokens.append({"sentence_idx":idx,"token_text": [i.text for i in tokens],"token_pos": [i.pos_ for i in tokens],"token_tag":[i.tag_ for i in tokens]})
 
                 ######## europeana data links  < = >  spacy
                 api_key=API_KEY
@@ -670,9 +776,7 @@ def res_text():
                 for X in doc.ents:
                     
                     old_df_spacy_ents.append({idx:{X.text:X.label_}})
-                    
-                    
-                    
+                         
                     if X.label_ == "LOC":
                         old_df_places.append(X.text)
                         print(f'DOCUMENT ENTITIES: {X.text}:{X.label_}')
@@ -705,10 +809,8 @@ def res_text():
                                         print('no DOB')
                                 else:
                                     print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
-                                # print('=======================================================')
                         except:
                             print('no items')                                
-                        # print("")
 
 
                 ########################################################################
@@ -716,6 +818,7 @@ def res_text():
                 ######################### SENTIMENT ANALYSIS ###########################
                 ########################################################################
                 ########################################################################
+                
                 n_instances = 100
                 subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
                 obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
@@ -741,8 +844,6 @@ def res_text():
                 
                 old_df_sentences.append(s)
         
-            # for sentence in sents:
-                    
                 sid = SentimentIntensityAnalyzer()
                 print(f"THE SENTENCE IS... {s}")
                 # ss = sid.polarity_scores(s)
@@ -760,50 +861,7 @@ def res_text():
                         sentence_sentiment_neu.append({"neu":ss[k]})
                     if k == "pos":
                         sentence_sentiment_pos.append({"pos":ss[k]})
-                
-
-                
-                ### poetry check 
-                for index, i in enumerate(old_df_last_word_per_line):
-                    if(index > 1):
-                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
-                            print("PROBABLY A COUPLET!")
-                            print(f"couplet test 1: {old_df_last_word_per_line[index-1]}")
-                            print(f"couplet test 2: {i}")
-                            old_df_poetic_form.append("heroic_couplet")
-                            poetry_count = poetry_count + 1
-
-                    if(index > 2):
-                        most_rec_internal = last_line_internal['most_recent']
-                        second_most_rec_internal = last_line_internal['second_most_recent']
-                        rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index])
-                        last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 1])
-                        second_last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 2])
-                        for d in most_rec_internal:
-                            if d in rhyme_to_check and len(d) > 3:
-                                # print(f"found an INTERNAL RHYME ONE LINE AWAY!! {d} // {old_df_last_word_per_line[index]}")
-                                old_df_internal_rhyme_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index],"internal_rhyme":d}})
-                                if d in last_rhyme_to_check and len(d) > 3:
-                                    print(f"found an INTERNAL RHYME ONE LINE AWAY!! {d} // {old_df_last_word_per_line[index]}")
-                                    old_df_internal_rhyme_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d}})
-                                if d in second_last_rhyme_to_check and len(d) > 3:
-                                    print(f"found an INTERNAL RHYME Two LINES AWAY!! {d} // {old_df_last_word_per_line[index]}")
-                                    old_df_internal_rhyme_second_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index - 2],"internal_rhyme":d}})
-
-                             
-                        # for a in second_most_rec_internal:
-                        #     if a in rhyme_to_check and len(d) > 3:
-                        #         print(f"found an INTERNAL RHYME TWO LINES AWAY!! {a} // {old_df_last_word_per_line[index]}")
-                        #         old_df_internal_rhyme_second_most_recent.append({index:{"end_rhyme":old_df_last_word_per_line[index],"internal_rhyme":d}})
-                        
-                        #check for couplets
-                        if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
-                            if old_df_last_word_per_line[index] not in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]):
-                                print("PROBABLY AN INTERLOCKING QUATRAIN!")
-                                print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
-                                old_df_poetic_form.append("interlocking_quatrain")
-                                poetry_count = poetry_count + 1
-                    old_df_perc_poetry = poetry_count/len(lines_in_corpus)
+                                
 
                 old_df["sentence_id"] = idx_array
                 old_df['lines_per_sentence'] = lines_per_sentence
@@ -815,7 +873,8 @@ def res_text():
                 old_df["last_word_per_line"] = old_df_last_word_per_line
                 old_df["syllables_per_line"] = old_df_syllables_per_line
                 old_df['poetic_form'] = old_df_poetic_form
-                old_df['perc_poetry'] = old_df_perc_poetry
+                old_df['perc_poetry_syllables'] = old_df_perc_poetry_syllables
+                old_df['perc_poetry_rhymes'] = old_df_perc_poetry_rhymes
                 old_df['perc_drama'] = old_df_perc_drama
                 old_df['vectorized_features'] = old_df_vectorized_features
 
@@ -873,47 +932,29 @@ def res_text():
                     
                     old_df_summary.append(' '.join(summary_sentences))
                  
-            old_df['summary'] = old_df_summary[0]
-
-
-            
-            
-            
+            old_df['summary'] = old_df_summary[0]            
             old_df['spacy_entities'] = old_df_spacy_ents
             old_df["sentences"] = old_df_sentences
             old_df["entities"] = old_df_entities
             old_df["unique_words"] = old_df_unique
             old_df['places'] = old_df_places
             old_df['orgs'] = old_df_orgs
-            old_df['spacy_tokens'] = old_df_spacy_tokens
+            # old_df['spacy_tokens'] = old_df_spacy_tokens
 
             for k,v in old_df.items():
                 print(f"wHAT TYPE IS THIS??? {k}: {type(v)}")
 
-            res = []
-            for idx, i in enumerate(old_df_internal_rhyme_most_recent):
-                for g in i: 
-                    if g not in res:
-                        res.append({idx:g})
-            old_df['internal_rhyme_most_recent'] = old_df_internal_rhyme_most_recent
-            old_df['internal_rhyme_second_most_recent'] = old_df_internal_rhyme_second_most_recent
-
-            # old_df['most_common_words'] = Counter(final_tokens).most_common(20)
             pre_lemma_tokens = []
             post_lemma_tokens = []
-            for i in old_df_spacy_tokens:
-                pre_lemma_tokens.append(i)
-            print(f"WHAT ARE PRELEMMA TOKENS? {pre_lemma_tokens}")
-            for g in pre_lemma_tokens:
-                g = g['token_text']
-                for y in g:
-                    x = [lemmatizer.lemmatize(i) for i in y] 
-                    post_lemma_tokens.append(x) 
+            for y in final_tokens:
+                x = [lemmatizer.lemmatize(y)] 
+                post_lemma_tokens.append(x) 
             for z in post_lemma_tokens:
                 if z != ".":
                     post_lem_token_string = ' '.join(z)
                 else:
                     post_lem_token_string = ''.join(z)
+            
             bigram_measures = nltk.collocations.BigramAssocMeasures() # measures
        
             finder = BigramCollocationFinder.from_words(post_lem_token_string)
