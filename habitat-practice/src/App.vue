@@ -41,12 +41,16 @@ export default {
   },
   data() {
     return {
-        currentState: false
+        currentState: false,
+        comparing:false
     }
   },
   computed: {
     isActive() {
         return this.currentState;
+    },
+    isComparing() {
+        return this.comparing;
     },
     checkedValue: {
         get() {
@@ -54,6 +58,14 @@ export default {
         },
         set(newValue) {
             this.currentState = newValue;
+        }
+    },
+    checkedValueComparison: {
+        get() {
+            return this.checkedValue
+        },
+        set(newValue) {
+            this.newValue = newValue;
         }
     }
   },
@@ -298,15 +310,25 @@ export default {
               <label class="green" for="authorSearch">Author</label>
             </span>
         </div>
+        <!-- <div id="searchModeToggleWrapper">
+            <label for="toggle_button" class="switch">
+              <input type="checkbox" id="search_mode_toggle_button" v-model="checkedValue_Comparison">
+              <div class="slider round"></div>
+              <span class="toggle-text" v-if="isComparing">Single Text</span>
+              <span class="toggle-text" v-if="! isComparing">Comparisons</span>
+            </label>
+          </div> -->
         <div id="yearsBetweenInputWrapper">
-          <span class="label-wrap">
-            <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
-            <label class="green" for="yearSearch">Begin</label>
-          </span>
-          <span class="label-wrap">
-            <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
-            <label class="green" for="yearSearch">End</label>
-          </span>
+
+            <span class="label-wrap">
+              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
+              <label class="green" for="yearSearch">Begin</label>
+            </span>
+            <span class="label-wrap">
+              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
+              <label class="green" for="yearSearch">End</label>
+            </span>
+          
         </div>
       </div>
 
