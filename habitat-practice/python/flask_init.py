@@ -20,14 +20,13 @@ from machine_learning import machine_learning
 
 s = Session()
 
-initial_text = {}
-
-# DetectorFactory.seed = 0
-
 app = Flask(__name__)
 CORS(app)
 
 full_list = []
+
+initial_text_obj = {}
+comp_texts_array = []
 
 @app.route('/')
 def hello():
@@ -273,37 +272,65 @@ def res_text():
     print("about to loop all the A in H -----------------------------------------")
     for a in h:
         if a.text == "View entire text":
-            print(f'Text in html: {text_in_html}')
-
-            return json.dumps(text_in_html)
-        
-        ########################################################################
-        ########################################################################
-        ################################ NLTK ##################################
-        ########################################################################
-        ########################################################################
-
+            ######### WE'LL NEED TO ADD / DUPLICATE CODE FOR FULL TEXT HERE
+            return json.dumps(text_in_html)        
         else:
             print(f"In the else / scrape html ----------------------------------")
             text_in_html = browser.page.find('div',class_="maincontent").text
             print(f"begin the nltk analysis methods")
             old_df, sents = nltk_analysis(r, text_in_html)
-            print(f"OMG WE GOT IT {old_df} //AND HERE ARE SENTENCES: {sents}")
-
             mach_learning = machine_learning(old_df,sents)
             print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
+            initial_text_obj = old_df
             return old_df 
+
+@app.route('/get_comparison_texts', methods=['POST'])
+def res_n():
+
+    ## -------------------------- THIS WILL BE MOVED FURTHER DOWN INTO A MACH LEARNING STEP (but staying here for now)
+    initial_df_training_data = pd.DataFrame.from_dict(initial_text_obj, orient='index')
+    initial_df_training_data = initial_df_training_data.transpose()
+    print( "GOT DF OF INITIAL TEXT", text_df_test.info())
+    # show first 5 rows
+    print( "ytsss", text_df_test.head(5))
+    # display some statistics
+    print( "wooohooo", text_df_test.describe())
+    ## -------------------------- 
+
+    r = request.get_json()
+    browser = mechanicalsoup.StatefulBrowser()
+    browser.open(r['titleUrl'])
+    h=browser.page.select('a', class_="buttonlink")
+    # print(f'H IS {h}')
+    print("about to loop all the A in H -----------------------------------------")
+    for a in h:
+        if a.text == "View entire text":
+            ######### WE'LL NEED TO ADD / DUPLICATE CODE FOR FULL TEXT HERE
+            return json.dumps(text_in_html)        
+
+        else:
+            print(f"In the else / scrape html ----------------------------------")
+            text_in_html_comp = browser.page.find('div',class_="maincontent").text
+            print(f"begin the nltk analysis methods for each new text")
+            old_comp_df, sents = nltk_analysis(r, text_in_html_comp)
+            mach_learning = machine_learning(old_comp_df,sents)
+            print(f"WHAT OH WHAT IS MACH LEARNING FOR NEW TEXTS??? {mach_learning}")
+            comp_texts_array.append(old_comp_df)
+            return old_comp_df 
+        print(f"HERE IS AN ARRAY OF COMP TEXTS... {comp_texts_array}")
 
 @app.route('/testing', methods=['POST'])
 def res_t():
-    # print(f"initiialllll {initial_text}")
-    text_df_test = pd.DataFrame.from_dict(initial_text, orient='index')
-    text_df_test = text_df_test.transpose()
-    print( "Yasaaa", text_df_test.info())
 
+    ## -------------------------- THIS WILL BE MOVED FURTHER DOWN INTO A MACH LEARNING STEP (but staying here for now)
+    initial_df_training_data = pd.DataFrame.from_dict(initial_text_obj, orient='index')
+    initial_df_training_data = initial_df_training_data.transpose()
+    print( "GOT DF OF INITIAL TEXT", text_df_test.info())
     # show first 5 rows
     print( "ytsss", text_df_test.head(5))
-
     # display some statistics
     print( "wooohooo", text_df_test.describe())
+    ## -------------------------- 
+    
+    
     return {'keys':"hi"}

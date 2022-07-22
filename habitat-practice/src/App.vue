@@ -54,7 +54,7 @@ export default {
     },
     checkedValue: {
         get() {
-            return this.currentState
+            return this.currentState;
         },
         set(newValue) {
             this.currentState = newValue;
@@ -62,10 +62,10 @@ export default {
     },
     checkedValueComparison: {
         get() {
-            return this.checkedValue
+            return this.comparing;
         },
         set(newValue) {
-            this.newValue = newValue;
+            this.comparing = newValue;
         }
     }
   },
@@ -261,13 +261,24 @@ export default {
     <!-- <a id="rowanButton" href="https://www.youtube.com/watch?v=vRulmmH5G4U" width="125" height="125">CLICK ME ROWAN!!!</a> -->
     <div class="wrapper-outer">
       <div id="letter-wrapper">
-        <div id="letterFilterToggleWrapper">
-          <label for="toggle_button" class="switch">
-            <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <div class="slider round"></div>
-            <span class="toggle-text" v-if="isActive">Filter Authors</span>
-            <span class="toggle-text" v-if="! isActive">Filter Titles</span>
-          </label>
+        <div class="toggle-wrapper">
+          <div id="letterFilterToggleWrapper">
+            <label for="toggle_button" class="switch">
+              <input type="checkbox" id="toggle_button" v-model="checkedValue">
+              <div class="slider round"></div>
+              <span class="toggle-text" v-if="isActive">Filter Authors</span>
+              <span class="toggle-text" v-if="! isActive">Filter Titles</span>
+            </label>
+          </div>
+
+          <div id="searchModeToggleWrapper">
+            <label for="search_mode_toggle_button" class="switch">
+              <input type="checkbox" id="search_mode_toggle_button" v-model="checkedValueComparison">
+              <div class="slider round"></div>
+              <span class="toggle-text" v-if="isComparing">Single Text</span>
+              <span class="toggle-text" v-if="! isComparing">Comparisons</span>
+            </label>
+          </div>
         </div>
         <div id="alphabetWrapper" class="wrapper green">
           <span class="letterClick green" v-on:click="handleKeyUpLetter('A')">A</span>
@@ -310,14 +321,7 @@ export default {
               <label class="green" for="authorSearch">Author</label>
             </span>
         </div>
-        <!-- <div id="searchModeToggleWrapper">
-            <label for="toggle_button" class="switch">
-              <input type="checkbox" id="search_mode_toggle_button" v-model="checkedValue_Comparison">
-              <div class="slider round"></div>
-              <span class="toggle-text" v-if="isComparing">Single Text</span>
-              <span class="toggle-text" v-if="! isComparing">Comparisons</span>
-            </label>
-          </div> -->
+
         <div id="yearsBetweenInputWrapper">
 
             <span class="label-wrap">
@@ -355,6 +359,7 @@ export default {
   position:absolute;
   top:0px;
   left:0px;
+  max-width: 100vw;
 }
 
 header {
@@ -409,7 +414,7 @@ input {
 
 #headerDiv {
   visibility:hidden;
-  height:100vh;
+  /*height:100vh;*/
 }
 
 .toggle__button {
@@ -477,6 +482,7 @@ input[type="checkbox"] {
   border: 1px solid rgba(255,255,255,0.78);
   display:flex;
   flex-direction:row;
+  min-height:140px;
 }
 
 #titleAuthorInputWrapper {
@@ -540,8 +546,10 @@ input[type="checkbox"] {
   transition: height 3s ease-in;
 }
 
-#letterFilterToggleWrapper {
+#letterFilterToggleWrapper, #searchModeToggleWrapper {
   min-width: 16%;
+  height:50%;
+  white-space:nowrap
 }
 .switch {
   position: relative;
@@ -606,6 +614,11 @@ input:checked + .slider:before {
   position:absolute;
   padding-left:4px;
 }
+
+.toggle-wrapper {
+  width: 50%
+}
+
 @media (hover: hover) {
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
@@ -617,9 +630,15 @@ input:checked + .slider:before {
   }
 
 @media (max-width: 900px) {
+  #main {
+    top:24px;
+  }
   #yearsBetweenInputWrapper{
     flex-direction: column;
     display:initial;
+  }
+  .toggle-wrapper {
+    width: 12%;
   }
   .inputsRowWrapper{
     margin-top:24px;
