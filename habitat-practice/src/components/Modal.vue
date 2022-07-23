@@ -33,7 +33,6 @@ async function scrape_text(url){
             if(result){
                 rawtextfromtoc.value = result;
                 console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
-                
                 return rawtextfromtoc.value;
             } else {
               return null;
