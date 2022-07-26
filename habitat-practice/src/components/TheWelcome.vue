@@ -15,14 +15,15 @@ const props = defineProps({
   loaded: Boolean,
 });
 
-const selectedTitle = ref('');
-const selectedAuthor = ref('')
-const tocData = ref({});
-const rawTextData = ref('');
-const open = ref(false);
-const openFull = ref(false);
-const modalFull = ref(null);
-const modal = ref(Modal);
+const selectedTitle : any = ref('');
+const selectedAuthor : any = ref('')
+const tocData : any = ref({});
+const rawTextData : any = ref("");
+const open : any = ref(false);
+const openFull : any = ref(false);
+// const modalFull : any = ref(null);
+// const modal : any = ref(Modal);
+
 
 if(props.items){
   watch(props.items, (currentValue, oldValue) => {
@@ -32,13 +33,19 @@ if(props.items){
   });
 }
 
-async function show_TOC(url, title, author){
+async function show_TOC(url:String, title:String, author:String){
   selectedTitle.value = title;
   selectedAuthor.value = author;
   console.log("selected title in welcome: ", selectedTitle.value);
   console.log("selected author in welcome: ", selectedAuthor.value);
-  document.getElementById("jumbotron").style.display = "none";
-  document.getElementById("main").style.top = "0px";
+  let jumbotron = document.getElementById("jumbotron");
+  if(jumbotron){
+    jumbotron.style.display = "none";
+  }
+  let main = document.getElementById("main")
+  if(main){
+    main.style.top = "0px";
+  }
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
     headers: {
       'Accept': 'application/json',
@@ -61,9 +68,17 @@ async function show_TOC(url, title, author){
     return tocData.value;
 };
 
-async function scrape_text(url){   
-    document.getElementById("jumbotron").style.display = "none";
-    document.getElementById("main").style.top = "0px"; 
+async function scrape_text(url:String){ 
+    let jumbotron = document.getElementById("jumbotron");
+    if(jumbotron){
+      jumbotron.style.display = "none";
+    }  
+
+    let main = document.getElementById("main");
+    if(main){
+      main.style.top = "0px"; 
+    }
+
     rawTextData.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
         'Accept': 'application/json',
@@ -87,7 +102,10 @@ async function scrape_text(url){
 
 async function doCloseModal(){
   // document.getElementById("jumbotron").style.display = "flex";
-  document.getElementById("main").style.top = "72px";
+  let main = document.getElementById("main");
+  if(main){
+    main.style.top = "72px";
+  }
   open.value = false;
   // we don't want this here but can use to test->
   // openFull.value = true; 

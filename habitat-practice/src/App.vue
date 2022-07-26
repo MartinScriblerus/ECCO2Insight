@@ -4,7 +4,10 @@ import TheWelcome from './components/TheWelcome.vue'
 
 import { ref, onMounted, reactive } from 'vue'
 
-const scrape = {};
+const scrape:any = {
+  basicData:Object,
+  letterData:Object
+};
 scrape.basicData = scrape.basicData || {};
 scrape.letterData = scrape.letterData || {};
 
@@ -39,32 +42,32 @@ export default {
       default: () => (''),
     }
   },
-  data() {
+  data(this:any) {
     return {
         currentState: false,
         comparing:false
     }
   },
   computed: {
-    isActive() {
+    isActive(this:any) {
         return this.currentState;
     },
-    isComparing() {
+    isComparing(this:any) {
         return this.comparing;
     },
     checkedValue: {
-        get() {
+        get(this:any) {
             return this.currentState;
         },
-        set(newValue) {
+        set(this:any,newValue:any) {
             this.currentState = newValue;
         }
     },
     checkedValueComparison: {
-        get() {
+        get(this:any) {
             return this.comparing;
         },
-        set(newValue) {
+        set(this:any,newValue:any) {
             this.comparing = newValue;
         }
     }
@@ -75,8 +78,8 @@ export default {
   // data() {
   //   return scrape.letterData
   // },
-  setup(props) { 
-    const state = reactive({
+  setup(props:any) { 
+    const state:any = reactive({
       data: null,
       loaded: null,
     });
@@ -87,12 +90,22 @@ export default {
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
       console.log("state data: ", state.data);
       const totalVuePackages = await state.data;
-      if(state.data){
+      if(state && state.data){
         state.loaded = true;
-        document.getElementById("jumbotron").classList.remove("intro-cover");
+        let jumbotron = document.getElementById("jumbotron");
+        let searchForms = document.getElementById("headerDiv");
+        let main = document.getElementById("main");
+        if(jumbotron){
+          jumbotron.classList.remove("intro-cover");
+        }
+        
         setTimeout(()=>{
-          document.getElementById("main").style.visibility = "visible";
-          document.getElementById("headerDiv").style.visibility = "visible";
+          if(main){
+            main.style.visibility = "visible";
+          }
+          if(searchForms){
+            searchForms.style.visibility = "visible";
+          }
         }, 1000);
       }   
     });
@@ -105,7 +118,7 @@ export default {
     };
   }, 
   methods: {
-    scrapeBasic: async function () {
+    scrapeBasic: async function (this:any) {
       scrape.basicData = await fetch('http://localhost:5000/scraper', {
             headers: {
               'Accept': 'application/json',
@@ -116,7 +129,7 @@ export default {
       }); 
       console.log("BASIC_DAT!A: ", scrape.basicData);
     },
-    handleKeyUpAuthor: async function () {
+    handleKeyUpAuthor: async function (this: any) {
       this.state.data = {}
       console.log("here is author search query: ", this.props.authorSearch);
 
@@ -145,7 +158,7 @@ export default {
         this.state.data = scrape.basicData
         return this.state;
     },
-    handleKeyUpTitle: async function () {
+    handleKeyUpTitle: async function (this:any) {
       this.state.data = {}
       console.log("here is author search query: ", this.props.titleSearch);
 
@@ -177,7 +190,7 @@ export default {
         this.state.data = scrape.basicData
         return this.state;
     },
-    handleKeyUpYear: async function () {
+    handleKeyUpYear: async function (this:any) {
       console.log("here is year search begin query: ", this.props.yearSearchBegin);
       console.log("here is year search end query: ", this.props.yearSearchEnd);
 
@@ -215,7 +228,7 @@ export default {
         return null;
       }
     },
-    handleKeyUpLetter: async function(letter) {
+    handleKeyUpLetter: async function(this:any,letter:String) {
       this.state.data = {}
       console.log("the letter is... ", letter);
       this.props.letterFilter = letter;

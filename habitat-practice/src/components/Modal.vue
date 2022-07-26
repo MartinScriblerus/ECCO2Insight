@@ -12,19 +12,10 @@ const props = defineProps({
 
 const temp = ref({})
 
-// let sentenceGrammarObj =
-//   index: {
-//     tokenPos:String,
-//     tokenTag:String,
-//     tokenText:String,
-// }
-
 const initialHumanReadableTextRef = ref({
   title: String,
   author: String,
   textId: Number,
-  
-
   // europeanaEntityObj: {
   //   europeanaEntityId: Number,
   //   prefLabel: String,
@@ -45,7 +36,7 @@ const initialHumanReadableTextRef = ref({
     percPoetryRhymes: Number,
     spacyEntities: Array,
     // europeanaEntitiesArray: Array,
-    // placesEntitiesArray: Array,
+    placesEntitiesArray: Array,
     mostCommonWords: Array,
 
   },
@@ -59,7 +50,7 @@ const initialHumanReadableTextRef = ref({
     syllablesPerLine: Number
   },
 
-  sentenceIndex: Number,
+  // sentenceIndex: Number,
   sentenceObj: {
     sentenceId: {
       sentimentCompound: Number,
@@ -71,7 +62,7 @@ const initialHumanReadableTextRef = ref({
     }
   },
   linesArray: Array,
-  sentencesArray: Array,
+  // sentencesArray: Array,
 })
 
 // initialHumanReadableTextRef.value.textObj.spacyEntitiesArray = [];
@@ -168,42 +159,14 @@ async function scrape_text(url){
           initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
 
           const tempGramArr = ref([])
-          
-          // temp.value.spacy_entities.forEach(seObj => {
-          //   console.log("AHHHH ", seObj);
-          //   console.log("KEYS-> ", Object.keys(seObj));
-          //   console.log("VAL KEY => ", Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0])
-          //   console.log("VAL VAL => ", Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0])
-          //   // initialHumanReadableTextRef.value.spacyEntityObj.spacyEntityIndex = Object.keys(seObj)[0];
-          //   // initialHumanReadableTextRef.value.spacyEntityObj.text = Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0];
-          //   // initialHumanReadableTextRef.value.spacyEntityObj.type = Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0];
-          //   //console.log(`WHAT THE FUCK IS ${initialHumanReadableTextRef.value.textObj.spacyEntitiesArray} OR ${initialHumanReadableTextRef.value.spacyEntityObj}`)
-          //   // console.log("ABOUT TO PUSH: ", initialHumanReadableTextRef.value.spacyEntityObj[Object.keys(seObj)]);
-          //   // console.log("ABOUT TO PUSH: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.spacyEntityObj)));
-          //   // // console.log("PUSHING INTO: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.textObj.spacyEntitiesArray)));
-          //   JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.textObj.spacyEntitiesObj))[Object.keys(seObj)[0]] = 
-          //     // JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.spacyEntityObj))
-          //     {
-          //       "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0],
-          //       "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(seObj))))[0])[0],
-          //     };
-              
-            
-          // });
+   
           temp.value.most_common_words.forEach((word, rank) => {
-            console.log("WTF IS WORD??? ", word);
-           // console.log("AND WTF IS THIS??? ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.mostCommonWords)));
-           
-           console.log("what is word??? ", word[0]);
+    
             initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
-            // initialHumanReadableTextRef.value.mostCommonWordsObj[i].occurances = word[1]
           });
          
           temp.value.sentence_id.forEach(sentence => {
-            //initialHumanReadableTextRef.value.sentenceObj[sentence].sentenceGrammarArray = [];
-            console.log("so, what is sentence? ", sentence);
-            
-            // if(sentence.sentence_index)
+
             initialHumanReadableTextRef.value.sentenceObj[sentence] = {
               sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
               sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
@@ -224,94 +187,25 @@ async function scrape_text(url){
           });
 
           temp.value.spacy_entities.forEach(entity=>{
-            console.log("what is this spacy entity? ", initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities);
             initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
               {
                 "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
                 "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
               }
             )
+            // TODO => do we need entities in the text obj (or do we need them here?)
+            // initialHumanReadableTextRef.value.textObj.spacyEntities.push(
+            //   {
+            //     "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+            //     "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+            //   }
+            // )
           })
-           // initialHumanReadableTextRef.value.sentenceObj[tempGramArr.value.sentence_index].sentenceGrammarArray = tempGramArr.value;
-//           temp.value.sentence_grammar.word_level_grammar_result.forEach((wordGram,index) => {
-//             console.log("what is thisssss: ", initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram['sentence_index']))]);
 
-
-// console.log("wtf is thisssss: ", {"tokenPos": JSON.parse(JSON.stringify(wordGram['token_pos'])), "tokenTag":JSON.parse(JSON.stringify(wordGram['token_tag'])),"tokenText":JSON.parse(JSON.stringify(wordGram['token_text']))});
-
-// //console.log("check object...... ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram['sentence_index']))].sentenceGrammarArray)))
-//             // console.log("chripes: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.sentenceObj))[parseInt(JSON.parse(JSON.stringify(wordGram))[JSON.parse(JSON.stringify(wordGramsentence_index))])]);
-
-//             // console.log("god dammit: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.sentenceObj))[JSON.parse(JSON.stringify(wordGram['sentence_index']))]);
-//             JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram['sentence_index']))])).push({"tokenPos": JSON.parse(JSON.stringify(wordGram['token_pos'])), "tokenTag":JSON.parse(JSON.stringify(wordGram['token_tag'])),"tokenText":JSON.parse(JSON.stringify(wordGram['token_text']))})
-          // });
-          // NEED TO ADD LINES HERE... this will prob break a few 
-          // times before it works...
-          
-
-
-          // })
-          // tempRef.value.entities.forEach(euObj => {
-          //   initialHumanReadableTextRef.value.europeanaEntityObj.europeanaEntityId = euObj.id;
-          //   initialHumanReadableTextRef.value.europeanaEntityObj.prefLabel = euObj.prefLabel;
-          //   initialHumanReadableTextRef.value.europeanaEntityObj.dateOfBirth = euObj.dateOfBirth;
-          //   initialHumanReadableTextRef.value.europeanaEntityObj.dateOfDeath = euObj.dateOfDeath;
-          //   initialHumanReadableTextRef.value.europeanaEntityObj.isShownBy.id = 
-          // })
-
-             
 
           console.log("tEEEEEDST: ", initialHumanReadableTextRef.value)
           
-// const initialHumanReadableTextRef = ref({
-  // sentenceObj: {
-  //   sentenceId: String,
-  //   sentimentCompound: Number,
-  //   sentimentNegative: Number,
-  //   sentimentNeutral: Number,
-  //   sentimentPositive: Number,
-  //   entitiesInSentence: Array,
-  //   sentenceGrammar: {
-  //     sentenceLevel: String,
-  //     wordLevel: A
-  //     
-  //       tokenPos: String,
-  //       tokenTag: String,
-  //       tokenText: String
-  //     }
-  //   }
-  // },
-//   textObj: {
-//     titleUrl: String,
-//     avgLinesPerSentence: Number,
-//     percPoetrySyllables: Number,
-//     percPoetryRhymes: Number,
-//     spacyEntitiesArray: Array,
-//     europeanaEntitiesArray: Array,
-//     placesEntitiesArray: Array,
-//     mostCommonWords: Array
-//   },
-//   lineObj: {
-//     lineId: Number,
-//     poeticForm: String,
-//     thisRhyme: String,
-//     lastRhyme: String,
-//     internalRhymes: Array,
-//     syllablesPerLine: Number
-//   },
-//   linesArray: Array,
-//   sentencesArray: Array,
-//   europeanaEntityObj: {
-//     prefLabel: String,
-//     altLabels: Array,
-//     dateOfBirth: Date,
-//     dateOfDeath: Date,
-//     isShownBy: {
-//       id: String,
-//       source: String
-//     }
-//   },
-// })
+
 
           ///////////////////////////////////////////////////////////////////////////////
           ///////////////////////////////////////////////////////////////////////////////
@@ -328,7 +222,7 @@ async function scrape_text(url){
           // })
 
 
-          console.log("DID THIS FUCKER UPDATE>>>>>????  ", fullModal);
+          console.log("DID THIS UPDATE>>>>>????  ", fullModal);
           //emit("openedfull")
           // not necessary -> raw text from toc is initial text daata (we'll just need to use parse / stringify pattern)
           // initial_text_data.value = JSON.parse(JSON.stringify(rawtextfromtoc.value))
