@@ -271,14 +271,14 @@ export default {
             </label>
           </div>
 
-          <div id="searchModeToggleWrapper">
+          <!-- <div id="searchModeToggleWrapper">
             <label for="search_mode_toggle_button" class="switch">
               <input type="checkbox" id="search_mode_toggle_button" v-model="checkedValueComparison">
               <div class="slider round"></div>
               <span class="toggle-text" v-if="isComparing">Single Text</span>
               <span class="toggle-text" v-if="! isComparing">Comparisons</span>
             </label>
-          </div>
+          </div> -->
         </div>
         <div id="alphabetWrapper" class="wrapper green">
           <span class="letterClick green" v-on:click="handleKeyUpLetter('A')">A</span>
@@ -350,6 +350,7 @@ export default {
 <style>
 @import './assets/base.css';
 
+
 #app {
   /*max-width: 1280px;*/
   margin: 0 auto;
@@ -360,6 +361,17 @@ export default {
   top:0px;
   left:0px;
   max-width: 100vw;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge add Firefox */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox */
 }
 
 header {
@@ -521,6 +533,7 @@ input[type="checkbox"] {
 .wrapper-outer {
   border: 1px solid rgba(255,255,255,0.78);
   margin-top: 80px;
+  width: 100%;
 }
 
 .jumbotron {
@@ -535,6 +548,7 @@ input[type="checkbox"] {
   left:0px;
   background: rgba(255, 255, 255, 0.078);
   transition: height 1s ease-in;
+  pointer-events:none;
 } 
 
 .intro-cover {
@@ -653,6 +667,9 @@ input:checked + .slider:before {
   .switch {
     top:12px;
   }
+  .modal {
+    width: 100vw;
+  }
 }
 
 @media (min-width: 900px) {
@@ -663,14 +680,14 @@ input:checked + .slider:before {
 
   #app {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    /* grid-template-columns: 1fr 1fr;
+    padding: 0 2rem; */
   }
 
   header {
     display: flex;
     place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    padding-right: calc(var(--section-gap) / 6);
   }
 
   header .wrapper {

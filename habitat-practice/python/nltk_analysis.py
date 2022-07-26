@@ -6,7 +6,6 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.collocations import *
 from nltk.text import Text
-
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
 #     BigramAssocMeasures,
@@ -31,8 +30,7 @@ import itertools as _itertools
 from datetime import date, datetime
 from itertools import cycle
 from config import API_KEY
-from models import Book
-from crud import Session
+
 import string
 
 import spacy
@@ -41,7 +39,8 @@ from collections import Counter
 import en_core_web_sm
 nlp = en_core_web_sm.load()
 
-sesh = Session()
+from crud import Session
+s = Session()
 
 from word_keylists import keyList,fullKeyList
 
@@ -53,10 +52,11 @@ from word_keylists import keyList,fullKeyList
 
 def nltk_analysis(r, text_in_html):
     
+    lemmatizer = WordNetLemmatizer()  
     stop_words = set(stopwords.words('english'))
     not_words = [">>","<<","[unnumbered]","unnumbered","page","Page","previous","Previous","Next","section","cite","bookbag","next","table","Table","contents","add","|","how","or","cite"]
 
-    lemmatizer = WordNetLemmatizer()   
+     
     nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
 
     tokenizer = RegexpTokenizer(r'\w+')
@@ -70,16 +70,10 @@ def nltk_analysis(r, text_in_html):
     global initial_text 
     initial_text = {key: None for key in fullKeyList}
     
-    #### fix this
-
-    # **** GRAB THIS INFO (TITLE / AUTHOR) FROM THE DOM!
-    # ------------------------------------------------------
-    # query_by_url = sesh.query(Book).filter(Book.title_url.contains(r['titleUrl'])).all()
-    # test_query_by_url = sesh.query(Book).filter(Book.title_url)
-    # test_r_value = r['titleUrl']
-    # print(f"HERE IS R!!! {test_r_value}")
-    # print(f"TEST QUERY : {test_query_by_url}")
-    # print(f"QUERY DB BY URL: {query_by_url}")
+    # #### fix this
+    # s.query(r['titleUrl'])
+    # query_by_url = s.query(Book).filter(Book.titleUrl.contains(r['titleUrl'])).all()
+    # print(f"QUERY ")
 
     old_df_entities = []
     old_df['title_url'] = r['titleUrl']
@@ -330,7 +324,7 @@ def nltk_analysis(r, text_in_html):
                 print("PROBABLY A TERCET! ", index)
                 print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 1 ]} and also with {old_df_last_word_per_line[index - 2 ]}?")
                 appendage = {"index":count_form, "form":"tercet", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 1 ],"two_rhymes_ago":old_df_last_word_per_line[index - 2 ]}
-                if appendage[count_form] not in [m['index'] for m in old_df_poetic_form]:
+                if appendage["index"] not in [m['index'] for m in old_df_poetic_form]:
                     old_df_poetic_form.append(appendage)
                     isPoetic = True
                     form_count_multiplier = 1

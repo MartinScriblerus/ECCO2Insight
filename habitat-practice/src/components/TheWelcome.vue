@@ -15,9 +15,14 @@ const props = defineProps({
   loaded: Boolean,
 });
 
-
+const selectedTitle = ref('');
+const selectedAuthor = ref('')
 const tocData = ref({});
 const rawTextData = ref('');
+const open = ref(false);
+const openFull = ref(false);
+const modalFull = ref(null);
+const modal = ref(Modal);
 
 if(props.items){
   watch(props.items, (currentValue, oldValue) => {
@@ -28,6 +33,10 @@ if(props.items){
 }
 
 async function show_TOC(url, title, author){
+  selectedTitle.value = title;
+  selectedAuthor.value = author;
+  console.log("selected title in welcome: ", selectedTitle.value);
+  console.log("selected author in welcome: ", selectedAuthor.value);
   document.getElementById("jumbotron").style.display = "none";
   document.getElementById("main").style.top = "0px";
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
@@ -77,20 +86,34 @@ async function scrape_text(url){
 };
 
 async function doCloseModal(){
-  document.getElementById("jumbotron").style.display = "flex";
+  // document.getElementById("jumbotron").style.display = "flex";
   document.getElementById("main").style.top = "72px";
   open.value = false;
+  // we don't want this here but can use to test->
+  // openFull.value = true; 
 }
 
-const open = ref(false)
+async function doCloseFullModal(){
+   openFull.value = false;
+};
+
+async function doOpenFullModal(){
+  openFull.value = true;
+};
+
+async function doOpenAwaitScrape(){
+  openFull.value = true;
+};
+
 
 
 </script>
 
 
 <template #heading>
-<Modal :open="open" @closedmodal="doCloseModal" :tocdata="tocData" :rawtextdata="rawTextData" />
-  <div id="searchTextWrapper" v-for="item in props.items" :key="item.title">
+<Modal :open="open" :openFull="openFull" @openedfullawaitscrape="doOpenAwaitScrape" @openedfull="doOpenFullModal" @closedfull="doCloseFullModal" @closedmodal="doCloseModal" :tocdata="tocData" :rawtextdata="rawTextData" :selectedTitle="selectedTitle" :selectedAuthor="selectedAuthor" />
+  <!-- set up a scroll here to show as many as we need -->
+  <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items).slice(0,20)" :key="item.title">
     
       <h3 class="book-title">
         {{ item ? item.title : null}}
