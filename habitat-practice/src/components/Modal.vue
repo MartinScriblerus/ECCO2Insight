@@ -47,6 +47,12 @@ const initialHumanReadableTextRef = ref({
       poeticForm: String,
       thisRhyme: String,
       lastRhyme: String,
+      thisLine: String,
+      lastLine: String,
+      thisInterRhyme: String,
+      lastInterRhyme: String,
+      thisInterLine: String,
+      laastInterLine: String,
       internalRhymes: Object,
       syllablesInLine: Number
     }
@@ -176,6 +182,12 @@ async function scrape_text(url){
                 poeticForm: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['form'] || '',
                 thisRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_rhyme'] || '',
                 lastRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_rhyme'] || '',
+                thisLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_line'] || '',
+                lastLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_line'] || '',
+                thisInterRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_interrhyme'] || '',
+                lastInterRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_interrhyme'] || '',
+                thisInterLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_interline'] || '',
+                lastInterLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_interline'] || '',
                 internalRhymes: {},
                 syllablesInLine: JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
               }
