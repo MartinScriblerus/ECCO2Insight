@@ -105,8 +105,12 @@ export default {
           }
           if(searchForms){
             searchForms.style.visibility = "visible";
+            if(searchForms.classList.contains("noDisplay")){
+              searchForms.classList.remove("noDisplay");
+            }
           }
         }, 1000);
+        clearTimeout();
       }   
     });
 
@@ -406,10 +410,10 @@ a,
 
 .letterClick {
     background: #181818;
-    padding-left: 8px;
+    padding-left: 10px;
     padding-right: 8px;
-    margin-bottom: 8px;
-    font-size: 24px;
+    margin-bottom: 0px;
+    font-size: 22px;
 }
 
 .letterClick:hover {
@@ -507,13 +511,13 @@ input[type="checkbox"] {
   border: 1px solid rgba(255,255,255,0.78);
   display:flex;
   flex-direction:row;
-  min-height:140px;
+  min-height:108px;
 }
 
 #titleAuthorInputWrapper {
-  display:flex;
-  flex-direction:column;
-  width:50%;
+    display: flex;
+    flex-direction: column;
+    width: 64%;
 }
 #titleAuthorInputWrapper > .label-wrap {
   width:100%;
@@ -527,7 +531,7 @@ input[type="checkbox"] {
   display:flex;
   flex-direction:row;
   float: right;
-  width: 50%;
+  width: 32%;
 }
 .inputsRowWrapper {
   flex-direction: row;
@@ -539,7 +543,7 @@ input[type="checkbox"] {
 #alphabetWrapper {
   overflow-wrap:normal;
   overflow-x:scroll;
-  padding-left:8px;
+  padding-left:8%;
   overflow-wrap:break-word;
 }
 
@@ -642,9 +646,11 @@ input:checked + .slider:before {
   padding-left:4px;
 }
 
+/*
 .toggle-wrapper {
   width: 50%
 }
+*/
 
 @media (hover: hover) {
   a:hover {
@@ -660,9 +666,13 @@ input:checked + .slider:before {
   #main {
     top:24px;
   }
+  #headerDiv.noDisplay {
+    display: none;
+  }
   #yearsBetweenInputWrapper{
     flex-direction: column;
     display:initial;
+ 
   }
   .toggle-wrapper {
     width: 12%;
@@ -670,6 +680,7 @@ input:checked + .slider:before {
   .inputsRowWrapper{
     margin-top:24px;
     margin-bottom:24px;
+    padding-left:10%;
   }
   input {
     width:64%;
@@ -677,13 +688,22 @@ input:checked + .slider:before {
   #toggle_button {
     max-width: 12px;
   }
-  .switch {
+  
+  /*.switch {
     top:12px;
-  }
-  .modal {
+  }*/
+
+  .modal.searching {
     width: 100vw;
   }
+  
 }
+
+
+
+
+
+
 
 @media (min-width: 900px) {
   body {

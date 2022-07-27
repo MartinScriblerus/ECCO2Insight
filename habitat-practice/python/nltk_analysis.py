@@ -1,4 +1,5 @@
 import nltk
+import numpy as np
 import requests
 from nltk.corpus import inaugural
 from nltk.tokenize import RegexpTokenizer,sent_tokenize
@@ -6,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.collocations import *
 from nltk.text import Text
+
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
 #     BigramAssocMeasures,
@@ -257,9 +259,10 @@ def nltk_analysis(r, text_in_html):
         hyphenated = dic.inserted(li)
         hyphen_to_array = hyphenated.split('-')
         count = len(hyphen_to_array)
-        print(f"GOD DAMN WHAT IS COUNT: {count}")
+        print(f"errr.... WHAT IS COUNT: {count}")
         old_df_syllables_per_line.append(count)
         tokens_in_line = tokenizer.tokenize(li)
+
 
         ### Loop through every word in line 
         ## find last word in each line
@@ -275,13 +278,14 @@ def nltk_analysis(r, text_in_html):
         last_line_internal = last_line_internal_fodder
         count_form = 0
         ### poetry check 
+        form_count_multiplier = 0
         for index, i in enumerate(old_df_last_word_per_line):    
-            print(f"what is the fucking index? {index}")
+            print(f"what is the... index? {index}")
             print(f"HOW LONG IS LAST WORD PER LINE??? {len(old_df_last_word_per_line)}")
 
             #couplet check
             isPoetic = False
-            form_count_multiplier = 0
+            
             #if index > 1:
             if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1]) or old_df_last_word_per_line[index-1] in pronouncing.rhymes(old_df_last_word_per_line[index]):
                 print("PROBABLY A COUPLET! ", index)
@@ -289,36 +293,43 @@ def nltk_analysis(r, text_in_html):
                 print(f"couplet test 2: {i}")
                 
                 appendage = {"index":count_form,"form":"heroic couplet", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 1 ]}                    
-                print(f"what is goddam appendage index {appendage['index']}")
-                print(f"here are those fucking m values {[z['index'] for z in old_df_poetic_form]}")
+
+                print(f"here are those m values {[z['index'] for z in old_df_poetic_form]}")
                 if appendage['index'] not in [m['index'] for m in old_df_poetic_form]:
                     old_df_poetic_form.append(appendage)
                     isPoetic = True
                     form_count_multiplier = 2
                 else:
-                    print(f"WHAT THE FUCK IS APPENDAGE INDEX? {appendage['index']}")
-                    print(f"WHAT THE FUCK IS OLD DF POETIC FORM: {old_df_poetic_form}")
+                    print(f"WHAT THE ever-loving APPENDAGE INDEX? {appendage['index']}")
+                    print(f"WHAT THE ever-loving OLD DF POETIC FORM: {old_df_poetic_form}")
                 # isPoetic = True
-                   
+                    
             #check for quatrains
-            if isPoetic is False and index > 2 and old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ] or old_df_last_word_per_line[index - 2] in pronouncing.rhymes(old_df_last_word_per_line[index])):
-                
-                if old_df_last_word_per_line[index] not in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]) and old_df_last_word_per_line[index - 1] not in pronouncing.rhymes(old_df_last_word_per_line[index ]):
-                    print("PROBABLY AN INTERLOCKING QUATRAIN! ", index)
-                    print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
-                
-                    appendage = {"index":count_form, "form":"interlocking quatrain", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 2 ]}
+            if index > 3: 
+                if isPoetic is False and ( (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]) or old_df_last_word_per_line[index - 2] in pronouncing.rhymes(old_df_last_word_per_line[index])) ) or ( (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 3 ]) or old_df_last_word_per_line[index - 3] in pronouncing.rhymes(old_df_last_word_per_line[index])) ):
+                    if (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]) or old_df_last_word_per_line[index - 2] in pronouncing.rhymes(old_df_last_word_per_line[index])):
+                        print("PROBABLY AN ABAB INTERLOCKING QUATRAIN! ", index)
+                        print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
+                        appendage = {"index":count_form, "form":"interlocking quatrain (ABAB)", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 2 ]}
+                    if (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 3 ]) or old_df_last_word_per_line[index - 3] in pronouncing.rhymes(old_df_last_word_per_line[index])):
+                    
+                        print("PROBABLY AN ABBA INTERLOCKING QUATRAIN! ", index)
+                        print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 3 ]}?")
+                        appendage = {"index":count_form, "form":"Petrarchan quatrain (ABBA)", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 3 ]}
+
                     if appendage['index'] not in [m['index'] for m in old_df_poetic_form]:
                         old_df_poetic_form.append(appendage)
                         isPoetic = True
                         form_count_multiplier = 4
                     else:
-                        print(f"WHAT THE FUCK IS APPENDAGE INDEX? {appendage['index']}")
-                        print(f"WHAT THE FUCK IS OLD DF POETIC FORM: {old_df_poetic_form}")
+                        print(f"WHAT IS APPENDAGE INDEX? {appendage['index']}")
+                        print(f"WHAT IS OLD DF POETIC FORM: {old_df_poetic_form}")
                     # isPoetic = True
-                   
+                        
             #check for tercets
-            if isPoetic is False and index > 2 and old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
+            if isPoetic is False and index > 2 and (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1]) or old_df_last_word_per_line[index-1] in pronouncing.rhymes(old_df_last_word_per_line[index])) and (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2]) or old_df_last_word_per_line[index-2] in pronouncing.rhymes(old_df_last_word_per_line[index])):
+
+          #  if isPoetic is False and index > 2 and old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]):
                 isPoetic = True
                 #if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]) or old_df_last_word_per_line[index -1] in pronouncing.rhymes(old_df_last_word_per_line[index]):
                 print("PROBABLY A TERCET! ", index)
@@ -329,8 +340,8 @@ def nltk_analysis(r, text_in_html):
                     isPoetic = True
                     form_count_multiplier = 1
                 else:
-                    print(f"WHAT THE FUCK IS APPENDAGE INDEX? {appendage['index']}")
-                    print(f"WHAT THE FUCK IS OLD DF POETIC FORM: {old_df_poetic_form}")
+                    print(f"WHAT in world IS APPENDAGE INDEX? {appendage['index']}")
+                    print(f"WHAT in world IS OLD DF POETIC FORM: {old_df_poetic_form}")
                 # isPoetic = True
                    
 
@@ -339,6 +350,9 @@ def nltk_analysis(r, text_in_html):
             for d in last_line_internal:
                 if d in last_rhyme_to_check and len(d) > 3:
                     old_df_internal_rhyme_most_recent.append({"index": index,"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d})
+                # else: 
+                #     print(f"problem... what is len d??? { len(d)}")
+            print(f"WHAT IS INTERNAL RHYME MOSTT RECENT inner?? {old_df_internal_rhyme_most_recent}")
             count_form = count_form + 1
             # print(f"POET_COUNT_1 {poetry_count}")
             # if isPoetic is True:
@@ -352,13 +366,14 @@ def nltk_analysis(r, text_in_html):
         
             if isPoetic is True:
                 count_form = count_form + 1
-                poetry_count = poetry_count+form_count_multiplier
+                poetry_count = poetry_count + form_count_multiplier
                 print(f"POET_COUNT {poetry_count}")
                 isPoetic = False
             
                 old_df_perc_poetry_rhymes = poetry_count/len(lines_in_corpus)
                 print(f"AHHHHHHHH {old_df_perc_poetry_rhymes}")
 
+        print(f"WHAT IS INTERNAL RHYME MOSTT RECENT outer?? {old_df_internal_rhyme_most_recent}")
         res = []
         for i in old_df_internal_rhyme_most_recent:
             if i not in res:    
@@ -374,14 +389,17 @@ def nltk_analysis(r, text_in_html):
         syllables_per_line = list(filter(None, syllables_per_line))
 
         print(f"POET_COUNT_1 {poetry_count}")
-        # if isPoetic is True:
-        #     count_form = count_form + 1
-        #     poetry_count = poetry_count+1
-        #     print(f"POET_COUNT {poetry_count}")
-        #     isPoetic = False
-        
-        #     old_df_perc_poetry_rhymes = poetry_count/len(lines_in_corpus)
-        #     print(f"AHHHHHHHH {old_df_perc_poetry_rhymes}")
+        print(f"TEST WHAT IS SYL PER LINE {syllables_per_line}")
+        print(f"TEST OLD DF SYL PER LINE {old_df_syllables_per_line}")
+    # elements = np.array(old_df_syllables_per_line)
+    # mean = np.mean(elements, axis=0)
+    # sd = np.std(elements, axis=0)
+
+    # final_list = [x for x in old_df_syllables_per_line if (x > mean - 2 * sd)]
+    # final_list = [x for x in final_list if (x < mean + 2 * sd)]
+    # print(f"HERE IS FINAL LIST (type is {type(final_list)})!!! {final_list}")
+    # print(f"compare final list len {len(final_list)} to old_df_syllables_per_line len {len(old_df_syllables_per_line)}")
+    # old_df_syllables_per_line = final_list
 
     ## loop through every syllable in the line 
     for u in old_df_syllables_per_line:
@@ -390,8 +408,9 @@ def nltk_analysis(r, text_in_html):
             percentage_poetry_by_syllable = isPoeticLine / len(lines_in_corpus)
             print(f"PERC POETRY {percentage_poetry_by_syllable}")
             old_df_perc_poetry_syllables = percentage_poetry_by_syllable
-        
-
+    elements = np.array(old_df_syllables_per_line)
+    mean = np.mean(elements, axis=0)    
+    print(f"MEAN IS {mean}")
     ### ------------------------------------------------------------
     ### Analysis of sentence-level stuff
     ### ------------------------------------------------------------

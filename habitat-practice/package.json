@@ -11,6 +11,7 @@
   "dependencies": {
     "@vueuse/core": "^8.9.1",
     "axios": "^0.27.2",
+    "epic-spinners": "^1.1.0",
     "moment": "^2.29.4",
     "vue": "^3.2.26",
     "vue-js-modal": "^2.0.1",

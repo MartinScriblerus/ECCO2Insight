@@ -14,7 +14,7 @@ from crud import Session
 import mechanicalsoup
 
 from config import API_KEY
-
+from datetime import date, datetime
 from nltk_analysis import nltk_analysis
 from machine_learning import machine_learning
 

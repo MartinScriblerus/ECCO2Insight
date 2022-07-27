@@ -46,6 +46,10 @@ async function show_TOC(url:String, title:String, author:String){
   if(main){
     main.style.top = "0px";
   }
+  let searchForms = document.getElementById("headerDiv");
+  if(searchForms){
+    searchForms.style.visibility = "hidden";
+  }
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
     headers: {
       'Accept': 'application/json',
@@ -131,7 +135,7 @@ async function doOpenAwaitScrape(){
 <template #heading>
 <Modal :open="open" :openFull="openFull" @openedfullawaitscrape="doOpenAwaitScrape" @openedfull="doOpenFullModal" @closedfull="doCloseFullModal" @closedmodal="doCloseModal" :tocdata="tocData" :rawtextdata="rawTextData" :selectedTitle="selectedTitle" :selectedAuthor="selectedAuthor" />
   <!-- set up a scroll here to show as many as we need -->
-  <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items).slice(0,20)" :key="item.title">
+  <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
     
       <h3 class="book-title">
         {{ item ? item.title : null}}

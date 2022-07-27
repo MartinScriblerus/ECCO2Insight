@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-
+import { SelfBuildingSquareSpinner  } from 'epic-spinners'
 const props = defineProps({
   open: Boolean,
   openFull: Boolean,
@@ -42,12 +42,14 @@ const initialHumanReadableTextRef = ref({
   },
 
   lineObj: {
-    lineId: Number,
-    poeticForm: String,
-    thisRhyme: String,
-    lastRhyme: String,
-    internalRhymes: Array,
-    syllablesPerLine: Number
+    lineId: {
+      sanityLineId: Number,
+      poeticForm: String,
+      thisRhyme: String,
+      lastRhyme: String,
+      internalRhymes: Array,
+      syllablesInLine: Number
+    }
   },
 
   // sentenceIndex: Number,
@@ -101,20 +103,24 @@ onMounted(()=>{
 function tryGetFullModal(){
     setTimeout(()=>{
       let fullModal = modalFull.value;
-      console.log("HERE IS THE MODAL TO UPDATE", fullModal);
       emit('closedmodal')
-      fullModal.classList.add("awaiting");
-
-      console.log("HERE IS PROPS TITLE: ", props.selectedTitle);
-      console.log("HERE IS PROPS SELECTED AUTHOR: ", props.selectedAuthor);
+      if(fullModal && fullModal.classList){
+        fullModal.classList.add("awaiting");
+      } else {
+        console.log("what is the else for full modal? ", fullModal);
+      }
     },10)
     clearTimeout();
   };
 
 function doCloseFullModalChild(){
   emit('closedfull')
-  // modalFull.value.classList.add("hideFullModal")
-  console.log("HIT THIS!!!!")
+  let headerDiv = document.getElementById("headerDiv");
+  if (headerDiv && headerDiv.classList){
+    headerDiv.classList.add("noDisplay");
+  } else {
+    console.log("in the else for headerdiv classlist");
+  }
 }
 
 // TODO: componentize and DRY this function (see TheWelcome)
@@ -128,6 +134,7 @@ async function scrape_text(url){
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
+
     
     //document.getElementById("modal-full").classList.add("awaiting")
     rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
@@ -157,6 +164,52 @@ async function scrape_text(url){
           initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
           initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
           initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
+
+          temp.value.last_word_per_line.forEach((li,lineIndex)=>{
+          
+
+          // if(0 < lineIndex < (lineIndex-1)){
+              // initialHumanReadableTextRef.value.lineObj[lineIndex-1] = {
+              //   sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['index'],
+              // }
+            try{
+              console.log("IS THIS GIVING US WHAT WE NEED for form?? ", JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex]['form']);
+              console.log(`HEEERERE: (wtf is lineIndex ${lineIndex-1}) `)
+              initialHumanReadableTextRef.value.lineObj[lineIndex-1] = {
+              sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['index'],
+              poeticForm: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['form'],
+              thisRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['this_rhyme'],
+              lastRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['last_rhyme'],
+              internalRhymes: [],
+              syllablesInLine: JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex-1]
+            }
+            } catch(e) {
+              console.info("error is ", e)
+            } finally {
+              console.log("and here's the line we're at... ", lineIndex)
+            }
+
+
+            temp.value.internal_rhyme_most_recent.forEach(ry=>{
+              try {
+                if(JSON.parse(JSON.stringify(ry.index)) === lineIndex-1){
+                  console.log(`hit a match! ${lineIndex-1} and ${JSON.parse(JSON.stringify(ry.index))}`)
+                  // console.log("WHAT IS GOD DAMN INTERNAL RHYMES: ", initialHumanReadableTextRef.value.lineObj[lineIndex].internalRhymes);
+                  console.log("FFFFUUUUCK WHAT IS THIS ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj[lineIndex])).internalRhymes);
+                  JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj))[lineIndex]['internalRhymes'].push({
+                    "endRhyme": JSON.parse(JSON.stringify(ry.end_rhyme)),
+                    "internalRhyme": JSON.parse(JSON.stringify(ry.internal_rhyme))
+                  })
+
+                }
+              } catch(e){
+              console.log("error: ", e);
+            } finally {
+              console.log("what is internal rhymes looking like? ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj))[lineIndex]);
+            }  
+            })  
+          // }        
+        })
 
           const tempGramArr = ref([])
    
@@ -212,21 +265,12 @@ async function scrape_text(url){
           ///////////////////////////////////////////////////////////////////////////////
           
           let fullModal = modalFull.value;
-          fullModal.classList.remove("awaiting");
-          fullModal.classList.add("receivedSingleTextData");
-
-          // document.getElementById("main").style.overflowY = "hidden";
-          // let mds = document.getElementsByClassName("modal")
-          // mds.forEach(m=>{
-          //   m.style.overflowY = "hidden";
-          // })
-
-
-          console.log("DID THIS UPDATE>>>>>????  ", fullModal);
-          //emit("openedfull")
-          // not necessary -> raw text from toc is initial text daata (we'll just need to use parse / stringify pattern)
-          // initial_text_data.value = JSON.parse(JSON.stringify(rawtextfromtoc.value))
-          // console.log("HEY GOT THIS TO LOG FROM INITIAL TEXT DATA: ", initial_text_data.value);
+          if(fullModal && fullModal.classList){
+            fullModal.classList.remove("awaiting");
+            fullModal.classList.add("receivedSingleTextData");
+          } else {
+            console.log("in else for fullmodal: ", fullModal);
+          }
           return rawtextfromtoc.value;
         } else {
           return null;
@@ -246,12 +290,7 @@ async function scrape_text(url){
     <div id="modalFull" ref="modalFull">
       <header class="modal-header">
         <slot name="header">
-          {{props.selectedTitle.split(/[\:.]+/)[0] 
-          ? 
-            props.selectedTitle.split(/[\:.]+/)[0] 
-          : 
-            props.selectedTitle}}
-          / {{props.selectedAuthor.replace('.', '')}}
+          Single Text Analysis
         </slot>
 
         <button
@@ -262,23 +301,62 @@ async function scrape_text(url){
           x
         </button>
       </header>
+      <section class="modal-textAnalysis">
+        <slot name="titleDiv">
+            <span class="text-row">
+              Title: {{props.selectedTitle}}
+            </span>
+            <span class="text-row">
+              Author: {{props.selectedAuthor}}
+            </span>
+        </slot>
+      </section>
+      <!-- <section class="modal-textAnalysis">
+        <slot name="textDataDiv">
+          <span class="text-row">
+            Text Data
+          </span>
+          <span class="text-row">
+            Text Data
+          </span>
+        </slot>
+      </section> -->
 
+      <!-- <section class="modal-textAnalysis"> -->
+        <!-- <slot name="sentencesDataDiv">
+          <span class="text-row">
+            Sentences Data
+          </span>
+          <span class="text-row">
+            Sentences Data
+          </span>
+        </slot>
+      </section>
+
+      <section class="modal-textAnalysis">
+        <slot name="linesDataDiv">
+          <span class="text-row">
+            Lines Data
+          </span>
+          <span class="text-row">
+            Lines Data
+          </span>
+        </slot>
+      </section> -->
+    
       <section class="modal-body">
         <slot name="body">
-          <span>
-            Title: {{props.selectedTitle}}
-            Author: {{props.selectedAuthor}}
-            </span>
+     
+        
+          <self-building-square-spinner
+            v-if="!props.rawtextdata" 
+            id="squareBuilderAnim"
+            :animation-duration="6000"
+            :size="48"
+            color="rgba(255,255,255,1)"
+          />
           <div id="singleTextAnalysisRow">
-            <slot name="words">
-              words
-            </slot>
-            <slot name="lines">
-              lines
-            </slot>
-            <slot name="sentences">
-              sentences
-            </slot>
+          Lorem Ipsum Lorem Ipsum Lorem Ipsum
           </div>
         </slot>
        </section>
@@ -325,7 +403,7 @@ async function scrape_text(url){
   100%  { height: 100vh; opacity: 1 }
 }
 body.modal-open {
-  overflow: hidden;
+  overflow-y: hidden;
   height: 100vh;
 }
 .modal {
@@ -343,7 +421,11 @@ body.modal-open {
     backdrop-filter: blur(8px);
     overflow-y: scroll;
 }
-
+  #squareBuilderAnim {
+    transform: rotateX(3.142rad);
+    top: 80px;   
+    margin-left: 48%;
+  }
 #closeBtn {
     right: 12px;
     position: absolute;
@@ -372,7 +454,8 @@ body.modal-open {
     border-bottom: solid 1px rgba(255, 255, 255, 0.3);
     color: rgba(255,255,255,1);
     font-size: 1rem;
-
+    font-family: 'Inter' Helvetica sans-serif;
+    font-style:italic;
     margin-bottom: 0.1rem;
     font-weight: 500;
 
@@ -407,11 +490,13 @@ body.modal-open {
     align-items: center;
     pointer-events:all;
     min-height:100vh;
+    align-items: left;
 }
 
 #modalFull.awaiting {
-    background:grey;
+    background: var(--color-background);
     pointer-events:all;
+    align-items: left;
 }
 
 
@@ -432,8 +517,12 @@ body.modal-open {
   .modal-header,
   .modal-footer {
     width: 100vw;
-    padding: 15px;
+  /*  padding: 15px; */
     display: flex;
+  }
+
+  .modal-footer {
+    padding: 16px;
   }
 
   .modal-header {
@@ -446,7 +535,7 @@ body.modal-open {
     font-weight: 100;
     top: 0px;
     left: 0px;
-    background: rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 0.078);
     transition: height 1s ease-in;
   
   }
@@ -455,7 +544,7 @@ body.modal-open {
     border-top: 1px solid #eeeeee;
     flex-direction: row;
     justify-content: flex-end;
-    background: blue;
+    background: rbga(0,0,0,1);
     bottom:0px;
     left:0px;
     right:0px;
@@ -464,8 +553,8 @@ body.modal-open {
 
   .modal-body {
     position: relative;
-    padding: 20% 10%;
-
+    padding: 16% 1%;
+    max-width: 100%;
   }
 
   .btn-close {
@@ -477,14 +566,14 @@ body.modal-open {
     padding: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: #4AAE9B;
-    background: purple;
+    color: rgba(255,255,255,0.92);
+    background: var(--color-background);
   }
 
   .btn-green {
     color: white;
-    background: #4AAE9B;
-    border: 1px solid #4AAE9B;
+    background: hsla(160, 100%, 37%, 0.7);;
+    border: 1px solid hsla(160, 100%, 37%, 0.7);;
     border-radius: 2px;
     width: 200px;
     height: 60px;
@@ -498,5 +587,24 @@ body.modal-open {
     flex-direction: row;
     display: flex;
     width: 100vw;
+    justify-content: center;
+  }
+  .self-building-square-spinner {
+  
+    top: 128px !important;
+    position: absolute;
+  }
+  .text-row {
+    width: 100%;
+  }
+
+  .modal-textAnalysis {
+    /* this is the overarching modal */
+    top: 72px;
+    padding-left: 4%;
+    padding-right: 4%;
+    position: absolute;
+    background: var(--color-background);;
+    height: calc(100% - 164px);
   }
 </style>
