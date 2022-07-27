@@ -47,7 +47,7 @@ const initialHumanReadableTextRef = ref({
       poeticForm: String,
       thisRhyme: String,
       lastRhyme: String,
-      internalRhymes: Array,
+      internalRhymes: Object,
       syllablesInLine: Number
     }
   },
@@ -106,6 +106,10 @@ function tryGetFullModal(){
       emit('closedmodal')
       if(fullModal && fullModal.classList){
         fullModal.classList.add("awaiting");
+        let main = document.getElementById("main");
+        if(main){
+          main.visibility = "hidden";
+        }
       } else {
         console.log("what is the else for full modal? ", fullModal);
       }
@@ -166,49 +170,40 @@ async function scrape_text(url){
           initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
 
           temp.value.last_word_per_line.forEach((li,lineIndex)=>{
-          
-
-          // if(0 < lineIndex < (lineIndex-1)){
-              // initialHumanReadableTextRef.value.lineObj[lineIndex-1] = {
-              //   sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['index'],
-              // }
             try{
-              console.log("IS THIS GIVING US WHAT WE NEED for form?? ", JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex]['form']);
-              console.log(`HEEERERE: (wtf is lineIndex ${lineIndex-1}) `)
-              initialHumanReadableTextRef.value.lineObj[lineIndex-1] = {
-              sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['index'],
-              poeticForm: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['form'],
-              thisRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['this_rhyme'],
-              lastRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[lineIndex-1]['last_rhyme'],
-              internalRhymes: [],
-              syllablesInLine: JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex-1]
-            }
+              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+                sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['index'],
+                poeticForm: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['form'] || '',
+                thisRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_rhyme'] || '',
+                lastRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_rhyme'] || '',
+                internalRhymes: {},
+                syllablesInLine: JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
+              }
             } catch(e) {
-              console.info("error is ", e)
+              console.log("error getting last word per line: ", e);
             } finally {
-              console.log("and here's the line we're at... ", lineIndex)
-            }
 
+            }
 
             temp.value.internal_rhyme_most_recent.forEach(ry=>{
               try {
-                if(JSON.parse(JSON.stringify(ry.index)) === lineIndex-1){
-                  console.log(`hit a match! ${lineIndex-1} and ${JSON.parse(JSON.stringify(ry.index))}`)
-                  // console.log("WHAT IS GOD DAMN INTERNAL RHYMES: ", initialHumanReadableTextRef.value.lineObj[lineIndex].internalRhymes);
-                  console.log("FFFFUUUUCK WHAT IS THIS ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj[lineIndex])).internalRhymes);
-                  JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj))[lineIndex]['internalRhymes'].push({
-                    "endRhyme": JSON.parse(JSON.stringify(ry.end_rhyme)),
-                    "internalRhyme": JSON.parse(JSON.stringify(ry.internal_rhyme))
-                  })
-
+                if(JSON.parse(JSON.stringify(ry.index)) === lineIndex){
+                  console.log(`hit a match! ${lineIndex} and ${JSON.parse(JSON.stringify(ry.index))}`)
+                  try {
+                      initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
+                        "endRhyme": JSON.parse(JSON.stringify(ry.end_rhyme)) || '',
+                        "internalRhyme": JSON.parse(JSON.stringify(ry.internal_rhyme))
+                    }
+                  } catch (e) {
+                    console.warn("error getting internal rhymes: ", e);
+                  }
                 }
               } catch(e){
               console.log("error: ", e);
             } finally {
-              console.log("what is internal rhymes looking like? ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value.lineObj))[lineIndex]);
+
             }  
-            })  
-          // }        
+            })         
         })
 
           const tempGramArr = ref([])
@@ -268,6 +263,10 @@ async function scrape_text(url){
           if(fullModal && fullModal.classList){
             fullModal.classList.remove("awaiting");
             fullModal.classList.add("receivedSingleTextData");
+            let main = document.getElementById("main");
+            if(main){
+              main.visibility = "visible";
+            }
           } else {
             console.log("in else for fullmodal: ", fullModal);
           }
@@ -553,7 +552,7 @@ body.modal-open {
 
   .modal-body {
     position: relative;
-    padding: 16% 1%;
+    padding: 1% 1%;
     max-width: 100%;
   }
 
@@ -588,10 +587,11 @@ body.modal-open {
     display: flex;
     width: 100vw;
     justify-content: center;
+    top: 24px;
   }
   .self-building-square-spinner {
   
-    top: 128px !important;
+    top: -60px !important;
     position: absolute;
   }
   .text-row {
