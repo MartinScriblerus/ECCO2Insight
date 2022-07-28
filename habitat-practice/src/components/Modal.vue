@@ -43,7 +43,7 @@ const initialHumanReadableTextRef = ref({
 
   lineObj: {
     lineId: {
-      sanityLineId: Number,
+      lastWord: String,
       poeticForm: String,
       thisRhyme: String,
       lastRhyme: String,
@@ -162,8 +162,7 @@ async function scrape_text(url){
           temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
 
           ///////////////////////////////////////////////////////////////////////////////
-          ///////////////////////////////////////////////////////////////////////////////
-          ///////////////////////////////////////////////////////////////////////////////
+          // --> Catch Data in Complex Object (break this all up in future for better user exp)
           initialHumanReadableTextRef.value.title = props.selectedTitle;
           initialHumanReadableTextRef.value.author = props.selectedAuthor;
           // TODO:
@@ -176,35 +175,45 @@ async function scrape_text(url){
           initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
 
           temp.value.last_word_per_line.forEach((li,lineIndex)=>{
-            try{
-              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
-                sanityLineId: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['index'],
-                poeticForm: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['form'] || '',
-                thisRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_rhyme'] || '',
-                lastRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_rhyme'] || '',
-                thisLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_line'] || '',
-                lastLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_line'] || '',
-                thisInterRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_interrhyme'] || '',
-                lastInterRhyme: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_interrhyme'] || '',
-                thisInterLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['this_interline'] || '',
-                lastInterLine: JSON.parse(JSON.stringify(temp.value.poetic_form))[JSON.parse(JSON.stringify(lineIndex))]['last_interline'] || '',
-                internalRhymes: {},
-                syllablesInLine: JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
-              }
-            } catch(e) {
-              console.log("error getting last word per line: ", e);
-            } finally {
+            
+            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
 
-            }
+            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
+
+            temp.value.poetic_form.forEach(form=>{
+              if(form['index'] === lineIndex){
+                initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
+              }
+            })
+            
+            temp.value.poetic_form.forEach(pf=>{
+              try {
+                if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
+                  initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+                    "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
+                    "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
+                    "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
+                    "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
+
+                    "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
+                    "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
+                    "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
+                    "lastInterLine": JSON.parse(JSON.stringify(pf))['last_interline'] || '',
+                    "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
+                  }
+                }
+              } catch {
+
+              }
+            })
 
             temp.value.internal_rhyme_most_recent.forEach(ry=>{
               try {
-                if(JSON.parse(JSON.stringify(ry.index)) === lineIndex){
-                  console.log(`hit a match! ${lineIndex} and ${JSON.parse(JSON.stringify(ry.index))}`)
+                if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
                   try {
                       initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
-                        "endRhyme": JSON.parse(JSON.stringify(ry.end_rhyme)) || '',
-                        "internalRhyme": JSON.parse(JSON.stringify(ry.internal_rhyme))
+                        "endRhyme": JSON.parse(JSON.stringify(ry))['end_rhyme'] || '',
+                        "internalRhyme": JSON.parse(JSON.stringify(ry))['internal_rhyme']
                     }
                   } catch (e) {
                     console.warn("error getting internal rhymes: ", e);
@@ -212,9 +221,15 @@ async function scrape_text(url){
                 }
               } catch(e){
               console.log("error: ", e);
-            } finally {
+              } finally {
 
-            }  
+              }  
+
+              try {
+                initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
+              } catch {
+                console.log("error getting syllables in line *** ");
+              }
             })         
         })
 
