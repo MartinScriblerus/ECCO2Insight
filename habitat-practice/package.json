@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "epic-spinners": "^1.1.0",
     "moment": "^2.29.4",
+    "socket.io-client": "^4.5.1",
     "vue": "^3.2.26",
     "vue-js-modal": "^2.0.1",
     "vue-router": "^4.1.1"

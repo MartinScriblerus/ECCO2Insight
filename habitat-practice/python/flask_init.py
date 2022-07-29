@@ -1,15 +1,20 @@
+from gevent import monkey
+monkey.patch_all()
+
+from gevent.pywsgi import WSGIServer
 from mimetypes import init
 from flask import Flask, request
 from matplotlib.pyplot import title
 # from cli import book_arr
 import pandas as pd
 import json 
-from flask import Flask
+from flask import Flask,request,Response
 from flask_cors import CORS
 import requests
 from models import Book
 import re
 
+from flask_sock import Sock
 from crud import Session
 import mechanicalsoup
 
@@ -17,20 +22,70 @@ from config import API_KEY
 from datetime import date, datetime
 from nltk_analysis import nltk_analysis
 from machine_learning import machine_learning
+# from ast import While
+# import asyncio
+import asyncio
+from datetime import datetime
+import websockets 
+import websocket
+from websockets import connect
+
+import os
+import subprocess
+import sys
+import time
+
+import sys, json
+import datetime
+print(sys.path)
 
 s = Session()
 
 app = Flask(__name__)
-CORS(app)
+sock = Sock(app)
+CORS(app, support_credentials=True)
+app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
+# create handler for each connection
+
+@sock.route('/ws')
+def echo(ws):
+    global soct
+    soct = ws
+    def handle_message(message):
+        print('received messageWOWOWOW')
+    print("WTF IS WS??? ",ws)
+
+    while True:
+        data = ws.receive()
+        print("HERE IS DATA ",data)
+        ws.send(json.dumps({"HERE YOU GO":"STUGGGGFFFF"}))
+
+def application(environ, start_response):
+  if environ['REQUEST_METHOD'] == 'OPTIONS':
+    start_response(
+      '200 OK',
+      [
+        ('Content-Type', 'application/json'),
+        ('Access-Control-Allow-Origin', '*'),
+        ('Access-Control-Allow-Headers', 'Authorization, Content-Type'),
+        ('Access-Control-Allow-Methods', 'POST'),
+      ]
+    )
+    return ''
 
 full_list = []
 
 initial_text_obj = {}
 comp_texts_array = []
 
+print('WHAT SIS SOCK??? ', sock.__dict__)
+
 @app.route('/')
 def hello():
-    # print(f'book dict before post {book_arr}')
+ 
+    soct.send(json.dumps({"FUCK YA!!!":"STUGGGGFFFF"}))
+    print("!!!!!! ", sock)
+
     count = 0
     multiplier = 100 * (count + 1)
     # books = s.query(Book).limit(multiplier).all()
@@ -38,6 +93,11 @@ def hello():
     book_arr = []
     book_dict = {}
         
+
+
+
+
+
     for count, u in enumerate(books):
 
         book_dict['id'] = u.__dict__['id']
@@ -334,3 +394,11 @@ def res_t():
     
     
     return {'keys':"hi"}
+
+
+
+
+if __name__ == '__main__':
+    WSGIServer(('127.0.0.1', 5000), app).serve_forever()
+
+

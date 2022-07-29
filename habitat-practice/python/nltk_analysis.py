@@ -7,7 +7,11 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.collocations import *
 from nltk.text import Text
-
+from ast import While
+import asyncio
+import sys, json
+import datetime
+# from flask_socketio import SocketIO, send
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
 #     BigramAssocMeasures,
@@ -40,20 +44,77 @@ from spacy import displacy
 from collections import Counter
 import en_core_web_sm
 nlp = en_core_web_sm.load()
+from flask import Flask, request,Response
+# from flask_socketio import SocketIO
+
 
 from crud import Session
 s = Session()
 
-from word_keylists import keyList,fullKeyList
 
+from word_keylists import keyList,fullKeyList
+# print(sys.path)
+app = Flask(__name__)
+#app.config['SECRET_KEY'] = 'secretkey'
+#socketio = SocketIO(app,cors_allowed_origins='http://localhost:3000', logger=True,engineio_logger=True)
+# socketio.run(app)
+
+# @socketio.on('connect')
+# def connect():
+#     print("connected$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+# @socketio.on('message')
+# def recievedData(data):
+#     send('message',{"data":"hiiiii"})
+
+# @socketio.on('message')
+# def Text_MSG():
+#     send('hrllllllo')
+#     socketio.sleep(0)
+# if name == 'main':
+    # socketio.run(app,host='0.0.0.0',port=5000)
 ########################################################################
 ########################################################################
 ################################ NLTK ##################################
 ########################################################################
 ########################################################################
+# socketio.send('message', {'message':'HELLO'})
+# socketio.emit('message', {'message':'HLLO'})
+
+# message = {"message":"hi"}
+# json = {"message":"hi"}
+# @socketio.on('message')
+# def handle_message(message):
+#     emit(message)
+
+# @socketio.on('json')
+# def handle_json(json):
+#     send(json, json=True)
+# @socketio.on('message', namespace = '/test')
+# def handle_message(message):
+#     emit({'message':'ypypyp'})
+# @socketio.on('my event')
+# def handle_my_custom_event(json):
+#     emit('my response', json)
+# socketio.run(app)
+# ========================================================
+# SOCKETS ROUTE
+# ========================================================
+# 
+# @app.before_request
+# def make_session_permanent():
+#     session.permanent = True
+#     app.permanent_session_lifetime = timedelta(minutes=1)
+
+@app.route('/')
+#@cross_origin(origin='*',headers=['Content- Type','Authorization'])
+# def index():
+#     return render_template('index.html')
 
 def nltk_analysis(r, text_in_html):
-    
+    # socketio.emit('message', {'HELLO'})
+    # @socketio.on('message')
+    # def handle_message(message):
+    #     send("HEYA")
     lemmatizer = WordNetLemmatizer()  
     stop_words = set(stopwords.words('english'))
     not_words = [">>","<<","[unnumbered]","unnumbered","page","Page","previous","Previous","Next","section","cite","bookbag","next","table","Table","contents","add","|","how","or","cite"]
@@ -72,6 +133,8 @@ def nltk_analysis(r, text_in_html):
     global initial_text 
     initial_text = {key: None for key in fullKeyList}
     
+
+
     # #### fix this
     # s.query(r['titleUrl'])
     # query_by_url = s.query(Book).filter(Book.titleUrl.contains(r['titleUrl'])).all()
@@ -122,6 +185,7 @@ def nltk_analysis(r, text_in_html):
     # ------------------------------------------------------------
     print("start getting data -----------------------------------------")
     corpus = text_in_html
+    # socketio.send('message', {'text_length':len(corpus)})
     print("\n" in corpus) 
 
     # initial clean of whole text
@@ -213,7 +277,7 @@ def nltk_analysis(r, text_in_html):
     
     old_df['most_common_words'] = Counter(final_tokens).most_common(20)
 
-
+    # socketio.send('message', {'data':old_df})
     # ------------------------------------------------------------
     # LINE LEVEL FOCUS -> INIT ANALYSIS OF POETRY / DRAMA FEATURES
     # ------------------------------------------------------------
@@ -415,6 +479,7 @@ def nltk_analysis(r, text_in_html):
     elements = np.array(old_df_syllables_per_line)
     mean = np.mean(elements, axis=0)    
     print(f"MEAN IS {mean}")
+    # socketio.send('message', {'data':old_df})
     ### ------------------------------------------------------------
     ### Analysis of sentence-level stuff
     ### ------------------------------------------------------------
@@ -641,7 +706,7 @@ def nltk_analysis(r, text_in_html):
         
     print()
     
-    
+    # socketio.send('message', {'data':old_df})
 
     ########################################################################
     ########################################################################
@@ -724,4 +789,8 @@ def nltk_analysis(r, text_in_html):
     index = index + 1
 
     print("The number of total tokens after removing stopwords are", len((final_tokens)))
+    # socketio.send('message', {'data':old_df})
     return old_df,sents
+
+# if __name__ == '__main__':
+#     socketio.run(app)

@@ -1,6 +1,21 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { SelfBuildingSquareSpinner  } from 'epic-spinners'
+
+const socket = new WebSocket('ws://localhost:5000/ws');
+
+
+
+socket.onopen = function (event) {
+  socket.send("Here's some text that the server is urgently awaiting!");
+}
+socket.addEventListener('message', ev => {
+  console.log("EVENT DATA ", ev.data);
+});
+
+socket.onmessage = function (event) {
+  console.log(event.data);
+}
 const props = defineProps({
   open: Boolean,
   openFull: Boolean,
@@ -11,6 +26,7 @@ const props = defineProps({
 });
 
 const temp = ref({})
+
 
 const initialHumanReadableTextRef = ref({
   title: String,
@@ -156,6 +172,12 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
+          
+
+
+
+          
+       
           rawtextfromtoc.value = result;
           console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
@@ -327,7 +349,7 @@ async function scrape_text(url){
           x
         </button>
       </header>
-      <section class="modal-textAnalysis">
+      <section class="modal-textAnalysis-title">
         <slot name="titleDiv">
             <span class="text-row">
               Title: {{props.selectedTitle}}
@@ -335,6 +357,19 @@ async function scrape_text(url){
             <span class="text-row">
               Author: {{props.selectedAuthor}}
             </span>
+        </slot>
+      </section>
+      <section class="modal-single-text-results">
+        <slot name="textAnalysis-results">
+            <div class="results-col">
+              Yo full text
+            </div>
+            <div class="results-col">
+              Yo sentences
+            </div>
+            <div class="results-col">
+              Yo Lines
+            </div>
         </slot>
       </section>
       <!-- <section class="modal-textAnalysis">
@@ -625,13 +660,37 @@ body.modal-open {
     width: 100%;
   }
 
-  .modal-textAnalysis {
+  .modal-textAnalysis-title {
     /* this is the overarching modal */
     top: 72px;
     padding-left: 4%;
     padding-right: 4%;
     position: absolute;
-    background: var(--color-background);;
+    background: var(--color-background);
     height: calc(100% - 164px);
+  }
+  .modal-single-text-results {
+    width: 100%;
+    display: flex;
+    text-align: center;
+    top: 36px;
+  }
+  .results-col {
+    width:33vw;
+    background: green;
+    margin-left: 8px;
+    margin-right: 16px;
+    min-height: 200px;
+    border-radius: 8px;
+    cursor: progress; 
+    background: 
+      linear-gradient(0.25turn, transparent, green, transparent),
+      linear-gradient(green, var(--color-background)),
+      radial-gradient(38px circle at 19px 19px, #eee 50%, transparent 51%),
+      linear-gradient(rbga(255,255,255,0.78), var(--color-background));  
+    background-repeat: no-repeat;
+
+    background-position: -315px 0, 0 0, 0px 190px, 50px 195px; 
+    animation: loading 1.5s infinite;
   }
 </style>
