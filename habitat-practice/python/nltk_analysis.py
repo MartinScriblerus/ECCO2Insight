@@ -11,6 +11,7 @@ from ast import While
 import asyncio
 import sys, json
 import datetime
+import sys
 # from flask_socketio import SocketIO, send
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
@@ -55,6 +56,10 @@ s = Session()
 from word_keylists import keyList,fullKeyList
 # print(sys.path)
 app = Flask(__name__)
+
+
+
+
 #app.config['SECRET_KEY'] = 'secretkey'
 #socketio = SocketIO(app,cors_allowed_origins='http://localhost:3000', logger=True,engineio_logger=True)
 # socketio.run(app)
@@ -105,16 +110,16 @@ app = Flask(__name__)
 #     session.permanent = True
 #     app.permanent_session_lifetime = timedelta(minutes=1)
 
-@app.route('/')
+
+# @app.route('/')
 #@cross_origin(origin='*',headers=['Content- Type','Authorization'])
 # def index():
 #     return render_template('index.html')
 
 def nltk_analysis(r, text_in_html):
-    # socketio.emit('message', {'HELLO'})
-    # @socketio.on('message')
-    # def handle_message(message):
-    #     send("HEYA")
+    if 'flask_init' in sys.modules:
+        from flask_init import soct
+        
     lemmatizer = WordNetLemmatizer()  
     stop_words = set(stopwords.words('english'))
     not_words = [">>","<<","[unnumbered]","unnumbered","page","Page","previous","Previous","Next","section","cite","bookbag","next","table","Table","contents","add","|","how","or","cite"]
@@ -185,6 +190,7 @@ def nltk_analysis(r, text_in_html):
     # ------------------------------------------------------------
     print("start getting data -----------------------------------------")
     corpus = text_in_html
+    soct.send("third_msg")
     # socketio.send('message', {'text_length':len(corpus)})
     print("\n" in corpus) 
 
@@ -253,7 +259,7 @@ def nltk_analysis(r, text_in_html):
                 final_tokens.append(each_word)
 
     final_tokens = [lemmatizer.lemmatize(word) for word in final_tokens]
-
+    soct.send("fourth_msg")
    
 
     #Create your bigrams
@@ -276,7 +282,7 @@ def nltk_analysis(r, text_in_html):
     final_tokens_as_single_string = ' '.join(final_tokens)
     
     old_df['most_common_words'] = Counter(final_tokens).most_common(20)
-
+    soct.send("fifth_msg")
     # socketio.send('message', {'data':old_df})
     # ------------------------------------------------------------
     # LINE LEVEL FOCUS -> INIT ANALYSIS OF POETRY / DRAMA FEATURES
@@ -301,6 +307,7 @@ def nltk_analysis(r, text_in_html):
     # ---------------------------------------------------------------------
     # Begin Poetic Analysis
     # ---------------------------------------------------------------------
+    soct.send("sixth_msg")
     print("loop every line in array of lines -----------------------------------------")
     for idx, li in enumerate(lines_in_corpus):
         if "'d" in li:
@@ -326,8 +333,8 @@ def nltk_analysis(r, text_in_html):
         # print(f"errr.... WHAT IS COUNT: {count}")
         old_df_syllables_per_line.append(count)
         tokens_in_line = tokenizer.tokenize(li)
-
-
+        soct.send("seventh_msg") 
+        
         ### Loop through every word in line 
         ## find last word in each line
         ## make a bank of internal words for later rhyme analysis
@@ -343,7 +350,8 @@ def nltk_analysis(r, text_in_html):
         count_form = 0
         ### poetry check 
         form_count_multiplier = 0
-        for index, i in enumerate(old_df_last_word_per_line):    
+        for index, i in enumerate(old_df_last_word_per_line):  
+             
             # print(f"what is the... index? {index}")
             # print(f"HOW LONG IS LAST WORD PER LINE??? {len(old_df_last_word_per_line)}")
 
@@ -418,20 +426,11 @@ def nltk_analysis(r, text_in_html):
             for d in last_line_internal:
                 if d in last_rhyme_to_check and len(d) > 3:
                     old_df_internal_rhyme_most_recent.append({"index": index,"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d})
-                # else: 
-                #     print(f"problem... what is len d??? { len(d)}")
-            print(f"WHAT IS INTERNAL RHYME MOSTT RECENT inner?? {old_df_internal_rhyme_most_recent}")
-            count_form = count_form + 1
-            # print(f"POET_COUNT_1 {poetry_count}")
-            # if isPoetic is True:
-            #     count_form = count_form + 1
-            #     poetry_count = poetry_count+1
-            #     print(f"POET_COUNT {poetry_count}")
-            #     isPoetic = False
-            
-            #     old_df_perc_poetry_rhymes = poetry_count/len(lines_in_corpus)
-            #     print(f"AHHHHHHHH {old_df_perc_poetry_rhymes}")
         
+            #print(f"WHAT IS INTERNAL RHYME MOSTT RECENT inner?? {old_df_internal_rhyme_most_recent}")
+            count_form = count_form + 1
+   
+      
             if isPoetic is True:
                 count_form = count_form + 1
                 poetry_count = poetry_count + form_count_multiplier
@@ -456,18 +455,9 @@ def nltk_analysis(r, text_in_html):
         # print(f"DO WE HAVE SYLL PER LINE??? {syllables_per_line}")
         syllables_per_line = list(filter(None, syllables_per_line))
 
-        print(f"POET_COUNT_1 {poetry_count}")
-        print(f"TEST WHAT IS SYL PER LINE {syllables_per_line}")
-        print(f"TEST OLD DF SYL PER LINE {old_df_syllables_per_line}")
-    # elements = np.array(old_df_syllables_per_line)
-    # mean = np.mean(elements, axis=0)
-    # sd = np.std(elements, axis=0)
-
-    # final_list = [x for x in old_df_syllables_per_line if (x > mean - 2 * sd)]
-    # final_list = [x for x in final_list if (x < mean + 2 * sd)]
-    # print(f"HERE IS FINAL LIST (type is {type(final_list)})!!! {final_list}")
-    # print(f"compare final list len {len(final_list)} to old_df_syllables_per_line len {len(old_df_syllables_per_line)}")
-    # old_df_syllables_per_line = final_list
+        # print(f"POET_COUNT_1 {poetry_count}")
+        # print(f"TEST WHAT IS SYL PER LINE {syllables_per_line}")
+        # print(f"TEST OLD DF SYL PER LINE {old_df_syllables_per_line}")
 
     ## loop through every syllable in the line 
     for u in old_df_syllables_per_line:
@@ -483,13 +473,13 @@ def nltk_analysis(r, text_in_html):
     ### ------------------------------------------------------------
     ### Analysis of sentence-level stuff
     ### ------------------------------------------------------------
-    
+    soct.send("eighth_msg") 
     sents = nltk.sent_tokenize(corpus)
 
     line_division = len(lines_in_corpus)/len(sents)
     lines_per_sentence.append(line_division)
 
-    print("The number of sentences is", len(sents))
+    # print("The number of sentences is", len(sents))
     average_tokens = round(len(words_no_blanks)/len(sents))
     print("The average number of tokens per sentence is",average_tokens)
     old_df['avg_tokens_sentence'] = average_tokens
@@ -512,9 +502,9 @@ def nltk_analysis(r, text_in_html):
             s.replace("t'r","ter")
         if "f'r" in s:
             s.replace("f'r","fer")
-        
+        # soct.send("tenth_msg")
         s_tok = tokenizer.tokenize(s)
-
+        
         ## loop through each token in this single sentence 
         # (this cleanup should be done by now...)
         for each in s_tok:
@@ -541,9 +531,9 @@ def nltk_analysis(r, text_in_html):
 
         doc = nlp(s)
             # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
-
+        soct.send("ninth_msg")
         for token in doc:
-            print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
+            #print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
             sentence_words_grammar.append({'sentence_index':idx,'token_text':token.text,'token_pos':token.pos_,'token_tag':token.tag_})
         
 
@@ -574,10 +564,6 @@ def nltk_analysis(r, text_in_html):
             # print(f"tagged lems length: {len(tagged_lems)}")
             lemmatized_words.append(tagged_lems)
 
-        ## WHY DO WE NEED TO ADD LEMMATIZED WORDS FROM SENTENCES (& not corpus) -- is this a sentence-level thing?
-        # old_df['lemmatized_words'] = lemmatized_words
-        
-
 
         ########################################################################
         ########################################################################
@@ -589,13 +575,8 @@ def nltk_analysis(r, text_in_html):
         idx_array.append(idx)
         
         ######### spacy entity recognition
-        doc = nlp(s)
+        # doc = nlp(s)
                 
-        # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
-        # tokens = []
-        # for token in doc:
-        #     print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
-
         ######## europeana data links  < = >  spacy
         api_key=API_KEY
         # cycle_ents = cycle(doc.ents)
@@ -646,6 +627,8 @@ def nltk_analysis(r, text_in_html):
         ########################################################################
         ########################################################################
         
+        soct.send("tenth_msg")
+
         n_instances = 100
         subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
         obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
@@ -689,7 +672,6 @@ def nltk_analysis(r, text_in_html):
             if k == "pos":
                 sentence_sentiment_pos.append({"pos":ss[k]})
                         
-
         old_df["sentence_id"] = idx_array
         old_df['lines_per_sentence'] = lines_per_sentence
         old_df["sentence_sentiment_compound"] = sentence_sentiment_compound
@@ -713,9 +695,10 @@ def nltk_analysis(r, text_in_html):
     ############################# Summarize ################################
     ########################################################################
     ########################################################################
-
+    soct.send("eleventh_msg")
     old_df_summary = []
     for index,word in enumerate(final_tokens):
+        soct.send("twelfth_msg")
         if word not in word_frequencies.keys():
             word_frequencies[word] = 1
         else:
@@ -749,7 +732,7 @@ def nltk_analysis(r, text_in_html):
             print(f"CLEANED SUMMARY ANY BETTER? {cleaned_summary}")
             
             old_df_summary.append(' '.join(summary_sentences))
-            
+           
     old_df['summary'] = old_df_summary[0].replace("/n"," ")            
     old_df['spacy_entities'] = old_df_spacy_ents
     old_df["sentences"] = old_df_sentences
@@ -787,7 +770,7 @@ def nltk_analysis(r, text_in_html):
     ### =================================================
     
     index = index + 1
-
+    soct.send("thirteenth_msg") 
     print("The number of total tokens after removing stopwords are", len((final_tokens)))
     # socketio.send('message', {'data':old_df})
     return old_df,sents

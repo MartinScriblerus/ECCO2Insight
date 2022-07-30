@@ -16,7 +16,8 @@
     "socket.io-client": "^4.5.1",
     "vue": "^3.2.26",
     "vue-js-modal": "^2.0.1",
-    "vue-router": "^4.1.1"
+    "vue-router": "^4.1.1",
+    "vue-step-progress": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^16.11.41",

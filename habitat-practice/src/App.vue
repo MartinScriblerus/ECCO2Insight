@@ -435,7 +435,7 @@ input {
 }
 
 #main {
-  max-height: 100vh;
+  max-height: 130vh;
   overflow-y: scroll;
   top:72px;
   visibility: hidden;

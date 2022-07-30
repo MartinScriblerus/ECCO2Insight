@@ -26,9 +26,9 @@ from machine_learning import machine_learning
 # import asyncio
 import asyncio
 from datetime import datetime
-import websockets 
-import websocket
-from websockets import connect
+# import websockets 
+# import websocket
+# from websockets import connect
 
 import os
 import subprocess
@@ -47,6 +47,8 @@ CORS(app, support_credentials=True)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 # create handler for each connection
 
+print(f"choo chooooooooooooooooooooooooooooooooooooooooo")
+
 @sock.route('/ws')
 def echo(ws):
     global soct
@@ -58,7 +60,8 @@ def echo(ws):
     while True:
         data = ws.receive()
         print("HERE IS DATA ",data)
-        ws.send(json.dumps({"HERE YOU GO":"STUGGGGFFFF"}))
+        #THIS WORKS
+        #ws.send(json.dumps({"HERE YOU GO":"STUGGGGFFFF"}))
 
 def application(environ, start_response):
   if environ['REQUEST_METHOD'] == 'OPTIONS':
@@ -83,9 +86,8 @@ print('WHAT SIS SOCK??? ', sock.__dict__)
 @app.route('/')
 def hello():
  
-    soct.send(json.dumps({"FUCK YA!!!":"STUGGGGFFFF"}))
-    print("!!!!!! ", sock)
-
+    soct.send("first_msg")
+ 
     count = 0
     multiplier = 100 * (count + 1)
     # books = s.query(Book).limit(multiplier).all()
@@ -93,11 +95,6 @@ def hello():
     book_arr = []
     book_dict = {}
         
-
-
-
-
-
     for count, u in enumerate(books):
 
         book_dict['id'] = u.__dict__['id']
@@ -145,8 +142,7 @@ def result():
                 print('')
             else:
                 if len(just_text.text.split("/")) < 2 and list_ready == True:
-                    print("===============================================")                    
-
+                  
                     next = browser.page.find_all("td", {"class": "browsenav_r1"})
                     for n in next:
                         if n.find("a") is None:
@@ -164,22 +160,22 @@ def result():
                     letter_object['published'] = date(int(regex_num_year[0]), 6, 6)            
                     link_text = text.find('a', href=True)
                     if link_text is None:
-                        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^')
+                        print('Link text is none ^^')
                     else:
                         letter_object['title'] = link_text.text
                         if link_text is None:
-                            print('############################')
+                            print('Link text is none ##')
                         else:
                             letter_object['title_url'] = link_text["href"]
                             full_list.append(letter_object.copy())
                             book = Book(title=letter_object['title'], author=letter_object['author'], published=letter_object['published'], title_url=letter_object['title_url'],price=1) 
                             r = s.query(Book).filter_by(title=letter_object['title']).first()
-                            print("r: {r}")
+                            # print("r: {r}")
                             if r is None:
                                 s.add(book)
                                 s.commit()
                             else:
-                                print("proof it ids already there {book}")                
+                                print("proof it is already there {book}")                
     texts_df = pd.DataFrame()
     return request.get_json(force=True)
 
@@ -201,7 +197,7 @@ def subsequent_letter(url):
                 print('')
             else:
                 if len(just_text.text.split("/")) < 2 and list_ready == True:
-                    print("===============================================")   
+                    print('')   
                     next_letter = browser.page.find("td", {"class": "browsenav_r1"}).find("a")["href"]
                 elif len(just_text.text.split("/")) < 2:
                     print("catch => not important")
@@ -215,21 +211,22 @@ def subsequent_letter(url):
 
                     link_text = text.find('a', href=True)
                     if link_text is None:
-                        print('^^^^^^^^^^^^^^^^^^^^^^^^^^^')
+                        print('link text is none !!')
                     else:
                         letter_object['title'] = str(link_text.text)
                     if link_text is None:
-                        print('############################')
+                        print('link text !!##')
                     else:
-                        letter_object['title_url'] = link_text["href"] 
+                        letter_object['title_url'] = link_text['href'] 
                         letter_object['id'] = count
                         letter_object['pages'] = 100
                         letter_object['price'] = 1
                         full_list.append(letter_object.copy())
+                        ## get rid of price here?? fix the database Book class
                         book = Book(title=letter_object['title'], author=letter_object['author'], published=letter_object['published'], title_url=letter_object['title_url'],price=1) 
                         
                         r = s.query(Book).filter_by(title=letter_object['title']).first()
-                        print("r: {r}")
+                        # print("r: {r}")
                         if r is None:
                             s.add(book)
                             s.commit()
@@ -307,7 +304,6 @@ def resp_2():
 @app.route('/scraper_get_toc', methods = ['POST'])
 def res_toc():  
     r = request.get_json()
-    print(f"check it out: {r}")
     browser = mechanicalsoup.StatefulBrowser()
     browser.open(r['titleUrl'])
     all_toc = browser.page.find("div", id="toclist")
@@ -329,15 +325,18 @@ def res_text():
     browser.open(r['titleUrl'])
     h=browser.page.select('a', class_="buttonlink")
     # print(f'H IS {h}')
-    print("about to loop all the A in H -----------------------------------------")
+    #print("about to loop all the A in H -----------------------------------------")
     for a in h:
         if a.text == "View entire text":
             ######### WE'LL NEED TO ADD / DUPLICATE CODE FOR FULL TEXT HERE
+            ######### I DOUBT THIS WILL EVEN WORK IN ITS CURRENT STATE HERE...
+            ######### WE'LL ALSO WANT TO PASS WEBSOCKET FOR THIS ONE TOO...
             return json.dumps(text_in_html)        
         else:
-            print(f"In the else / scrape html ----------------------------------")
+            #print(f"In the else / scrape html ----------------------------------")
             text_in_html = browser.page.find('div',class_="maincontent").text
-            print(f"begin the nltk analysis methods")
+            #print(f"begin the nltk analysis methods")
+            soct.send("second_msg")
             old_df, sents = nltk_analysis(r, text_in_html)
             mach_learning = machine_learning(old_df,sents)
             print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
