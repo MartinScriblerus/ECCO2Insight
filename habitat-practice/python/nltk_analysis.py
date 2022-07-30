@@ -658,11 +658,9 @@ def nltk_analysis(r, text_in_html):
     ############################# Summarize ################################
     ########################################################################
     ########################################################################
-    # soct.send("eleventh_msg")
 
     old_df_summary = []
     for index,word in enumerate(final_tokens):
-        # soct.send("twelfth_msg")
         if word not in word_frequencies.keys():
             word_frequencies[word] = 1
         else:

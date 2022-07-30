@@ -18,6 +18,27 @@ onMounted(()=>{
     searchModal = modal.value;
   }, 10);
   clearTimeout();
+
+   
+      const css = `
+      @charset "UTF-8";
+      @font-face {
+        font-family: "untitled-font-1";
+        src: url("untitled-font-1.svg#untitled-font-1") format("svg");
+        font-weight: normal;
+        font-style: normal;
+        z-index: 10;
+      }
+
+      @font-face {
+        font-family: 'Font Awesome 5 Free';
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot)';
+        src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot?#iefix) format("embedded-opentype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff2) format("woff2"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff) format("woff"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.ttf) format("truetype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.svg#fontawesome) format("svg")'
+      }
+      `
 })
 
 
@@ -27,9 +48,9 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
 }
 
-// const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities', 'Vectorizing Text', 'Time Series',"Plots?","Feature Extraction"]
+const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities', 'Vectorizing Text', 'Euclidean Distance','Plots?',"Feature Extraction"]
 
-const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
+// const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
 
 // socket.addEventListener('message', ev => {
 //   console.log("EVENT DATA ", ev.data);
@@ -111,40 +132,47 @@ socket.onmessage = event => {
     // }
     if(event.data === 'tenth_msg'){
       currentStepRef.value = 3;
-      console.log("pillow");
-      // stepMessage = "Rick had a time loosening some gravel";
       stepMessage = "Begin entity analysis";
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
-    // if(event.data === 'eleventh_msg'){
-    //   currentStepRef.value = 11;
-    //   console.log("pear");
-    //   // stepMessage = "Leo the limo had a great time styling his movies";
-    //   stepMessage = "Vectorizing the text"
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
-    // if(event.data === 'twelfth_msg'){
-    //   currentStepRef.value = 12;
-    //   console.log("MOM!!!!");
-    //   // stepMessage = "Trevor had a great time cutting down crops";
-    //   stepoMessage = "what are these plots?"
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
-    // if(event.data === 'thirteenth_msg'){
-    //   currentStepRef.value = 13;
-    //   console.log("toes");
-    //   // stepMessage = "Celia only mixes muck, but Mia only digs it";
-    //   stepMessage = "Extracting Features"
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }  
+    if(event.data === 'eleventh_msg'){
+      currentStepRef.value = 4;
+      stepMessage = "Vectorizing the text"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'twelfth_msg'){
+      currentStepRef.value = 5;
+      stepMessage = "Getting Euclidean Distances"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'thirteenth_msg'){
+      currentStepRef.value = 6;
+      console.log("toes");
+      stepMessage = "Time Series Analysis"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }  
+    if(event.data === 'fourteenth_msg'){
+      currentStepRef.value = 7;
+      stepMessage = "Beginning _plots?"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }  
+    if(event.data === 'fifteenth_msg'){
+      currentStepRef.value = 8;
+      stepMessage = "Got Clusters!"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }  
 }
 
 const props = defineProps({
@@ -157,8 +185,6 @@ const props = defineProps({
 });
 
 const temp = ref({})
-
-console.log("blannnnket mmmmmmmmmmmmmmmmmmmmaaaaaaaaaaaaaammmmmmmmmmmmmmmaaaaa");
 
 const initialHumanReadableTextRef = ref({
   title: String,
@@ -465,14 +491,31 @@ async function scrape_text(url){
           x
         </button>
       </header>
-      <div id="progressMsg">
-
-    <!-- {{stepMessage}} -->
-      </div>
-      <div id="progressCircles">
+      <!-- <div id="progressMsg">
+    {{stepMessage}}
+      </div> -->
+      
+      <!-- <div id="progressCircles">
         <step-progress :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
       
-      </div>
+      </div>  -->
+      
+      <section class="progress-circle-section" id="progressCircles">
+        <slot name="progressCircles">
+          <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
+            <div id="progressMsg">
+              {{stepMessage}}
+            </div>
+        </slot>
+      </section>
+      
+      
+      
+      
+      
+      
+      
+      
       <section class="modal-textAnalysis-title">
         <slot name="titleDiv">
             <span class="text-row">
@@ -894,6 +937,11 @@ body.modal-open {
   -ms-transform: scaleX(-1) rotate(-35deg); /* IE 9 */
   -webkit-transform: scaleX(-1) rotate(-35deg); /* Chrome, Safari, Opera */
   transform: scaleX(-1) rotate(-35deg);
+}
+
+.progress-circle-section {
+  width:100%;
+
 }
 
 
