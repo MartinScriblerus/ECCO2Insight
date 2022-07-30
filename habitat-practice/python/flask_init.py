@@ -26,9 +26,6 @@ from machine_learning import machine_learning
 # import asyncio
 import asyncio
 from datetime import datetime
-# import websockets 
-# import websocket
-# from websockets import connect
 
 import os
 import subprocess
@@ -37,32 +34,35 @@ import time
 
 import sys, json
 import datetime
-print(sys.path)
+# print(sys.path)
 
+## SQL ALCHEMY SESSION VARIABLE  
+## this global object allows for database queries from anywhere in code
+## also see crud.py and models.py for SQL Alchemy setup
+## -------------------------------------------------------------------
 s = Session()
 
+## FLASK APPLICATION wrapped in WEBSOCKET
+## -------------------------------------------------------------------
 app = Flask(__name__)
 sock = Sock(app)
 CORS(app, support_credentials=True)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 # create handler for each connection
+## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
 
-print(f"choo chooooooooooooooooooooooooooooooooooooooooo")
-
+## WEBSOCKETS ROUTE CONNECTED TO FLASK ENDPOINT
+## -------------------------------------------------------------------
 @sock.route('/ws')
 def echo(ws):
     global soct
     soct = ws
-    def handle_message(message):
-        print('received messageWOWOWOW')
-    print("WTF IS WS??? ",ws)
 
     while True:
         data = ws.receive()
-        print("HERE IS DATA ",data)
-        #THIS WORKS
-        #ws.send(json.dumps({"HERE YOU GO":"STUGGGGFFFF"}))
 
+## TODO: ... is this left over from edit? check whether this can go!
+## -------------------------------------------------------------------
 def application(environ, start_response):
   if environ['REQUEST_METHOD'] == 'OPTIONS':
     start_response(
@@ -77,26 +77,24 @@ def application(environ, start_response):
     return ''
 
 full_list = []
-
 initial_text_obj = {}
 comp_texts_array = []
 
-print('WHAT SIS SOCK??? ', sock.__dict__)
 
 @app.route('/')
 def hello():
- 
-    soct.send("first_msg")
- 
+
     count = 0
     multiplier = 100 * (count + 1)
+    ## TODO: better strategy for minimizing load times...
     # books = s.query(Book).limit(multiplier).all()
     books = s.query(Book)
     book_arr = []
     book_dict = {}
-        
+    
+    ## TODO: compare to models.py and crud.py when refining database
+    ## TODO: add a legitimate book id    
     for count, u in enumerate(books):
-
         book_dict['id'] = u.__dict__['id']
         book_dict['title'] = u.__dict__['title']
         book_dict['title_url'] = u.__dict__['title_url']
@@ -114,25 +112,27 @@ def hello():
         count = count + 1 
     return json.dumps(book_arr, indent=4, separators=(',', ': '))
     
-
+## This route scrapes metadata from all the texts in ECCO2. 
+## It is gathering data that will be used for gathering full texts...
 @app.route('/scraper', methods = ['POST'])
-
-def result():
+def scraper():
     filters = request.get_json()
 
     global count
     global full_list
     count = 0
-    # full_list = []
     browser = mechanicalsoup.StatefulBrowser()
    
+    ## navigate to ECCO with a stateful browser (works in the background)
     browser.open('https://quod.lib.umich.edu/cgi/t/text/text-idx?page=browse&cc=ecco&c=ecco')
 
     list_ready = False
 
     all_texts_by_alphabet = browser.page.select('tr', class_='browselistitem')
+    ## TODO: rename letterObject. What is this?
     letter_object = {}
 
+    ## Loop through all texts in ECCO2 ... navigate to each letter & collect data
     for index, text in enumerate(all_texts_by_alphabet):
         just_text = text.find('td')
         if just_text is None:
@@ -158,6 +158,7 @@ def result():
                     letter_object['id'] = count + 5
                     count = count + 1
                     letter_object['published'] = date(int(regex_num_year[0]), 6, 6)            
+
                     link_text = text.find('a', href=True)
                     if link_text is None:
                         print('Link text is none ^^')
@@ -176,7 +177,7 @@ def result():
                                 s.commit()
                             else:
                                 print("proof it is already there {book}")                
-    texts_df = pd.DataFrame()
+    # texts_df = pd.DataFrame()
     return request.get_json(force=True)
 
 def subsequent_letter(url): 
@@ -236,12 +237,16 @@ def subsequent_letter(url):
                         # s.add(book)
                         # s.commit()
                         
-    texts_df = pd.DataFrame()
+    # texts_df = pd.DataFrame()
 
     # browser.close()
 
     return request.get_json(force=True)
 
+
+## A few search endpoints / methods here... 
+## TODO: Add one more using mechanical soup to use ECCO2's search input form
+## --------------------------------------------------------------------------
 @app.route('/scraper_letter_filter', methods = ['POST'])
 def res():
     letter_to_filter = request.get_json()['letter']
@@ -328,7 +333,9 @@ def res_text():
     #print("about to loop all the A in H -----------------------------------------")
     for a in h:
         if a.text == "View entire text":
-            ######### WE'LL NEED TO ADD / DUPLICATE CODE FOR FULL TEXT HERE
+            ######### TODO:
+            ######### I'LL NEED TO ADD CODE FOR SEARCH TOC TO 
+            ######### APPLY TO THE FULL TEXT CLICK HERE
             ######### I DOUBT THIS WILL EVEN WORK IN ITS CURRENT STATE HERE...
             ######### WE'LL ALSO WANT TO PASS WEBSOCKET FOR THIS ONE TOO...
             return json.dumps(text_in_html)        
@@ -336,11 +343,15 @@ def res_text():
             #print(f"In the else / scrape html ----------------------------------")
             text_in_html = browser.page.find('div',class_="maincontent").text
             #print(f"begin the nltk analysis methods")
-            soct.send("second_msg")
+            # soct.send("second_msg")
             old_df, sents = nltk_analysis(r, text_in_html)
+       
+            
             mach_learning = machine_learning(old_df,sents)
+            
             print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
             initial_text_obj = old_df
+            # soct.send("second_msg")
             return old_df 
 
 @app.route('/get_comparison_texts', methods=['POST'])

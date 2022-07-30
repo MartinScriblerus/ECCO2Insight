@@ -19,10 +19,14 @@ from tsfresh.utilities.dataframe_functions import impute
 from tsfresh.feature_extraction import extract_features
 from tsfresh.feature_extraction import settings
 import pandas as pd
+import sys
 
 machine_dict = {}
 
 def machine_learning(old_df,sents): 
+
+    # if 'flask_init' in sys.modules:
+    #     from flask_init import soct
 
     old_df_vectorized_features = []
     old_df_vectorized_vocab = []
@@ -36,7 +40,7 @@ def machine_learning(old_df,sents):
     df_abstracts_tfidf = tfidf.fit_transform(text_df)    
     print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
 
-
+    # soct.send("eleventh_msg")
     for idx, s in enumerate(sents):
         ### vectorize features in array of sentences
         vectorizer = CountVectorizer()
@@ -61,6 +65,7 @@ def machine_learning(old_df,sents):
             print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
             old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
         
+    # soct.send("twelfth_msg")
     df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
     print(f"TUUUUST: {df}")
     settings_minimal = settings.MinimalFCParameters() 
@@ -105,6 +110,7 @@ def machine_learning(old_df,sents):
     import matplotlib.pyplot as plt
     import seaborn as sns
     from yellowbrick.cluster import SilhouetteVisualizer
+    # soct.send("twelfth_msg")
     def silhouettePlot(range_, data):
         '''
         we will use this function to plot a silhouette plot that helps us to evaluate the cohesion in clusters (k-means only)

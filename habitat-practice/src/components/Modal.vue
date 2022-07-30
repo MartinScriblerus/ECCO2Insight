@@ -2,29 +2,23 @@
 import { ref, watch, onMounted, watchEffect } from 'vue'
 import { SelfBuildingSquareSpinner  } from 'epic-spinners'
 import StepProgress from 'vue-step-progress';
-
+import './untitled-font-1.svg'
 // import the css (OPTIONAL - you can provide your own design)
 import 'vue-step-progress/dist/main.css';
+import { Head } from '@vueuse/head'
 
 
 
 const currentStepRef = ref(null);
-let currentStep = 0;
+
+let searchModal;
 onMounted(()=>{
   currentStepRef.value = 0;
+  setTimeout(() => {
+    searchModal = modal.value;
+  }, 10);
+  clearTimeout();
 })
-
-watchEffect(() => {
-  if (currentStepRef.value) {
-    console.log("I FUCKING HATE VUE: ", currentStepRef.value)
-    currentStep = currentStepRef.value;
-    console.log("what the fuck is currentStep ", currentStep);
-    return currentStep;
-  } else {
-    // not mounted yet, or the element was unmounted (e.g. by v-if)
-  }
-})
-
 
 
 const socket = new WebSocket('ws://localhost:5000/ws');
@@ -33,7 +27,9 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
 }
 
-const mySteps = ['Step 1', 'Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 6','Step 7','Step 8','Step 9','Step 10','Step 11','Step 12','Step 13']
+// const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities', 'Vectorizing Text', 'Time Series',"Plots?","Feature Extraction"]
+
+const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
 
 // socket.addEventListener('message', ev => {
 //   console.log("EVENT DATA ", ev.data);
@@ -43,127 +39,113 @@ let stepMessage = '';
 // });
 
 socket.onmessage = event => {
-  console.log(`WHAT THE FUCK??? ${event.data} AND ${typeof event.data}`);
 
-    if(event.data === 'first_msg'){
-      currentStepRef.value = 1;
-      console.log("door");
-      currentStep = 1;
-      stepMessage = "gecko's garage is so cool";
-
-      // if(document.getElementById("progressMsg")){
-      //   document.getElementById("progressMsg").innerText = stepMessage;
-      // }
-      // return currentStepRef.value;
-    }
-    if(event.data === 'second_msg'){
-      currentStepRef.value = 2;
-      console.log("guitar");
-      stepMessage = "Bobby the bus had a pump to do!"
-      // document.getElementById("progressMsg").innerText = stepMessage;
-      console.log("WHAT IS GODDAM STEP MSG: ", stepMessage);
-      console.log("GOFDAM what is count: ", currentStepRef.value);
-      currentStep = 2;
-      // return currentStepRef.value;
-    }
-    if(event.data === 'second_msg'){
-      currentStepRef.value = 3;
-      currentStep = 3;
-      stepMessage = "Sammy the schoolbus ran out of fuel";
-      // document.getElementById("progressMsg").innerText = stepMessage;
+    // if(event.data === 'second_msg'){
+    //   currentStepRef.value = 2;
+    //   console.log("guitar");
+    //   // stepMessage = "Bobby the bus had a pump to do!"
+    //   stepMessage = "Gathering text and preprocessing data"
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    if(event.data === 'third_msg'){
+      currentStepRef.value = 0;
+      // stepMessage = "Bobby the bus had a pump to do!"
+      stepMessage = "Gathering text and preprocessing data"
       console.log("fan");
-      // return currentStepRef.value;
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
     }
     if(event.data === 'fourth_msg'){
-      currentStepRef.value = 4;
-      currentStep = 4;
+      currentStepRef.value = 1;
       console.log("pants");
-      // stepMessage = "Vicky the Van needed a hammer to fix her windscreen";
-      document.getElementById("progressMsg").innerText = stepMessage;
-      // return currentStepRef.value;
+      // stepMessage = "Sammy the schoolbus ran out of fuel!!!!";
+      stepMessage = "Begin line-level and poetic analysis";
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
     }
-    if(event.data === 'fifth_msg'){
-      currentStepRef.value = 5;
-      currentStep = 5;
-      console.log("foot");
-      stepMessage = "Sid had great time digging in the muck";
-      // return currentStepRef.value;
-      // document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data ===  'sixth_msg'){
-      currentStepRef.value = 6;
-      currentStep = 6;
-      console.log("shelf");
-      stepMessage = "Eric had a great time digging up loose rock";
-      // return currentStepRef.value; 
-      // document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'seventh_msg'){
-      currentStepRef.value = 7;
-      currentStep = 7;
-      console.log("mouse");
-      stepMessage= "Dylan had a difficult time digging up loose rock";
-      //return currentStepRef.value;
-      // document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'eighth_msg'){
-      currentStepRef.value = 8;
-      currentStep = 8;
-      console.log("shakers");
-      stepMessage = "Ryan the wrecking ball crane had a great time smashing down the walls";
-      // return currentStepRef.value;
-      console.log("WTF IS SELF: ", self);
-      //document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'ninth_msg'){
-      currentStepRef.value = 9;
-      currentStep = 9;
-      console.log("computer");
-      stepMessage = "Caroline had a great time picking up beams and blocks";
-      //document.getElementById("progressMsg").innerText = stepMessage;
-      //return currentStepRef.value;
-    }
-    if(event.data === 'tenth_msg'){
-      currentStepRef.value = 10;
-      currentStep = 10;
-      console.log("pillow");
-      stepMessage = "Rick had a time loosening some gravel";
-      //return currentStepRef.value;
-      //document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'eleventh_msg'){
-      currentStepRef.value = 11;
-      currentStep = 11;
-      console.log("pear");
-      stepMessage = "Leo the limo had a great time styling his movies";
-      // return currentStepRef.value;
-      ///document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'twelfth_msg'){
-      currentStepRef.value = 12;
-      currentStep = 12;
-      console.log("MOM!!!!");
-      stepMessage = "Trevor had a great time cutting down crops";
-      //return currentStepRef.value;
-      ///document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    if(event.data === 'thirteenth_msg'){
-      currentStepRef.value = 13;
-      currentStep = 13;
-      console.log("toes");
-      stepMessage = "Celia only mixes muck, but Mia only digs it";
-      // return currentStepRef.value;
-      ///document.getElementById("progressMsg").innerText = stepMessage;
-    }
-    // else {
-    //   console.log("why nothing here in step conditionals");
-    //   console.log("event data is ", event.data);
+    // if(event.data === 'fifth_msg'){
+    //   currentStepRef.value = 5;
+    //   console.log("foot");
+    //   // stepMessage = "Sid had great time digging in the muck";
+    //   stepMessage = "Begin Line-level and Poetic Analysis";
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
     // }
-  // } 
-  
+    // if(event.data ===  'sixth_msg'){
+    //   currentStepRef.value = 6;
+    //   console.log("shelf");
+    //   stepMessage = "Eric had a great time digging up loose rock";
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    // if(event.data === 'seventh_msg'){
+    //   currentStepRef.value = 7;
+    //   console.log("mouse");
+    //   stepMessage= "Dylan had a difficult time digging up loose rock";
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    if(event.data === 'eighth_msg'){
+      currentStepRef.value = 2;
+      console.log("shakers");
+      // stepMessage = "Ryan the wrecking ball crane had a great time smashing down the walls";
+      stepMessage = "Begin sentence-level analysis"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    // if(event.data === 'ninth_msg'){
+    //   currentStepRef.value = 9;
+    //   console.log("computer");
+    //   stepMessage = "Caroline had a great time picking up beams and blocks";
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    if(event.data === 'tenth_msg'){
+      currentStepRef.value = 3;
+      console.log("pillow");
+      // stepMessage = "Rick had a time loosening some gravel";
+      stepMessage = "Begin entity analysis";
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    // if(event.data === 'eleventh_msg'){
+    //   currentStepRef.value = 11;
+    //   console.log("pear");
+    //   // stepMessage = "Leo the limo had a great time styling his movies";
+    //   stepMessage = "Vectorizing the text"
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    // if(event.data === 'twelfth_msg'){
+    //   currentStepRef.value = 12;
+    //   console.log("MOM!!!!");
+    //   // stepMessage = "Trevor had a great time cutting down crops";
+    //   stepoMessage = "what are these plots?"
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }
+    // if(event.data === 'thirteenth_msg'){
+    //   currentStepRef.value = 13;
+    //   console.log("toes");
+    //   // stepMessage = "Celia only mixes muck, but Mia only digs it";
+    //   stepMessage = "Extracting Features"
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }  
 }
-
-// console.log("FUUUUUUCK: ", self)
 
 const props = defineProps({
   open: Boolean,
@@ -172,11 +154,8 @@ const props = defineProps({
   rawtextdata: String,
   selectedTitle: String,
   selectedAuthor: String,
-  
 });
 
-// const mySteps = ['Step 1', 'Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 6','Step 7','Step 8','Step 9','Step 10','Step 11','Step 12','Step 13']
-// const currentStep = ref(0);
 const temp = ref({})
 
 console.log("blannnnket mmmmmmmmmmmmmmmmmmmmaaaaaaaaaaaaaammmmmmmmmmmmmmmaaaaa");
@@ -227,7 +206,6 @@ const initialHumanReadableTextRef = ref({
     }
   },
 
-  // sentenceIndex: Number,
   sentenceObj: {
     sentenceId: {
       sentimentCompound: Number,
@@ -239,17 +217,11 @@ const initialHumanReadableTextRef = ref({
     }
   },
   linesArray: Array,
-  // sentencesArray: Array,
 })
 
-// initialHumanReadableTextRef.value.textObj.spacyEntitiesArray = [];
 initialHumanReadableTextRef.value.textObj.mostCommonWords = [];
 
 const rawtextfromtoc= ref({});
-console.log("HERE IS TOC: ", props.tocdata);
-console.log("HERE IS RAW TEXT: ", rawtextfromtoc.value)
-// console.log("HERE IS RAW TITLE: ", props.selectedTitle)
-
 
 const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
 
@@ -267,13 +239,6 @@ watch(() => props.selected,(tocdata,rawtextdata,selectedTitle,selectedAuthor) =>
 
 const modalFull = ref(null);
 const modal = ref(null);
-
-let searchModal;
-onMounted(()=>{
-  setTimeout(() => {
-    searchModal = modal.value;
-  }, 10)
-})
 
 function tryGetFullModal(){
     setTimeout(()=>{
@@ -304,7 +269,6 @@ function doCloseFullModalChild(){
 
 // TODO: componentize and DRY this function (see TheWelcome)
 async function scrape_text(url){    
-  // CALL FULL SCREEN MODAL FUNCTION HERE ...
     
     emit('openedfullawaitscrape');
     // retract this when modal is closed...
@@ -325,12 +289,7 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
-          
-
-
-
-          
-       
+                
           rawtextfromtoc.value = result;
           console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
@@ -399,7 +358,6 @@ async function scrape_text(url){
               } finally {
 
               }  
-
               try {
                 initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
               } catch {
@@ -485,7 +443,12 @@ async function scrape_text(url){
 </script>
 
 <template>
-
+  <Head>
+    <!-- <title>Hello World</title> -->
+    <base href="/base" />
+    <html lang="en-US" class="theme-dark" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </Head>
 <Teleport to="body">
   <div v-if="openFull" class="full-screen-modal modal-backdrop">
     <div id="modalFull" ref="modalFull">
@@ -503,22 +466,14 @@ async function scrape_text(url){
         </button>
       </header>
       <div id="progressMsg">
-    <!-- {{currentStepDynamicRef.value}} -->
-    {{this.stepMessage}}
-      </div>
-      <div id="FUCK2">
-      {{this.currentStep}}
+
+    <!-- {{stepMessage}} -->
       </div>
       <div id="progressCircles">
-      {{"AHHHHHHHH ", currentStep}}
-        <step-progress :steps="mySteps" :current-step="currentStepRef" icon-class="fa fa-check"> </step-progress>
+        <step-progress :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
       
       </div>
       <section class="modal-textAnalysis-title">
-        <div id="FUCK"> 
-          {{this.currentStep}}
-
-        </div>
         <slot name="titleDiv">
             <span class="text-row">
               Title: {{props.selectedTitle}}
@@ -626,6 +581,47 @@ async function scrape_text(url){
 </template>
 
 <style scoped>
+  @charset "UTF-8";
+
+@font-face {
+  font-family: "untitled-font-1";
+  src: url("untitled-font-1.svg#untitled-font-1") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  z-index: 10;
+}
+
+[data-icon]:before {
+  font-family: "untitled-font-1" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  z-index:10;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "untitled-font-1" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-check-square-o:before {
+  content: "\61";
+}
+
 @keyframes animate-text-scrape {
   0%    { height: 0vh; opacity: 0 }
   100%  { height: 100vh; opacity: 1 }
@@ -846,7 +842,7 @@ body.modal-open {
   }
   .results-col {
     width:33vw;
-    background: green;
+    background: #0AA0C9;
     margin-left: 8px;
     margin-right: 16px;
     min-height: 200px;
@@ -863,21 +859,11 @@ body.modal-open {
     animation: loading 1.5s infinite;
   }
   
-  .step-progress, .step-progress__step, .step-progress__step.step-progress__step--active, .step-progress__step--active span   {
-    margin:16px;
-    --activeColor: green;
-    color:green !important;
-    background: black;
-    --activeColor:blue !important; 
-    --passiveColor:gray; 
-    --activeBorder:5px; 
-    --passiveBorder:5px;
-  }
-  .step-progress__wrapper {
-    position: absolute;
-  }
   #progressCircles {
-    width: 100%;
+    width: 64%;
+    /* max-width: 100%; */
+    right: 0px;
+    left: 4%;
   }
   #progressMsg {
     position: absolute;
@@ -886,10 +872,40 @@ body.modal-open {
     font-size: 28px;
   }
   .step-progress__step--active span {
+   
     color: "#ffffff";
+    z-index: 10;
+/*    font-family: "untitled-font-1";
+    src: url("./untitled-font-1.svg#untitled-font-1") format("svg");*/
   }
-  #FUCK {
-    index: 9999;
+  .check-square-o {
+    z-index: 10;
+    font-family: "untitled-font-1";
+    src: url("./untitled-font-1.svg#untitled-font-1") format("svg");
+    
+    z-index: 10;
+  }
 
-  }
+
+.new-font {
+  font-family: untitled-font-1;
+  color: #ffffff;
+
+  -ms-transform: scaleX(-1) rotate(-35deg); /* IE 9 */
+  -webkit-transform: scaleX(-1) rotate(-35deg); /* Chrome, Safari, Opera */
+  transform: scaleX(-1) rotate(-35deg);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
