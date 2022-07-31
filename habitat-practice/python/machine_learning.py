@@ -204,12 +204,12 @@ def machine_learning(old_df,sents):
             feature_list.remove(selected_feature)
             print("Selected new feature {} with score {}". format(selected_feature, high_score))
         return selected_features
-
+        soct.send("fifteenth_msg")
     scaler = SS()
     for (columnName, columnData) in text_df.iteritems():
         if type(columnData) is list and type(columnData[0]) is float: 
             print(f"AWESOME!!! {columnName}")
-            soct.send("fifteenth_msg")
+            # soct.send("fifteenth_msg")
             print(f"AWESOME BUT WTF IS THIS? {text_df['sentence_id'][0]}")
             DNP_text_standardized = scaler.fit_transform(text_df['sentence_id'][0], text_df[columnName])
             df_text_standardized = pd.DataFrame(DNP_text_standardized, index_col=columnName)

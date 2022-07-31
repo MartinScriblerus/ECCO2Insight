@@ -25,7 +25,7 @@ from machine_learning import machine_learning
 # from ast import While
 # import asyncio
 import asyncio
-from datetime import datetime
+from datetime import date,datetime
 
 import os
 import subprocess
@@ -262,6 +262,41 @@ def res():
         resp.append(bk)
     return json.dumps(resp)
 
+# ## begin---------------------------------------------------
+@app.route('/http://localhost:5000/fulltext_filter', methods = ['POST'])
+def full_text_search():
+    # fulltext_to_filter = request.get_json()
+    # print(f"HIT PYTHON ROUTE!!! {fulltext_to_filter}")
+    return json.dumps({"hi!":"helllllo"})
+
+# @app.route('/http://localhost:5000/scraper_fullText', methods = ['POST'])
+# def scrape_full_text():
+#     filters = request.get_json()
+
+#     global count_full_text
+#     global full_list_full_text
+#     count = 0
+#     browser = mechanicalsoup.StatefulBrowser()
+   
+#     ## navigate to ECCO with a stateful browser (works in the background)
+#     browser.open('https://quod.lib.umich.edu/cgi/t/text/text-idx?cc=ecco&page=simple&c=ecco')
+
+#     list_ready_fulltext = False
+
+#     search_inputs = browser.page.select('input', class_='formfont')
+#     ## TODO: rename letterObject. What is this?
+#     fulltext_search_object = {}
+
+#     ## Loop through all texts in ECCO2 ... navigate to each letter & collect data
+#     for index, inp in enumerate(search_inputs):
+#         print(f"this should be an input: {inp}")
+
+#         ## perhaps begin full text search here
+
+# ## end-----------------------------------------------------
+
+
+
 @app.route('/scraper_author_filter', methods = ['POST'])
 def resp():
     author_to_filter = request.get_json()['author_filter']
@@ -292,17 +327,19 @@ def resp_title():
 
 @app.route('/scraper_year_filter', methods = ['POST'])
 def resp_2():
-    year_to_filter_begin = datetime(int(request.get_json()['yearBegin']),1,1)
-    year_to_filter_end = datetime(int(request.get_json()['yearEnd']),1,1)
-    print(year_to_filter_begin)
-    print(year_to_filter_end)
-    query_res_year = s.query(Book).filter(Book.published.between(year_to_filter_begin,year_to_filter_end)).all()
-    resp_year = []
-    if query_res_year is not None:
-        for i in query_res_year:
-            bk_year = json.dumps(i.as_dict(), indent=4, sort_keys=True, default=str)
-            resp_year.append(bk_year)
-        return json.dumps(resp_year)
+    if int(request.get_json()['yearBegin']) > 1699:
+        if int(request.get_json()['yearEnd']) > 1699:
+            year_to_filter_begin = date(int(request.get_json()['yearBegin']),1,1)
+            year_to_filter_end = date(int(request.get_json()['yearEnd']),1,1)
+            query_res_year = s.query(Book).filter(Book.published.between(year_to_filter_begin,year_to_filter_end)).all()
+            resp_year = []
+            if query_res_year is not None:
+                for i in query_res_year:
+                    bk_year = json.dumps(i.as_dict(), indent=4, sort_keys=True, default=str)
+                    resp_year.append(bk_year)
+                return json.dumps(resp_year)
+        else:
+            return {}    
     else:
         return {}    
 
@@ -349,7 +386,7 @@ def res_text():
             
             mach_learning = machine_learning(old_df,sents)
             
-            print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
+            #print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
             initial_text_obj = old_df
             # soct.send("second_msg")
             return old_df 

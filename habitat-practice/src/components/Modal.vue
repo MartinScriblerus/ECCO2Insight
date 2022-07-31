@@ -48,7 +48,7 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
 }
 
-const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities', 'Vectorizing Text', 'Euclidean Distance','Plots?',"Feature Extraction"]
+const mySteps = ['Preprocess', 'Lines', 'Sentences', 'Entities', 'Vectorization', 'Distances','Plots?', "Extraction"]
 
 // const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
 
@@ -153,7 +153,6 @@ socket.onmessage = event => {
     }
     if(event.data === 'thirteenth_msg'){
       currentStepRef.value = 6;
-      console.log("toes");
       stepMessage = "Time Series Analysis"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
@@ -491,101 +490,54 @@ async function scrape_text(url){
           x
         </button>
       </header>
-      <!-- <div id="progressMsg">
-    {{stepMessage}}
-      </div> -->
-      
-      <!-- <div id="progressCircles">
-        <step-progress :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
-      
-      </div>  -->
-      
-      <section class="progress-circle-section" id="progressCircles">
-        <slot name="progressCircles">
-          <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
-            <div id="progressMsg">
-              {{stepMessage}}
-            </div>
-        </slot>
-      </section>
-      
-      
-      
-      
-      
-      
-      
-      
-      <section class="modal-textAnalysis-title">
-        <slot name="titleDiv">
-            <span class="text-row">
-              Title: {{props.selectedTitle}}
-            </span>
-            <span class="text-row">
-              Author: {{props.selectedAuthor}}
-            </span>
-        </slot>
-      </section>
 
-      <section class="modal-single-text-results">
-        <slot name="textAnalysis-results">
-            <div class="results-col">
-              Yo full text
-            </div>
-            <div class="results-col">
-              Yo sentences
-            </div>
-            <div class="results-col">
-              Yo Lines
-            </div>
-        </slot>
-      </section>
-      <!-- <section class="modal-textAnalysis">
-        <slot name="textDataDiv">
-          <span class="text-row">
-            Text Data
-          </span>
-          <span class="text-row">
-            Text Data
-          </span>
-        </slot>
-      </section> -->
-
-      <!-- <section class="modal-textAnalysis"> -->
-        <!-- <slot name="sentencesDataDiv">
-          <span class="text-row">
-            Sentences Data
-          </span>
-          <span class="text-row">
-            Sentences Data
-          </span>
-        </slot>
-      </section>
-
-      <section class="modal-textAnalysis">
-        <slot name="linesDataDiv">
-          <span class="text-row">
-            Lines Data
-          </span>
-          <span class="text-row">
-            Lines Data
-          </span>
-        </slot>
-      </section> -->
-    
       <section class="modal-body">
-        <slot name="body">
-     
-        
-          <self-building-square-spinner
+        <slot name="body">   
+          <!-- <self-building-square-spinner
             v-if="!props.rawtextdata" 
             id="squareBuilderAnim"
             :animation-duration="6000"
             :size="48"
             color="rgba(255,255,255,1)"
-          />
+          /> -->
+        <!-- </slot> -->
+          <section class="modal-textAnalysis-title">
+            <slot name="titleDiv">
+              <span class="text-row">
+                Title: {{props.selectedTitle}}
+              </span>
+              <span class="text-row">
+                Author: {{props.selectedAuthor}}
+              </span>
+            </slot>
+          </section>
+          <section class="progress-circle-section" id="progressCircles">
+            <slot name="progressCircles">
+              <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
+            </slot>
+          </section>
+
+          <section id="progressMsg" class="progress-msg">
+            <slot name="progressMsg">
+              <!-- {{stepMessage}} -->
+            </slot>
+            </section>
+
+          <section class="modal-single-text-results">
+            <slot name="textAnalysis-results">
+                <div class="results-col">
+                  Yo full text
+                </div>
+                <div class="results-col">
+                  Yo sentences
+                </div>
+                <div class="results-col">
+                  Yo Lines
+                </div>
+            </slot>
+          </section>
         </slot>
-       </section>
+      </section>
 
       <footer class="modal-footer">
         <slot name="footer">
@@ -608,9 +560,11 @@ async function scrape_text(url){
     <span id="tocSubtitle">Click any link below to load the text</span>
     <div id="tocDataWrapper">
         <div id="tocData" v-for="item in props.tocdata">
+            <i icon-class="fa-solid fa-ellipsis" />
             <h3 @click="scrape_text(item.link_href)">{{
                 item.link_text
             }}</h3>
+
         </div>
     </div>
     <!-- <p id="textData">{{rawtextfromtoc ? rawtextfromtoc.value : null}}</p> -->
@@ -677,7 +631,7 @@ body.modal-open {
     position: fixed;
     z-index: 999;
     top: 0%;
-    bottom: 0%;
+
     align-items: center;
     left: 0%;
     grid-template-columns: 1fr;
@@ -721,7 +675,7 @@ body.modal-open {
     border-bottom: solid 1px rgba(255, 255, 255, 0.3);
     color: rgba(255,255,255,1);
     font-size: 1rem;
-    font-family: 'Inter' Helvetica sans-serif;
+    font-family: 'Inter' sans-serif;
     font-style:italic;
     margin-bottom: 0.1rem;
     font-weight: 500;
@@ -820,8 +774,10 @@ body.modal-open {
 
   .modal-body {
     position: relative;
-    padding: 1% 1%;
+    padding: 0% 0%;
     max-width: 100%;
+    top:72px;
+    height: 100%;
   }
 
   .btn-close {
@@ -870,7 +826,6 @@ body.modal-open {
 
   .modal-textAnalysis-title {
     /* this is the overarching modal */
-    top: 72px;
     padding-left: 4%;
     padding-right: 4%;
     position: absolute;
@@ -906,13 +861,19 @@ body.modal-open {
     width: 64%;
     /* max-width: 100%; */
     right: 0px;
-    left: 4%;
+    left: 0%;
   }
   #progressMsg {
-    position: absolute;
+    position: relative;
     z-index: 1;
     bottom: 0px;
     font-size: 28px;
+    text-align: center;
+    padding-top: 88px;
+  }
+  .step-progress__wrapper {
+    width: 90vw;
+    left: 4vw;
   }
   .step-progress__step--active span {
    
@@ -941,7 +902,10 @@ body.modal-open {
 
 .progress-circle-section {
   width:100%;
-
+  top:  72px;
+}
+.progress-msg {
+  width:100%;
 }
 
 

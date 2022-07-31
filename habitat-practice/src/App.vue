@@ -89,6 +89,7 @@ export default {
       state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
       console.log("state data: ", state.data);
+      
       const totalVuePackages = await state.data;
       if(state && state.data){
         state.loaded = true;
@@ -212,7 +213,7 @@ export default {
         method: "POST",
         body: JSON.stringify({yearBegin: yearBegin, yearEnd: yearEnd})
       }).then(response => response.json()).then(result => {
-              
+              console.log("RESULT ", result);
               let arr = [];
               for(let i = 0; i < result.length; i++){
                 
@@ -277,6 +278,33 @@ export default {
     <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" /> -->
     <!-- <a id="rowanButton" href="https://www.youtube.com/watch?v=vRulmmH5G4U" width="125" height="125">CLICK ME ROWAN!!!</a> -->
     <div class="wrapper-outer">
+      <div class="wrapper">
+
+        <div class="inputsRowWrapper">
+          <div id="titleAuthorInputWrapper">
+            <span class="label-wrap">
+              <input id="titleSearch" @keyup='handleKeyUpTitle' v-model='props.titleSearch'/>
+              <label class="green" for="titleSearch">Title</label>
+            </span>
+            <span class="label-wrap">
+              <input id="authorSearch" @keyup='handleKeyUpAuthor' v-model='props.authorSearch'/>
+              <label class="green" for="authorSearch">Author</label>
+            </span>
+        </div>
+
+        <div id="yearsBetweenInputWrapper">
+
+            <span class="label-wrap">
+              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
+              <label class="green" for="yearSearch">Begin</label>
+            </span>
+            <span class="label-wrap">
+              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
+              <label class="green" for="yearSearch">End</label>
+            </span>
+          
+        </div>
+      </div>
       <div id="letter-wrapper">
         <div class="toggle-wrapper">
           <div id="letterFilterToggleWrapper">
@@ -326,32 +354,7 @@ export default {
           <span class="letterClick green" v-on:click="handleKeyUpLetter('Z')">Z</span>
         </div>
       </div>
-      <div class="wrapper">
-        <div class="inputsRowWrapper">
-          <div id="titleAuthorInputWrapper">
-            <span class="label-wrap">
-              <input id="titleSearch" @keyup='handleKeyUpTitle' v-model='props.titleSearch'/>
-              <label class="green" for="titleSearch">Title</label>
-            </span>
-            <span class="label-wrap">
-              <input id="authorSearch" @keyup='handleKeyUpAuthor' v-model='props.authorSearch'/>
-              <label class="green" for="authorSearch">Author</label>
-            </span>
-        </div>
 
-        <div id="yearsBetweenInputWrapper">
-
-            <span class="label-wrap">
-              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
-              <label class="green" for="yearSearch">Begin</label>
-            </span>
-            <span class="label-wrap">
-              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
-              <label class="green" for="yearSearch">End</label>
-            </span>
-          
-        </div>
-      </div>
 
       </div>       
       <!-- <button class="green header" v-on:click="scrapeBasic">Reset DB</button> -->
@@ -360,7 +363,8 @@ export default {
   </header>
 
   <main id="main">
-    <TheWelcome :items="this.state.data" />
+  
+    <TheWelcome :items="state.data" />
   </main>
 </template>
 
@@ -371,7 +375,7 @@ export default {
 #app {
   /*max-width: 1280px;*/
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2%;
   grid-template-columns: 1fr 1fr;
   font-weight: normal;
   position:absolute;
@@ -423,6 +427,9 @@ a,
 
 button {
   background: #181818;
+  font-weight: 600;
+  font-size: 18px;
+  cursor:pointer;
 }
 
 input {
@@ -435,14 +442,15 @@ input {
 }
 
 #main {
-  max-height: 130vh;
+  max-height: 100vh;
   overflow-y: scroll;
-  top:72px;
+  top:52px;
   visibility: hidden;
 }
 
 #headerDiv {
   visibility:hidden;
+
   /*height:100vh;*/
 }
 
@@ -518,26 +526,33 @@ input[type="checkbox"] {
     display: flex;
     flex-direction: column;
     width: 64%;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 #titleAuthorInputWrapper > .label-wrap {
   width:100%;
 }
+
 #yearsBetweenInputWrapper > .label-wrap {
   text-align: center;
   height: 100%;
   justify-content: center;
 }
+
 #yearsBetweenInputWrapper {
   display:flex;
   flex-direction:row;
   float: right;
-  width: 32%;
+  width: 40%;
 }
+
 .inputsRowWrapper {
   flex-direction: row;
   display:inline-flex;
   overflow:auto;
   width:100%;
+  padding-left:0%;
+  padding-right:0%;
 }
 
 #alphabetWrapper {
@@ -549,23 +564,23 @@ input[type="checkbox"] {
 
 .wrapper-outer {
   border: 1px solid rgba(255,255,255,0.78);
-  margin-top: 80px;
+
   width: 100%;
 }
 
 .jumbotron {
-  width: 100%;
-  position: absolute;
+width: 100%;
+  position: fixed;
   z-index: 40;
   height: 68px;
   padding-left: 40px;
   font-size: 48px;
   font-weight: 100;
   top: 0px;
-  left:0px;
-  background: rgba(255, 255, 255, 0.078);
+  left: 0px;
+  background: rgba(0, 0, 0, 1);
   transition: height 1s ease-in;
-  pointer-events:none;
+  pointer-events: none;
 } 
 
 .intro-cover {
@@ -655,6 +670,7 @@ input:checked + .slider:before {
 @media (hover: hover) {
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
+    cursor:pointer;
   }
 }
 
@@ -663,16 +679,15 @@ input:checked + .slider:before {
   }
 
 @media (max-width: 900px) {
+
   #main {
-    top:24px;
+    top:80px;
   }
   #headerDiv.noDisplay {
     display: none;
   }
-  #yearsBetweenInputWrapper{
-    flex-direction: column;
-    display:initial;
- 
+  #headerDiv {
+    top: 72px;
   }
   .toggle-wrapper {
     width: 12%;
@@ -681,6 +696,7 @@ input:checked + .slider:before {
     margin-top:24px;
     margin-bottom:24px;
     padding-left:10%;
+    padding-right:10%;
   }
   input {
     width:64%;
@@ -692,6 +708,11 @@ input:checked + .slider:before {
   /*.switch {
     top:12px;
   }*/
+
+  #titleAuthorInputWrapper {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
 
   .modal.searching {
     width: 100vw;
@@ -709,6 +730,7 @@ input:checked + .slider:before {
   body {
     display: flex;
     place-items: center;
+    overflow-y:hidden;
   }
 
   #app {
@@ -718,9 +740,9 @@ input:checked + .slider:before {
   }
 
   header {
-    display: flex;
     place-items: center;
     padding-right: calc(var(--section-gap) / 6);
+    top:72px;
   }
 
   header .wrapper {
@@ -728,8 +750,8 @@ input:checked + .slider:before {
     place-items: flex-start;
     flex-wrap: wrap;
     overflow: auto;
-    padding-top: 16px;
-    padding-bottom: 16px;
+
+
   }
 
   #letterWrapper {
