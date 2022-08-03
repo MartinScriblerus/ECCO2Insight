@@ -346,20 +346,26 @@ def resp_2():
 @app.route('/scraper_get_toc', methods = ['POST'])
 def res_toc():  
     r = request.get_json()
+    print(f'what is R? {r}')
     browser = mechanicalsoup.StatefulBrowser()
     browser.open(r['titleUrl'])
+    print(f"browser? {browser}")
     all_toc = browser.page.find("div", id="toclist")
     all_toc_list = []
     obj = {}
     print("about to find every link in doc  -----------------------------------------")
+    # if type(all_toc) != None:
+    print("HERE IS ALL TOC: ", all_toc)
     for each in all_toc:
         link_text = each.find("a")
+        print("Linkt Text")
         if type(link_text) is not int:
             link_full = link_text.text
             link_href = link_text["href"]
             all_toc_list.append({"link_text": link_full, "link_href": link_href})
     return json.dumps(all_toc_list)
-     
+    # else:
+    #     print('what is the issue here?') 
 @app.route('/scraper_get_text', methods=['POST'])
 def res_text():
     r = request.get_json()
@@ -383,10 +389,12 @@ def res_text():
             # soct.send("second_msg")
             old_df, sents = nltk_analysis(r, text_in_html)
        
-            
+            # print(f"OLD DF IS {old_df} //// SENTS IS ... {sents}")
+        
             mach_learning = machine_learning(old_df,sents)
-            
-            #print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
+            soct.send('fifteenth_msg')
+            # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
+            # soct.send("fifteenth_msg")
             initial_text_obj = old_df
             # soct.send("second_msg")
             return old_df 
@@ -397,11 +405,11 @@ def res_n():
     ## -------------------------- THIS WILL BE MOVED FURTHER DOWN INTO A MACH LEARNING STEP (but staying here for now)
     initial_df_training_data = pd.DataFrame.from_dict(initial_text_obj, orient='index')
     initial_df_training_data = initial_df_training_data.transpose()
-    print( "GOT DF OF INITIAL TEXT", text_df_test.info())
-    # show first 5 rows
-    print( "ytsss", text_df_test.head(5))
-    # display some statistics
-    print( "wooohooo", text_df_test.describe())
+    # print( "GOT DF OF INITIAL TEXT", text_df_test.info())
+    # # show first 5 rows
+    # print( "ytsss", text_df_test.head(5))
+    # # display some statistics
+    # print( "wooohooo", text_df_test.describe())
     ## -------------------------- 
 
     r = request.get_json()
@@ -413,6 +421,7 @@ def res_n():
     for a in h:
         if a.text == "View entire text":
             ######### WE'LL NEED TO ADD / DUPLICATE CODE FOR FULL TEXT HERE
+            text_in_html = '' ## THIS IS A SAMPLE TO BLOCK WARNING UNTIL THIS IS READY
             return json.dumps(text_in_html)        
 
         else:
@@ -432,11 +441,11 @@ def res_t():
     ## -------------------------- THIS WILL BE MOVED FURTHER DOWN INTO A MACH LEARNING STEP (but staying here for now)
     initial_df_training_data = pd.DataFrame.from_dict(initial_text_obj, orient='index')
     initial_df_training_data = initial_df_training_data.transpose()
-    print( "GOT DF OF INITIAL TEXT", text_df_test.info())
-    # show first 5 rows
-    print( "ytsss", text_df_test.head(5))
-    # display some statistics
-    print( "wooohooo", text_df_test.describe())
+    # print( "GOT DF OF INITIAL TEXT", text_df_test.info())
+    # # show first 5 rows
+    # print( "ytsss", text_df_test.head(5))
+    # # display some statistics
+    # print( "wooohooo", text_df_test.describe())
     ## -------------------------- 
     
     

@@ -40,8 +40,7 @@ def machine_learning(old_df,sents):
     df_abstracts_tfidf = tfidf.fit_transform(text_df)    
     print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
 
-    soct.send("eleventh_msg")
-
+    
     for idx, s in enumerate(sents):
         ### vectorize features in array of sentences
         vectorizer = CountVectorizer()
@@ -55,27 +54,34 @@ def machine_learning(old_df,sents):
         old_df_vectorized_vocab.append(vectorizer.vocabulary_)
 
         tfidf = TfidfVectorizer()
-        y = tfidf.fit_transform([s])
+
+        try:
+            y = tfidf.fit_transform([s])
+            tfidf.get_feature_names()
+            df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
+            print(f"df feat TFIDF!!!! {type(df_feat)}")
+
+            old_df_vectorized_tfidf.append(df_feat)
+
+            # soct.send("twelfth_msg") 
+        except:
+            print('')
+            ## make this an error handler
+            # soct.send('twelfth_msg')
         # y.toarray()
-        tfidf.get_feature_names()
-        df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
-        print(f"df feat TFIDF!!!! {type(df_feat)}")
-
-        old_df_vectorized_tfidf.append(df_feat)
-
-        soct.send("twelfth_msg") 
+       
 
         ## WE'll want to bring this back!!!
         for i, f in enumerate(features):
             print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
             old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
-           
+    soct.send("eleventh_msg")         
     # soct.send("twelfth_msg")
     df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
     print(f"TUUUUST: {df}")
     settings_minimal = settings.MinimalFCParameters() 
     # print(f"MIN SEETT TUUST: {settings_minimal}")
-    soct.send("thirteenth_msg")
+    
     settings.ComprehensiveFCParameters, settings.EfficientFCParameters, settings.MinimalFCParameters
     print(f"DF COLS:::: ", df.columns)
     # X_tsfresh = extract_features(df, column_id='id', default_fc_parameters=settings_minimal)
@@ -115,54 +121,54 @@ def machine_learning(old_df,sents):
     import matplotlib.pyplot as plt
     import seaborn as sns
     from yellowbrick.cluster import SilhouetteVisualizer
-    soct.send("fourteenth_msg")
-    def silhouettePlot(range_, data):
-        '''
-        we will use this function to plot a silhouette plot that helps us to evaluate the cohesion in clusters (k-means only)
-        '''
-        half_length = int(len(range_)/2)
-        range_list = list(range_)
-        fig, ax = plt.subplots(half_length, 2, figsize=(15,8))
-        for _ in range_:
-            kmeans = KMeans(n_clusters=_, random_state=42)
-            q, mod = divmod(_ - range_list[0], 2)
-            sv = SilhouetteVisualizer(kmeans, colors="yellowbrick", ax=ax[q][mod])
-            ax[q][mod].set_title("Silhouette Plot with n={} Cluster".format(_))
-            sv.fit(data)
-        fig.tight_layout()
-        fig.show()
-        fig.savefig("silhouette_plot.png")
 
-    def elbowPlot(range_, data, figsize=(10,10)):
-        '''
-        the elbow plot function helps to figure out the right amount of clusters for a dataset
-        '''
-        inertia_list = []
-        for n in range_:
-            kmeans = KMeans(n_clusters=n, random_state=42)
-            kmeans.fit(data)
-            inertia_list.append(kmeans.inertia_)
+    # def silhouettePlot(range_, data):
+    #     '''
+    #     we will use this function to plot a silhouette plot that helps us to evaluate the cohesion in clusters (k-means only)
+    #     '''
+    #     half_length = int(len(range_)/2)
+    #     range_list = list(range_)
+    #     fig, ax = plt.subplots(half_length, 2, figsize=(15,8))
+    #     for _ in range_:
+    #         kmeans = KMeans(n_clusters=_, random_state=42)
+    #         q, mod = divmod(_ - range_list[0], 2)
+    #         sv = SilhouetteVisualizer(kmeans, colors="yellowbrick", ax=ax[q][mod])
+    #         ax[q][mod].set_title("Silhouette Plot with n={} Cluster".format(_))
+    #         sv.fit(data)
+    #     fig.tight_layout()
+    #     fig.show()
+    #     fig.savefig("silhouette_plot.png")
+
+    # def elbowPlot(range_, data, figsize=(10,10)):
+    #     '''
+    #     the elbow plot function helps to figure out the right amount of clusters for a dataset
+    #     '''
+    #     inertia_list = []
+    #     for n in range_:
+    #         kmeans = KMeans(n_clusters=n, random_state=42)
+    #         kmeans.fit(data)
+    #         inertia_list.append(kmeans.inertia_)
             
-        # plotting
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111)
-        sns.lineplot(y=inertia_list, x=range_, ax=ax)
-        ax.set_xlabel("Cluster")
-        ax.set_ylabel("Inertia")
-        ax.set_xticks(list(range_))
-        fig.show()
-        fig.savefig("elbow_plot.png")
+    #     # plotting
+    #     fig = plt.figure(figsize=figsize)
+    #     ax = fig.add_subplot(111)
+    #     sns.lineplot(y=inertia_list, x=range_, ax=ax)
+    #     ax.set_xlabel("Cluster")
+    #     ax.set_ylabel("Inertia")
+    #     ax.set_xticks(list(range_))
+    #     fig.show()
+    #     fig.savefig("elbow_plot.png")
 
-    def findOptimalEps(n_neighbors, data):
-        '''
-        function to find optimal eps distance when using DBSCAN; based on this article: https://towardsdatascience.com/machine-learning-clustering-dbscan-determine-the-optimal-value-for-epsilon-eps-python-example-3100091cfbc
-        '''
-        neigh = NearestNeighbors(n_neighbors=n_neighbors)
-        nbrs = neigh.fit(data)
-        distances, indices = nbrs.kneighbors(data)
-        distances = np.sort(distances, axis=0)
-        distances = distances[:,1]
-        plt.plot(distances)
+    # def findOptimalEps(n_neighbors, data):
+    #     '''
+    #     function to find optimal eps distance when using DBSCAN; based on this article: https://towardsdatascience.com/machine-learning-clustering-dbscan-determine-the-optimal-value-for-epsilon-eps-python-example-3100091cfbc
+    #     '''
+    #     neigh = NearestNeighbors(n_neighbors=n_neighbors)
+    #     nbrs = neigh.fit(data)
+    #     distances, indices = nbrs.kneighbors(data)
+    #     distances = np.sort(distances, axis=0)
+    #     distances = distances[:,1]
+    #     plt.plot(distances)
 
     def progressiveFeatureSelection(df, n_clusters=3, max_features=4,):
         '''
@@ -202,63 +208,137 @@ def machine_learning(old_df,sents):
                     high_score = score_
             selected_features.append(selected_feature)
             feature_list.remove(selected_feature)
+            soct.send("fifteenth_msg")
             print("Selected new feature {} with score {}". format(selected_feature, high_score))
+        # soct.send("fifteenth_msg")
         return selected_features
-        soct.send("fifteenth_msg")
+
+
     scaler = SS()
     for (columnName, columnData) in text_df.iteritems():
-        if type(columnData) is list and type(columnData[0]) is float: 
-            print(f"AWESOME!!! {columnName}")
-            # soct.send("fifteenth_msg")
-            print(f"AWESOME BUT WTF IS THIS? {text_df['sentence_id'][0]}")
-            DNP_text_standardized = scaler.fit_transform(text_df['sentence_id'][0], text_df[columnName])
-            df_text_standardized = pd.DataFrame(DNP_text_standardized, index_col=columnName)
-            df_text_standardized = df_text_standardized.set_index(text_df.index)
+        
+        print(text_df.head(5))
+        print(f"AWESOME BUT WTF IS THIS? {text_df['sentence_id']}")
+        print(f"sanity sake: {type(text_df[columnName].iloc[0])}")
+        
+        try:
+            soct.send("twelfth_msg")  
+            for s in text_df[columnName].values.reshape(1, -1):  
 
-            print(df_text_standardized.info())
+                try:
+                    DNP_text_standardized = scaler.fit_transform(s, s)
+                    df_text_standardized = pd.DataFrame(DNP_text_standardized, index_col=columnName)
+                    df_text_standardized = df_text_standardized.set_index(text_df.index)
 
-            # show first 5 rows
-            print(df_text_standardized.head(5))
+                    selected_features = progressiveFeatureSelection(df_text_standardized, max_features=3, n_clusters=3)
+                    optimal_features = optimal_features(df_text_standardized)
+                    print("SELECTED FEATURES: ", selected_features)
+                    df_standardized_sliced = df_text_standardized[selected_features]
+                    DNP_text_standardized = scaler.fit_transform(df_standardized_sliced.reshape(-1,1),df_standardized_sliced.reshape(-1,1))
+                
+ 
+               
+                    
+                    # elbowPlot(range(1,11), df_standardized_sliced)
+                    # silhouettePlot(range(3,9), df_standardized_sliced)
+                    # df_standardized_sliced = df_text_standardized[selected_features]
+                    
+                    kmeans = KMeans(n_clusters=5, random_state=42)
+                    cluster_labels = kmeans.fit_predict(df_standardized_sliced)
+                    df_standardized_sliced["clusters"] = cluster_labels
 
-            # display some statistics
-            print(df_text_standardized.describe())
+                    print( df_standardized_sliced.info())
 
-            selected_features = progressiveFeatureSelection(df_text_standardized, max_features=3, n_clusters=3)
-            optimal_features = optimal_features(df_text_standardized)
-            print("SELECTED FEATURES: ", selected_features)
-            df_standardized_sliced = df_text_standardized[selected_features]
+                    # show first 5 rows
+                    print( df_standardized_sliced.head(5))
 
-            print( df_standardized_sliced.info())
+                    # display some statistics
+                    print( df_standardized_sliced.describe())
 
-            # show first 5 rows
-            print( df_standardized_sliced.head(5))
+                    # using PCA to reduce the dimensionality
+                    pca = PCA(n_components=2, whiten=False, random_state=42)
+                    texts_standardized_pca = pca.fit_transform(df_standardized_sliced)
+                    df_texts_standardized_pca = pd.DataFrame(data=texts_standardized_pca, columns=["pc_1", "pc_2"])
+                    df_texts_standardized_pca["clusters"] = cluster_labels
+                    print(f"ARE WE GETTING CLUSTERS? {df_authors_standardized_pca['clusters']}")
+                    # plotting the clusters with seaborn
+                    # sns.scatterplot(x="pc_1", y="pc_2", hue="clusters", data=df_authors_standardized_pca)
+                ## MAKE THIS AN ERROR HANDLER
+                # soct.send("fourteenth_msg")        
+                # # initial_text = old_df
+                
+                    print(df_texts_standardized_pca.info())
 
-            # display some statistics
-            print( df_standardized_sliced.describe())
+                    # show first 5 rows
+                    print(df_texts_standardized_pca.head(5))
+
+                    # display some statistics
+                    print(df_texts_standardized_pca.describe())
             
-            elbowPlot(range(1,11), df_standardized_sliced)
-            silhouettePlot(range(3,9), df_standardized_sliced)
-            
-            
-            kmeans = KMeans(n_clusters=5, random_state=42)
-            cluster_labels = kmeans.fit_predict(df_standardized_sliced)
-            df_standardized_sliced["clusters"] = cluster_labels
+                    
 
-            # using PCA to reduce the dimensionality
-            pca = PCA(n_components=2, whiten=False, random_state=42)
-            authors_standardized_pca = pca.fit_transform(df_standardized_sliced)
-            df_authors_standardized_pca = pd.DataFrame(data=authors_standardized_pca, columns=["pc_1", "pc_2"])
-            df_authors_standardized_pca["clusters"] = cluster_labels
-            print(f"ARE WE GETTING CLUSTERS? {df_authors_standardized_pca['clusters']}")
-            # plotting the clusters with seaborn
-            sns.scatterplot(x="pc_1", y="pc_2", hue="clusters", data=df_authors_standardized_pca)
-            
-    # initial_text = old_df
 
+                    print(f"WHAT IS DAAATTTAAAFFFRRRAAAAMMMMEEE????? {df_text_standardized.head(5)} {df_text_standardized.describe()}")
+                    selected_features = progressiveFeatureSelection(df_text_standardized, max_features=3, n_clusters=3)
+                    optimal_features = optimal_features(df_text_standardized)
+                    print("SELECTED FEATURES: ", selected_features)
+                    df_standardized_sliced = df_text_standardized[selected_features]
+
+                    print( df_standardized_sliced.info())
+
+                    # show first 5 rows
+                    print( df_standardized_sliced.head(5))
+
+                    # display some statistics
+                    print( df_standardized_sliced.describe())
+                    
+                    # elbowPlot(range(1,11), df_standardized_sliced)
+                    # silhouettePlot(range(3,9), df_standardized_sliced)
+                    
+                    soct.send("thirteenth_msg")  
+                    kmeans = KMeans(n_clusters=5, random_state=42)
+                    cluster_labels = kmeans.fit_predict(df_standardized_sliced)
+                    df_standardized_sliced["clusters"] = cluster_labels
+
+                    # using PCA to reduce the dimensionality
+                    pca = PCA(n_components=2, whiten=False, random_state=42)
+                    authors_standardized_pca = pca.fit_transform(df_standardized_sliced)
+                    df_authors_standardized_pca = pd.DataFrame(data=authors_standardized_pca, columns=["pc_1", "pc_2"])
+                    df_authors_standardized_pca["clusters"] = cluster_labels
+                    print(f"ARE WE GETTING CLUSTERS? {df_authors_standardized_pca['clusters']}")
+                    # plotting the clusters with seaborn
+                    # sns.scatterplot(x="pc_1", y="pc_2", hue="clusters", data=df_authors_standardized_pca)
+                ## MAKE THIS AN ERROR HANDLER
+                # soct.send("fourteenth_msg")        
+                # # initial_text = old_df
+                except ValueError:
+                    print('Value Error!')
+        except:
+            print('not handling strings')
+
+            # from sklearn import preprocessing
+            # try:
+            #     text_df[columnName].astype('string')
+            # except ValueError as e:
+            #     # raise e
+            #     print(f"EEEEEEEEEEE IS {e}")
+            #     text_df[columnName].astype('float')
+            # reshaped = text_df[columnName].values.reshape(-1,1)
+            # le = preprocessing.LabelEncoder()
+
+            # le.fit(reshaped.astype(str))
+            # list(le.classes_)
+            # transformedColumn = le.transform(reshaped.astype(str))
+           
+            soct.send("fifteenthfth_msg") 
     machine_dict['vectorized_features'] = old_df_vectorized_features
     machine_dict['vectorized_vocab'] = old_df_vectorized_vocab
     machine_dict['vectorized_tfidf'] = old_df_vectorized_tfidf
     machine_dict['euclidean_distance_since_last_self'] = old_df_euclidean_distance_since_last_self
-
+    
+    ## this allows us to keep testing before all ML is ready or useful
+    
     return machine_dict
 
+    return 0
+    

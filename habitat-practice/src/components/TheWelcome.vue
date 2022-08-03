@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import WelcomeItem from './WelcomeItem.vue'
-import TheWelcome from './TheWelcome.vue'
+// import TheWelcome from './TheWelcome.vue'
+import Modal from './Modal.vue'
 import DocumentationIcon from './icons/IconDocumentation.vue'
 import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
@@ -8,8 +9,7 @@ import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
 import moment from 'moment';
 import { watch, ref, computed } from 'vue'
-import Modal from './Modal.vue'
-
+// import GraphModal from './GraphModal.vue'
 const props = defineProps({
   items: Object,
   loaded: Boolean,
@@ -20,6 +20,7 @@ const selectedAuthor : any = ref('')
 const tocData : any = ref({});
 const rawTextData : any = ref("");
 const open : any = ref(false);
+const openGraph : any = ref(false);
 const openFull : any = ref(false);
 // const modalFull : any = ref(null);
 // const modal : any = ref(Modal);
@@ -111,12 +112,14 @@ async function doCloseModal(){
     main.style.top = "72px";
   }
   open.value = false;
+
   // we don't want this here but can use to test->
   // openFull.value = true; 
 }
 
 async function doCloseFullModal(){
-   openFull.value = false;
+    openFull.value = false;
+    openGraph.value = true;
 };
 
 async function doOpenFullModal(){
@@ -133,6 +136,7 @@ async function doOpenAwaitScrape(){
 
 
 <template #heading>
+
 <Modal :open="open" :openFull="openFull" @openedfullawaitscrape="doOpenAwaitScrape" @openedfull="doOpenFullModal" @closedfull="doCloseFullModal" @closedmodal="doCloseModal" :tocdata="tocData" :rawtextdata="rawTextData" :selectedTitle="selectedTitle" :selectedAuthor="selectedAuthor" />
   <!-- set up a scroll here to show as many as we need -->
   <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
@@ -158,6 +162,7 @@ async function doOpenAwaitScrape(){
         <button v-on:click="open = true,scrape_text(item.title_url)" class="book-item button">Load Full Text</button>
       </div>
   </div>
+
 </template> 
 
 <style>
@@ -192,8 +197,7 @@ async function doOpenAwaitScrape(){
  
   color: hsla(160, 100%, 37%, 1);
 }
-#search-bottom-wrapper {
-  
-}
+
+
 
 </style>

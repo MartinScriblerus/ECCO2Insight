@@ -6,10 +6,13 @@ import './untitled-font-1.svg'
 // import the css (OPTIONAL - you can provide your own design)
 import 'vue-step-progress/dist/main.css';
 import { Head } from '@vueuse/head'
-
-
-
+import LineChart from './LineChart.vue';
+import StackedAreaChart from './StackedAreaChart.vue';
+import GraphModal from './GraphModal.vue'
 const currentStepRef = ref(null);
+
+
+
 
 let searchModal;
 onMounted(()=>{
@@ -18,27 +21,27 @@ onMounted(()=>{
     searchModal = modal.value;
   }, 10);
   clearTimeout();
-
    
-      const css = `
-      @charset "UTF-8";
-      @font-face {
-        font-family: "untitled-font-1";
-        src: url("untitled-font-1.svg#untitled-font-1") format("svg");
-        font-weight: normal;
-        font-style: normal;
-        z-index: 10;
-      }
+  const css = `
+  @charset "UTF-8";
+  @font-face {
+    font-family: "untitled-font-1";
+    src: url("untitled-font-1.svg#untitled-font-1") format("svg");
+    font-weight: normal;
+    font-style: normal;
+    z-index: 10;
+  }
 
-      @font-face {
-        font-family: 'Font Awesome 5 Free';
-        font-style: normal;
-        font-weight: 400;
-        font-display: block;
-        src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot)';
-        src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot?#iefix) format("embedded-opentype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff2) format("woff2"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff) format("woff"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.ttf) format("truetype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.svg#fontawesome) format("svg")'
-      }
-      `
+  @font-face {
+    font-family: 'Font Awesome 5 Free';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot)';
+    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot?#iefix) format("embedded-opentype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff2) format("woff2"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff) format("woff"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.ttf) format("truetype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.svg#fontawesome) format("svg")'
+  }
+  `
+
 })
 
 
@@ -48,130 +51,94 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
 }
 
-const mySteps = ['Preprocess', 'Lines', 'Sentences', 'Entities', 'Vectorization', 'Distances','Plots?', "Extraction"]
+const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"]
 
 // const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
 
-// socket.addEventListener('message', ev => {
-//   console.log("EVENT DATA ", ev.data);
-
 let stepMessage = '';
 
-// });
 
 socket.onmessage = event => {
 
-    // if(event.data === 'second_msg'){
-    //   currentStepRef.value = 2;
-    //   console.log("guitar");
-    //   // stepMessage = "Bobby the bus had a pump to do!"
-    //   stepMessage = "Gathering text and preprocessing data"
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
     if(event.data === 'third_msg'){
       currentStepRef.value = 0;
-      // stepMessage = "Bobby the bus had a pump to do!"
       stepMessage = "Gathering text and preprocessing data"
-      console.log("fan");
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
     if(event.data === 'fourth_msg'){
       currentStepRef.value = 1;
-      console.log("pants");
-      // stepMessage = "Sammy the schoolbus ran out of fuel!!!!";
       stepMessage = "Begin line-level and poetic analysis";
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
-    // if(event.data === 'fifth_msg'){
-    //   currentStepRef.value = 5;
-    //   console.log("foot");
-    //   // stepMessage = "Sid had great time digging in the muck";
-    //   stepMessage = "Begin Line-level and Poetic Analysis";
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
-    // if(event.data ===  'sixth_msg'){
-    //   currentStepRef.value = 6;
-    //   console.log("shelf");
-    //   stepMessage = "Eric had a great time digging up loose rock";
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
-    // if(event.data === 'seventh_msg'){
-    //   currentStepRef.value = 7;
-    //   console.log("mouse");
-    //   stepMessage= "Dylan had a difficult time digging up loose rock";
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
+
     if(event.data === 'eighth_msg'){
       currentStepRef.value = 2;
-      console.log("shakers");
-      // stepMessage = "Ryan the wrecking ball crane had a great time smashing down the walls";
       stepMessage = "Begin sentence-level analysis"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
-    // if(event.data === 'ninth_msg'){
-    //   currentStepRef.value = 9;
-    //   console.log("computer");
-    //   stepMessage = "Caroline had a great time picking up beams and blocks";
+
+    // if(event.data === 'tenth_msg'){
+    //   currentStepRef.value = 3;
+    //   stepMessage = "Begin entity analysis";
     //   if(document.getElementById("progressMsg")){
     //     document.getElementById("progressMsg").innerText = stepMessage;
     //   }
     // }
-    if(event.data === 'tenth_msg'){
-      currentStepRef.value = 3;
-      stepMessage = "Begin entity analysis";
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
     if(event.data === 'eleventh_msg'){
-      currentStepRef.value = 4;
-      stepMessage = "Vectorizing the text"
+      currentStepRef.value = 3;
+      stepMessage = "Vectorizing"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
     if(event.data === 'twelfth_msg'){
-      currentStepRef.value = 5;
-      stepMessage = "Getting Euclidean Distances"
+      currentStepRef.value = 4;
+      stepMessage = "Clustering"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
     if(event.data === 'thirteenth_msg'){
-      currentStepRef.value = 6;
+      currentStepRef.value = 5;
       stepMessage = "Time Series Analysis"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }  
-    if(event.data === 'fourteenth_msg'){
-      currentStepRef.value = 7;
-      stepMessage = "Beginning _plots?"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }  
+    // if(event.data === 'fourteenth_msg'){
+    //   currentStepRef.value = 7;
+    //   stepMessage = "Beginning _plots?"
+    //   if(document.getElementById("progressMsg")){
+    //     document.getElementById("progressMsg").innerText = stepMessage;
+    //   }
+    // }  
     if(event.data === 'fifteenth_msg'){
-      currentStepRef.value = 8;
-      stepMessage = "Got Clusters!"
+      currentStepRef.value = 6;
+      console.log("HIT FIFTEENTH!!!");
+      stepMessage = "Feature Extraction"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
+      let results = document.getElementsByClassName('modal-single-text-results');
+      if(results.length > 0){
+        results[0].style.visibility = "visible";
+        document.getElementById('progressCircles').style.display = "none";
+        document.getElementById('progressMsg').style.display = "none";
+        document.getElementById('progressMsgExplanation').style.display = "none";
+        // emit('closedfull')
+        document.getElementById('graphs').style.display = "flex";
+      }
     }  
+    let showExplanation = document.getElementById('progressMsgExplanation')
+    if(showExplanation){
+      showExplanation.style.display = "flex";
+    }
 }
 
 const props = defineProps({
@@ -184,7 +151,7 @@ const props = defineProps({
 });
 
 const temp = ref({})
-
+  
 const initialHumanReadableTextRef = ref({
   title: String,
   author: String,
@@ -298,7 +265,7 @@ async function scrape_text(url){
     emit('openedfullawaitscrape');
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
-    close();
+    // close();
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
@@ -433,12 +400,17 @@ async function scrape_text(url){
             //     "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
             //   }
             // )
+
           })
 
 
-          console.log("tEEEEEDST: ", initialHumanReadableTextRef.value)
-          
 
+
+
+
+          console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
+          //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
+          // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
 
           ///////////////////////////////////////////////////////////////////////////////
           ///////////////////////////////////////////////////////////////////////////////
@@ -449,6 +421,7 @@ async function scrape_text(url){
             fullModal.classList.remove("awaiting");
             fullModal.classList.add("receivedSingleTextData");
             let main = document.getElementById("main");
+
             if(main){
               main.visibility = "visible";
             }
@@ -465,6 +438,10 @@ async function scrape_text(url){
       return rawtextfromtoc;
 };
 
+// function handleSelect(e){
+//   console.log("e t v ", e);
+// }
+const lineThickness = 5;
 </script>
 
 <template>
@@ -473,6 +450,7 @@ async function scrape_text(url){
     <base href="/base" />
     <html lang="en-US" class="theme-dark" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   </Head>
 <Teleport to="body">
   <div v-if="openFull" class="full-screen-modal modal-backdrop">
@@ -491,7 +469,15 @@ async function scrape_text(url){
         </button>
       </header>
 
+      <section id="graphs">
+        <slot  name="graphs">
+ 
+          <GraphModal :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'"></GraphModal>
+        </slot>
+      </section>
+
       <section class="modal-body">
+
         <slot name="body">   
           <!-- <self-building-square-spinner
             v-if="!props.rawtextdata" 
@@ -513,7 +499,7 @@ async function scrape_text(url){
           </section>
           <section class="progress-circle-section" id="progressCircles">
             <slot name="progressCircles">
-              <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)"   > </step-progress>
+              <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)" :line-thickness="1"> </step-progress>
             </slot>
           </section>
 
@@ -521,12 +507,22 @@ async function scrape_text(url){
             <slot name="progressMsg">
               <!-- {{stepMessage}} -->
             </slot>
-            </section>
+          </section>
+
+          <section id="progressMsgExplanation" class="progress-msg-explanation">
+            <slot name="progressMsgExplanation">
+            <!-- <h4>Progress Msg Explanation</h4> -->
+            <p>Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+              <!-- {{stepMessage}} -->
+            </slot>
+          </section>
 
           <section class="modal-single-text-results">
             <slot name="textAnalysis-results">
-                <div class="results-col">
+
+                <div id="fullTextGraphWrapper" class="results-col">
                   Yo full text
+
                 </div>
                 <div class="results-col">
                   Yo sentences
@@ -541,12 +537,13 @@ async function scrape_text(url){
 
       <footer class="modal-footer">
         <slot name="footer">
-                  <button
-          type="button"
-          class="btn-green"
-          @click="close"
-        >
-          Close Modal
+          <button
+            type="button"
+            id="compareButton"
+            class="btn-green"
+            @click="close"
+          >
+          Compare
         </button>
         </slot>
 
@@ -561,6 +558,7 @@ async function scrape_text(url){
     <div id="tocDataWrapper">
         <div id="tocData" v-for="item in props.tocdata">
             <i icon-class="fa-solid fa-ellipsis" />
+            <!-- <h3 @click="scrape_text(item.link_href)">{{ -->
             <h3 @click="scrape_text(item.link_href)">{{
                 item.link_text
             }}</h3>
@@ -595,7 +593,6 @@ async function scrape_text(url){
   font-weight: normal !important;
   font-variant: normal !important;
   text-transform: none !important;
-  speak: none;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -609,7 +606,6 @@ async function scrape_text(url){
   font-weight: normal !important;
   font-variant: normal !important;
   text-transform: none !important;
-  speak: none;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -679,7 +675,7 @@ body.modal-open {
     font-style:italic;
     margin-bottom: 0.1rem;
     font-weight: 500;
-
+    cursor: pointer;
     color: var(--color-heading);
     padding-top: 12px;
 }
@@ -722,9 +718,7 @@ body.modal-open {
 
 
 
-.modal.searching {
 
-}
 
 .modal.not-searching {
   background: teal;
@@ -779,7 +773,18 @@ body.modal-open {
     top:72px;
     height: 100%;
   }
-
+  #progressMsgExplanation {
+    text-align: center;
+    background: rgba(0,0,0,0.4);
+    justify-content: center;
+    left: 16%;
+    right: 16%;
+    width: 68%;
+    height: 16%;
+    border-radius: 8px;
+    display: none;
+    bottom:30px;
+  }
   .btn-close {
     position: absolute;
     top: 0;
@@ -837,6 +842,7 @@ body.modal-open {
     display: flex;
     text-align: center;
     top: 36px;
+    visibility: hidden;
   }
   .results-col {
     width:33vw;
@@ -848,9 +854,9 @@ body.modal-open {
     cursor: progress; 
     background: 
       linear-gradient(0.25turn, transparent, green, transparent),
-      linear-gradient(green, var(--color-background)),
+      linear-gradient(var(--color-background),rgba(0,0,0,0.78)),
       radial-gradient(38px circle at 19px 19px, #eee 50%, transparent 51%),
-      linear-gradient(green, var(--color-background));  
+      linear-gradient(var(--color-background), var(--color-background),grey);  
     background-repeat: no-repeat;
 
     background-position: -315px 0, 0 0, 0px 190px, 50px 195px; 
@@ -858,7 +864,7 @@ body.modal-open {
   }
   
   #progressCircles {
-    width: 64%;
+
     /* max-width: 100%; */
     right: 0px;
     left: 0%;
@@ -869,11 +875,11 @@ body.modal-open {
     bottom: 0px;
     font-size: 28px;
     text-align: center;
-    padding-top: 88px;
+    bottom:40px;
   }
   .step-progress__wrapper {
     width: 90vw;
-    left: 4vw;
+
   }
   .step-progress__step--active span {
    
@@ -902,22 +908,25 @@ body.modal-open {
 
 .progress-circle-section {
   width:100%;
-  top:  72px;
+  top: 45%;
+  
 }
 .progress-msg {
   width:100%;
+  z-index: 1;
 }
 
 
 
+#compareButton {
+  visibility: hidden;
+}
 
-
-
-
-
-
-
-
-
+#graphs {
+  display: none;
+  width: 100%;
+  height: auto;
+  top: 72px;
+}
 
 </style>

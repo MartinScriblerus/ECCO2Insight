@@ -270,8 +270,15 @@ export default {
 </script>
 
 <template>
-  <h1 id="jumbotron" class="jumbotron intro-cover">ECCO Insights</h1>
+  <h1 id="jumbotron" class="jumbotron intro-cover">ECCO-TCP Data Viz</h1>
   <header id="headerDiv">
+  <h3 id="mainTextSubheader">Main Text Subheader</h3>
+  <p id="mainText">
+    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
+    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
+    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem.
+
+  </p>
 
 
 
@@ -375,7 +382,7 @@ export default {
 #app {
   /*max-width: 1280px;*/
   margin: 0 auto;
-  padding: 2%;
+
   grid-template-columns: 1fr 1fr;
   font-weight: normal;
   position:absolute;
@@ -432,6 +439,11 @@ button {
   cursor:pointer;
 }
 
+button.green-btn {
+  background-color: hsla(160, 100%, 37%, 1);
+  color: #181818;
+}
+
 input {
   margin-top: 8px;
   background: rgba(255,255,255,0.94);
@@ -444,14 +456,31 @@ input {
 #main {
   max-height: 100vh;
   overflow-y: scroll;
-  top:52px;
+  top:72px;
   visibility: hidden;
+  padding-left:1%;
 }
 
 #headerDiv {
   visibility:hidden;
+  padding: 2%;
 
   /*height:100vh;*/
+}
+
+#mainText {
+  padding-top: 8px;
+  line-height: 1.5;
+  text-align: left;
+  padding-bottom: 24px;
+  font-size: 18px;
+  padding-right: 4%;
+  padding-left: 4%;
+}
+
+#mainTextSubheader {
+  font-size: 32px;
+  left:4%;
 }
 
 .toggle__button {
@@ -563,9 +592,8 @@ input[type="checkbox"] {
 }
 
 .wrapper-outer {
-  border: 1px solid rgba(255,255,255,0.78);
-
-  width: 100%;
+  border:1px solid rgba(255,255,255,0.78);
+  width:100%;
 }
 
 .jumbotron {
@@ -682,15 +710,22 @@ input:checked + .slider:before {
 
   #main {
     top:80px;
+    padding-left:4%;
   }
   #headerDiv.noDisplay {
     display: none;
   }
   #headerDiv {
     top: 72px;
+    padding-left: 4%;
+    padding-right: 4%;
+  }
+  .inputsRowWrapper {
+    padding-left:4%;
   }
   .toggle-wrapper {
     width: 12%;
+    left: 4%;
   }
   .inputsRowWrapper{
     margin-top:24px;
@@ -699,7 +734,7 @@ input:checked + .slider:before {
     padding-right:10%;
   }
   input {
-    width:64%;
+    width:68%;
   }
   #toggle_button {
     max-width: 12px;
@@ -708,6 +743,9 @@ input:checked + .slider:before {
   /*.switch {
     top:12px;
   }*/
+  .wrapper-outer {
+    padding-left: 0px;
+  }
 
   #titleAuthorInputWrapper {
     padding-top: 0px;

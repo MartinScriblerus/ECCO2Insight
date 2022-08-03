@@ -66,7 +66,7 @@ def nltk_analysis(r, text_in_html):
     ## uniqueness as the thing that is established in flask_init.py  
     if 'flask_init' in sys.modules:
         from flask_init import soct
-        
+    soct.send("third_msg")    
     ## Here come a bunch of NLTK imports
     ## TODO: DO MORE WITH PUNKT
     lemmatizer = WordNetLemmatizer()  
@@ -138,7 +138,7 @@ def nltk_analysis(r, text_in_html):
     # ------------------------------------------------------------
     print("start getting data -----------------------------------------")
     corpus = text_in_html
-    soct.send("third_msg")
+    
     print("\n" in corpus) 
 
     # initial clean of whole text
@@ -430,7 +430,7 @@ def nltk_analysis(r, text_in_html):
     ### ------------------------------------------------------------
     ### Analysis of sentence-level stuff
     ### ------------------------------------------------------------
-    
+   
     sents = nltk.sent_tokenize(corpus)
 
     line_division = len(lines_in_corpus)/len(sents)
@@ -450,8 +450,7 @@ def nltk_analysis(r, text_in_html):
     ### this is a huge loop -- !!!
 
     for idx,s in enumerate(sents):
-        if idx == 1:
-            soct.send("eighth_msg") 
+
         if "f" in s:
             print(f"DETECT F PROBLEM {s}")
         if "'d" in s:
@@ -489,7 +488,7 @@ def nltk_analysis(r, text_in_html):
         s = " ".join(s_tok)
 
         words = s
-
+        soct.send("eighth_msg") 
         doc = nlp(s)
             # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
        
@@ -514,7 +513,6 @@ def nltk_analysis(r, text_in_html):
 
             grammar = "NP: {<DT>?<JJ>*<NN>}"
             cp = nltk.RegexpParser(grammar)
-            soct.send("tenth_msg")
             result = cp.parse(tagged_lems)
             
             
@@ -694,8 +692,8 @@ def nltk_analysis(r, text_in_html):
             print(f"CLEANED SUMMARY ANY BETTER? {cleaned_summary}")
             
             old_df_summary.append(' '.join(summary_sentences))
-
-
+            
+    
     old_df['summary'] = old_df_summary[0].replace("/n"," ")            
     old_df['spacy_entities'] = old_df_spacy_ents
     old_df["sentences"] = old_df_sentences
@@ -736,6 +734,7 @@ def nltk_analysis(r, text_in_html):
     # soct.send("thirteenth_msg") 
     # print("The number of total tokens after removing stopwords are", len((final_tokens)))
     # socketio.send('message', {'data':old_df})
+    # soct.send("tenth_msg")
     return old_df,sents
 
 # if __name__ == '__main__':
