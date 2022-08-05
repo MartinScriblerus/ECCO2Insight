@@ -83,7 +83,7 @@ async function scrape_text(url:String){
     if(main){
       main.style.top = "0px"; 
     }
-
+  
     rawTextData.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
         'Accept': 'application/json',
@@ -95,6 +95,7 @@ async function scrape_text(url:String){
             if(result.length){
               rawTextData.value = result;
               console.log("here's the text: ", ...rawTextData.value);
+              
               return rawTextData.value;
             } else {
               return null;
@@ -102,6 +103,8 @@ async function scrape_text(url:String){
             }).catch(error => {
             console.log('Error:', error);
             }); 
+    
+      
       return rawTextData.value;
 };
 

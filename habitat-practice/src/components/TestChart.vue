@@ -4,6 +4,9 @@ import * as d3 from 'd3';
 import {
   select,
   line,
+  area,
+  cluster,
+  arc,
   scaleLinear,
   min,
   max,
@@ -27,10 +30,10 @@ export default {
               tooltip.innerHTML = `
               <div id="sentimentDisplay">
             
-                <h4 class="HUD-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
-                <h4 class="HUD-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
-                <h4 class="HUD-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
-                <h4 class="HUD-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
+                <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
+                <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
+                <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
+                <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
               </div>
           
               <div id="topicListWrapper">
@@ -102,6 +105,7 @@ export default {
         console.log("RESIZEE STATE: ", resizeState);
         const { width, height } = resizeState.dimensions;
             console.log("WIDTH: ", width);
+            console.log("D3=> ", d3);
             scaled.value.x = d3.scaleLinear().range([0, width]);
             scaled.value.y = d3.scaleLinear().range([height, 0]);
             d3.axisLeft().scale(scaled.value.x);
@@ -122,7 +126,7 @@ export default {
           .range([height, 0]); // ... output values
        
         // line generator: D3 method to transform an array of values to data points ("d") for a path element
-        const lineGen = line()
+        const lineGen = area()
           .curve(curveBasis)
           .x((value, index) => xScale(index))
           .y((value) => yScale(value));
@@ -142,7 +146,10 @@ export default {
 
           // everything after .join() is applied to every "new" and "existing" element
           .attr("class", "line") // attach class (important for updating)
-          .attr("stroke", "green") // styling
+        //   .attr("stroke", "green") // styling
+    .attr("stroke", "#69b3a2")
+    .attr("stroke-width", 1.5)
+    
           .attr("d", lineGen); // shape and form of our line!
     
         // render axes with help of scales
@@ -261,7 +268,7 @@ export default {
   width: 100%;
   height: 80px;
 }
-.HUD-half-div {
+.HUD-Test-half-div {
   width:23%;
   min-width:23%;
   overflow:hidden;

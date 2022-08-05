@@ -85,6 +85,10 @@ export default {
     });
     props = state; 
     onMounted(async () => {
+      if (!localStorage.getItem("url"))
+        localStorage.setItem("url", "");
+      // this.localStorage = localStorage
+    // localStorage.setItem("url", "hello");
       const response = await fetch("http://localhost:5000");
       state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    

@@ -6,6 +6,7 @@ export default {
   name: "GraphModal",
   components: {
     AreaChart,
+    TestChart
   },
   data() {
     return {
@@ -145,6 +146,7 @@ export default {
 
 <script setup>
 import BarChart from './BarChart.vue';
+import TestChart from './TestChart.vue';
 import {watch, ref} from 'vue';
 import AreaChart from './AreaChart.vue';
 import LineChart from './LineChart.vue';
@@ -208,9 +210,9 @@ function updateTooltip(selected) {
   <div id="graphDiv">
     <h1>TODO: Add Graph Title Here</h1>
 
-      <!-- <StackedAreaChart></StackedAreaChart> -->
-      <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart>
-        <!-- <BarChart :data="data" ></BarChart> -->
+      <!-- AREA CHART WORKS! IT IS OUR MODEL!
+      <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
+      <TestChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></TestChart>
 
     <div class="buttons" >
       <button class="green-btn" @click="addData">Add data</button>

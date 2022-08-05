@@ -10,12 +10,13 @@ import LineChart from './LineChart.vue';
 import StackedAreaChart from './StackedAreaChart.vue';
 import GraphModal from './GraphModal.vue'
 const currentStepRef = ref(null);
-
+//import LocalStorageMock from './LocalStorageMock.js'
 
 
 
 let searchModal;
 onMounted(()=>{
+
   currentStepRef.value = 0;
   setTimeout(() => {
     searchModal = modal.value;
@@ -43,7 +44,6 @@ onMounted(()=>{
   `
 
 })
-
 
 const socket = new WebSocket('ws://localhost:5000/ws');
 
@@ -224,6 +224,7 @@ const rawtextfromtoc= ref({});
 const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
 
 watch(() => props.selected,(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+      console.log("DO WE HAVE LOCAL STORAGE> ", this)
       console.log(
         "Here Watch props.selected function called with args:",
         tocdata,
@@ -268,6 +269,35 @@ function doCloseFullModalChild(){
 // TODO: componentize and DRY this function (see TheWelcome)
 async function scrape_text(url){    
     
+    let localStorageDataAvailable = localStorage.getItem(url);
+    if(localStorageDataAvailable){
+       initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+       console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
+          emit('closedmodal');
+          emit('openedfull');
+          let fullModal = await modalFull.value;
+          if(fullModal && fullModal.classList){
+            fullModal.classList.remove("awaiting");
+            fullModal.classList.add("receivedSingleTextData");
+            let main = document.getElementById("main");
+
+            if(main){
+              main.visibility = "visible";
+            }
+          } else {
+            console.log("in else for fullmodal: ", fullModal);
+          }
+        // document.getElementById('progressCircles').style.display = "none";
+        // document.getElementById('progressMsg').style.display = "none";
+        // document.getElementById('progressMsgExplanation').style.display = "none";
+        // emit('closedfull')
+        let graphs = document.getElementById('graphs')
+        if(graphs){
+          graphs.style.display = "flex";
+        }
+        return;
+    }
+
     emit('openedfullawaitscrape');
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
@@ -275,6 +305,7 @@ async function scrape_text(url){
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
+    console.log("WTF??? ",this)
 
     
     //document.getElementById("modal-full").classList.add("awaiting")
@@ -413,7 +444,9 @@ async function scrape_text(url){
 
 
 
-
+          if (!localStorage.getItem(url)){
+            localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
+          }
           console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
           //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
           // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
