@@ -137,8 +137,12 @@ socket.onmessage = event => {
         document.getElementById('progressCircles').style.display = "none";
         document.getElementById('progressMsg').style.display = "none";
         document.getElementById('progressMsgExplanation').style.display = "none";
+        document.getElementById('main').style.display = "none";
         // emit('closedfull')
+        document.getElementById('modal-body').style.display = "none";
         document.getElementById('graphs').style.display = "flex";
+        document.getElementById('compareButton').style.visibility = "visible";
+        document.getElementById('additiveButton').style.visibility = "visible";
       }
     }  
     let showExplanation = document.getElementById('progressMsgExplanation')
@@ -154,10 +158,12 @@ const props = defineProps({
   rawtextdata: String,
   selectedTitle: String,
   selectedAuthor: String,
+  graphstate: String
 });
 
 const temp = ref({})
-  
+const graphstateRef = ref('');
+// graphstate.value = "singleText";
 const initialHumanReadableTextRef = ref({
   title: String,
   author: String,
@@ -223,10 +229,17 @@ const rawtextfromtoc= ref({});
 
 const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
 
-watch(() => props.selected,(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
-      console.log("DO WE HAVE LOCAL STORAGE> ", this)
+// CREATE FULLSCREEN MODAL HERE ...
+const modalFull = ref(null);
+const modal = ref(null);
+// graphstate = 'singleText';
+
+
+watch(() => [graphstateRef.value, props.selected],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+
       console.log(
         "Here Watch props.selected function called with args:",
+
         tocdata,
         rawtextdata,
         selectedTitle,
@@ -234,10 +247,20 @@ watch(() => props.selected,(tocdata,rawtextdata,selectedTitle,selectedAuthor) =>
       );
     });
 
-// CREATE FULLSCREEN MODAL HERE ...
 
-const modalFull = ref(null);
-const modal = ref(null);
+
+function compareMode(){
+  
+  graphstateRef.value = "comparative";
+  console.log("hit comparative: ", graphstateRef.value);
+}
+console.log("hit comparative outer: ", graphstateRef.value);
+function additiveMode(){
+ 
+  graphstateRef.value = "additive";
+   console.log("hit additive: ", graphstateRef.value);
+
+}
 
 function tryGetFullModal(){
     setTimeout(()=>{
@@ -294,6 +317,13 @@ async function scrape_text(url){
         let graphs = document.getElementById('graphs')
         if(graphs){
           graphs.style.display = "flex";
+          document.getElementById('main').style.display = "none";
+          // document.getElementById('modal-body').style.display = "none";
+          document.getElementById('progressCircles').style.display = "none";
+          document.getElementById('progressMsg').style.display = "none";
+          document.getElementById('progressMsgExplanation').style.display = "none";
+          document.getElementById('compareButton').style.visibility = "visible";
+          document.getElementById('additiveButton').style.visibility = "visible";
         }
         return;
     }
@@ -515,7 +545,7 @@ const lineThickness = 5;
       <section id="graphs">
         <slot  name="graphs">
  
-          <GraphModal :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'" @select="selected(e)"></GraphModal>
+          <GraphModal :graphstate="graphstateRef" :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'" @select="selected(e)"></GraphModal>
         </slot>
       </section>
 
@@ -584,9 +614,17 @@ const lineThickness = 5;
             type="button"
             id="compareButton"
             class="btn-green"
-            @click="close"
+            @click="compareMode"
           >
           Compare
+        </button>
+          <button
+            type="button"
+            id="additiveButton"
+            class="btn-green"
+            @click="additiveMode"
+          >
+          Additive
         </button>
         </slot>
 
@@ -849,6 +887,7 @@ body.modal-open {
     width: 200px;
     height: 60px;
     float: right;
+    position:relative;
   }
   .hideFullModal {
     display:none;
@@ -961,8 +1000,9 @@ body.modal-open {
 
 
 
-#compareButton {
+#compareButton, #additiveButton {
   visibility: hidden;
+  margin: 4px;
 }
 
 #graphs {

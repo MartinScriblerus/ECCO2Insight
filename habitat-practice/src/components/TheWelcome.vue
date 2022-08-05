@@ -95,7 +95,6 @@ async function scrape_text(url:String){
             if(result.length){
               rawTextData.value = result;
               console.log("here's the text: ", ...rawTextData.value);
-              
               return rawTextData.value;
             } else {
               return null;

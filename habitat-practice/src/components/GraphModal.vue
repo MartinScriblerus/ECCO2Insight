@@ -131,7 +131,7 @@ export default {
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2])
       }
       if(positive){
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>[i])
         this.mode[0] = 1;
         this.mode = [4];
       }
@@ -154,15 +154,18 @@ import StackedAreaChart from './StackedAreaChart.vue';
 
 const props = defineProps({
   open: Boolean,
-  dataObj: Object
+  dataObj: Object,
+  graphstate: String
 });
 
 const tooltipMsg = ref();
 tooltipMsg.value = ''
 
-watch([props.dataObj, tooltipMsg], ([currentValueA,currentValueB], [oldValueA,oldValueB]) => {
+watch([props,props.dataObj, tooltipMsg], ([currentValueA,currentValueB,currentValueC], [oldValueA,oldValueB,oldValueC]) => {
+  console.log("?????? ", props.graphstate);
   console.log(currentValueA);
   console.log(currentValueB);
+  console.log(currentValueC);
   return;
 });
 
@@ -208,11 +211,11 @@ function updateTooltip(selected) {
 
 <template >
   <div id="graphDiv">
-    <h1>TODO: Add Graph Title Here</h1>
+    <h1 id="graphTitle">TODO: Add Graph Title Here</h1>
 
       <!-- AREA CHART WORKS! IT IS OUR MODEL!
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
-      <TestChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></TestChart>
+      <TestChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode"  :graphstate="this.props.graphstate" @selected="updateTooltip"></TestChart>
 
     <div class="buttons" >
       <button class="green-btn" @click="addData">Add data</button>
@@ -232,6 +235,9 @@ function updateTooltip(selected) {
 
 
 <style>
+#graphTitle {
+  position:absolute;
+}
 #graphDiv {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -239,12 +245,13 @@ function updateTooltip(selected) {
     text-align: center;
     color: #2c3e50;
     max-width: 100%;
-    padding: 0 20px;
+    padding: 0 0px;
     width: 100%;
     position: fixed;
     z-index: 99;
-    top: 0px;
-    height: 64%;
+    top: 92px;
+    height: calc(64% - 52px);
+    
 }
 
 svg {

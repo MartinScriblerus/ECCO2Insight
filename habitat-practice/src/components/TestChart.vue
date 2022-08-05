@@ -18,8 +18,19 @@ import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg"],
+  props: ["data","newData","mode","tooltipmsg","graphstate"],
     watch: { 
+        graphstate: {
+            deep: true,
+            handler: function(newVal, oldVal){
+            // props.graphstate = newVal;
+                console.log("graphstate changed in area! ", newVal)
+                if(newVal === "comparative"){
+                    this.graphState = newVal
+                    alert("we are now comparing");
+                }
+            }
+        },
       tooltipmsg: {
         deep: true,
         handler: function(newVal, oldVal){
@@ -54,14 +65,17 @@ export default {
       clientX: 0,
       clientY: 0,
       closestPoint: null,
-      entityArr:[]
+      entityArr:[],
+      graphState: 'singleText'
     };
   },
   setup(props,{emit}) {
       const points = ref();
       points.value = [];
       const scaled = ref();
-     
+    
+    const graphMode = ref()
+    graphMode.value = "singleText";
       
       scaled.value = {
         x: null,
@@ -78,10 +92,6 @@ export default {
     // create ref to pass to D3 for DOM manipulation
     const svgRef = ref(null);
 
-  
-    
-    console.log("PROPS DATA IN AREA COMPONENT: ", props.data);
-    
     //this.data = newData;
     // this creates another ref to observe resizing, 
     // which we will attach to a DIV,
@@ -89,15 +99,12 @@ export default {
     const { resizeRef, resizeState } = useResizeObserver();
 
     onMounted((event) => {
-      console.log("fucking hell ", event)
       // pass ref with DOM element to D3, when mounted (DOM available)
       const svg = select(svgRef.value);
       const tooltipInner = ref(null)
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
-        console.log("AHHHH WTF ", props.tooltipmsg)
         // tooltipMsg = props.tooltipMsg;
-        console.log("???>>> ", tooltipInner.value)
         // tooltipInner.value.innerText = props.tooltipMsg;
         document.getElementById('svgId').childNodes.forEach(c=>{
           console.log("SVG CHILD NODE: ", c);
@@ -105,12 +112,12 @@ export default {
         console.log("RESIZEE STATE: ", resizeState);
         const { width, height } = resizeState.dimensions;
             console.log("WIDTH: ", width);
+            console.log("HEIGHT: ", height);
             console.log("D3=> ", d3);
             scaled.value.x = d3.scaleLinear().range([0, width]);
             scaled.value.y = d3.scaleLinear().range([height, 0]);
             d3.axisLeft().scale(scaled.value.x);
             d3.axisBottom().scale(scaled.value.y);
-            console.log("SCALED? ", scaled.value);
             // emit('width', width);
             // emit('height',height);
             console.log("what is props mode? ", JSON.parse(JSON.stringify(props.mode))[0])
@@ -130,28 +137,58 @@ export default {
           .curve(curveBasis)
           .x((value, index) => xScale(index))
           .y((value) => yScale(value));
-
-        //console.log("CRIKEY: ", svg.attr('d'))
-        console.log("AAAAA WHAT IS PROPS DATA TYPE? ", Object.keys(props.data));
+        
+        // removed undefined values that throw errors
         Object.values(props.data).forEach((t,ind)=>{
           if(typeof t=== undefined){
-          props.data=props.data.slice(ind)
+            props.data=props.data.slice(ind)
           }
         })
-        // render path element with D3's General Update Pattern
-        svg
-          .selectAll(".line") // get all "existing" lines in svg
-          .data([props.data]) // sync them with our data
-          .join("path") // create a new "path" for new pieces of data (if needed)
+        // function to render path element with D3's General Update Pattern
+        function createLine(dataIn,strokeColor,strokeWidth){ 
+            svg
+                .selectAll(".line") // get all "existing" lines in svg
+                //   .clone()
+                .data(dataIn) // sync them with our data
+                .join("path") // create a new "path" for new pieces of data (if needed)
 
-          // everything after .join() is applied to every "new" and "existing" element
-          .attr("class", "line") // attach class (important for updating)
-        //   .attr("stroke", "green") // styling
-    .attr("stroke", "#69b3a2")
-    .attr("stroke-width", 1.5)
-    
-          .attr("d", lineGen); // shape and form of our line!
-    
+                // everything after .join() is applied to every "new" and "existing" element
+                .attr("class", "line") // attach class (important for updating)
+                //   .attr("stroke", "green") // styling
+                .attr("stroke", strokeColor)
+                .attr("stroke-width", strokeWidth)
+                .attr("d", lineGen); // shape and form of our line!
+            return svg; 
+        }
+
+        // function to render new path element with D3's General Update Pattern
+        function createNewLine(dataIn,strokeColor,strokeWidth){ 
+            svg
+                .selectAll(".line") // get all "existing" lines in svg
+                  .clone()
+                .data(dataIn) // sync them with our data
+                .join("path") // create a new "path" for new pieces of data (if needed)
+
+                // everything after .join() is applied to every "new" and "existing" element
+                .attr("class", "line") // attach class (important for updating)
+                //   .attr("stroke", "green") // styling
+                .attr("stroke", strokeColor)
+                .attr("stroke-width", strokeWidth)
+                .attr("d", lineGen); // shape and form of our line!
+            return svg; 
+        }
+
+        if(typeof JSON.parse(JSON.stringify(props.data[0])) === "number"){
+            if(props.graphstate === "comparative"){
+                createNewLine([props.data], 'pink',1.5);
+            } else {
+                createLine([props.data], '#69b3a2',1.5);
+            }
+        } else {
+            createLine([props.data], 'grey',3);
+        }
+
+        
         // render axes with help of scales
         // (we let Vue render our axis-containers and let D3 populate the elements inside it)
         const xAxis = axisBottom(xScale);
@@ -183,12 +220,7 @@ export default {
             max: height
           })
          }
-          
-   
             console.log("!!##POINTS: ", points.value);
-      
-
-
       });
     });
     console.log("RESIZEREF ", resizeRef);
@@ -252,7 +284,9 @@ export default {
   z-index: 10;
 }
 #svgId {
-  background: rgba(0,0,0,0.98);
+    background: rgba(0,0,0,0.98);
+    margin-left: 36px;
+    bottom: 20px;
 }
 #tooltip {
   border: 1px solid black;
@@ -263,6 +297,8 @@ export default {
   font-size: 16px;
   font-weight: 400;
   z-index:9999;
+    margin-left: 36px;
+ 
 }
 #tooltipInner {
   width: 100%;
