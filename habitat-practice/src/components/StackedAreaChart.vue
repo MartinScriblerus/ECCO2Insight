@@ -103,7 +103,7 @@ export default {
       console.log('PATH VALUE: ', path);
       this.line = path(this.data);
       console.log("LINE VALUE: ", this.line);
-      console.log("GOING INSANE ", this.path);
+      console.log("GOING INSANE ", this.paths);
     },
     onResize() {
       this.width = this.$el.offsetWidth;

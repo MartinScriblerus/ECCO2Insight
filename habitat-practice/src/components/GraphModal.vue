@@ -1,5 +1,7 @@
 <script>
 
+import * as d3 from 'd3';
+
 export default {
   name: "GraphModal",
   components: {
@@ -8,13 +10,89 @@ export default {
   data() {
     return {
       data:[7,1,1,7],
+      mode:[1],
+      // show: false,
+      // clientX: 0,
+      // clientY: 0,
+      lastHoverPoint: {},
+      points: [],
+      scaled: {
+        x: null,
+        y: null,
+      },
+      paths: {
+        area: '',
+        line: '',
+        selector: '',
+      },
+      width:null,
+      height:null,
     };
   },
+  margin: {
+    type: Object,
+    default: () => ({
+      left: 0,
+      right: 0,
+      top: 10,
+      bottom: 10,
+    }),
+  },
+
   methods: {
     setup(props){
       console.log("WHAT ARE PROPS: ", props);
     },
+    setWidth(width){
+      this.width = width;
+      console.log("SET WIDTH TO ", this.width);
+    },
+    setHeight(height){
+      this.height = height;
+      console.log("SET HEIGHT TO ", this.height);
+    },
+    //////////////////////////////////////////////
 
+    // mouseMove(event) {
+    //   const { clientX, clientY } = event;
+    //   this.show = true;
+    //   this.clientX = event.clientX;
+    //   this.clientY = event.clientY;
+    // },
+    
+    createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
+    createLine: d3.line().x(d => d.x).y(d => d.y),
+    createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
+    // update(){
+    // //  this.scaled.x.domain(d3.extent(this.data, (d, i) => i));
+    // //   this.scaled.y.domain([0, this.height]);
+    //   for (const [i, d] of this.data.entries()) {
+    //     console.log("THIS IS D: ", d);
+  
+    //       this.points.push({
+    //           x: i,
+    //           y: d,
+    //           max: this.height,
+    //       });
+ 
+    //     console.log(">?>?>? ", this.createLine(this.points));
+    //     // this.paths.area = this.createArea(this.points);
+    //     // this.paths.line = this.createLine(this.points);
+    //     // console.log("PATHS: ", this.paths);
+    //   }
+    // },
+
+    getClosestPoint(x) {
+      // console.log("what are point options?? ", this.points);
+      return this.data
+        .map((point, index) => ({ x:
+          point.x,
+          diff: Math.abs(point.x - x),
+          index,
+        }))
+        .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
+    },
+    /////////////////////////////////////////////
     addData() {
       // add random value from 0 to 50 to array
       this.data = [...this.data, Math.round(Math.random() * 50)];
@@ -36,23 +114,27 @@ export default {
     updateVizDataSentiment(compound,negative,neutral,positive){
       let sentenceVizSentimentPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['sentenceObj']).map(i=>sentenceVizSentimentPlaceholder1.push(Object.values(i)));
+      sentenceVizSentimentPlaceholder1.pop()
       console.log("SENTIMENT MATRIX: ", sentenceVizSentimentPlaceholder1);
       let sentenceVizSentimentPlaceholder2 = [];
       sentenceVizSentimentPlaceholder1.map(i=>sentenceVizSentimentPlaceholder2.push(i.map(j=>Object.values(j)[0])))
       console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
+      let tempData = [];
       if(compound){
-        this.data = sentenceVizSentimentPlaceholder2.map(i=>i[0])
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[0])
       }
       if(negative){
-        this.data = sentenceVizSentimentPlaceholder2.map(i=>i[1])
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
       }
       if(neutral){
-        this.data = sentenceVizSentimentPlaceholder2.map(i=>i[2])
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2])
       }
       if(positive){
-        this.data = sentenceVizSentimentPlaceholder2.map(i=>i[3])
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
+        this.mode[0] = 1;
+        this.mode = [4];
       }
-
+      this.data = tempData;
     },
 
   },
@@ -63,7 +145,7 @@ export default {
 
 <script setup>
 import BarChart from './BarChart.vue';
-import {watch} from 'vue';
+import {watch, ref} from 'vue';
 import AreaChart from './AreaChart.vue';
 import LineChart from './LineChart.vue';
 import StackedAreaChart from './StackedAreaChart.vue';
@@ -73,23 +155,64 @@ const props = defineProps({
   dataObj: Object
 });
 
-watch(props.dataObj, (currentValue, oldValue) => {
-  console.log(currentValue);
-  console.log(oldValue);
+const tooltipMsg = ref();
+tooltipMsg.value = ''
+
+watch([props.dataObj, tooltipMsg], ([currentValueA,currentValueB], [oldValueA,oldValueB]) => {
+  console.log(currentValueA);
+  console.log(currentValueB);
   return;
 });
 
+function updateTooltip(selected) {
+    let grammarArr = [];
+    let entitiesArr = [];
+    if(!JSON.parse(JSON.stringify(props.dataObj))){
+      return;
+    }
+    try {
+      JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceGrammarArray'].forEach((g)=>{
+        grammarArr.push([g.tokenTag,g.tokenPos,g.tokenText])
+      });
+      JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSpacyEntities'].forEach((h)=>{
+        entitiesArr.push([h.text,h.type])
+      })
+      
+      tooltipMsg.value = {
+        grammarArrays : grammarArr,
+        sentimentCompound : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentCompound']['compound'],
+        sentimentNegative : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNegative']['neg'],
+        sentimentNeutral : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNeutral']['neu'],
+        sentimentPositive : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentPositive']['pos'],
+        entityArrays : entitiesArr
+      }
+    } catch(e){
+      console.log("eerrr: ",e)
+    }
+  console.log("SOME READING MATERIAL: ", JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected])
+    // tooltipMsg.value = {
+    //   grammarArrays : grammarArr,
+    //   sentimentCompound : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentCompound']['compound'],
+    //   sentimentNegative : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNegative']['neg'],
+    //   sentimentNeutral : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNeutral']['neu'],
+    //   sentimentPositive : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentPositive']['pos'],
+    //   entityArrays : entitiesArr
+    // }
+
+
+}
+
 </script>
 
-<template>
+<template >
   <div id="graphDiv">
     <h1>TODO: Add Graph Title Here</h1>
-  
+
       <!-- <StackedAreaChart></StackedAreaChart> -->
-      <AreaChart :data="data"></AreaChart>
+      <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart>
         <!-- <BarChart :data="data" ></BarChart> -->
 
-    <div class="buttons">
+    <div class="buttons" >
       <button class="green-btn" @click="addData">Add data</button>
       <button class="green-btn" @click="filterData">Filter data</button>
       <div>

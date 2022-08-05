@@ -51,6 +51,12 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
 }
 
+window.onbeforeunload = function() {
+    socket.onclose = function () {}; // disable onclose handler first
+    socket.close();
+};
+
+
 const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"]
 
 // const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
@@ -265,7 +271,7 @@ async function scrape_text(url){
     emit('openedfullawaitscrape');
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
-    // close();
+    close();
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
@@ -438,6 +444,10 @@ async function scrape_text(url){
       return rawtextfromtoc;
 };
 
+function selected(e){
+  console.log("received in the modal parent: ", e);
+};
+
 // function handleSelect(e){
 //   console.log("e t v ", e);
 // }
@@ -472,7 +482,7 @@ const lineThickness = 5;
       <section id="graphs">
         <slot  name="graphs">
  
-          <GraphModal :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'"></GraphModal>
+          <GraphModal :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'" @select="selected(e)"></GraphModal>
         </slot>
       </section>
 
