@@ -2,30 +2,24 @@
 
 import * as d3 from 'd3';
 
-// import ColorInput from 'vue-color-input'
-
 export default {
   name: "GraphModal",
   components: {
     AreaChart,
     TestChart
   },
-  emits : ['dataname_y','dataname_x','dataCountX'],
+  emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY'],
   data() {
     return {
       data:[7,1,1,7],
       currentXName: "X_",
       currentYName: "Y_",
       mode:[1],
-      // show: false,
-      // clientX: 0,
-      // clientY: 0,
-      lastHoverPoint: {},
       points: [],
-      scaled: {
-        x: null,
-        y: null,
-      },
+      // scaled: {
+      //   x: null,
+      //   y: null,
+      // },
       paths: {
         area: '',
         line: '',
@@ -64,22 +58,22 @@ export default {
     },
 
     //////////////////////////////////////////////
-    
-    createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
-    createLine: d3.line().x(d => d.x).y(d => d.y),
-    createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
+    // Can these be removed/updated?
+    //createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
+    //createLine: d3.line().x(d => d.x).y(d => d.y),
+    //createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
 
 
-    getClosestPoint(x) {
-      // console.log("what are point options?? ", this.points);
-      return this.data
-        .map((point, index) => ({ x:
-          point.x,
-          diff: Math.abs(point.x - x),
-          index,
-        }))
-        .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
-    },
+    // getClosestPoint(x) {
+    //   console.log("what are point options?? ", this.points);
+    //   return this.data
+    //     .map((point, index) => ({ x:
+    //       point.x,
+    //       diff: Math.abs(point.x - x),
+    //       index,
+    //     }))
+    //     .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
+    // },
 
     /////////////////////////////////////////////
     addData() {
@@ -113,7 +107,7 @@ export default {
         this.valueY = "Sentiment (Compound)";
         this.valueX = "Sentence Count";
         this.numberX = tempData.length; 
-      
+        console.log("are we getting this? ", this.numberX);
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[0])
       }
       if(negative){
@@ -121,6 +115,8 @@ export default {
         this.valueX = "Sentence Count";
         this.numberX = tempData.length; 
         //emit('dataname_y', 'sentiment (negative)')
+        console.log("are we getting this? ", this.numberX);
+      
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
       }
       if(neutral){
@@ -166,10 +162,7 @@ const props = defineProps({
   color3: String,
   colorX: String,
   colorY: String,
-  // optionsX: String,
-  // optionsY: String,
-  // valueX: String,
-  // valueY: String,
+
   currentLinesCount: Number,
   numberX: Number,
   numberY: Number
@@ -177,19 +170,16 @@ const props = defineProps({
 
 const emit = defineEmits(['number_x','number_y','dataname_y', 'dataname_x','dataCountX']); 
 
-// const optionsX = ref([]);
 const valueX = ref('');
-// optionsX.value = ['count', 'test2_X', 'test3_X']
 valueX.value = "count";
 
-
-// const optionsY = ref([]);
 const valueY = ref('');
 valueY.value = "count";
 
 const tooltipMsg = ref();
 tooltipMsg.value = ''
 
+// DO WE WANT TO USE DATA VARIABLE OR REF HERE>>>>?
 const numberX = ref(null);
 const numberY = ref(null);
 numberX.value = 0;
@@ -202,7 +192,7 @@ watch([props,props.dataObj, tooltipMsg, valueX.value,valueY.value,numberX.value,
   if(currYLabel !== oldYLabel){
     emit('dataname_y', currYLabel);
   }
-  console.log("?????? ", props.graphstate);
+  console.log("props ", props.graphstate);
   console.log(`PROPS COLORS -> ${props.color0} ${props.color1} ${props.color2} ${props.color3}`)
   console.log(currentValueA);
   console.log(currentValueB);
@@ -329,6 +319,9 @@ function tryToggleComparative(){
 <style>
 #graphTitle {
   position:absolute;
+  position:relative;
+  text-align:center;
+  color:white;
 }
 .picker-popup > .slider:before {
   height:0px !important;
@@ -345,7 +338,7 @@ function tryToggleComparative(){
     width: 100%;
     position: fixed;
     z-index: 99;
-    top: 92px;
+    top: 80px;
     height: calc(64% - 52px);
     
 }

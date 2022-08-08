@@ -3,7 +3,7 @@ import { ref, watch, onMounted, computed, watchEffect } from 'vue'
 import { SelfBuildingSquareSpinner  } from 'epic-spinners'
 import StepProgress from 'vue-step-progress';
 import './untitled-font-1.svg'
-// import the css (OPTIONAL - you can provide your own design)
+
 import 'vue-step-progress/dist/main.css';
 import { Head } from '@vueuse/head';
 import LineChart from './LineChart.vue';
@@ -12,130 +12,10 @@ import GraphModal from './GraphModal.vue';
 import ColorInput from 'vue-color-input';
 import Multiselect from '@vueform/multiselect'
 
-const currentStepRef = ref(null);
-//import LocalStorageMock from './LocalStorageMock.js'
+// Define Props, Emits & Key Variables
+// ----------------------------------------------------
 
-let searchModal;
-onMounted(()=>{
-
-  currentStepRef.value = 0;
-  setTimeout(() => {
-    searchModal = modal.value;
-  }, 10);
-  clearTimeout();
-   
-  const css = `
-  @charset "UTF-8";
-  @font-face {
-    font-family: "untitled-font-1";
-    src: url("untitled-font-1.svg#untitled-font-1") format("svg");
-    font-weight: normal;
-    font-style: normal;
-    z-index: 10;
-  }
-
-  @font-face {
-    font-family: 'Font Awesome 5 Free';
-    font-style: normal;
-    font-weight: 400;
-    font-display: block;
-    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot)';
-    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot?#iefix) format("embedded-opentype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff2) format("woff2"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff) format("woff"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.ttf) format("truetype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.svg#fontawesome) format("svg")'
-  }
-  `
-
-})
-
-const socket = new WebSocket('ws://localhost:5000/ws');
-
-socket.onopen = function (event) {
-  socket.send("Here's some text that the server is urgently awaiting!");
-}
-
-window.onbeforeunload = function() {
-    socket.onclose = function () {}; // disable onclose handler first
-    socket.close();
-};
-
-
-const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"]
-
-// const mySteps = ['Scrape and Process Text', 'Analyze Lines', 'Analyze Sentences', 'Analyze Entities']
-
-let stepMessage = '';
-
-
-socket.onmessage = event => {
-
-    if(event.data === 'third_msg'){
-      currentStepRef.value = 0;
-      stepMessage = "Gathering text and preprocessing data"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
-    if(event.data === 'fourth_msg'){
-      currentStepRef.value = 1;
-      stepMessage = "Begin line-level and poetic analysis";
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
-
-    if(event.data === 'eighth_msg'){
-      currentStepRef.value = 2;
-      stepMessage = "Begin sentence-level analysis"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
-    if(event.data === 'eleventh_msg'){
-      currentStepRef.value = 3;
-      stepMessage = "Vectorizing"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
-    if(event.data === 'twelfth_msg'){
-      currentStepRef.value = 4;
-      stepMessage = "Clustering"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }
-    if(event.data === 'thirteenth_msg'){
-      currentStepRef.value = 5;
-      stepMessage = "Time Series Analysis"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-    }  
-    if(event.data === 'fifteenth_msg'){
-      currentStepRef.value = 6;
-      console.log("HIT FIFTEENTH!!!");
-      stepMessage = "Feature Extraction"
-      if(document.getElementById("progressMsg")){
-        document.getElementById("progressMsg").innerText = stepMessage;
-      }
-      let results = document.getElementsByClassName('modal-single-text-results');
-      if(results.length > 0){
-        results[0].style.visibility = "visible";
-        document.getElementById('progressCircles').style.display = "none";
-        document.getElementById('progressMsg').style.display = "none";
-        document.getElementById('progressMsgExplanation').style.display = "none";
-        document.getElementById('main').style.display = "none";
-        // emit('closedfull')
-        //document.getElementById('modal-body').style.display = "none";
-        document.getElementById('graphs').style.display = "flex";
-        document.getElementById('compareButton').style.visibility = "visible";
-       // document.getElementById('additiveButton').style.visibility = "visible";
-      }
-    }  
-    let showExplanation = document.getElementById('progressMsgExplanation')
-    if(showExplanation){
-      showExplanation.style.display = "flex";
-    }
-}
+const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
 
 const props = defineProps({
   open: Boolean,
@@ -147,48 +27,59 @@ const props = defineProps({
   graphstate: String
 });
 
-const optionsX = ref([]);
-const valueX = ref('');
-const numberX = ref(null);
-
-optionsX.value = ['count', 'test2_X', 'test3_X']
-valueX.value = "count";
-numberX.value = 0;
-
-const optionsY = ref([]);
-const valueY = ref('');
-const numberY = ref(null);
-
-optionsY.value = ['count', 'test2_Y', 'test3_Y']
-valueY.value = "count";
-numberY.value = 0;
-
-const color0 = ref("");
-color0.value = "#00bd7e";
-
-const color1 = ref("");
-color1.value = "#00bd7e";
-
-const color2 = ref("");
-color2.value = "#00bd7e";
-
-const color3 = ref("");
-color3.value = "#00bd7e";
-
-const colorX = ref("");
-colorX.value = "pink";
-
-const colorY = ref("");
-colorY.value = "pink";
-const showOne = ref(false);
-const showTwo = ref(false);
-const showThree = ref(false);
-const showFour = ref(false);
+const secondTextRef = ref();
+secondTextRef.value = false;
 
 
-const temp = ref({})
 const graphstateRef = ref('');
 // graphstate.value = "singleText";
+
+const secondTextsArray = ref([]);
+
+const secondHumanReadableTextRef = ref({
+  title: String,
+  author: String,
+  textId: Number,
+  textObj: {
+    titleUrl: String,
+    summary: String,
+    averageLinesPerSentence: Number,
+    percPoetrySyllables: Number,
+    percPoetryRhymes: Number,
+    spacyEntities: Array,
+    // europeanaEntitiesArray: Array,
+    placesEntitiesArray: Array,
+    mostCommonWords: Array,
+  },
+  lineObj: {
+    lineId: {
+      lastWord: String,
+      poeticForm: String,
+      thisRhyme: String,
+      lastRhyme: String,
+      thisLine: String,
+      lastLine: String,
+      thisInterRhyme: String,
+      lastInterRhyme: String,
+      thisInterLine: String,
+      lastInterLine: String,
+      internalRhymes: Object,
+      syllablesInLine: Number
+    }
+  },
+  sentenceObj: {
+    sentenceId: {
+      sentimentCompound: Number,
+      sentimentNegative: Number,
+      sentimentNeutral: Number,
+      sentimentPositive: Number,
+      entitiesInSentence: Array,
+      sentenceGrammarArray: Array
+    }
+  },
+  linesArray: Array,
+})
+
 const initialHumanReadableTextRef = ref({
   title: String,
   author: String,
@@ -249,18 +140,198 @@ const initialHumanReadableTextRef = ref({
 })
 
 initialHumanReadableTextRef.value.textObj.mostCommonWords = [];
+secondHumanReadableTextRef.value.textObj.mostCommonWords = [];
 
+const currentStepRef = ref(null);
+
+let searchModal;
+onMounted(()=>{
+  currentStepRef.value = 0;
+  setTimeout(() => {
+    searchModal = modal.value;
+  }, 10);
+  clearTimeout();
+   
+  const css = `
+  @charset "UTF-8";
+  @font-face {
+    font-family: "untitled-font-1";
+    src: url("untitled-font-1.svg#untitled-font-1") format("svg");
+    font-weight: normal;
+    font-style: normal;
+    z-index: 10;
+  }
+
+  @font-face {
+    font-family: 'Font Awesome 5 Free';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot)';
+    src: 'url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.eot?#iefix) format("embedded-opentype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff2) format("woff2"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.woff) format("woff"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.ttf) format("truetype"), url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/webfonts/fa-brands-400.svg#fontawesome) format("svg")'
+  }
+  `
+})
+
+
+// Initial soocket implementation 
+// ----------------------------------------------------
+const socket = new WebSocket('ws://localhost:5000/ws');
+
+socket.onopen = function (event) {
+  socket.send("Here's some text that the server is urgently awaiting!");
+}
+
+window.onbeforeunload = function() {
+    socket.onclose = function () {}; // disable onclose handler first
+    socket.close();
+};
+
+// Text loading steps
+// TODO => sort out which we need for initial text loading
+// TODO => get these callback numbers in proper 1-2-3 order
+const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"]
+let stepMessage = '';
+
+socket.onmessage = event => {
+
+    if(event.data === 'third_msg'){
+      currentStepRef.value = 0;
+      stepMessage = "Gathering text and preprocessing data"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'fourth_msg'){
+      currentStepRef.value = 1;
+      stepMessage = "Begin line-level and poetic analysis";
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'eighth_msg'){
+      currentStepRef.value = 2;
+      stepMessage = "Begin sentence-level analysis"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'eleventh_msg'){
+      currentStepRef.value = 3;
+      stepMessage = "Vectorizing"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'twelfth_msg'){
+      currentStepRef.value = 4;
+      stepMessage = "Clustering"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }
+    if(event.data === 'thirteenth_msg'){
+      currentStepRef.value = 5;
+      stepMessage = "Time Series Analysis"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    }  
+    if(event.data === 'fifteenth_msg'){
+      currentStepRef.value = 6;
+      console.log("HIT FIFTEENTH!!!");
+      stepMessage = "Feature Extraction"
+      if(document.getElementById("progressMsg")){
+        document.getElementById("progressMsg").innerText = stepMessage;
+      }
+    
+// We've got the text -> reorder the DOM
+// ----------------------------------------------------
+    let results = document.getElementsByClassName('modal-single-text-results');
+      if(results.length > 0){
+        results[0].style.visibility = "visible";
+        document.getElementById('progressCircles').style.display = "none";
+        document.getElementById('progressMsg').style.display = "none";
+        document.getElementById('progressMsgExplanation').style.display = "none";
+        document.getElementById('main').style.display = "none";
+        document.getElementById('graphs').style.display = "flex";
+        document.getElementById('compareButton').style.visibility = "visible";
+        document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
+        document.getElementById("textRowAuthor").style.display = "none";
+        document.getElementById("textRowTitle").style.display = "none";
+        document.getElementById("searchTextWrapper").style.display = "none";
+
+        document.getElementsByClassName('wrapper-outer').classList.add("hide");
+        document.getElementsByClassName('wrapper-outer').style.display = "none";
+
+        document.getElementById('headerDiv').style.display = 'none';
+        document.getElementById('headerDiv').style.visibility = 'hidden';
+        document.getElementById('mainText').style.display = "none";
+        document.getElementById('mainTextSubheader').style.display = "none";
+      }
+    }  
+    let showExplanation = document.getElementById('progressMsgExplanation')
+    if(showExplanation){
+      showExplanation.style.display = "flex";
+    }
+}
+
+// these are options for the keybuilder dropdown
+// ----------------------------------------------------
+const optionsX = ref([]);
+optionsX.value = ['test1_x', 'test2_x', 'test3_x']
+// these are values for axis labels
+const valueX = ref('');
+valueX.value = "count_x";
+// these are numbers for axes values
+const numberX = ref(null);
+numberX.value = 0;
+// do the same for Y axis
+const optionsY = ref([]);
+optionsY.value = ['test1_y', 'test2_Y', 'test3_Y']
+const valueY = ref('');
+valueY.value = "count_y";
+const numberY = ref(null);
+numberY.value = 0;
+
+//Initial colors for lines and axes
+const color0 = ref("");
+color0.value = "#00bd7e";
+
+const color1 = ref("");
+color1.value = "#00bd7e";
+
+const color2 = ref("");
+color2.value = "#00bd7e";
+
+const color3 = ref("");
+color3.value = "#00bd7e";
+
+const colorX = ref("");
+colorX.value = "pink";
+
+const colorY = ref("");
+colorY.value = "pink";
+
+// TODO -> need a less hard-coded implementation of keybuilder UI   
+// TODO -> check if this (or other implementation below) can be removed
+const showOne = ref(false);
+const showTwo = ref(false);
+const showThree = ref(false);
+const showFour = ref(false);
+
+const temp = ref({})
 const rawtextfromtoc= ref({});
 
-const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
-
-// CREATE FULLSCREEN MODAL HERE ...
+// Create fullscreen modal for scrape process / graph display
+// ----------------------------------------------------
 const modalFull = ref(null);
 const modal = ref(null);
 // graphstate = 'singleText';
 const currentLinesCount = ref(0); 
 const additionalTexts = ref([]);
 currentLinesCount.value = 1;
+
 additionalTexts.value = [
   {
     title:'',
@@ -317,17 +388,36 @@ watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.va
       } 
     });
 
+// Begin process for adding a new text...
+// ----------------------------------------------------
+function tryAddNewText(){
+  doCloseFullModalChild();
+  secondTextRef.value = true;
+  console.log("second text is ... ", secondTextRef.value);
+}
 
+// Opens Keybuilder Popup
+// ----------------------------------------------------
 function openKeyPopup(){
-  
   let newTextPopup = document.getElementById("newTextPopup")
   if(newTextPopup){
     newTextPopup.style.display = "flex";
     resetRows();
-
   }
 }
 
+
+// Closes Keybuilder Popup
+// ----------------------------------------------------
+function closeKeyModal () {
+  let popup = document.getElementById("newTextPopup");
+  if(popup){
+    popup.style.display = "none";
+  }
+}
+
+// Reset row count if # of lines changes 
+// ----------------------------------------------------
 function resetRows(){
   console.log("resetting rows");
 
@@ -361,32 +451,39 @@ function resetRows(){
   }
 }
 
+// Remove line from Keybuilder 
+// TODO=> carry implementation down into actual graph
+// ----------------------------------------------------
 function removeLine(){
-  //TODO!
   if(currentLinesCount.value > 1){
     currentLinesCount.value = currentLinesCount.value - 1;
     resetRows();
-    let to_hide = document.querySelector(`.new-text-popup-row#newRow_${currentLinesCount.value}`);
-      if(to_hide){
-        to_hide.style.display = "none";
+    let rowToHide = document.querySelector(`.new-text-popup-row#newRow_${currentLinesCount.value}`);
+      if(rowToHide){
+        rowToHide.style.display = "none";
       }
   }
 }
 
+// This linecount is the official tracking number...
+// TODO => find a more performant and robust solution
+// ----------------------------------------------------
 function setLineCount(){
+  // TODO=> rename or rework this variable to accomodate new flow
   graphstateRef.value = "comparative";
   
   if(currentLinesCount.value < 4){
-    console.log("herre ", currentLinesCount.value);
+    console.log("adding a keybuilder row / graph line here: ", currentLinesCount.value);
     // document.getElementById("addLineButton").disabled = false;
     currentLinesCount.value = currentLinesCount.value + 1;
     resetRows();
   } else {
+    // TODO fix this disabling of button
     // document.getElementById("addLineButton").disabled = true;
   }
   console.log("hit comparative: ", graphstateRef.value);
 }
-console.log("hit comparative outer: ", graphstateRef.value);
+
 
 function tryGetFullModal(){
     setTimeout(()=>{
@@ -394,9 +491,10 @@ function tryGetFullModal(){
       emit('closedmodal')
       if(fullModal && fullModal.classList){
         fullModal.classList.add("awaiting");
+        // hide thee text search
         let main = document.getElementById("main");
         if(main){
-          main.visibility = "hidden";
+          main.style.visibility = "hidden";
         }
       } else {
         console.log("what is the else for full modal? ", fullModal);
@@ -405,25 +503,57 @@ function tryGetFullModal(){
     clearTimeout();
   };
 
+// Close full modal & return to initial search setup...
+// ----------------------------------------------------
 function doCloseFullModalChild(){
   emit('closedfull')
+  
+  let jumbotron = document.getElementById('jumbotron');
+  if(jumbotron){
+    jumbotron.style.display = "flex";
+    jumbotron.style.display = "visible";
+  }
+  // show the text search again
+  let main = document.getElementById("main");
+  if(main){
+    main.style.visibility = "visible";
+    main.style.display = "flex";
+  }
   let headerDiv = document.getElementById("headerDiv");
   if (headerDiv && headerDiv.classList){
-    headerDiv.classList.add("noDisplay");
+    headerDiv.classList.remove("noDisplay");
+    headerDiv.style.visibility = "visible";
   } else {
     console.log("in the else for headerdiv classlist");
   }
 }
 
+// KEY FUNCTION FOR GATHERING TEXT DATA
 // TODO: componentize and DRY this function (see TheWelcome)
-async function scrape_text(url){    
+// ----------------------------------------------------
+async function scrape_text(url){ 
+    console.log('god dammit ', secondTextRef.value);
+    document.getElementById('headerDiv').style.display = "none";
+
     
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable){
-       initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-       console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
+      console.log("HEEEY ", secondTextRef.value);
+      //console.log("this shit: ", JSON.stringify(JSON.parse(initialHumanReadableTextRef.value)).length)
+        if(secondTextRef.value === false){
+          initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+        } else {
+        
+          // console.log("What flying fuck: ", currentLinesCount.value)
+          // secondHumanReadableTextRef[currentLinesCount.value] = secondHumanReadableTextRef[currentLinesCount.value] || ;
+          secondHumanReadableTextRef.value[currentLinesCount.value] = JSON.parse(localStorageDataAvailable); 
+          console.log("CHECK IT OUT: ",  secondHumanReadableTextRef.value);
+        }
+       // TODO => local storage does not have full scraped text... get it in background here
+       console.log("retrieved data from local storage!!! ", initialHumanReadableTextRef.value)
           emit('closedmodal');
           emit('openedfull');
+          // display results for text search -> data scrape
           let fullModal = await modalFull.value;
           if(fullModal && fullModal.classList){
             fullModal.classList.remove("awaiting");
@@ -436,20 +566,31 @@ async function scrape_text(url){
           } else {
             console.log("in else for fullmodal: ", fullModal);
           }
-        // document.getElementById('progressCircles').style.display = "none";
-        // document.getElementById('progressMsg').style.display = "none";
-        // document.getElementById('progressMsgExplanation').style.display = "none";
-        // emit('closedfull')
+
+        // you've got text data... do you want to immediately see **?any?** graph?
+        // or should there be an interstitial step here where we choose graph style? 
+        // this block hides any search or waiting steps & show the graph 
         let graphs = document.getElementById('graphs')
         if(graphs){
           graphs.style.display = "flex";
           document.getElementById('main').style.display = "none";
-          // document.getElementById('modal-body').style.display = "none";
           document.getElementById('progressCircles').style.display = "none";
           document.getElementById('progressMsg').style.display = "none";
           document.getElementById('progressMsgExplanation').style.display = "none";
           document.getElementById('compareButton').style.visibility = "visible";
-          //document.getElementById('additiveButton').style.visibility = "visible";
+
+
+          document.getElementById("textRowAuthor").style.display = "none";
+          document.getElementById("textRowTitle").style.display = "none";
+          document.getElementById("searchTextWrapper").style.display = "none";
+
+          // document.getElementsByClassName('wrapper-outer').classList.add("hide");
+          // document.getElementsByClassName('wrapper-outer').style.display = "none";
+
+          document.getElementById('headerDiv').style.display = 'none';
+          document.getElementById('headerDiv').style.visibility = 'hidden';
+          document.getElementById('mainText').style.display = "none";
+          document.getElementById('mainTextSubheader').style.display = "none";
         }
         return;
     }
@@ -461,11 +602,172 @@ async function scrape_text(url){
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
-    console.log("WTF??? ",this)
 
-    
+    if(secondText){
+    // Include LOGIC HERE FOR ADDITIONAL TEXT LOADING... (pull from diff endpoint?)
     //document.getElementById("modal-full").classList.add("awaiting")
-    rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
+      rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({titleUrl: url})
+      }).then(response => response.json()).then(result => {
+          if(result){
+            // INCLUDE LOGIC IN CASE WE'RE HANDLING MULTIPLE TEXTS HERE...
+            rawtextfromtoc.value = result;
+            console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
+            // document.getElementById("modalFull").classList.add("awaiting")
+            temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
+
+            ///////////////////////////////////////////////////////////////////////////////
+            // --> Catch Data in Complex Object (break this all up in future for better user exp)
+            initialHumanReadableTextRef.value.title = props.selectedTitle;
+            initialHumanReadableTextRef.value.author = props.selectedAuthor;
+            // TODO (add propr text ids to database):
+            initialHumanReadableTextRef.value.textId = 0; 
+            initialHumanReadableTextRef.value.textObj.summary = temp.value.summary;
+            initialHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
+            initialHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
+            initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
+            initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
+            initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
+
+            console.log("is this proper summary? ... if so use it ", temp.value.summary);
+            
+            // TODO=> add graphs for poetic lines & full text
+            temp.value.last_word_per_line.forEach((li,lineIndex)=>{
+              
+              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
+
+              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
+
+              temp.value.poetic_form.forEach(form=>{
+                if(form['index'] === lineIndex){
+                  initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
+                }
+              })
+              
+              temp.value.poetic_form.forEach(pf=>{
+                try {
+                  if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
+                    initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+                      "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
+                      "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
+                      "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
+                      "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
+
+                      "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
+                      "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
+                      "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
+                      "lastInterLine": JSON.parse(JSON.stringify(pf))['last_interline'] || '',
+                      "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
+                    }
+                  }
+                } catch {
+
+                }
+              })
+
+              temp.value.internal_rhyme_most_recent.forEach(ry=>{
+                try {
+                  if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
+                    try {
+                        initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
+                          "endRhyme": JSON.parse(JSON.stringify(ry))['end_rhyme'] || '',
+                          "internalRhyme": JSON.parse(JSON.stringify(ry))['internal_rhyme']
+                      }
+                    } catch (e) {
+                      console.warn("error getting internal rhymes: ", e);
+                    }
+                  }
+                } catch(e){
+                console.log("error: ", e);
+                } finally {
+
+                }  
+                try {
+                  initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
+                } catch {
+                  console.log("error getting syllables in line *** ");
+                }
+              })         
+          })
+
+            const tempGramArr = ref([])
+    
+            temp.value.most_common_words.forEach((word, rank) => {
+              console.log("in here!");
+              initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
+            });
+          
+            temp.value.sentence_id.forEach(sentence => {
+            // TODO!!! => Figure out how to handle diff types here...
+            // bring entities & grammar back into play ...
+              initialHumanReadableTextRef.value.sentenceObj[sentence] = {
+                sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
+                sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
+                sentenceSentimentNeutral: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neu[parseInt(sentence)])),
+                sentenceSentimentPositive: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_pos[parseInt(sentence)])),
+                sentenceGrammarArray: [],
+                sentenceSpacyEntities: []
+              }
+            });
+
+            temp.value.sentence_grammar.word_level_grammar_result.forEach(wordGram => {
+              initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']].sentenceGrammarArray.push({
+                "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
+                "tokenTag":JSON.parse(JSON.stringify(wordGram))['token_tag'],
+                "tokenPos":JSON.parse(JSON.stringify(wordGram))['token_pos'],
+                "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text']
+              })    
+            });
+
+            temp.value.spacy_entities.forEach(entity=>{
+              initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
+                {
+                  "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+                  "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+                }
+              )
+            })
+
+            // We've received text data -> update storage & proceed onwards...
+            // ----------------------------------------------------
+            // Update Local Storage
+            if (!localStorage.getItem(url)){
+              localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
+            }
+
+            console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
+
+            // // WHAT ARE THESE LINES DOING??? 
+            // let fullModal = modalFull.value;
+            // if(fullModal && fullModal.classList){
+            //   fullModal.classList.remove("awaiting");
+            //   fullModal.classList.add("receivedSingleTextData");
+            //   let main = document.getElementById("main");
+            //   console.log("what / when triggers this?");
+            //   if(main){
+            //     main.visibility = "visible";
+            //   }
+            // } else {
+            //   console.log("in else for fullmodal: ", fullModal);
+            // }
+            return rawtextfromtoc.value;
+          } else {
+            return null;
+          }
+          }).catch(error => {
+          console.log('Error:', error);
+          }); 
+    
+   } else {
+////////////////////////////
+
+
+    rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_second_text', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -474,41 +776,44 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
-                
+          // INCLUDE LOGIC IN CASE WE'RE HANDLING MULTIPLE TEXTS HERE...
           rawtextfromtoc.value = result;
-          console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
+          console.log("hhhere's the second text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
           temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
 
           ///////////////////////////////////////////////////////////////////////////////
           // --> Catch Data in Complex Object (break this all up in future for better user exp)
-          initialHumanReadableTextRef.value.title = props.selectedTitle;
-          initialHumanReadableTextRef.value.author = props.selectedAuthor;
-          // TODO:
-          initialHumanReadableTextRef.value.textId = 0; 
-          initialHumanReadableTextRef.value.textObj.summary = temp.value.summary
-          initialHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
-          initialHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
-          initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
-          initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
-          initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
+          secondHumanReadableTextRef.value.title = props.selectedTitle;
+          secondHumanReadableTextRef.value.author = props.selectedAuthor;
+          // TODO (add propr text ids to database):
+          secondHumanReadableTextRef.value.textId = 0; 
+          secondHumanReadableTextRef.value.textObj.summary = temp.value.summary;
+          secondHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
+          secondHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
+          secondHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
+          secondHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
+          secondHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
 
+          console.log("is this proper summary? ... if so use it ", temp.value.summary);
+          
+          // TODO=> add graphs for poetic lines & full text
           temp.value.last_word_per_line.forEach((li,lineIndex)=>{
             
-            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
+            secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
 
-            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
+            secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
 
             temp.value.poetic_form.forEach(form=>{
               if(form['index'] === lineIndex){
-                initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
+                secondHumanReadableTextRef.value.lineObj[lineIndex] = {};
               }
             })
             
             temp.value.poetic_form.forEach(pf=>{
               try {
                 if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-                  initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+                  secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
                     "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
                     "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
                     "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
@@ -521,6 +826,8 @@ async function scrape_text(url){
                     "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
                   }
                 }
+                secondTextsArray.value.push(secondHumanReadableTextRef.value);
+                console.log("CHECK OUT THIS SHIT: ", secondTextsArray.value);
               } catch {
 
               }
@@ -554,12 +861,13 @@ async function scrape_text(url){
           const tempGramArr = ref([])
    
           temp.value.most_common_words.forEach((word, rank) => {
-    
+            console.log("in here!");
             initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
           });
          
           temp.value.sentence_id.forEach(sentence => {
-
+          // TODO!!! => Figure out how to handle diff types here...
+          // bring entities & grammar back into play ...
             initialHumanReadableTextRef.value.sentenceObj[sentence] = {
               sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
               sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
@@ -586,38 +894,31 @@ async function scrape_text(url){
                 "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
               }
             )
-       
-
           })
 
-
-
-
+          // We've received text data -> update storage & proceed onwards...
+          // ----------------------------------------------------
           // Update Local Storage
           if (!localStorage.getItem(url)){
             localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
           }
 
           console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
-          //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
-          // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
 
-          ///////////////////////////////////////////////////////////////////////////////
-          ///////////////////////////////////////////////////////////////////////////////
-          ///////////////////////////////////////////////////////////////////////////////
-          
-          let fullModal = modalFull.value;
-          if(fullModal && fullModal.classList){
-            fullModal.classList.remove("awaiting");
-            fullModal.classList.add("receivedSingleTextData");
-            let main = document.getElementById("main");
-
-            if(main){
-              main.visibility = "visible";
-            }
-          } else {
-            console.log("in else for fullmodal: ", fullModal);
-          }
+          // // WHAT ARE THESE LINES DOING??? 
+          // let fullModal = modalFull.value;
+          // if(fullModal && fullModal.classList){
+          //   fullModal.classList.remove("awaiting");
+          //   fullModal.classList.add("receivedSingleTextData");
+          //   let main = document.getElementById("main");
+          //   console.log("what / when triggers this?");
+          //   if(main){
+          //     main.visibility = "visible";
+          //   }
+          // } else {
+          //   console.log("in else for fullmodal: ", fullModal);
+          // }
+          print('second works!')
           return rawtextfromtoc.value;
         } else {
           return null;
@@ -625,20 +926,29 @@ async function scrape_text(url){
         }).catch(error => {
         console.log('Error:', error);
         }); 
-      
+
+
+   }
+// /////////////////////////////
+
+
+
+
+
+//     }  
       return rawtextfromtoc;
 };
 
 function selected(e){
-  console.log("received in the modal parent: ", e);
+  console.log("received SELECTED emit in the modal parent: ", e);
 };
 
-function closeKeyModal () {
-    let popup = document.getElementById("newTextPopup");
-    if(popup){
-      popup.style.display = "none";
-    }
-  }
+// function closeKeyModal () {
+//   let popup = document.getElementById("newTextPopup");
+//   if(popup){
+//     popup.style.display = "none";
+//   }
+// }
 // function handleSelect(e){
 //   console.log("e t v ", e);
 // }
@@ -746,7 +1056,24 @@ function trySetDataNameY(name){
         <slot name="header">
           Single Text Analysis
         </slot>
-
+    
+          <button
+            type="button"
+            id="addTextButton"
+            class="btn-green"
+            @click="tryAddNewText"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            id="compareButton"
+            class="btn-green"
+            @click="openKeyPopup"
+          >
+            Key
+          </button>
+     
         <button
           type="button"
           class="btn-close"
@@ -762,7 +1089,7 @@ function trySetDataNameY(name){
           <GraphModal 
             :graphstate="graphstateRef" 
             :dataObj="initialHumanReadableTextRef" 
-            :dataKey="'occurances'" 
+     
             :color0="color0"
             :color1="color1"
             :color2="color2"
@@ -923,10 +1250,10 @@ function trySetDataNameY(name){
         <!-- </slot> -->
           <section class="modal-textAnalysis-title">
             <slot name="titleDiv">
-              <span class="text-row">
+              <span id="textRowTitle">
                 Title: {{props.selectedTitle}}
               </span>
-              <span class="text-row">
+              <span id="textRowAuthor">
                 Author: {{props.selectedAuthor}}
               </span>
             </slot>
@@ -971,14 +1298,14 @@ function trySetDataNameY(name){
 
       <footer class="modal-footer">
         <slot name="footer">
-          <button
+          <!-- <button
             type="button"
             id="compareButton"
             class="btn-green"
             @click="openKeyPopup"
           >
           Extend
-        </button>
+        </button> -->
           <!-- <button
             type="button"
             id="additiveButton"
@@ -1007,10 +1334,11 @@ function trySetDataNameY(name){
 
         </div>
     </div>
-    <!-- <p id="textData">{{rawtextfromtoc ? rawtextfromtoc.value : null}}</p> -->
-    <div id="textData">
+
+    <!-- can we remove this??? -->
+    <!-- <div id="textData">
     {{rawtextfromtoc ? rawtextfromtoc.value : null}}
-    </div>
+    </div> -->
 
   </div>
 </Teleport>
@@ -1128,11 +1456,6 @@ body.modal-open {
     padding-right: 24px;
 }
 
-
-/*.modal-backdrop {
-  pointer-events:none;
-}*/
-
 #modalFull {
     background:transparent;
     top: 0;
@@ -1194,7 +1517,6 @@ body.modal-open {
     left: 0px;
     background: rgba(255, 255, 255, 0.078);
     transition: height 1s ease-in;
-  
   }
 
   .modal-footer {
@@ -1245,11 +1567,16 @@ body.modal-open {
     background: hsla(193, 82%, 49%, 0.7);
     border: 1px solid hsla(160, 100%, 37%, 0.7);
     border-radius: 2px;
-    width: 200px;
-    height: 60px;
+    width: 60px;
+    height: 48px;
     float: right;
-    position:relative;
+    margin-right:4px;
+    margin-left:4px;
+    position: absolute;
+    right: 36px;
+    top: 4px;
   }
+
   .hideFullModal {
     display:none;
   }
@@ -1268,7 +1595,7 @@ body.modal-open {
     top: -60px !important;
     position: absolute;
   }
-  .text-row {
+  #textRowTitle, #textRowAuthor{
     width: 100%;
   }
 
@@ -1328,8 +1655,6 @@ body.modal-open {
    
     color: "#ffffff";
     z-index: 10;
-/*    font-family: "untitled-font-1";
-    src: url("./untitled-font-1.svg#untitled-font-1") format("svg");*/
   }
   .check-square-o {
     z-index: 10;
@@ -1360,10 +1685,14 @@ body.modal-open {
 }
 
 
-
-#compareButton {
+#topBtns {
   visibility: hidden;
-  margin: 4px;
+}
+#compareButton {
+  
+}
+#addTextButton {
+  right: 112px;
 }
 
 #graphs {
@@ -1520,6 +1849,9 @@ body.modal-open {
 }
 #newRow_1, #newRow_2, #newRow_3 {
   display:none;
+}
+.hide {
+  display: none;
 }
 #newAxis_X, #newAxis_Y {
 

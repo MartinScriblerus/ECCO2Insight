@@ -110,8 +110,12 @@ async function scrape_text(url:String){
 async function doCloseModal(){
   // document.getElementById("jumbotron").style.display = "flex";
   let main = document.getElementById("main");
+  let headerDiv = document.getElementById("headerDiv");
   if(main){
     main.style.top = "72px";
+  }
+  if(headerDiv){
+    headerDiv.style.visibility = "visible";
   }
   open.value = false;
 

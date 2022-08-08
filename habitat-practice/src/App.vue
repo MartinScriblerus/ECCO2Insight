@@ -463,6 +463,8 @@ input {
   top:72px;
   visibility: hidden;
   padding-left:1%;
+  display: flex;
+  flex-direction: column;
 }
 
 #headerDiv {

@@ -85,6 +85,7 @@ export default {
             deep: true,
             handler: function(newVal, oldVal){
               console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
+              this.xAxisLabel = JSON.parse(JSON.stringify(newVal));
               //let textDiv = document.getElementById(`newVariable_${props.currentLinesCount}_yvar`);
               //textDiv.innerText = JSON.parse(JSON.stringify(newVal));
               // SET THIS TO THE Y AXIS LABEL
@@ -141,7 +142,9 @@ export default {
             }
             let topicWrapper = document.getElementById("topicListWrapper");
             console.log(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)));
-            JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+            if(newVal){
+              JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+            }
         }
       }
     },
@@ -153,7 +156,8 @@ export default {
       clientY: 0,
       closestPoint: null,
       entityArr:[],
-      graphState: 'singleText'
+      graphState: 'singleText',
+      xAxisLabel: ''
     };
   },
   setup(props,{emit}) {
@@ -298,7 +302,7 @@ export default {
             return svg; 
         }
         
-
+        console.log('ugh', props.data[0]);
         if(typeof JSON.parse(JSON.stringify(props.data[0])) === "number"){
             if(props.graphstate === "comparative"){
               console.log("0", props.color0);
@@ -321,7 +325,8 @@ export default {
                 createLine([props.data], props.color0,1.5);
             }
         } else {
-            createLine([props.data], 'grey',3);
+            console.warn("we shouldn't be gettting here! / check data")
+            createLine([props.data], 'pink',3);
         }
 
         function createXAxis(color){
@@ -429,6 +434,7 @@ export default {
         </div>
 
     </div>
+    <span v-if="this.xAxisLabel" id="yAxisLabel">{{this.xAxisLabel}}</span>
     <svg @mouseover="mouseMove" id="svgId" ref="svgRef">
       <g class="x-axis" />
       <g class="y-axis" />
@@ -441,10 +447,12 @@ export default {
   display: flex;
   height: 100%;
   z-index: 10;
+  margin-left: 64px;
+  margin-right: 64px;
+  top: 20px;
 }
 #svgId {
     background: rgba(0,0,0,0.98);
-    margin-left: 36px;
     bottom: 20px;
 }
 #tooltip {
@@ -479,5 +487,13 @@ export default {
 }
 #topicListWrapper {
   text-align:left;
+}
+#yAxisLabel {
+    transform: rotate(270DEG);
+    Z-INDEX: 9999;
+    POSITION: FIXED;
+    COLOR: WHITE;
+    TOP: 44%;
+    left: -50px;
 }
 </style>

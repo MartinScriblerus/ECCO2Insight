@@ -366,6 +366,35 @@ def res_toc():
     return json.dumps(all_toc_list)
     # else:
     #     print('what is the issue here?') 
+
+@app.route('/scraper_get_second_text', methods=['POST'])
+def second_res_text():
+    r = request.json()
+    browser = mechanicalsoup.StatefulBrowser() 
+    browser.open(r['titleUrl'])
+    h=browser.page.select('a', class_='buttonlink')
+    for a in h:
+        if a.text == 'View entire text':
+            #TODO: add this in for full text scrape (see note below)
+            return json.dumps(text_in_html)
+        else:
+            #print(f"In the else / scrape html ----------------------------------")
+            text_in_html = browser.page.find('div',class_="maincontent").text
+            #print(f"begin the nltk analysis methods")
+            # soct.send("second_msg")
+            old_df, sents = nltk_analysis(r, text_in_html)
+       
+            # print(f"OLD DF IS {old_df} //// SENTS IS ... {sents}")
+        
+            mach_learning = machine_learning(old_df,sents)
+            soct.send('fifteenth_msg')
+            # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
+            # soct.send("fifteenth_msg")
+            initial_text_obj = old_df
+            # soct.send("second_msg")
+            print("SECOND ONE WORKS!!!")
+            return old_df 
+        
 @app.route('/scraper_get_text', methods=['POST'])
 def res_text():
     r = request.get_json()
