@@ -1,6 +1,7 @@
 <script>
 import { onMounted, ref, watchEffect } from "vue";
 import * as d3 from 'd3';
+// import { ColorPicker } from 'vue-accessible-color-picker';
 import {
   select,
   line,
@@ -18,8 +19,93 @@ import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg","graphstate"],
+  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberX","valueY","numberY", "currentLinesCount"],
     watch: { 
+        currentLinesCount:{
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+             // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+             
+            }
+        },        
+        color0:{
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+             // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        color1: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log(JSON.parse(JSON.stringify(newVal)));
+             // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        color2: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log(JSON.parse(JSON.stringify(newVal)));
+            //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        color3: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log(JSON.parse(JSON.stringify(newVal)));
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        colorX: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log(JSON.parse(JSON.stringify(newVal)));
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        colorY: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log(JSON.parse(JSON.stringify(newVal)));
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        valueX: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("new x value", JSON.parse(JSON.stringify(newVal)));
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+              //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
+             
+
+            }
+        },
+        valueY: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
+              //let textDiv = document.getElementById(`newVariable_${props.currentLinesCount}_yvar`);
+              //textDiv.innerText = JSON.parse(JSON.stringify(newVal));
+              // SET THIS TO THE Y AXIS LABEL
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+              //console.log("text div y ", textDiv);
+            }
+        },
+        numberX: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("new x number", newVal);
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
+        numberY: {
+            deep: true,
+            handler: function(newVal, oldVal){
+              console.log("new y number", JSON.parse(JSON.stringify(newVal)));
+             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+            }
+        },
         graphstate: {
             deep: true,
             handler: function(newVal, oldVal){
@@ -34,6 +120,7 @@ export default {
       tooltipmsg: {
         deep: true,
         handler: function(newVal, oldVal){
+        
            console.log('Prop changed: ', newVal, ' | was: ', oldVal)
            
             let tooltip = document.getElementById("tooltipInner");
@@ -102,8 +189,23 @@ export default {
       // pass ref with DOM element to D3, when mounted (DOM available)
       const svg = select(svgRef.value);
       const tooltipInner = ref(null)
+
+
+      
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
+        console.log("sanity check: ", props.currentLinesCount);
+     
+        let textDivX = document.getElementById(`newVariable_${props.currentLinesCount-1}_xvar`);
+        console.log("text div x ", textDivX);
+        if(textDivX){
+          textDivX.innerText = JSON.parse(JSON.stringify(props.valueX));
+        }
+        let textDivY = document.getElementById(`newVariable_${props.currentLinesCount-1}_yvar`);
+        console.log("text div x ", textDivY);
+        if(textDivY){
+          textDivY.innerText = JSON.parse(JSON.stringify(props.valueY));
+        }
         // tooltipMsg = props.tooltipMsg;
         // tooltipInner.value.innerText = props.tooltipMsg;
         document.getElementById('svgId').childNodes.forEach(c=>{
@@ -114,8 +216,17 @@ export default {
             console.log("WIDTH: ", width);
             console.log("HEIGHT: ", height);
             console.log("D3=> ", d3);
+            if(!scaled.value.length){
+
+            } else {
+            console.log("SCALED X TAKE ONE: ", scaled.value.x);
+            console.log("SCALED Y TAKE ONE: ", scaled.value.y);
+            }
+            
             scaled.value.x = d3.scaleLinear().range([0, width]);
             scaled.value.y = d3.scaleLinear().range([height, 0]);
+            console.log("SCALED X TAKE TWO: ", scaled.value.x);
+            console.log("SCALED Y TAKE TWO: ", scaled.value.y);
             d3.axisLeft().scale(scaled.value.x);
             d3.axisBottom().scale(scaled.value.y);
             // emit('width', width);
@@ -131,7 +242,9 @@ export default {
         const yScale = scaleLinear()
           .domain([min(props.data), max(props.data)]) // input values...
           .range([height, 0]); // ... output values
-       
+     
+     
+     
         // line generator: D3 method to transform an array of values to data points ("d") for a path element
         const lineGen = area()
           .curve(curveBasis)
@@ -146,9 +259,11 @@ export default {
         })
         // function to render path element with D3's General Update Pattern
         function createLine(dataIn,strokeColor,strokeWidth){ 
+          console.log("creating line ", strokeColor);
             svg
                 .selectAll(".line") // get all "existing" lines in svg
                 //   .clone()
+                
                 .data(dataIn) // sync them with our data
                 .join("path") // create a new "path" for new pieces of data (if needed)
 
@@ -163,9 +278,13 @@ export default {
 
         // function to render new path element with D3's General Update Pattern
         function createNewLine(dataIn,strokeColor,strokeWidth){ 
+          console.log("creating NEW line ", strokeColor);
             svg
                 .selectAll(".line") // get all "existing" lines in svg
                   .clone()
+                  .attr("id","clone")
+            svg
+                .selectAll(".line#clone")
                 .data(dataIn) // sync them with our data
                 .join("path") // create a new "path" for new pieces of data (if needed)
 
@@ -175,41 +294,79 @@ export default {
                 .attr("stroke", strokeColor)
                 .attr("stroke-width", strokeWidth)
                 .attr("d", lineGen); // shape and form of our line!
+            
             return svg; 
         }
+        
 
         if(typeof JSON.parse(JSON.stringify(props.data[0])) === "number"){
             if(props.graphstate === "comparative"){
-                createNewLine([props.data], 'pink',1.5);
+              console.log("0", props.color0);
+              console.log("1", props.color1);
+              console.log("2", props.color2);
+              console.log("X", props.colorX);
+              console.log("Y", props.colorY);
+              if(props.color0 !== props.color1 && props.color1 === props.color2){
+                console.log("are we creating new line?")
+                createLine([props.data], props.color0,1.5);
+              } else if (props.color1 !== props.color2 && props.color2 === props.color3) {
+                createNewLine([props.data], props.color1,1.5);
+              } else if (props.color2 !== props.color3 && props.color3 === "#00bd7e") {
+                createNewLine([props.data], props.color2,1.5);
+              } else {
+               //createLine([props.data], props.color0,1.5);
+               // createNewLine([props.data], props.color3,1.5);
+              }
             } else {
-                createLine([props.data], '#69b3a2',1.5);
+                createLine([props.data], props.color0,1.5);
             }
         } else {
             createLine([props.data], 'grey',3);
         }
 
-        
-        // render axes with help of scales
-        // (we let Vue render our axis-containers and let D3 populate the elements inside it)
-        const xAxis = axisBottom(xScale);
-        svg
-          .select(".x-axis")
-          .style("transform", `translateY(${height}px)`) // position on the bottom
-          .call(xAxis);
+        function createXAxis(color){
+          // render axes with help of scales
+          // (we let Vue render our axis-containers and let D3 populate the elements inside it)
+          const xAxis = axisBottom(xScale);
+          svg
+            .select(".x-axis")
+            .style("transform", `translateY(${height}px)`) // position on the bottom
+            .style("color", color)
+            .call(xAxis);
+          
+          return svg;
+        }
+        createXAxis(props.colorX);
 
-        const yAxis = axisLeft(yScale);
-        svg.select(".y-axis").call(yAxis);
-        console.log("*** SVG *** ", svg);
+
+        function createYAxis(color){
+
+          const yAxis = axisLeft(yScale);
+          svg.select(".y-axis")
+              .style("color", color)
+              .call(yAxis);
+          console.log("*** SVG y axis *** ", svg);
+          return svg
+        }
      
+        createYAxis(props.colorY);
+
         svg.on('mouseover', function(d) {
           let selectedIndexX = Math.floor((d.offsetX/width) * props.data.length);
+         
           if(!selectedIndexX ){
             return;
           } else {
-            console.log(typeof d)
-            this.selectedIndexX = selectedIndexX || 0;
-            console.log(this.selectedIndexX);
-            emit('selected',this.selectedIndexX);
+             console.log("HOW LONG IS PROPS DATA? ", selectedIndexX);
+            console.log(d)
+            this.selectedIndexX = selectedIndexX;
+            console.log("errr wtf??? ", this.selectedIndexX);
+         
+            if(selectedIndexX > 0){
+           
+              console.log("emitting the selected location ", selectedIndexX)
+              emit('selected',selectedIndexX);
+            }
           }
         })
 
@@ -235,10 +392,12 @@ export default {
                 try{
                   if(entityArr.indexOf(entArr[0]) === -1){
                     entityArr.push(entArr[0]);
+        
                   }
                 } catch {
                   console.log("ERROR!!!! ------------ ",entArr)
                 }
+                console.log("ENTITY ARR: ", entityArr);
               })
            }
     },
@@ -305,8 +464,8 @@ export default {
   height: 80px;
 }
 .HUD-Test-half-div {
-  width:23%;
-  min-width:23%;
+  width:100%;
+  min-width:50%;
   overflow:hidden;
   text-align:left;
   padding-left: 2%;

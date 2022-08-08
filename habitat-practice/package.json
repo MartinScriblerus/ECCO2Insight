@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^18.6.4",
+    "@vueform/multiselect": "^2.5.2",
     "@vueuse/core": "^8.9.1",
     "@vueuse/head": "^0.7.8",
     "axios": "^0.27.2",
@@ -17,8 +18,10 @@
     "epic-spinners": "^1.1.0",
     "moment": "^2.29.4",
     "socket.io-client": "^4.5.1",
+    "v-click-outside": "^3.2.0",
     "vue": "^3.2.26",
     "vue-client-only": "^2.1.0",
+    "vue-color-input": "^1.0.6",
     "vue-d3-charts": "^0.2.8",
     "vue-js-modal": "^2.0.1",
     "vue-router": "^4.1.1",

@@ -2,15 +2,20 @@
 
 import * as d3 from 'd3';
 
+// import ColorInput from 'vue-color-input'
+
 export default {
   name: "GraphModal",
   components: {
     AreaChart,
     TestChart
   },
+  emits : ['dataname_y','dataname_x','dataCountX'],
   data() {
     return {
       data:[7,1,1,7],
+      currentXName: "X_",
+      currentYName: "Y_",
       mode:[1],
       // show: false,
       // clientX: 0,
@@ -28,6 +33,11 @@ export default {
       },
       width:null,
       height:null,
+      color:null,
+      valueX: 'initX',
+      valueY: 'initY',
+      numberX: 0,
+      numberY: 0
     };
   },
   margin: {
@@ -41,7 +51,7 @@ export default {
   },
 
   methods: {
-    setup(props){
+    setup(props,{emit}){
       console.log("WHAT ARE PROPS: ", props);
     },
     setWidth(width){
@@ -52,36 +62,13 @@ export default {
       this.height = height;
       console.log("SET HEIGHT TO ", this.height);
     },
-    //////////////////////////////////////////////
 
-    // mouseMove(event) {
-    //   const { clientX, clientY } = event;
-    //   this.show = true;
-    //   this.clientX = event.clientX;
-    //   this.clientY = event.clientY;
-    // },
+    //////////////////////////////////////////////
     
     createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
     createLine: d3.line().x(d => d.x).y(d => d.y),
     createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
-    // update(){
-    // //  this.scaled.x.domain(d3.extent(this.data, (d, i) => i));
-    // //   this.scaled.y.domain([0, this.height]);
-    //   for (const [i, d] of this.data.entries()) {
-    //     console.log("THIS IS D: ", d);
-  
-    //       this.points.push({
-    //           x: i,
-    //           y: d,
-    //           max: this.height,
-    //       });
- 
-    //     console.log(">?>?>? ", this.createLine(this.points));
-    //     // this.paths.area = this.createArea(this.points);
-    //     // this.paths.line = this.createLine(this.points);
-    //     // console.log("PATHS: ", this.paths);
-    //   }
-    // },
+
 
     getClosestPoint(x) {
       // console.log("what are point options?? ", this.points);
@@ -93,6 +80,7 @@ export default {
         }))
         .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
     },
+
     /////////////////////////////////////////////
     addData() {
       // add random value from 0 to 50 to array
@@ -122,22 +110,38 @@ export default {
       console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
       let tempData = [];
       if(compound){
+        this.valueY = "Sentiment (Compound)";
+        this.valueX = "Sentence Count";
+        this.numberX = tempData.length; 
+      
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[0])
       }
       if(negative){
+        this.valueY = "Sentiment (Negative)";
+        this.valueX = "Sentence Count";
+        this.numberX = tempData.length; 
+        //emit('dataname_y', 'sentiment (negative)')
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
       }
       if(neutral){
+        //emit('dataname_y', 'sentiment (neutral)')
+        this.valueY = "Sentiment (Neutral)";
+        this.valueX = "Sentence Count";
+        this.numberX = tempData.length; 
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2])
       }
       if(positive){
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>[i])
+        this.valueY = "Sentiment (Positiive)";
+        this.valueX = "Sentence Count";
+        this.numberX = tempData.length; 
+        //emit('dataname_y', 'sentiment (positive)')
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
         this.mode[0] = 1;
         this.mode = [4];
       }
+     // emit('dataCountXLength', tempData.length)
       this.data = tempData;
     },
-
   },
 };
 
@@ -155,24 +159,68 @@ import StackedAreaChart from './StackedAreaChart.vue';
 const props = defineProps({
   open: Boolean,
   dataObj: Object,
-  graphstate: String
+  graphstate: String,
+  color0: String,
+  color1: String,
+  color2: String,
+  color3: String,
+  colorX: String,
+  colorY: String,
+  // optionsX: String,
+  // optionsY: String,
+  // valueX: String,
+  // valueY: String,
+  currentLinesCount: Number,
+  numberX: Number,
+  numberY: Number
 });
+
+const emit = defineEmits(['number_x','number_y','dataname_y', 'dataname_x','dataCountX']); 
+
+// const optionsX = ref([]);
+const valueX = ref('');
+// optionsX.value = ['count', 'test2_X', 'test3_X']
+valueX.value = "count";
+
+
+// const optionsY = ref([]);
+const valueY = ref('');
+valueY.value = "count";
 
 const tooltipMsg = ref();
 tooltipMsg.value = ''
 
-watch([props,props.dataObj, tooltipMsg], ([currentValueA,currentValueB,currentValueC], [oldValueA,oldValueB,oldValueC]) => {
+const numberX = ref(null);
+const numberY = ref(null);
+numberX.value = 0;
+numberY.value = 0;
+
+watch([props,props.dataObj, tooltipMsg, valueX.value,valueY.value,numberX.value,numberY.value,props.currentLinesCount], ([currentValueA,currentValueB,currentValueC,currXLabel,currYLabel], [oldValueA,oldValueB,oldValueC,oldXLabel,oldYLabel]) => {
+  if(currXLabel !== oldXLabel){
+    emit('dataname_x', currXLabel);
+  }
+  if(currYLabel !== oldYLabel){
+    emit('dataname_y', currYLabel);
+  }
   console.log("?????? ", props.graphstate);
+  console.log(`PROPS COLORS -> ${props.color0} ${props.color1} ${props.color2} ${props.color3}`)
   console.log(currentValueA);
   console.log(currentValueB);
   console.log(currentValueC);
+  console.log("!!!!! ", props.currentLinesCount);
+ 
+  emit('dataname_y','NAME_HERE')
+  emit('dataCountX',props.dataObj.length)
+  emit('number_x',props.dataObj.length)
   return;
 });
 
 function updateTooltip(selected) {
+  console.log("in update tooltip ", selected);
     let grammarArr = [];
     let entitiesArr = [];
     if(!JSON.parse(JSON.stringify(props.dataObj))){
+      console.log("no data obj")
       return;
     }
     try {
@@ -192,8 +240,9 @@ function updateTooltip(selected) {
         entityArrays : entitiesArr
       }
     } catch(e){
-      console.log("eerrr: ",e)
+      console.log("wat the fuq eerrr: ",e)
     }
+    console.log("WHERE IS TOOLTIP MSG>> ", tooltipMsg.value)
   console.log("SOME READING MATERIAL: ", JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected])
     // tooltipMsg.value = {
     //   grammarArrays : grammarArr,
@@ -206,6 +255,25 @@ function updateTooltip(selected) {
 
 
 }
+function tryToggleComparative(){
+  props.graphstate = "singleText";
+}
+
+// console.log("SET UP COLOR... HERE IS THIS: ", props.color0);
+// const colorInput = this.refs.colorInput // root instance
+// const picker = colorInput.refs.picker // popup color picker instance
+// console.log("COLORPICKER: ", colorInput.color) // tinycolor instance);
+
+// function colorInputMountedHandler(){
+//   console.log("input mounted: ");
+//     console.log("LOOK: ", document.getElementById("text-input-hex"));
+// } 
+
+// function colorPickerShowHandler(){
+//   console.log("showpicker mounted: ", );
+//   console.log("LOOK 2: ", document.getElementById("text-input-hex"));
+  
+// }
 
 </script>
 
@@ -215,18 +283,42 @@ function updateTooltip(selected) {
 
       <!-- AREA CHART WORKS! IT IS OUR MODEL!
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
-      <TestChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode"  :graphstate="this.props.graphstate" @selected="updateTooltip"></TestChart>
-
+      <TestChart 
+        :data="data" 
+        :tooltipmsg="tooltipMsg" 
+        :mode="mode"
+        @selected="updateTooltip"
+        :currentLinesCount="props.currentLinesCount"
+        :color0="props.color0"
+        :color1="props.color1"
+        :color2="props.color2"
+        :color3="props.color3"  
+        :colorX="props.colorX"
+        :colorY="props.colorY"
+        :valueX="valueX"
+        :valueY="valueY"
+        :numberX="numberX"
+        :numberY="numberY"
+        :graphstate="this.props.graphstate" 
+        @toggleComparative="tryToggleComparative" 
+       >
+      </TestChart>
+<!--     
+    <div id="newTextPopup">
+    TEST TEST TEST
+      <color-input v-model="color" position="right top" ref="colorInput" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+    </div> -->
+    
     <div class="buttons" >
       <button class="green-btn" @click="addData">Add data</button>
       <button class="green-btn" @click="filterData">Filter data</button>
       <div>
-        <button class="green-btn" @click="updateVizDataCommonWords">Common Words</button>
-        <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false)">Sentiment</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false)">Sentiment</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false)">Sentiment</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true)">Sentiment</button>
-        <button class="green-btn" @click="updateVizDataLineObj()">Syllables per Line</button>
+        <button class="green-btn" @click="updateVizDataCommonWords">Common</button>
+        <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false)">Comp</button>
+        <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false)">Neg</button>
+        <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false)">Neu</button>
+        <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true)">Pos</button>
+        <button class="green-btn" @click="updateVizDataLineObj()">Syll/Line</button>
       </div>
     </div>
   </div>
@@ -237,6 +329,10 @@ function updateTooltip(selected) {
 <style>
 #graphTitle {
   position:absolute;
+}
+.picker-popup > .slider:before {
+  height:0px !important;
+  width:0px !important;
 }
 #graphDiv {
     font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -285,5 +381,42 @@ svg {
 #button {
   background-color: green;
 }
+
+
+.color-input .picker-popup {
+  background-color:var(--color-background) !important;
+  color:pink;
+  background:var(--color-background) !important;
+}
+
+.color-input .text-inputs-wrapper .text-input  {
+  color: #000000;
+} 
+
+.text-format-arrows {
+  --arrow-color: pink;
+}
+
+#newTextPopup {
+    width: 60%;
+
+    display: none;
+    flex-direction: row;
+    position: fixed;
+    background: var(--color-background);
+    background-color: var(--color-background);
+    border: solid 1px #eee;
+    border-radius: 8px; 
+    display: flex;
+    z-index: 9999;
+    left: 0px;
+    text-align: center;
+    justify-content: right;
+    left: 5%;
+    right: 5%;
+    top: 10%;
+}
+
+
 
 </style>

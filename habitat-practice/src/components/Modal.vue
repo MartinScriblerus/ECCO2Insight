@@ -1,18 +1,19 @@
 <script setup>
-import { ref, watch, onMounted, watchEffect } from 'vue'
+import { ref, watch, onMounted, computed, watchEffect } from 'vue'
 import { SelfBuildingSquareSpinner  } from 'epic-spinners'
 import StepProgress from 'vue-step-progress';
 import './untitled-font-1.svg'
 // import the css (OPTIONAL - you can provide your own design)
 import 'vue-step-progress/dist/main.css';
-import { Head } from '@vueuse/head'
+import { Head } from '@vueuse/head';
 import LineChart from './LineChart.vue';
 import StackedAreaChart from './StackedAreaChart.vue';
-import GraphModal from './GraphModal.vue'
+import GraphModal from './GraphModal.vue';
+import ColorInput from 'vue-color-input';
+import Multiselect from '@vueform/multiselect'
+
 const currentStepRef = ref(null);
 //import LocalStorageMock from './LocalStorageMock.js'
-
-
 
 let searchModal;
 onMounted(()=>{
@@ -88,14 +89,6 @@ socket.onmessage = event => {
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }
-
-    // if(event.data === 'tenth_msg'){
-    //   currentStepRef.value = 3;
-    //   stepMessage = "Begin entity analysis";
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }
     if(event.data === 'eleventh_msg'){
       currentStepRef.value = 3;
       stepMessage = "Vectorizing"
@@ -117,13 +110,6 @@ socket.onmessage = event => {
         document.getElementById("progressMsg").innerText = stepMessage;
       }
     }  
-    // if(event.data === 'fourteenth_msg'){
-    //   currentStepRef.value = 7;
-    //   stepMessage = "Beginning _plots?"
-    //   if(document.getElementById("progressMsg")){
-    //     document.getElementById("progressMsg").innerText = stepMessage;
-    //   }
-    // }  
     if(event.data === 'fifteenth_msg'){
       currentStepRef.value = 6;
       console.log("HIT FIFTEENTH!!!");
@@ -139,10 +125,10 @@ socket.onmessage = event => {
         document.getElementById('progressMsgExplanation').style.display = "none";
         document.getElementById('main').style.display = "none";
         // emit('closedfull')
-        document.getElementById('modal-body').style.display = "none";
+        //document.getElementById('modal-body').style.display = "none";
         document.getElementById('graphs').style.display = "flex";
         document.getElementById('compareButton').style.visibility = "visible";
-        document.getElementById('additiveButton').style.visibility = "visible";
+       // document.getElementById('additiveButton').style.visibility = "visible";
       }
     }  
     let showExplanation = document.getElementById('progressMsgExplanation')
@@ -160,6 +146,45 @@ const props = defineProps({
   selectedAuthor: String,
   graphstate: String
 });
+
+const optionsX = ref([]);
+const valueX = ref('');
+const numberX = ref(null);
+
+optionsX.value = ['count', 'test2_X', 'test3_X']
+valueX.value = "count";
+numberX.value = 0;
+
+const optionsY = ref([]);
+const valueY = ref('');
+const numberY = ref(null);
+
+optionsY.value = ['count', 'test2_Y', 'test3_Y']
+valueY.value = "count";
+numberY.value = 0;
+
+const color0 = ref("");
+color0.value = "#00bd7e";
+
+const color1 = ref("");
+color1.value = "#00bd7e";
+
+const color2 = ref("");
+color2.value = "#00bd7e";
+
+const color3 = ref("");
+color3.value = "#00bd7e";
+
+const colorX = ref("");
+colorX.value = "pink";
+
+const colorY = ref("");
+colorY.value = "pink";
+const showOne = ref(false);
+const showTwo = ref(false);
+const showThree = ref(false);
+const showFour = ref(false);
+
 
 const temp = ref({})
 const graphstateRef = ref('');
@@ -204,7 +229,7 @@ const initialHumanReadableTextRef = ref({
       thisInterRhyme: String,
       lastInterRhyme: String,
       thisInterLine: String,
-      laastInterLine: String,
+      lastInterLine: String,
       internalRhymes: Object,
       syllablesInLine: Number
     }
@@ -233,9 +258,41 @@ const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','cl
 const modalFull = ref(null);
 const modal = ref(null);
 // graphstate = 'singleText';
+const currentLinesCount = ref(0); 
+const additionalTexts = ref([]);
+currentLinesCount.value = 1;
+additionalTexts.value = [
+  {
+    title:'',
+    author:'',
+    titleUrl:'',
+    variableX: "varX",
+    variableY: "varY"
+  },
+  {
+    title:"1",
+    author:"1",
+    titleUrl: "1",
+    variableX: "X",
+    variableY: "Y"
+  },
+  {
+    title:"2",
+    author:"2",
+    titleUrl: "2",
+    variableX: "X",
+    variableY: "Y"
+  },
+  {
+    title:"3",
+    author:"3",
+    titleUrl: "3",
+    variableX: "X",
+    variableY: "Y"
+  },
+]
 
-
-watch(() => [graphstateRef.value, props.selected],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberX.value, numberY.value,props.selected, currentLinesCount.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
 
       console.log(
         "Here Watch props.selected function called with args:",
@@ -245,22 +302,91 @@ watch(() => [graphstateRef.value, props.selected],(tocdata,rawtextdata,selectedT
         selectedTitle,
         selectedAuthor
       );
+      if(currentLinesCount.value === 1){
+        showOne.value = true;
+      } else if (currentLinesCount.value === 2){
+        showTwo.value = true;
+        showThree.value = false;
+      } else if (currentLinesCount.value === 3){
+        showThree.value = true;
+        showFour.value = false;
+      } else if (currentLinesCount.value === 4){
+        showFour.value = true;
+      } else {
+        console.log("how did we arrive in current count else? ", currentLinesCount.value);
+      } 
     });
 
 
-
-function compareMode(){
+function openKeyPopup(){
   
+  let newTextPopup = document.getElementById("newTextPopup")
+  if(newTextPopup){
+    newTextPopup.style.display = "flex";
+    resetRows();
+
+  }
+}
+
+function resetRows(){
+  console.log("resetting rows");
+
+  if(currentLinesCount.value === 4){
+    let row4 = document.getElementById("newRow_3");
+    if(row4){
+      row4.style.display = "flex";
+    } else {
+      row4.style.display = "none";
+      console.log("what is row 4 ", document.getElementById("newRow_3"));
+    }
+    
+  }
+  if(currentLinesCount.value >= 3){
+    let row3 = document.getElementById("newRow_2");
+    if(row3){
+      row3.style.display = "flex";
+    } else {
+      row3.style.display = "none";
+      console.log("what is row 3 ", document.getElementById("newRow_2"));
+    }
+  }
+  if(currentLinesCount.value >= 2){
+    let row2 = document.getElementById("newRow_1");
+    if(row2){
+      row2.style.display = "flex";
+    } else {
+      row2.style.display = "none";
+      console.log("what is row 2 ", document.getElementById("newRow_1"));
+    }
+  }
+}
+
+function removeLine(){
+  //TODO!
+  if(currentLinesCount.value > 1){
+    currentLinesCount.value = currentLinesCount.value - 1;
+    resetRows();
+    let to_hide = document.querySelector(`.new-text-popup-row#newRow_${currentLinesCount.value}`);
+      if(to_hide){
+        to_hide.style.display = "none";
+      }
+  }
+}
+
+function setLineCount(){
   graphstateRef.value = "comparative";
+  
+  if(currentLinesCount.value < 4){
+    console.log("herre ", currentLinesCount.value);
+    // document.getElementById("addLineButton").disabled = false;
+    currentLinesCount.value = currentLinesCount.value + 1;
+    resetRows();
+  } else {
+    // document.getElementById("addLineButton").disabled = true;
+  }
   console.log("hit comparative: ", graphstateRef.value);
 }
 console.log("hit comparative outer: ", graphstateRef.value);
-function additiveMode(){
- 
-  graphstateRef.value = "additive";
-   console.log("hit additive: ", graphstateRef.value);
-
-}
 
 function tryGetFullModal(){
     setTimeout(()=>{
@@ -323,7 +449,7 @@ async function scrape_text(url){
           document.getElementById('progressMsg').style.display = "none";
           document.getElementById('progressMsgExplanation').style.display = "none";
           document.getElementById('compareButton').style.visibility = "visible";
-          document.getElementById('additiveButton').style.visibility = "visible";
+          //document.getElementById('additiveButton').style.visibility = "visible";
         }
         return;
     }
@@ -460,23 +586,18 @@ async function scrape_text(url){
                 "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
               }
             )
-            // TODO => do we need entities in the text obj (or do we need them here?)
-            // initialHumanReadableTextRef.value.textObj.spacyEntities.push(
-            //   {
-            //     "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
-            //     "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
-            //   }
-            // )
+       
 
           })
 
 
 
 
-
+          // Update Local Storage
           if (!localStorage.getItem(url)){
             localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
           }
+
           console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
           //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
           // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
@@ -504,6 +625,7 @@ async function scrape_text(url){
         }).catch(error => {
         console.log('Error:', error);
         }); 
+      
       return rawtextfromtoc;
 };
 
@@ -511,10 +633,102 @@ function selected(e){
   console.log("received in the modal parent: ", e);
 };
 
+function closeKeyModal () {
+    let popup = document.getElementById("newTextPopup");
+    if(popup){
+      popup.style.display = "none";
+    }
+  }
 // function handleSelect(e){
 //   console.log("e t v ", e);
 // }
-const lineThickness = 5;
+const lineThickness = 3;
+
+function colorInputMountedHandler(){
+  console.log("input mounted: ", color0.value);
+  console.log("input mounted: ", color1.value);
+  console.log("input mounted: ", color2.value);
+  console.log("input mounted: ", color3.value);
+  console.log("input mounted: ", colorX.value);
+  console.log("input mounted: ", colorY.value);
+
+            console.log("YOOO: ", additionalTexts.value[0])
+        if(currentLinesCount.value === 1){
+          console.log("LINE COUNT IS ONE")
+        } else if(currentLinesCount.value === 2){
+          console.log("LINE COUNT IS TWO")
+          
+        } else if(currentLinesCount.value === 3){
+          console.log("LINE COUNT IS THREE")
+        } else if((currentLinesCount.value === 4)){
+          console.log("LINE COUNT IS FOUR")
+        } else {
+          console.log("how did this happen to current lines count? ", (currentLinesCount.value === 1));
+        }
+          // Update Graph Keys
+          if(additionalTexts.value[0].title === ''){
+            additionalTexts.value[0].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+            additionalTexts.value[0].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+            additionalTexts.value[0].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+          // } else if(additionalTexts.value[1].title === ''){
+          //   additionalTexts.value[1].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+          //   additionalTexts.value[1].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+          //   additionalTexts.value[1].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+          } else {
+            //ADD OPTIONS FOR NEWLY SCRAPED TEXTS HERE
+            console.log("LINE COUNT: ", currentLinesCount.value);
+            additionalTexts.value[currentLinesCount.value].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+            additionalTexts.value[currentLinesCount.value].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+            additionalTexts.value[currentLinesCount.value].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+          }
+          
+
+    return additionalTexts.value;      
+   // console.log("LOOK: ", document.getElementById("text-input-hex"));
+} 
+
+function colorPickerShowHandler(){
+  console.log("showpicker mounted: ", color0.value);
+  console.log("showpicker mounted: ", color1.value);
+  console.log("showpicker mounted: ", color2.value);
+  console.log("showpicker mounted: ", color3.value);
+  console.log("showpicker mounted: ", colorX.value);
+  console.log("showpicker mounted: ", colorY.value);
+  //console.log("LOOK 2: ", document.getElementById("text-input-hex"));
+  
+}
+function colorChanged(){
+  console.log("color changed: ", color0.value);
+  console.log("color changed: ", color1.value);
+  console.log("color changed: ", color2.value);
+  console.log("color changed: ", color3.value);
+  console.log("HERE IS TEXT INPUT: ", document.querySelector(`.text-input`))
+}
+console.log("additional texts : ", additionalTexts.value)
+
+
+function trySetDataCountXLength(num){
+
+  numberX.value = num;
+  console.log("NUMBER X VAL IN MODAL: ", numberX.value)
+}
+
+function trySetDataNameX(name){
+  valueX.value = name;
+  console.log("NUMBER X VAL IN MODAL: ", valueX.value)
+}
+
+function trySetDataCountYLength(num){
+  numberY.value = num;
+  console.log("NUMBER Y VAL IN MODAL: ", numberY.value)
+}
+
+function trySetDataNameY(name){
+  valueY.value = name;
+  console.log("NUMBER Y VAL IN MODAL: ", valueY.value)
+  return valueY.value;
+}
+
 </script>
 
 <template>
@@ -545,10 +759,157 @@ const lineThickness = 5;
       <section id="graphs">
         <slot  name="graphs">
  
-          <GraphModal :graphstate="graphstateRef" :dataObj="initialHumanReadableTextRef" :dataKey="'occurances'" @select="selected(e)"></GraphModal>
+          <GraphModal 
+            :graphstate="graphstateRef" 
+            :dataObj="initialHumanReadableTextRef" 
+            :dataKey="'occurances'" 
+            :color0="color0"
+            :color1="color1"
+            :color2="color2"
+            :color3="color3"
+            :colorX="colorX"
+            :colorY="colorY"
+            :currentLinesCount="currentLinesCount"
+            @select="selected(e)"
+            @dataCountX="trySetDataCountXLength"
+            @dataname_x="trySetDataNameX"
+            @dataCountY="trySetDataCountYLength"
+            @dataname_y="trySetDataNameY"
+
+          ></GraphModal>
         </slot>
       </section>
+      <section class="linePickerPopup">
+        <slot>            
+          <div id="newTextPopup" >
+            <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
+            <!-- v-if="additionalTexts" v-for="item in additionalTexts" :key="item.titleUrl"  -->
+            <div id="newRow_0" class="new-text-popup-row">
+              <div id="newText_0" class="new-text-text">
+                <span id="newAuthor_0" class="new-text-author">
+                {{additionalTexts[0].author}}
+              <!-- {{item.author}} -->
+                </span>
+                <span id="newTitle_0" class="new-text-title">
+                  {{additionalTexts[0].title}}
+                </span>
+              </div>
+              <span id="newVariable_0" class="new-text-viz-variable">
+                  <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
+                  <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span>
+              </span>
+              <color-input id="colorInput_0" class="color-input" v-model="color0" position="left" ref="colorInput_0" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
 
+            <div id="newRow_1" class="new-text-popup-row">
+              <div id="newText_1" class="new-text-text">
+                <span id="newAuthor_1" class="new-text-author">
+                {{additionalTexts[1].author}}
+              <!-- {{item.author}} -->
+                </span>
+                <span id="newTitle_1" class="new-text-title">
+                  {{additionalTexts[1].title}}
+                </span>
+              </div>
+             <span id="newVariable_1" class="new-text-viz-variable">
+                  <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
+                  <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span>
+              </span>
+              <color-input id="colorInput_1" class="color-input" v-model="color1" position="left" ref="colorInput_1" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
+
+            <div id="newRow_2" class="new-text-popup-row">
+              <div id="newText_2" class="new-text-text">
+                <span id="newAuthor_2" class="new-text-author">
+                {{additionalTexts[2].author}}
+              <!-- {{item.author}} -->
+                </span>
+                <span id="newTitle_2" class="new-text-title">
+                  {{additionalTexts[2].title}}
+                </span>
+              </div>
+             <span id="newVariable_2" class="new-text-viz-variable">
+                  <span id="newVariable_2_xvar">{{additionalTexts[2].variableX}}</span>
+                  <span id="newVariable_2_yvar">{{additionalTexts[2].variableY}}</span>
+              </span>
+              <color-input id="colorInput_2" class="color-input" v-model="color2" position="left" ref="colorInput_2" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
+
+            <div id="newRow_3" class="new-text-popup-row">
+              <div id="newText_3" class="new-text-text">
+                <span id="newAuthor_3" class="new-text-author">
+                {{additionalTexts[3].author}}
+              <!-- {{item.author}} -->
+                </span>
+                <span id="newTitle_3" class="new-text-title">
+                  {{additionalTexts[3].title}}
+                </span>
+              </div>
+             <span id="newVariable_3" class="new-text-viz-variable">
+                  <span id="newVariable_3_xvar">{{additionalTexts[3].variableX}}</span>
+                  <span id="newVariable_3_yvar">{{additionalTexts[3].variableY}}</span>
+              </span>
+              <color-input id="colorInput_3" class="color-input" v-model="color3" position="left" ref="colorInput_3" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
+              
+            <div id="newRow_X" class="new-text-popup-row">
+              <div id="newText_X" class="new-text-text">
+              xVar
+              </div>
+              <span id="newVariable_X" class="new-text-viz-variable">
+                  <span id="newAxis_X" >
+                  <Multiselect
+                    :placeholder="'Select'"
+                    v-model="valueX"
+                    :options="optionsX"
+                    class="multiselect multiselect-tag is-user"
+                    
+                  />
+                </span>
+              </span>
+              <color-input id="colorInput_X" class="color-input" v-model="colorX" position="right" ref="colorInput_X" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
+
+            <div id="newRow_Y" class="new-text-popup-row">
+              <div id="newText_Y" class="new-text-text">
+                yVar
+              </div>
+              <span id="newVariable_Y" class="new-text-viz-variable">
+                  <span id="newAxis_Y" >
+                  <Multiselect
+                    :placeholder="'Select'"
+                    v-model="valueY"
+                    :options="optionsY"
+                    class="multiselect multiselect-tag is-user"
+                    
+                  />
+                </span>
+              </span>
+              <color-input id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+            </div> 
+            <div id="keyButtonWrapper">
+              <button
+                  type="button"
+                  id="removeLineButton"
+                  class="key-popup"
+                  @click="removeLine"
+                >
+                Remove Line
+              </button>
+              <button
+                  type="button"
+                  id="addLineButton"
+                  class="key-popup"
+                  @click="setLineCount"
+                >
+                Add Line
+              </button>
+            </div>
+
+
+          </div>
+        </slot>
+      </section>
       <section class="modal-body">
 
         <slot name="body">   
@@ -614,18 +975,18 @@ const lineThickness = 5;
             type="button"
             id="compareButton"
             class="btn-green"
-            @click="compareMode"
+            @click="openKeyPopup"
           >
-          Compare
+          Extend
         </button>
-          <button
+          <!-- <button
             type="button"
             id="additiveButton"
             class="btn-green"
             @click="additiveMode"
           >
           Additive
-        </button>
+        </button> -->
         </slot>
 
       </footer>
@@ -881,8 +1242,8 @@ body.modal-open {
 
   .btn-green {
     color: white;
-    background: hsla(160, 100%, 37%, 0.7);;
-    border: 1px solid hsla(160, 100%, 37%, 0.7);;
+    background: hsla(193, 82%, 49%, 0.7);
+    border: 1px solid hsla(160, 100%, 37%, 0.7);
     border-radius: 2px;
     width: 200px;
     height: 60px;
@@ -1000,7 +1361,7 @@ body.modal-open {
 
 
 
-#compareButton, #additiveButton {
+#compareButton {
   visibility: hidden;
   margin: 4px;
 }
@@ -1011,5 +1372,158 @@ body.modal-open {
   height: auto;
   top: 72px;
 }
+#newTextPopup {
+  display:none;
+  flex-direction: column;
+  left: 20%;
+  
+}
+.picker-popup {
+  background:var(--color-background);
+  background-color:var(--color-background);
+  width:calc(100% - 40px);
+  left:0px;
+  bottom:0px;
+  position:fixed;
+}
+.color-input .picker-popup {
+  background-color:var(--color-background) !important;
+  color:pink;
+  --arrow-color:pink;
+  background:var(--color-background) !important;
+}
+.text-format-arrows,.arrow-up,.arrow-down {
+  --arrow-color: pink;
+}
+.color-input .slider-canvas {
+  border-radius: 0 8px 0 0;
+  border-top: solid 1px #ffffff;
+  border-right: solid 1px #ffffff;
+  border-bottom: solid 1px #ffffff;
+} 
+
+.linePickerPopup {
+  background-color:var(--color-background);
+  background:var(--color-background);
+  color: #ffffff;
+}
+.saturation-area {
+  background-color:var(--color-background) !important;
+  background:var(--color-background) !important;
+}
+.box {
+  float: right;
+}
+.color{
+  color: pink;
+  background: pink;  
+}
+.new-text-popup-row {
+  width: 100%;
+  background-color:#484D45!important;
+  background:#484D45!important;
+  height:80px;
+  color: #ffffff;
+  flex-direction: row;
+  display: flex;
+
+  text-align: left;
+  border-top: 1px solid;
+}
+.new-text-text {
+  flex-direction: column;
+  display: flex;
+  width:50%;
+  overflow:hidden;
+  padding-left: 4px;
+}
+.new-text-viz-variable {
+  width: 40%;
+  text-align: left;
+  overflow:auto;
+  display:flex;
+  flex-direction: column;
+}
+.color-input{
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+
+
+.newTextPopupTitle {
+  width: 100%;
+  height: 60px;
+  color:#ffffff;
+  background:#000000;
+  position:relative;
+  display: flex;
+}
+#keySelectorClose {
+    float: right;
+    padding: 0px;
+    cursor: pointer;
+    right: 4px;
+    position: relative;
+}
+.new-text-author, .new-text-title, .new-text-titleUrl {
+    overflow-x: hidden;
+    height: 24px;
+    padding-right:4px;
+}
+#newVariable_X, #newVariable_Y {
+  overflow:visible;
+}
+.multiselect {
+  background: black !important;
+  background-color: black !important;
+  color: green !important;
+  border: 1px solid green;
+  border-radius: 8px;
+  --ms-tag-bg: yellow;
+  --ms-tag-color: green;
+}
+ .multiselect-option {
+  background: var(--color-background) !important;
+  background-color: var(--color-background) !important;
+  color: #fffff;
+}
+  .multiselect-tag.is-user {
+    padding: 5px 8px;
+    border-radius: 22px;
+    background: #35495e;
+    margin: 3px 3px 8px;
+  }
+
+.multiselect-dropdown {
+  background: var(--color-background) !important;
+  background-color: var(--color-background) !important;
+  color: black;
+}
+
+.is-pointed {
+  background: #eee;
+  background-color: #eee;
+}
+
+#keyButtonWrapper {
+  display:flex;
+  flex-direction:row;
+  border-radius:0 0 8px 8px;
+}
+.key-popup {
+  width: 50%;
+  background-color: hsla(160, 100%, 37%, 1);
+  color: #181818;
+}
+#newRow_1, #newRow_2, #newRow_3 {
+  display:none;
+}
+#newAxis_X, #newAxis_Y {
+
+}
 
 </style>
+<style src="@vueform/multiselect/themes/default.css"></style>
