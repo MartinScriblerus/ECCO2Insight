@@ -8,7 +8,7 @@ export default {
     AreaChart,
     TestChart
   },
-  emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY'],
+  emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup'],
   data() {
     return {
       data:[7,1,1,7],
@@ -20,6 +20,7 @@ export default {
       //   x: null,
       //   y: null,
       // },
+      popupOpen: false,
       paths: {
         area: '',
         line: '',
@@ -47,6 +48,9 @@ export default {
   methods: {
     setup(props,{emit}){
       console.log("WHAT ARE PROPS: ", props);
+      this.popupOpen = false;
+
+
     },
     setWidth(width){
       this.width = width;
@@ -58,22 +62,6 @@ export default {
     },
 
     //////////////////////////////////////////////
-    // Can these be removed/updated?
-    //createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
-    //createLine: d3.line().x(d => d.x).y(d => d.y),
-    //createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
-
-
-    // getClosestPoint(x) {
-    //   console.log("what are point options?? ", this.points);
-    //   return this.data
-    //     .map((point, index) => ({ x:
-    //       point.x,
-    //       diff: Math.abs(point.x - x),
-    //       index,
-    //     }))
-    //     .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
-    // },
 
     /////////////////////////////////////////////
     addData() {
@@ -94,7 +82,19 @@ export default {
       Object.values(lineObjVizPlaceholder1).map(j=>syllablesPerLinePlaceholder.push(j['syllablesInLine']));
       this.data = syllablesPerLinePlaceholder;
     },
+    // closeUpdatePopup(){
+
+    //   let updateDataBtn = document.getElementById("updateeDataBtn");
+    //   if(updateDataBtn){
+    //     updatePopup.classList.remove("animateClose");
+    //   }
+    //   setTimeout(()=>{
+        
+    //   },2000);
+    //   clearTimeout();
+    // },
     updateVizDataSentiment(compound,negative,neutral,positive){
+      
       let sentenceVizSentimentPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['sentenceObj']).map(i=>sentenceVizSentimentPlaceholder1.push(Object.values(i)));
       sentenceVizSentimentPlaceholder1.pop()
@@ -162,13 +162,13 @@ const props = defineProps({
   color3: String,
   colorX: String,
   colorY: String,
-
+  secondTextRef: Boolean,
   currentLinesCount: Number,
   numberX: Number,
   numberY: Number
 });
 
-const emit = defineEmits(['number_x','number_y','dataname_y', 'dataname_x','dataCountX']); 
+const emit = defineEmits(['number_x','number_y','dataname_y', 'dataname_x','dataCountX','closeUpdatePopup']); 
 
 const valueX = ref('');
 valueX.value = "count";
@@ -185,23 +185,30 @@ const numberY = ref(null);
 numberX.value = 0;
 numberY.value = 0;
 
-watch([props,props.dataObj, tooltipMsg, valueX.value,valueY.value,numberX.value,numberY.value,props.currentLinesCount], ([currentValueA,currentValueB,currentValueC,currXLabel,currYLabel], [oldValueA,oldValueB,oldValueC,oldXLabel,oldYLabel]) => {
-  if(currXLabel !== oldXLabel){
-    emit('dataname_x', currXLabel);
+watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,numberX.value,numberY.value,props.currentLinesCount,props.colorX], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentXMax,currentYMax,currentLineCount,currentColorX], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldXMax,oldYMax,oldLineCount,oldColorX]) => {
+  if(currentXLabel !== oldXLabel){
+    emit('dataname_x', currentXLabel);
   }
-  if(currYLabel !== oldYLabel){
-    emit('dataname_y', currYLabel);
+  if(currentYLabel !== oldYLabel){
+    emit('dataname_y', currentYLabel);
   }
+  if(currentData !== oldData){
+    console.log("HEY CHECK OUT CURRENT DATA: ", currentData);
+  }
+  // if(currentColorX !== oldColorX){
+    let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
+    console.log("here's keybuilder div");
+    if(keyBuilder){
+      keyBuilder.style.borderColor = props.colorX;
+    }
+  // }
   console.log("props ", props.graphstate);
-  console.log(`PROPS COLORS -> ${props.color0} ${props.color1} ${props.color2} ${props.color3}`)
-  console.log(currentValueA);
-  console.log(currentValueB);
-  console.log(currentValueC);
+  console.log(`PROPS COLORS -> ${props.color0} ${props.color1} ${props.color2} ${props.color3}`);
   console.log("!!!!! ", props.currentLinesCount);
- 
+  console.log("FUUUUUUUUUUUUUUUCK: ", props.dataObj)
   emit('dataname_y','NAME_HERE')
   emit('dataCountX',props.dataObj.length)
-  emit('number_x',props.dataObj.length)
+
   return;
 });
 
@@ -249,6 +256,7 @@ function tryToggleComparative(){
   props.graphstate = "singleText";
 }
 
+
 // console.log("SET UP COLOR... HERE IS THIS: ", props.color0);
 // const colorInput = this.refs.colorInput // root instance
 // const picker = colorInput.refs.picker // popup color picker instance
@@ -264,7 +272,9 @@ function tryToggleComparative(){
 //   console.log("LOOK 2: ", document.getElementById("text-input-hex"));
   
 // }
-
+function emitterClose(command){
+  emit(command);
+}
 </script>
 
 <template >
@@ -274,7 +284,8 @@ function tryToggleComparative(){
       <!-- AREA CHART WORKS! IT IS OUR MODEL!
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
       <TestChart 
-        :data="data" 
+        :data="data"
+        :secondTextRef="props.secondTextRef" 
         :tooltipmsg="tooltipMsg" 
         :mode="mode"
         @selected="updateTooltip"
@@ -289,7 +300,7 @@ function tryToggleComparative(){
         :valueY="valueY"
         :numberX="numberX"
         :numberY="numberY"
-        :graphstate="this.props.graphstate" 
+        :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 
        >
       </TestChart>
@@ -302,13 +313,28 @@ function tryToggleComparative(){
     <div class="buttons" >
       <button class="green-btn" @click="addData">Add data</button>
       <button class="green-btn" @click="filterData">Filter data</button>
-      <div>
-        <button class="green-btn" @click="updateVizDataCommonWords">Common</button>
-        <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false)">Comp</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false)">Neg</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false)">Neu</button>
-        <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true)">Pos</button>
-        <button class="green-btn" @click="updateVizDataLineObj()">Syll/Line</button>
+      <div id="d3UpdateButtonsWrapper">
+        <h1>Let's Begin...</h1>
+        <h3>
+          Reopen this window any time you'd like to update the data displayed in the graph. Select a value to track with your first line.
+        </h3>
+        <div id="buttonsInnerWrapper">
+          <span>Sentiment Scores</span>
+          <br/>
+          <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Positive</button>
+          <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Compound</button>
+          <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Negative</button>
+          <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neutral</button>
+          <br/>
+          <span>Text-Level Statistics</span>
+          <br/>
+          <button class="green-btn" @click="updateVizDataCommonWords">Common Words</button>
+          <br/>
+          <span>Line-Level Analysis</span>
+          <br/>
+          <button class="green-btn" @click="updateVizDataLineObj()">Syllables Per Line</button>
+          <br/>
+        </div>
       </div>
     </div>
   </div>
@@ -339,7 +365,7 @@ function tryToggleComparative(){
     position: fixed;
     z-index: 99;
     top: 80px;
-    height: calc(64% - 52px);
+    height: calc(72% - 52px);
     
 }
 
@@ -407,9 +433,35 @@ svg {
     justify-content: right;
     left: 5%;
     right: 5%;
-    top: 10%;
+    top: 24%;
 }
 
+#d3UpdateButtonsWrapper {
+    position: fixed;
+    justify-content: center;
+    width: 50%;
+    top: 16%;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.078);
+    background-color: rgba(0, 0, 0, 0.88);
+    left: 25%;
+    padding-top: 20px;
+    color: white;
+    padding: 20px;
+    border: 1px solid white;
+    border-radius: 8px;
+}
+#buttonsInnerWrapper {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  width: 100%;
 
-
+}
+button.green-btn {
+  width:25%;
+}
+.animate-close {
+  opacity: 0;
+  transition: opacity 2s;
+}
 </style>

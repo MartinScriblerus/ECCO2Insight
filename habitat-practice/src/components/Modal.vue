@@ -27,58 +27,15 @@ const props = defineProps({
   graphstate: String
 });
 
+const currentTextData = ref([]);
+
 const secondTextRef = ref();
 secondTextRef.value = false;
 
+const graphstateRef = ref(0);
+const yColorTrack = ref('colorY');
 
-const graphstateRef = ref('');
 // graphstate.value = "singleText";
-
-const secondTextsArray = ref([]);
-
-const secondHumanReadableTextRef = ref({
-  title: String,
-  author: String,
-  textId: Number,
-  textObj: {
-    titleUrl: String,
-    summary: String,
-    averageLinesPerSentence: Number,
-    percPoetrySyllables: Number,
-    percPoetryRhymes: Number,
-    spacyEntities: Array,
-    // europeanaEntitiesArray: Array,
-    placesEntitiesArray: Array,
-    mostCommonWords: Array,
-  },
-  lineObj: {
-    lineId: {
-      lastWord: String,
-      poeticForm: String,
-      thisRhyme: String,
-      lastRhyme: String,
-      thisLine: String,
-      lastLine: String,
-      thisInterRhyme: String,
-      lastInterRhyme: String,
-      thisInterLine: String,
-      lastInterLine: String,
-      internalRhymes: Object,
-      syllablesInLine: Number
-    }
-  },
-  sentenceObj: {
-    sentenceId: {
-      sentimentCompound: Number,
-      sentimentNegative: Number,
-      sentimentNeutral: Number,
-      sentimentPositive: Number,
-      entitiesInSentence: Array,
-      sentenceGrammarArray: Array
-    }
-  },
-  linesArray: Array,
-})
 
 const initialHumanReadableTextRef = ref({
   title: String,
@@ -140,7 +97,6 @@ const initialHumanReadableTextRef = ref({
 })
 
 initialHumanReadableTextRef.value.textObj.mostCommonWords = [];
-secondHumanReadableTextRef.value.textObj.mostCommonWords = [];
 
 const currentStepRef = ref(null);
 
@@ -256,12 +212,12 @@ socket.onmessage = event => {
         document.getElementById('main').style.display = "none";
         document.getElementById('graphs').style.display = "flex";
         document.getElementById('compareButton').style.visibility = "visible";
-        document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
+        // document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
         document.getElementById("textRowAuthor").style.display = "none";
         document.getElementById("textRowTitle").style.display = "none";
         document.getElementById("searchTextWrapper").style.display = "none";
 
-        document.getElementsByClassName('wrapper-outer').classList.add("hide");
+        // document.getElementsByClassName('wrapper-outer').classList.add("hide");
         document.getElementsByClassName('wrapper-outer').style.display = "none";
 
         document.getElementById('headerDiv').style.display = 'none';
@@ -363,7 +319,7 @@ additionalTexts.value = [
   },
 ]
 
-watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberX.value, numberY.value,props.selected, currentLinesCount.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberX.value, numberY.value,props.selected, currentLinesCount.value, currentTextData.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
 
       console.log(
         "Here Watch props.selected function called with args:",
@@ -391,9 +347,12 @@ watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.va
 // Begin process for adding a new text...
 // ----------------------------------------------------
 function tryAddNewText(){
+
   doCloseFullModalChild();
   secondTextRef.value = true;
+  
   console.log("second text is ... ", secondTextRef.value);
+
 }
 
 // Opens Keybuilder Popup
@@ -455,6 +414,7 @@ function resetRows(){
 // TODO=> carry implementation down into actual graph
 // ----------------------------------------------------
 function removeLine(){
+  console.log('better not be hitting this');
   if(currentLinesCount.value > 1){
     currentLinesCount.value = currentLinesCount.value - 1;
     resetRows();
@@ -470,13 +430,21 @@ function removeLine(){
 // ----------------------------------------------------
 function setLineCount(){
   // TODO=> rename or rework this variable to accomodate new flow
-  graphstateRef.value = "comparative";
-  
-  if(currentLinesCount.value < 4){
+  graphstateRef.value = graphstateRef.value + 1;
+  console.log("??? ", currentLinesCount.value);
+
+  if(currentLinesCount.value < 5){
     console.log("adding a keybuilder row / graph line here: ", currentLinesCount.value);
     // document.getElementById("addLineButton").disabled = false;
+    let popup = document.getElementById("newTextPopup");
+    if(popup){
+      popup.style.top = 20 - ((currentLinesCount.value) * 4) + "%";
+    }
     currentLinesCount.value = currentLinesCount.value + 1;
+
     resetRows();
+
+
   } else {
     // TODO fix this disabling of button
     // document.getElementById("addLineButton").disabled = true;
@@ -528,48 +496,30 @@ function doCloseFullModalChild(){
   }
 }
 
-// KEY FUNCTION FOR GATHERING TEXT DATA
 // TODO: componentize and DRY this function (see TheWelcome)
-// ----------------------------------------------------
-async function scrape_text(url){ 
-    console.log('god dammit ', secondTextRef.value);
-    document.getElementById('headerDiv').style.display = "none";
-
+async function scrape_text(url){    
     
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable){
-      console.log("HEEEY ", secondTextRef.value);
-      //console.log("this shit: ", JSON.stringify(JSON.parse(initialHumanReadableTextRef.value)).length)
-        if(secondTextRef.value === false){
-          initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-        } else {
-        
-          // console.log("What flying fuck: ", currentLinesCount.value)
-          // secondHumanReadableTextRef[currentLinesCount.value] = secondHumanReadableTextRef[currentLinesCount.value] || ;
-          secondHumanReadableTextRef.value[currentLinesCount.value] = JSON.parse(localStorageDataAvailable); 
-          console.log("CHECK IT OUT: ",  secondHumanReadableTextRef.value);
-        }
-       // TODO => local storage does not have full scraped text... get it in background here
-       console.log("retrieved data from local storage!!! ", initialHumanReadableTextRef.value)
+       initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+       console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
           emit('closedmodal');
           emit('openedfull');
-          // display results for text search -> data scrape
           let fullModal = await modalFull.value;
           if(fullModal && fullModal.classList){
             fullModal.classList.remove("awaiting");
             fullModal.classList.add("receivedSingleTextData");
             let main = document.getElementById("main");
-
             if(main){
               main.visibility = "visible";
             }
           } else {
             console.log("in else for fullmodal: ", fullModal);
           }
-
-        // you've got text data... do you want to immediately see **?any?** graph?
-        // or should there be an interstitial step here where we choose graph style? 
-        // this block hides any search or waiting steps & show the graph 
+        // document.getElementById('progressCircles').style.display = "none";
+        // document.getElementById('progressMsg').style.display = "none";
+        // document.getElementById('progressMsgExplanation').style.display = "none";
+        // emit('closedfull')
         let graphs = document.getElementById('graphs')
         if(graphs){
           graphs.style.display = "flex";
@@ -578,15 +528,11 @@ async function scrape_text(url){
           document.getElementById('progressMsg').style.display = "none";
           document.getElementById('progressMsgExplanation').style.display = "none";
           document.getElementById('compareButton').style.visibility = "visible";
-
-
           document.getElementById("textRowAuthor").style.display = "none";
           document.getElementById("textRowTitle").style.display = "none";
           document.getElementById("searchTextWrapper").style.display = "none";
-
           // document.getElementsByClassName('wrapper-outer').classList.add("hide");
           // document.getElementsByClassName('wrapper-outer').style.display = "none";
-
           document.getElementById('headerDiv').style.display = 'none';
           document.getElementById('headerDiv').style.visibility = 'hidden';
           document.getElementById('mainText').style.display = "none";
@@ -594,7 +540,6 @@ async function scrape_text(url){
         }
         return;
     }
-
     emit('openedfullawaitscrape');
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
@@ -602,172 +547,10 @@ async function scrape_text(url){
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
-
-    if(secondText){
-    // Include LOGIC HERE FOR ADDITIONAL TEXT LOADING... (pull from diff endpoint?)
+    console.log("WTF??? ",this)
+    
     //document.getElementById("modal-full").classList.add("awaiting")
-      rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "POST",
-        body: JSON.stringify({titleUrl: url})
-      }).then(response => response.json()).then(result => {
-          if(result){
-            // INCLUDE LOGIC IN CASE WE'RE HANDLING MULTIPLE TEXTS HERE...
-            rawtextfromtoc.value = result;
-            console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
-            // document.getElementById("modalFull").classList.add("awaiting")
-            temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
-
-            ///////////////////////////////////////////////////////////////////////////////
-            // --> Catch Data in Complex Object (break this all up in future for better user exp)
-            initialHumanReadableTextRef.value.title = props.selectedTitle;
-            initialHumanReadableTextRef.value.author = props.selectedAuthor;
-            // TODO (add propr text ids to database):
-            initialHumanReadableTextRef.value.textId = 0; 
-            initialHumanReadableTextRef.value.textObj.summary = temp.value.summary;
-            initialHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
-            initialHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
-            initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
-            initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
-            initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
-
-            console.log("is this proper summary? ... if so use it ", temp.value.summary);
-            
-            // TODO=> add graphs for poetic lines & full text
-            temp.value.last_word_per_line.forEach((li,lineIndex)=>{
-              
-              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
-
-              initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
-
-              temp.value.poetic_form.forEach(form=>{
-                if(form['index'] === lineIndex){
-                  initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
-                }
-              })
-              
-              temp.value.poetic_form.forEach(pf=>{
-                try {
-                  if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-                    initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
-                      "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
-                      "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
-                      "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
-                      "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
-
-                      "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
-                      "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
-                      "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
-                      "lastInterLine": JSON.parse(JSON.stringify(pf))['last_interline'] || '',
-                      "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
-                    }
-                  }
-                } catch {
-
-                }
-              })
-
-              temp.value.internal_rhyme_most_recent.forEach(ry=>{
-                try {
-                  if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-                    try {
-                        initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
-                          "endRhyme": JSON.parse(JSON.stringify(ry))['end_rhyme'] || '',
-                          "internalRhyme": JSON.parse(JSON.stringify(ry))['internal_rhyme']
-                      }
-                    } catch (e) {
-                      console.warn("error getting internal rhymes: ", e);
-                    }
-                  }
-                } catch(e){
-                console.log("error: ", e);
-                } finally {
-
-                }  
-                try {
-                  initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
-                } catch {
-                  console.log("error getting syllables in line *** ");
-                }
-              })         
-          })
-
-            const tempGramArr = ref([])
-    
-            temp.value.most_common_words.forEach((word, rank) => {
-              console.log("in here!");
-              initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
-            });
-          
-            temp.value.sentence_id.forEach(sentence => {
-            // TODO!!! => Figure out how to handle diff types here...
-            // bring entities & grammar back into play ...
-              initialHumanReadableTextRef.value.sentenceObj[sentence] = {
-                sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
-                sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
-                sentenceSentimentNeutral: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neu[parseInt(sentence)])),
-                sentenceSentimentPositive: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_pos[parseInt(sentence)])),
-                sentenceGrammarArray: [],
-                sentenceSpacyEntities: []
-              }
-            });
-
-            temp.value.sentence_grammar.word_level_grammar_result.forEach(wordGram => {
-              initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']].sentenceGrammarArray.push({
-                "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
-                "tokenTag":JSON.parse(JSON.stringify(wordGram))['token_tag'],
-                "tokenPos":JSON.parse(JSON.stringify(wordGram))['token_pos'],
-                "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text']
-              })    
-            });
-
-            temp.value.spacy_entities.forEach(entity=>{
-              initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
-                {
-                  "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
-                  "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
-                }
-              )
-            })
-
-            // We've received text data -> update storage & proceed onwards...
-            // ----------------------------------------------------
-            // Update Local Storage
-            if (!localStorage.getItem(url)){
-              localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
-            }
-
-            console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
-
-            // // WHAT ARE THESE LINES DOING??? 
-            // let fullModal = modalFull.value;
-            // if(fullModal && fullModal.classList){
-            //   fullModal.classList.remove("awaiting");
-            //   fullModal.classList.add("receivedSingleTextData");
-            //   let main = document.getElementById("main");
-            //   console.log("what / when triggers this?");
-            //   if(main){
-            //     main.visibility = "visible";
-            //   }
-            // } else {
-            //   console.log("in else for fullmodal: ", fullModal);
-            // }
-            return rawtextfromtoc.value;
-          } else {
-            return null;
-          }
-          }).catch(error => {
-          console.log('Error:', error);
-          }); 
-    
-   } else {
-////////////////////////////
-
-
-    rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_second_text', {
+    rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -776,49 +559,41 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
-          // INCLUDE LOGIC IN CASE WE'RE HANDLING MULTIPLE TEXTS HERE...
+                
           rawtextfromtoc.value = result;
-          console.log("hhhere's the second text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
+          console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
           temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
-
           ///////////////////////////////////////////////////////////////////////////////
           // --> Catch Data in Complex Object (break this all up in future for better user exp)
-          secondHumanReadableTextRef.value.title = props.selectedTitle;
-          secondHumanReadableTextRef.value.author = props.selectedAuthor;
-          // TODO (add propr text ids to database):
-          secondHumanReadableTextRef.value.textId = 0; 
-          secondHumanReadableTextRef.value.textObj.summary = temp.value.summary;
-          secondHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
-          secondHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
-          secondHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
-          secondHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
-          secondHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
-
-          console.log("is this proper summary? ... if so use it ", temp.value.summary);
-          
-          // TODO=> add graphs for poetic lines & full text
+          initialHumanReadableTextRef.value.title = props.selectedTitle;
+          initialHumanReadableTextRef.value.author = props.selectedAuthor;
+          // TODO:
+          initialHumanReadableTextRef.value.textId = 0; 
+          initialHumanReadableTextRef.value.textObj.summary = temp.value.summary
+          initialHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
+          initialHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
+          initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
+          initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
+          initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
           temp.value.last_word_per_line.forEach((li,lineIndex)=>{
             
-            secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
-
-            secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
-
+            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
+            initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
             temp.value.poetic_form.forEach(form=>{
               if(form['index'] === lineIndex){
-                secondHumanReadableTextRef.value.lineObj[lineIndex] = {};
+                initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
               }
             })
             
             temp.value.poetic_form.forEach(pf=>{
               try {
                 if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-                  secondHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+                  initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
                     "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
                     "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
                     "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
                     "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
-
                     "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
                     "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
                     "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
@@ -826,13 +601,9 @@ async function scrape_text(url){
                     "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
                   }
                 }
-                secondTextsArray.value.push(secondHumanReadableTextRef.value);
-                console.log("CHECK OUT THIS SHIT: ", secondTextsArray.value);
               } catch {
-
               }
             })
-
             temp.value.internal_rhyme_most_recent.forEach(ry=>{
               try {
                 if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
@@ -848,7 +619,6 @@ async function scrape_text(url){
               } catch(e){
               console.log("error: ", e);
               } finally {
-
               }  
               try {
                 initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
@@ -857,17 +627,14 @@ async function scrape_text(url){
               }
             })         
         })
-
           const tempGramArr = ref([])
    
           temp.value.most_common_words.forEach((word, rank) => {
-            console.log("in here!");
+    
             initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
           });
          
           temp.value.sentence_id.forEach(sentence => {
-          // TODO!!! => Figure out how to handle diff types here...
-          // bring entities & grammar back into play ...
             initialHumanReadableTextRef.value.sentenceObj[sentence] = {
               sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
               sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
@@ -877,7 +644,6 @@ async function scrape_text(url){
               sentenceSpacyEntities: []
             }
           });
-
           temp.value.sentence_grammar.word_level_grammar_result.forEach(wordGram => {
             initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']].sentenceGrammarArray.push({
               "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
@@ -886,7 +652,6 @@ async function scrape_text(url){
               "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text']
             })    
           });
-
           temp.value.spacy_entities.forEach(entity=>{
             initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
               {
@@ -894,31 +659,30 @@ async function scrape_text(url){
                 "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
               }
             )
+       
           })
-
-          // We've received text data -> update storage & proceed onwards...
-          // ----------------------------------------------------
           // Update Local Storage
           if (!localStorage.getItem(url)){
             localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
           }
-
           console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
-
-          // // WHAT ARE THESE LINES DOING??? 
-          // let fullModal = modalFull.value;
-          // if(fullModal && fullModal.classList){
-          //   fullModal.classList.remove("awaiting");
-          //   fullModal.classList.add("receivedSingleTextData");
-          //   let main = document.getElementById("main");
-          //   console.log("what / when triggers this?");
-          //   if(main){
-          //     main.visibility = "visible";
-          //   }
-          // } else {
-          //   console.log("in else for fullmodal: ", fullModal);
-          // }
-          print('second works!')
+          //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
+          // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
+          ///////////////////////////////////////////////////////////////////////////////
+          ///////////////////////////////////////////////////////////////////////////////
+          ///////////////////////////////////////////////////////////////////////////////
+          
+          let fullModal = modalFull.value;
+          if(fullModal && fullModal.classList){
+            fullModal.classList.remove("awaiting");
+            fullModal.classList.add("receivedSingleTextData");
+            let main = document.getElementById("main");
+            if(main){
+              main.visibility = "visible";
+            }
+          } else {
+            console.log("in else for fullmodal: ", fullModal);
+          }
           return rawtextfromtoc.value;
         } else {
           return null;
@@ -926,16 +690,7 @@ async function scrape_text(url){
         }).catch(error => {
         console.log('Error:', error);
         }); 
-
-
-   }
-// /////////////////////////////
-
-
-
-
-
-//     }  
+      
       return rawtextfromtoc;
 };
 
@@ -1039,6 +794,42 @@ function trySetDataNameY(name){
   return valueY.value;
 }
 
+function toggleMonochrome(){
+  console.log("MONOCHROME>? ", yColorTrack.value);
+  if(yColorTrack.value){
+    console.log("MONOCHROME>? ", yColorTrack.value);
+    if(yColorTrack.value === "colorX"){
+      yColorTrack.value = "colorY";
+    } else {
+      yColorTrack.value = "colorX";
+    }
+  }
+}
+
+function openUpdatePopup(){
+    let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+    if(updatePopup){
+      updatePopup.classList.remove("animate-close");
+    }
+    let updateDataBtn = document.getElementById("updatePopupButton");
+    if(updateDataBtn){
+      updateDataBtn.classList.add("animate-close");
+    }
+}
+
+function closeUpdatePopup(){
+  console.log("herre");
+    let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+    console.log("what is update popup? ", updatePopup)
+    if(updatePopup){
+      updatePopup.classList.add("animate-close");
+    }
+    let updateDataBtn = document.getElementById("updatePopupButton");
+    if(updateDataBtn){
+      updateDataBtn.classList.remove("animate-close");
+    }
+}
+
 </script>
 
 <template>
@@ -1056,7 +847,14 @@ function trySetDataNameY(name){
         <slot name="header">
           Single Text Analysis
         </slot>
-    
+          <button
+            type="button"
+            id="updatePopupButton"
+            class="btn-green animate-close"
+            @click="openUpdatePopup"
+          >
+            Update
+          </button>
           <button
             type="button"
             id="addTextButton"
@@ -1089,15 +887,16 @@ function trySetDataNameY(name){
           <GraphModal 
             :graphstate="graphstateRef" 
             :dataObj="initialHumanReadableTextRef" 
-     
+          
             :color0="color0"
             :color1="color1"
             :color2="color2"
             :color3="color3"
             :colorX="colorX"
-            :colorY="colorY"
+            :colorY="yColorTrack"
             :currentLinesCount="currentLinesCount"
-            @select="selected(e)"
+            @closeUpdatePopup="closeUpdatePopup"
+         
             @dataCountX="trySetDataCountXLength"
             @dataname_x="trySetDataNameX"
             @dataCountY="trySetDataCountYLength"
@@ -1111,8 +910,8 @@ function trySetDataNameY(name){
           <div id="newTextPopup" >
             <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
             <!-- v-if="additionalTexts" v-for="item in additionalTexts" :key="item.titleUrl"  -->
-            <div id="newRow_0" class="new-text-popup-row">
-              <div id="newText_0" class="new-text-text">
+            <td id="newRow_0" class="new-text-popup-row">
+              <tr id="newText_0" class="new-text-text">
                 <span id="newAuthor_0" class="new-text-author">
                 {{additionalTexts[0].author}}
               <!-- {{item.author}} -->
@@ -1120,16 +919,18 @@ function trySetDataNameY(name){
                 <span id="newTitle_0" class="new-text-title">
                   {{additionalTexts[0].title}}
                 </span>
-              </div>
-              <span id="newVariable_0" class="new-text-viz-variable">
-                  <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
-                  <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span>
-              </span>
-              <color-input id="colorInput_0" class="color-input" v-model="color0" position="left" ref="colorInput_0" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr id="newVariable_0" class="new-text-viz-variable">
+                <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
+                <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span>
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_0" class="color-input" v-model="color0" position="left" ref="colorInput_0" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
 
-            <div id="newRow_1" class="new-text-popup-row">
-              <div id="newText_1" class="new-text-text">
+            <td id="newRow_1" class="new-text-popup-row">
+              <tr id="newText_1" class="new-text-text">
                 <span id="newAuthor_1" class="new-text-author">
                 {{additionalTexts[1].author}}
               <!-- {{item.author}} -->
@@ -1137,16 +938,18 @@ function trySetDataNameY(name){
                 <span id="newTitle_1" class="new-text-title">
                   {{additionalTexts[1].title}}
                 </span>
-              </div>
-             <span id="newVariable_1" class="new-text-viz-variable">
+              </tr>
+             <tr id="newVariable_1" class="new-text-viz-variable">
                   <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
                   <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span>
-              </span>
-              <color-input id="colorInput_1" class="color-input" v-model="color1" position="left" ref="colorInput_1" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_1" class="color-input" v-model="color1" position="left" ref="colorInput_1" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
 
-            <div id="newRow_2" class="new-text-popup-row">
-              <div id="newText_2" class="new-text-text">
+            <td id="newRow_2" class="new-text-popup-row">
+              <tr id="newText_2" class="new-text-text">
                 <span id="newAuthor_2" class="new-text-author">
                 {{additionalTexts[2].author}}
               <!-- {{item.author}} -->
@@ -1154,16 +957,18 @@ function trySetDataNameY(name){
                 <span id="newTitle_2" class="new-text-title">
                   {{additionalTexts[2].title}}
                 </span>
-              </div>
-             <span id="newVariable_2" class="new-text-viz-variable">
+              </tr>
+              <tr id="newVariable_2" class="new-text-viz-variable">
                   <span id="newVariable_2_xvar">{{additionalTexts[2].variableX}}</span>
                   <span id="newVariable_2_yvar">{{additionalTexts[2].variableY}}</span>
-              </span>
-              <color-input id="colorInput_2" class="color-input" v-model="color2" position="left" ref="colorInput_2" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_2" class="color-input" v-model="color2" position="left" ref="colorInput_2" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
 
-            <div id="newRow_3" class="new-text-popup-row">
-              <div id="newText_3" class="new-text-text">
+            <td id="newRow_3" class="new-text-popup-row">
+              <tr id="newText_3" class="new-text-text">
                 <span id="newAuthor_3" class="new-text-author">
                 {{additionalTexts[3].author}}
               <!-- {{item.author}} -->
@@ -1171,19 +976,21 @@ function trySetDataNameY(name){
                 <span id="newTitle_3" class="new-text-title">
                   {{additionalTexts[3].title}}
                 </span>
-              </div>
-             <span id="newVariable_3" class="new-text-viz-variable">
+              </tr>
+              <tr id="newVariable_3" class="new-text-viz-variable">
                   <span id="newVariable_3_xvar">{{additionalTexts[3].variableX}}</span>
                   <span id="newVariable_3_yvar">{{additionalTexts[3].variableY}}</span>
-              </span>
-              <color-input id="colorInput_3" class="color-input" v-model="color3" position="left" ref="colorInput_3" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_3" class="color-input" v-model="color3" position="left" ref="colorInput_3" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
               
-            <div id="newRow_X" class="new-text-popup-row">
-              <div id="newText_X" class="new-text-text">
+            <td id="newRow_X" class="new-text-popup-row">
+              <tr id="newText_X" class="new-text-text">
               xVar
-              </div>
-              <span id="newVariable_X" class="new-text-viz-variable">
+              </tr>
+              <tr id="newVariable_X" class="new-text-viz-variable">
                   <span id="newAxis_X" >
                   <Multiselect
                     :placeholder="'Select'"
@@ -1193,15 +1000,29 @@ function trySetDataNameY(name){
                     
                   />
                 </span>
-              </span>
-              <color-input id="colorInput_X" class="color-input" v-model="colorX" position="right" ref="colorInput_X" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_X" class="color-input" v-model="colorX" position="right" ref="colorInput_X" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
 
-            <div id="newRow_Y" class="new-text-popup-row">
-              <div id="newText_Y" class="new-text-text">
+            <td id="newRow_Y" class="new-text-popup-row">
+              <tr id="newText_Y" class="new-text-text">
                 yVar
-              </div>
-              <span id="newVariable_Y" class="new-text-viz-variable">
+                <button
+                  type="button"
+                  id="toggleMonochromeBtn"
+                  class="green-btn"
+                  @click="toggleMonochrome"
+                >
+                  <span v-if="yColorTrack.value">Unmatch</span>
+                  <span v-else>Match</span>
+                </button>
+              </tr>
+
+
+    
+              <tr id="newVariable_Y" class="new-text-viz-variable">
                   <span id="newAxis_Y" >
                   <Multiselect
                     :placeholder="'Select'"
@@ -1211,9 +1032,11 @@ function trySetDataNameY(name){
                     
                   />
                 </span>
-              </span>
-              <color-input id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-            </div> 
+              </tr>
+              <tr class="color-wrapper">
+                <color-input id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+              </tr>
+            </td> 
             <div id="keyButtonWrapper">
               <button
                   type="button"
@@ -1491,7 +1314,7 @@ body.modal-open {
 }
 
 #modalFull.receivedSingleTextData {
-    background:blue;
+
 }
 
   .modal-header,
@@ -1567,14 +1390,14 @@ body.modal-open {
     background: hsla(193, 82%, 49%, 0.7);
     border: 1px solid hsla(160, 100%, 37%, 0.7);
     border-radius: 2px;
-    width: 60px;
+    width: 80px;
     height: 48px;
     float: right;
     margin-right:4px;
     margin-left:4px;
     position: absolute;
     right: 36px;
-    top: 4px;
+    top: 12px;
   }
 
   .hideFullModal {
@@ -1591,7 +1414,6 @@ body.modal-open {
     color: blue;
   }
   .self-building-square-spinner {
-  
     top: -60px !important;
     position: absolute;
   }
@@ -1692,7 +1514,7 @@ body.modal-open {
   
 }
 #addTextButton {
-  right: 112px;
+  right: 128px;
 }
 
 #graphs {
@@ -1773,6 +1595,7 @@ body.modal-open {
   display:flex;
   flex-direction: column;
 }
+
 .color-input{
   width: 10%;
   display: flex;
@@ -1811,19 +1634,18 @@ body.modal-open {
   color: green !important;
   border: 1px solid green;
   border-radius: 8px;
-  --ms-tag-bg: yellow;
-  --ms-tag-color: green;
 }
  .multiselect-option {
   background: var(--color-background) !important;
   background-color: var(--color-background) !important;
-  color: #fffff;
-}
+  color: #ffffff;
+  }
+  
   .multiselect-tag.is-user {
-    padding: 5px 8px;
+    padding: 8px 8px;
     border-radius: 22px;
     background: #35495e;
-    margin: 3px 3px 8px;
+    margin: 11px -34px 20px;
   }
 
 .multiselect-dropdown {
@@ -1853,9 +1675,16 @@ body.modal-open {
 .hide {
   display: none;
 }
+#updatePopupButton {
+  right: 220px;
+}
 #newAxis_X, #newAxis_Y {
 
 }
-
+.color-wrapper {
+  justify-content:center;
+  flex-direction:column;
+  display:flex;
+}
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>

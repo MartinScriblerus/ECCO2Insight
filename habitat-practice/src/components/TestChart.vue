@@ -19,136 +19,139 @@ import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberX","valueY","numberY", "currentLinesCount"],
-    watch: { 
-        currentLinesCount:{
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
-             // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-             
-            }
-        },        
-        color0:{
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
-             // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        color1: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log(JSON.parse(JSON.stringify(newVal)));
-             // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        color2: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log(JSON.parse(JSON.stringify(newVal)));
-            //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        color3: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log(JSON.parse(JSON.stringify(newVal)));
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        colorX: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log(JSON.parse(JSON.stringify(newVal)));
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        colorY: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log(JSON.parse(JSON.stringify(newVal)));
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        valueX: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("new x value", JSON.parse(JSON.stringify(newVal)));
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-              //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
-             
-
-            }
-        },
-        valueY: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
-              this.xAxisLabel = JSON.parse(JSON.stringify(newVal));
-              //let textDiv = document.getElementById(`newVariable_${props.currentLinesCount}_yvar`);
-              //textDiv.innerText = JSON.parse(JSON.stringify(newVal));
-              // SET THIS TO THE Y AXIS LABEL
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-              //console.log("text div y ", textDiv);
-            }
-        },
-        numberX: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("new x number", newVal);
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        numberY: {
-            deep: true,
-            handler: function(newVal, oldVal){
-              console.log("new y number", JSON.parse(JSON.stringify(newVal)));
-             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-            }
-        },
-        graphstate: {
-            deep: true,
-            handler: function(newVal, oldVal){
-            // props.graphstate = newVal;
-                console.log("graphstate changed in area! ", newVal)
-                if(newVal === "comparative"){
-                    this.graphState = newVal
-                    alert("we are now comparing");
-                }
-            }
-        },
-      tooltipmsg: {
+  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberX","valueY","numberY", "currentLinesCount","secondTextRef"],
+  emits:["selected"],
+  watch: { 
+    currentLinesCount:{
         deep: true,
         handler: function(newVal, oldVal){
-        
-           console.log('Prop changed: ', newVal, ' | was: ', oldVal)
-           
-            let tooltip = document.getElementById("tooltipInner");
-            if(tooltip){
-              tooltip.innerHTML = `
-              <div id="sentimentDisplay">
-            
-                <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
-                <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
-                <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
-                <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
-              </div>
+          console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
           
-              <div id="topicListWrapper">
-                ${this.entityArr.toString()}
-              </div> 
-              `
-            }
-            let topicWrapper = document.getElementById("topicListWrapper");
-            console.log(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)));
-            if(newVal){
-              JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+        }
+    },        
+    color0:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color1: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color2: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+        //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color3: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    colorX: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+              let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
+              console.log("here's keybuilder div");
+              if(keyBuilder){
+                console.log("NEW COLOR>>X AXIS? ", newVal);
+                keyBuilder.style.borderColor = newVal.value;
+              }
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    colorY: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    valueX: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("new x value", JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+          //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
+          
+
+        }
+    },
+    valueY: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
+          this.xAxisLabel = JSON.parse(JSON.stringify(newVal));
+    
+        }
+    },
+    numberX: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("new x number", newVal);
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    numberY: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("new y number", JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    graphstate: {
+        deep: true,
+        handler: function(newVal, oldVal){
+    
+            console.log("graphstate changed in area! ", newVal)
+            if(newVal > 0){
+                this.graphState = newVal
+                
+                alert("we are now comparing");
             }
         }
-      }
     },
-  emits:["selected"],
+    tooltipmsg: {
+      deep: true,
+      handler: function(newVal, oldVal){
+      
+        console.log('Prop changed: ', newVal, ' | was: ', oldVal)
+        
+          let tooltip = document.getElementById("tooltipInner");
+          if(tooltip){
+            tooltip.innerHTML = `
+            <div id="sentimentDisplay">
+          
+              <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
+              <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
+              <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
+              <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
+            </div>
+        
+            <div id="topicListWrapper">
+              ${this.entityArr.toString()}
+            </div> 
+            `
+          }
+          let topicWrapper = document.getElementById("topicListWrapper");
+          console.log(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)));
+          if(newVal){
+            JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+          }
+      }
+    }
+  },
   data(){
     return {
       show: false,
@@ -165,8 +168,8 @@ export default {
       points.value = [];
       const scaled = ref();
     
-    const graphMode = ref()
-    graphMode.value = "singleText";
+      const graphMode = ref()
+      graphMode.value = "singleText";
       
       scaled.value = {
         x: null,
@@ -207,6 +210,7 @@ export default {
         }
         let textDivY = document.getElementById(`newVariable_${props.currentLinesCount-1}_yvar`);
         console.log("text div x ", textDivY);
+
         if(textDivY){
           textDivY.innerText = JSON.parse(JSON.stringify(props.valueY));
         }
@@ -247,8 +251,6 @@ export default {
           .domain([min(props.data), max(props.data)]) // input values...
           .range([height, 0]); // ... output values
      
-     
-     
         // line generator: D3 method to transform an array of values to data points ("d") for a path element
         const lineGen = area()
           .curve(curveBasis)
@@ -261,6 +263,7 @@ export default {
             props.data=props.data.slice(ind)
           }
         })
+        
         // function to render path element with D3's General Update Pattern
         function createLine(dataIn,strokeColor,strokeWidth){ 
           console.log("creating line ", strokeColor);
@@ -302,13 +305,14 @@ export default {
             return svg; 
         }
         
-        console.log('ugh', props.data[0]);
+        console.log('ugh', JSON.parse(JSON.stringify(props.secondTextRef)));
         if(typeof JSON.parse(JSON.stringify(props.data[0])) === "number"){
-            if(props.graphstate === "comparative"){
+            if(props.graphstate > 0 ){
               console.log("0", props.color0);
               console.log("1", props.color1);
               console.log("2", props.color2);
               console.log("X", props.colorX);
+              
               console.log("Y", props.colorY);
               if(props.color0 !== props.color1 && props.color1 === props.color2){
                 console.log("are we creating new line?")
@@ -322,7 +326,12 @@ export default {
                // createNewLine([props.data], props.color3,1.5);
               }
             } else {
-                createLine([props.data], props.color0,1.5);
+              if(JSON.parse(JSON.stringify(props.secondTextRef))===true){
+                createNewLine([props.data], 'yellow',1.5);
+              } else {
+                createLine([props.data],props.color0,1.5);
+              }
+            
             }
         } else {
             console.warn("we shouldn't be gettting here! / check data")
@@ -363,6 +372,9 @@ export default {
             return;
           } else {
              console.log("HOW LONG IS PROPS DATA? ", selectedIndexX);
+            if(!selectedIndexX){
+              return;
+            }
             console.log(d)
             this.selectedIndexX = selectedIndexX;
             console.log("errr wtf??? ", this.selectedIndexX);

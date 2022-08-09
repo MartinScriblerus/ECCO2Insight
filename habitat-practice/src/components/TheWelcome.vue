@@ -15,6 +15,7 @@ const props = defineProps({
   loaded: Boolean,
 });
 
+
 const selectedTitle : any = ref('');
 const selectedAuthor : any = ref('')
 const tocData : any = ref({});
@@ -102,8 +103,6 @@ async function scrape_text(url:String){
             }).catch(error => {
             console.log('Error:', error);
             }); 
-    
-      
       return rawTextData.value;
 };
 
@@ -136,14 +135,29 @@ async function doOpenAwaitScrape(){
   openFull.value = true;
 };
 
-
+function scrapeAnotherUrl(url){
+  console.log("hit scrape another url...")
+  return scrape_text(url);
+}
 
 </script>
 
 
 <template #heading>
 
-<Modal :open="open" :openFull="openFull" @openedfullawaitscrape="doOpenAwaitScrape" @openedfull="doOpenFullModal" @closedfull="doCloseFullModal" @closedmodal="doCloseModal" :tocdata="tocData" :rawtextdata="rawTextData" :selectedTitle="selectedTitle" :selectedAuthor="selectedAuthor" />
+<Modal 
+  :open="open" 
+  :openFull="openFull" 
+  @openedfullawaitscrape="doOpenAwaitScrape" 
+  @openedfull="doOpenFullModal" 
+  @closedfull="doCloseFullModal" 
+  @closedmodal="doCloseModal" 
+
+  :tocdata="tocData" 
+  :rawtextdata="rawTextData" 
+  :selectedTitle="selectedTitle" 
+  :selectedAuthor="selectedAuthor" 
+/>
   <!-- set up a scroll here to show as many as we need -->
   <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
     
