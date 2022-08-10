@@ -446,6 +446,13 @@ button {
 button.green-btn {
   background-color: hsla(160, 100%, 37%, 1);
   color: #181818;
+  height:48px;
+}
+
+button.green-btn.bottom-btn {
+  width: 25%;
+  max-height: 40px;
+  top: 16px;
 }
 
 input {
@@ -725,6 +732,9 @@ input:checked + .slider:before {
     top: 72px;
     padding-left: 4%;
     padding-right: 4%;
+  }
+  #newTextPopup {
+    padding: 64px !important;
   }
   .inputsRowWrapper {
     padding-left:4%;

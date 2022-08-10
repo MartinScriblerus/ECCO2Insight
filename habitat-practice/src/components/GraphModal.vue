@@ -8,7 +8,7 @@ export default {
     AreaChart,
     TestChart
   },
-  emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup'],
+  emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup','numberXMax','numberXMin','numberYMax','numberYMin'],
   data() {
     return {
       data:[7,1,1,7],
@@ -16,10 +16,6 @@ export default {
       currentYName: "Y_",
       mode:[1],
       points: [],
-      // scaled: {
-      //   x: null,
-      //   y: null,
-      // },
       popupOpen: false,
       paths: {
         area: '',
@@ -31,8 +27,6 @@ export default {
       color:null,
       valueX: 'initX',
       valueY: 'initY',
-      numberX: 0,
-      numberY: 0
     };
   },
   margin: {
@@ -47,10 +41,7 @@ export default {
 
   methods: {
     setup(props,{emit}){
-      console.log("WHAT ARE PROPS: ", props);
       this.popupOpen = false;
-
-
     },
     setWidth(width){
       this.width = width;
@@ -60,10 +51,6 @@ export default {
       this.height = height;
       console.log("SET HEIGHT TO ", this.height);
     },
-
-    //////////////////////////////////////////////
-
-    /////////////////////////////////////////////
     addData() {
       // add random value from 0 to 50 to array
       this.data = [...this.data, Math.round(Math.random() * 50)];
@@ -73,6 +60,13 @@ export default {
     },
     updateVizDataCommonWords(){
       this.data = JSON.parse(JSON.stringify(this.props.dataObj))['textObj']['mostCommonWords'].map(i=>i['occurances']);
+        let tempData = this.data.map(i=>i)
+        this.valueY = "Occurances";
+        this.valueX = "Items";
+        this.numberXMax[this.props.currentLinesCount - 1] = tempData.length; 
+        this.numberXMin[this.props.currentLinesCount - 1] = 0;
+        this.numberYMax[this.props.currentLineCount - 1] = Math.max(...tempData)
+        this.numberYMin[this.props.currentLineCount - 1] = Math.min(...tempData);
     },
     updateVizDataLineObj(){
       let lineObjVizPlaceholder1 = [];
@@ -82,17 +76,7 @@ export default {
       Object.values(lineObjVizPlaceholder1).map(j=>syllablesPerLinePlaceholder.push(j['syllablesInLine']));
       this.data = syllablesPerLinePlaceholder;
     },
-    // closeUpdatePopup(){
 
-    //   let updateDataBtn = document.getElementById("updateeDataBtn");
-    //   if(updateDataBtn){
-    //     updatePopup.classList.remove("animateClose");
-    //   }
-    //   setTimeout(()=>{
-        
-    //   },2000);
-    //   clearTimeout();
-    // },
     updateVizDataSentiment(compound,negative,neutral,positive){
       
       let sentenceVizSentimentPlaceholder1 = [];
@@ -104,38 +88,47 @@ export default {
       console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
       let tempData = [];
       if(compound){
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[0])
         this.valueY = "Sentiment (Compound)";
         this.valueX = "Sentence Count";
-        this.numberX = tempData.length; 
-        console.log("are we getting this? ", this.numberX);
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[0])
+        this.numberXMax[this.props.currentLinesCount] = tempData.length; 
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData)
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
+        
       }
       if(negative){
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
         this.valueY = "Sentiment (Negative)";
         this.valueX = "Sentence Count";
-        this.numberX = tempData.length; 
-        //emit('dataname_y', 'sentiment (negative)')
-        console.log("are we getting this? ", this.numberX);
-      
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
+        this.numberXMax[this.props.currentLinesCount] = tempData.length;
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData); 
       }
       if(neutral){
-        //emit('dataname_y', 'sentiment (neutral)')
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2]);
         this.valueY = "Sentiment (Neutral)";
         this.valueX = "Sentence Count";
-        this.numberX = tempData.length; 
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2])
+        this.numberXMax[this.props.currentLinesCount] = tempData.length;
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData); 
       }
       if(positive){
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
         this.valueY = "Sentiment (Positiive)";
         this.valueX = "Sentence Count";
-        this.numberX = tempData.length; 
-        //emit('dataname_y', 'sentiment (positive)')
-        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
+        this.numberXMax[this.props.currentLinesCount] = tempData.length;
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData); 
+        
         this.mode[0] = 1;
         this.mode = [4];
       }
-     // emit('dataCountXLength', tempData.length)
+
+//  emit('dataCountXLength', tempData.length)
       this.data = tempData;
     },
   },
@@ -164,56 +157,64 @@ const props = defineProps({
   colorY: String,
   secondTextRef: Boolean,
   currentLinesCount: Number,
-  numberX: Number,
-  numberY: Number
+  // numberX: Number,
+  // numberY: Number,
+  axisColorMatchBool: Boolean,
+  selectedXAxisRef:{
+    label:String,
+    value:Array
+  },
+  selectedYAxisRef:{
+    label:String,
+    value:Array
+  }
 });
 
-const emit = defineEmits(['number_x','number_y','dataname_y', 'dataname_x','dataCountX','closeUpdatePopup']); 
+const emit = defineEmits(['numberXMin','numberXMax','numberYMin','numberYMax','dataname_y', 'dataname_x','closeUpdatePopup']); 
 
 const valueX = ref('');
-valueX.value = "count";
-
 const valueY = ref('');
-valueY.value = "count";
-
+const numberXMax = ref([]);
+const numberXMin = ref([]);
+const numberYMax = ref([]);
+const numberYMin = ref([]);
+numberXMax.value = []; 
+numberXMin.value = []; 
+numberYMax.value = []; 
+numberYMin.value = []; 
 const tooltipMsg = ref();
 tooltipMsg.value = ''
 
-// DO WE WANT TO USE DATA VARIABLE OR REF HERE>>>>?
-const numberX = ref(null);
-const numberY = ref(null);
-numberX.value = 0;
-numberY.value = 0;
+watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData]) => {
 
-watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,numberX.value,numberY.value,props.currentLinesCount,props.colorX], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentXMax,currentYMax,currentLineCount,currentColorX], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldXMax,oldYMax,oldLineCount,oldColorX]) => {
+    emit('numberXMax', JSON.parse(JSON.stringify(numberXMax.value)))
+    emit('numberXMin', JSON.parse(JSON.stringify(numberXMin.value)))
+    emit('numberYMax', JSON.parse(JSON.stringify(numberYMax.value)))
+    emit('numberYMin', JSON.parse(JSON.stringify(numberYMin.value)))
   if(currentXLabel !== oldXLabel){
-    emit('dataname_x', currentXLabel);
+    emit('dataname_x', this.valueX);
   }
   if(currentYLabel !== oldYLabel){
-    emit('dataname_y', currentYLabel);
+    emit('dataname_y',this.valueY);
   }
-  if(currentData !== oldData){
-    console.log("HEY CHECK OUT CURRENT DATA: ", currentData);
-  }
-  // if(currentColorX !== oldColorX){
-    let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
-    console.log("here's keybuilder div");
-    if(keyBuilder){
-      keyBuilder.style.borderColor = props.colorX;
-    }
-  // }
-  console.log("props ", props.graphstate);
-  console.log(`PROPS COLORS -> ${props.color0} ${props.color1} ${props.color2} ${props.color3}`);
-  console.log("!!!!! ", props.currentLinesCount);
-  console.log("FUUUUUUUUUUUUUUUCK: ", props.dataObj)
-  emit('dataname_y','NAME_HERE')
-  emit('dataCountX',props.dataObj.length)
 
+  let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
+  console.log("here's keybuilder div");
+  if(keyBuilder){
+    keyBuilder.style.borderColor = props.colorX;
+    }
+
+  if(valueX.value){
+    emit('dataname_x',valueX.value)
+  } 
+  if(valueY.value){
+    emit('dataname_y',valueY.value)
+  }
+  
   return;
 });
 
 function updateTooltip(selected) {
-  console.log("in update tooltip ", selected);
     let grammarArr = [];
     let entitiesArr = [];
     if(!JSON.parse(JSON.stringify(props.dataObj))){
@@ -237,42 +238,19 @@ function updateTooltip(selected) {
         entityArrays : entitiesArr
       }
     } catch(e){
-      console.log("wat the fuq eerrr: ",e)
+      console.log("err: ",e)
     }
-    console.log("WHERE IS TOOLTIP MSG>> ", tooltipMsg.value)
+
   console.log("SOME READING MATERIAL: ", JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected])
-    // tooltipMsg.value = {
-    //   grammarArrays : grammarArr,
-    //   sentimentCompound : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentCompound']['compound'],
-    //   sentimentNegative : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNegative']['neg'],
-    //   sentimentNeutral : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNeutral']['neu'],
-    //   sentimentPositive : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentPositive']['pos'],
-    //   entityArrays : entitiesArr
-    // }
 
 
 }
 function tryToggleComparative(){
-  props.graphstate = "singleText";
+  props.graphstate = props.graphstate + 1;
 }
 
-
-// console.log("SET UP COLOR... HERE IS THIS: ", props.color0);
-// const colorInput = this.refs.colorInput // root instance
-// const picker = colorInput.refs.picker // popup color picker instance
-// console.log("COLORPICKER: ", colorInput.color) // tinycolor instance);
-
-// function colorInputMountedHandler(){
-//   console.log("input mounted: ");
-//     console.log("LOOK: ", document.getElementById("text-input-hex"));
-// } 
-
-// function colorPickerShowHandler(){
-//   console.log("showpicker mounted: ", );
-//   console.log("LOOK 2: ", document.getElementById("text-input-hex"));
-  
-// }
 function emitterClose(command){
+  console.log("emitting");
   emit(command);
 }
 </script>
@@ -285,6 +263,8 @@ function emitterClose(command){
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
       <TestChart 
         :data="data"
+        :selectedXAxisRef="props.selectedXAxisRef"
+        :selectedYAxisRef="props.selectedYAxisRef"
         :secondTextRef="props.secondTextRef" 
         :tooltipmsg="tooltipMsg" 
         :mode="mode"
@@ -298,45 +278,44 @@ function emitterClose(command){
         :colorY="props.colorY"
         :valueX="valueX"
         :valueY="valueY"
-        :numberX="numberX"
-        :numberY="numberY"
+        :numberXMax="this.numberXMax"
+        :numberXMin="this.numberXMin"
+        :numberYMax="this.numberYMax"
+        :numberYMin="this.numberYMin"
+        :axisColorMatchBool="axisColorMatchBool"
         :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 
        >
       </TestChart>
-<!--     
-    <div id="newTextPopup">
-    TEST TEST TEST
-      <color-input v-model="color" position="right top" ref="colorInput" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-    </div> -->
+
     
-    <div class="buttons" >
-      <button class="green-btn" @click="addData">Add data</button>
-      <button class="green-btn" @click="filterData">Filter data</button>
-      <div id="d3UpdateButtonsWrapper">
-        <h1>Let's Begin...</h1>
-        <h3>
-          Reopen this window any time you'd like to update the data displayed in the graph. Select a value to track with your first line.
-        </h3>
-        <div id="buttonsInnerWrapper">
-          <span>Sentiment Scores</span>
-          <br/>
-          <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Positive</button>
-          <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Compound</button>
-          <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Negative</button>
-          <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neutral</button>
-          <br/>
-          <span>Text-Level Statistics</span>
-          <br/>
-          <button class="green-btn" @click="updateVizDataCommonWords">Common Words</button>
-          <br/>
-          <span>Line-Level Analysis</span>
-          <br/>
-          <button class="green-btn" @click="updateVizDataLineObj()">Syllables Per Line</button>
-          <br/>
+      <div class="buttons" >
+        <button class="green-btn bottom-btn" @click="addData">Add data</button>
+        <button class="green-btn bottom-btn" @click="filterData">Filter data</button>
+        <div id="d3UpdateButtonsWrapper">
+          <h1 id="buttonsWrapperTitle">Let's Begin...</h1>
+          <h3 id="buttonsWrapperSubtitle">
+            Reopen this window any time you'd like to update the data displayed in the graph. Select a value to track with your first line.
+          </h3>
+          <div id="buttonsInnerWrapper">
+            <span>Sentiment Scores</span>
+            <br/>
+            <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Pos</button>
+            <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Comp</button>
+            <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Neg</button>
+            <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neu</button>
+            <br/>
+            <span>Text-Level Statistics</span>
+            <br/>
+            <button class="green-btn" @click="updateVizDataCommonWords(); emitterClose('closeUpdatePopup')">Common Words</button>
+            <br/>
+            <span>Line-Level Analysis</span>
+            <br/>
+            <button class="green-btn" @click="updateVizDataLineObj(); emitterClose('closeUpdatePopup')">Syllables Per Line</button>
+            <br/>
+          </div>
         </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -417,48 +396,68 @@ svg {
 }
 
 #newTextPopup {
-    width: 60%;
-
+    display: none;
+width: calc(100%);
     display: none;
     flex-direction: row;
     position: fixed;
     background: var(--color-background);
     background-color: var(--color-background);
-    border: solid 1px #eee;
-    border-radius: 8px; 
+    border-radius: 8px;
     display: flex;
-    z-index: 9999;
-    left: 0px;
+    z-index: 99;
+    /* margin-left: -96px; */
     text-align: center;
-    justify-content: right;
-    left: 5%;
-    right: 5%;
-    top: 24%;
+    /* justify-content: right; */
+    /* left: 33%; */
+    padding: 8%;
+    top: -12%;
 }
 
 #d3UpdateButtonsWrapper {
     position: fixed;
     justify-content: center;
-    width: 50%;
-    top: 16%;
-    z-index: 9999;
-    background: rgba(255, 255, 255, 0.078);
+    width: 100%;
+    top: 0%;
+    z-index: 100;
     background-color: rgba(0, 0, 0, 0.88);
-    left: 25%;
+    left: 0%;
     padding-top: 20px;
     color: white;
-    padding: 20px;
-    border: 1px solid white;
+    padding: 12%;
+    /* border: 1px solid white; */
     border-radius: 8px;
+    bottom: 0%;
+    pointer-events:none;
 }
 #buttonsInnerWrapper {
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 24px;
+  padding-bottom: 24px;
   width: 100%;
-
+  padding-right: 24px;
+  padding-left: 24px;
+  border-radius: 0px 0px 8px 8px;
+  pointer-events:all;
+}
+#buttonsWrapperTitle,#buttonsWrapperSubtitle,#buttonsInnerWrapper {
+  background-color:var(--color-background);
+}
+#buttonsWrapperTitle {
+  border-radius: 8px 8px 0px 0px;
+  padding: 12px;
+}
+#buttonsWrapperSubtitle {
+  padding-right:24px;
+  padding-left:24px;
 }
 button.green-btn {
   width:25%;
+  font-size:14px
+}
+button.green-btn.bottom-btn {
+   width: 25%;
+  max-height: 40px;
+  top: 16px;
 }
 .animate-close {
   opacity: 0;

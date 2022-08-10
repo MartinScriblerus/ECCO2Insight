@@ -19,7 +19,7 @@ import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberX","valueY","numberY", "currentLinesCount","secondTextRef"],
+  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberX","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef"],
   emits:["selected"],
   watch: { 
     currentLinesCount:{
@@ -29,7 +29,14 @@ export default {
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
           
         }
-    },        
+    }, 
+    axisColorMatchBool:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("newCOLORMATCH BOOL: ",JSON.parse(JSON.stringify(newVal)));
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },     
     color0:{
         deep: true,
         handler: function(newVal, oldVal){
@@ -85,7 +92,6 @@ export default {
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
           //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
           
-
         }
     },
     valueY: {
@@ -110,15 +116,34 @@ export default {
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
+    selectedXAxisRef: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("********* new x number", JSON.parse(JSON.stringify(newVal)));
+          
+        }
+    },
+    selectedYAxisRef: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("********* new y number", JSON.parse(JSON.stringify(newVal)));
+        }
+    },
     graphstate: {
         deep: true,
         handler: function(newVal, oldVal){
     
             console.log("graphstate changed in area! ", newVal)
             if(newVal > 0){
-                this.graphState = newVal
                 
-                alert("we are now comparing");
+                console.log("parse method: ", JSON.parse(JSON.stringify(this.graphstate)));
+
+                console.log("THIS WAY??? ", JSON.parse(JSON.stringify(this)).graphstate)
+              
+                
+                this.data.graphstate = newVal
+                // alert("we are now comparing");
+                return this.data.graphstate;
             }
         }
     },
@@ -159,7 +184,7 @@ export default {
       clientY: 0,
       closestPoint: null,
       entityArr:[],
-      graphState: 'singleText',
+      graphstate: 0,
       xAxisLabel: ''
     };
   },
@@ -169,8 +194,9 @@ export default {
       const scaled = ref();
     
       const graphMode = ref()
-      graphMode.value = "singleText";
-      
+      graphMode.value = 0;
+      console.log("Y REF: ", props.selectedYAxisRef);
+      console.log("X REF: ", props.selectedXAxisRef);
       scaled.value = {
         x: null,
         y: null
@@ -197,7 +223,12 @@ export default {
       const svg = select(svgRef.value);
       const tooltipInner = ref(null)
 
+      const xMax = ref(0);
+      const xMin = ref(0);
+      const yMax = ref(0);
+      const yMin = ref(0);
 
+   
       
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
@@ -245,8 +276,32 @@ export default {
         const xScale = scaleLinear()
           .domain([0, props.data.length - 1]) // input values...
           .range([0, width]); // ... output values
-        console.log("What is props data in area?: ", props.data);
+        console.log("What is props data in area?: ", JSON.parse(JSON.stringify(props.data)));
 
+        if(!props.selectedXAxisRef || !props.selectedYAxisRef){
+          xMax.value = props.data.length - 1;
+          xMin.value = 0;
+          yMax.value = max(props.data);
+          yMin.value = min(props.data);
+          
+        } else {
+          console.log("!?!?!?Y2k ", JSON.parse(JSON.stringify(props.selectedYAxisRef)))
+          xMax.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0];
+          xMin.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0];
+          yMax.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0];
+          yMin.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0];
+        }
+
+
+        console.log("FUCK YA: ", xMax.value);
+        console.log("FUCK YA: ", xMin.value);
+        console.log("FUCK YA: ", yMax.value);
+        console.log("FUCK YA: ", yMin.value);
+
+        if(props.selectedYAxisRef){
+          console.log("%%%%%%???? ", JSON.parse(JSON.stringify(props.selectedYAxisRef)));
+        }
+       
         const yScale = scaleLinear()
           .domain([min(props.data), max(props.data)]) // input values...
           .range([height, 0]); // ... output values
@@ -307,6 +362,8 @@ export default {
         
         console.log('ugh', JSON.parse(JSON.stringify(props.secondTextRef)));
         if(typeof JSON.parse(JSON.stringify(props.data[0])) === "number"){
+            console.log("WHAT IS PROPS GRAPHSTATE? ", props.graphstate);
+
             if(props.graphstate > 0 ){
               console.log("0", props.color0);
               console.log("1", props.color1);
@@ -314,6 +371,7 @@ export default {
               console.log("X", props.colorX);
               
               console.log("Y", props.colorY);
+              console.log("prob needs fixin: ", JSON.parse(JSON.stringify(props.graphstate)));
               if(props.color0 !== props.color1 && props.color1 === props.color2){
                 console.log("are we creating new line?")
                 createLine([props.data], props.color0,1.5);
@@ -329,11 +387,13 @@ export default {
               if(JSON.parse(JSON.stringify(props.secondTextRef))===true){
                 createNewLine([props.data], 'yellow',1.5);
               } else {
+                console.log("IN SECOND TO BOTTOM OF CREATE LINE CONDITONS -> CREATE LINE");
                 createLine([props.data],props.color0,1.5);
               }
             
             }
         } else {
+            console.log("IN BOTTOM OF CREATE LINE CONDITONS -> CREATE LINE")
             console.warn("we shouldn't be gettting here! / check data")
             createLine([props.data], 'pink',3);
         }
@@ -346,13 +406,21 @@ export default {
             .select(".x-axis")
             .style("transform", `translateY(${height}px)`) // position on the bottom
             .style("color", color)
+            // Add X axis label:
             .call(xAxis);
           
           return svg;
         }
+        if(props.axisColorMatchBool){
+          createYAxis(props.colorY)
+        } else {
+          createYAxis(props.colorX)
+        }
         createXAxis(props.colorX);
 
 
+        
+        
         function createYAxis(color){
 
           const yAxis = axisLeft(yScale);
@@ -362,8 +430,8 @@ export default {
           console.log("*** SVG y axis *** ", svg);
           return svg
         }
-     
-        createYAxis(props.colorY);
+        
+        // createYAxis(props.colorY);
 
         svg.on('mouseover', function(d) {
           let selectedIndexX = Math.floor((d.offsetX/width) * props.data.length);
@@ -377,10 +445,8 @@ export default {
             }
             console.log(d)
             this.selectedIndexX = selectedIndexX;
-            console.log("errr wtf??? ", this.selectedIndexX);
          
             if(selectedIndexX > 0){
-           
               console.log("emitting the selected location ", selectedIndexX)
               emit('selected',selectedIndexX);
             }

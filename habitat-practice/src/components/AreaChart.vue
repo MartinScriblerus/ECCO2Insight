@@ -92,9 +92,6 @@ export default {
       const tooltipInner = ref(null)
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
-        console.log("AHHHH WTF ", props.tooltipmsg)
-        // tooltipMsg = props.tooltipMsg;
-        console.log("???>>> ", tooltipInner.value)
         // tooltipInner.value.innerText = props.tooltipMsg;
         document.getElementById('svgId').childNodes.forEach(c=>{
           console.log("SVG CHILD NODE: ", c);

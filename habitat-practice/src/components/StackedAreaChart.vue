@@ -129,7 +129,6 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .to(newData, 500)
         .onUpdate(function onUpdate() {
-            console.log("WTF IS OLD DATA: ", oldData);
           vm.animatedData = this;
           console.log("anim data: ", this)
           vm.update();

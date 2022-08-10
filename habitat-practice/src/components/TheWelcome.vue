@@ -135,7 +135,7 @@ async function doOpenAwaitScrape(){
   openFull.value = true;
 };
 
-function scrapeAnotherUrl(url){
+function scrapeAnotherUrl(url : String){
   console.log("hit scrape another url...")
   return scrape_text(url);
 }

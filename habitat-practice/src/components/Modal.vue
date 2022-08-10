@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, computed, watchEffect } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { SelfBuildingSquareSpinner  } from 'epic-spinners'
 import StepProgress from 'vue-step-progress';
 import './untitled-font-1.svg'
@@ -29,11 +29,14 @@ const props = defineProps({
 
 const currentTextData = ref([]);
 
+const selectedXAxisRef = ref();
+const selectedYAxisRef = ref();
+
 const secondTextRef = ref();
 secondTextRef.value = false;
 
 const graphstateRef = ref(0);
-const yColorTrack = ref('colorY');
+const axisColorMatchBool = ref(false);
 
 // graphstate.value = "singleText";
 
@@ -235,20 +238,26 @@ socket.onmessage = event => {
 // these are options for the keybuilder dropdown
 // ----------------------------------------------------
 const optionsX = ref([]);
-optionsX.value = ['test1_x', 'test2_x', 'test3_x']
+
 // these are values for axis labels
 const valueX = ref('');
-valueX.value = "count_x";
+// valueX.value = "count_x";
 // these are numbers for axes values
-const numberX = ref(null);
-numberX.value = 0;
+const numberXMax = ref([]);
+const numberXMin = ref([]);
+numberXMax.value.push([]);
+numberXMin.value.push([]);
 // do the same for Y axis
 const optionsY = ref([]);
-optionsY.value = ['test1_y', 'test2_Y', 'test3_Y']
 const valueY = ref('');
-valueY.value = "count_y";
-const numberY = ref(null);
-numberY.value = 0;
+// valueY.value = "count_y";
+const numberYMax = ref([]);
+const numberYMin = ref([]);
+numberYMax.value.push([]);
+numberYMin.value.push([]);
+
+optionsX.value = []
+optionsY.value = []
 
 //Initial colors for lines and axes
 const color0 = ref("");
@@ -319,7 +328,7 @@ additionalTexts.value = [
   },
 ]
 
-watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberX.value, numberY.value,props.selected, currentLinesCount.value, currentTextData.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberXMax.value,numberXMin.value, numberYMax.value,numberYMin.value,props.selected, currentLinesCount.value, currentTextData.value,axisColorMatchBool.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
 
       console.log(
         "Here Watch props.selected function called with args:",
@@ -377,8 +386,13 @@ function closeKeyModal () {
 
 // Reset row count if # of lines changes 
 // ----------------------------------------------------
-function resetRows(){
+async function resetRows(){
   console.log("resetting rows");
+  document.getElementById("newTextPopup").style.display = "none";
+  const open = await openUpdatePopup()
+
+
+  document.getElementById("newTextPopup").style.display = "flex";
 
   if(currentLinesCount.value === 4){
     let row4 = document.getElementById("newRow_3");
@@ -438,7 +452,7 @@ function setLineCount(){
     // document.getElementById("addLineButton").disabled = false;
     let popup = document.getElementById("newTextPopup");
     if(popup){
-      popup.style.top = 20 - ((currentLinesCount.value) * 4) + "%";
+      popup.style.top = 0 - ((currentLinesCount.value) * 4) + "%";
     }
     currentLinesCount.value = currentLinesCount.value + 1;
 
@@ -516,10 +530,7 @@ async function scrape_text(url){
           } else {
             console.log("in else for fullmodal: ", fullModal);
           }
-        // document.getElementById('progressCircles').style.display = "none";
-        // document.getElementById('progressMsg').style.display = "none";
-        // document.getElementById('progressMsgExplanation').style.display = "none";
-        // emit('closedfull')
+
         let graphs = document.getElementById('graphs')
         if(graphs){
           graphs.style.display = "flex";
@@ -547,7 +558,6 @@ async function scrape_text(url){
     setTimeout(()=>{},2000);
     clearTimeout();
     tryGetFullModal();
-    console.log("WTF??? ",this)
     
     //document.getElementById("modal-full").classList.add("awaiting")
     rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
@@ -771,50 +781,71 @@ function colorChanged(){
 }
 console.log("additional texts : ", additionalTexts.value)
 
-
-function trySetDataCountXLength(num){
-
-  numberX.value = num;
-  console.log("NUMBER X VAL IN MODAL: ", numberX.value)
+// THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
+function trySetDataCountXLengthMax(num){
+  numberXMax.value[currentLinesCount.value -1] = JSON.parse(JSON.stringify(num))[1];
+}
+function trySetDataCountXLengthMin(num){
+  console.log("what are CURR LINES???? ", currentLinesCount.value)
+  numberXMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
+}
+function trySetDataCountYLengthMax(num){
+  numberYMax.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
+}
+function trySetDataCountYLengthMin(num){
+  numberYMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
 }
 
 function trySetDataNameX(name){
-  valueX.value = name;
-  console.log("NUMBER X VAL IN MODAL: ", valueX.value)
-}
-
-function trySetDataCountYLength(num){
-  numberY.value = num;
-  console.log("NUMBER Y VAL IN MODAL: ", numberY.value)
+  valueX.value=name;
+  
+  console.log("YVal Y VAL IN MODAL: ", valueX.value)
+  let labels = optionsX.value.map(x=>x.label);
+  if(labels.indexOf(valueX.value) === -1){
+      let tagX = {
+        label: valueX.value,
+        value:  [numberXMin.value, numberXMax.value]
+      }
+      optionsY.value.push(tagX)
+      optionsX.value.push(tagX)
+  }
+  return valueX.value; 
 }
 
 function trySetDataNameY(name){
   valueY.value = name;
-  console.log("NUMBER Y VAL IN MODAL: ", valueY.value)
+  console.log("YVal Y VAL IN MODAL: ", valueY.value)
+  let labels = optionsY.value.map(x=>x.label);
+  if(labels.indexOf(valueY.value) === -1){
+      let tagY = {
+        label: valueY.value,
+        value:  [numberYMin.value, numberYMax.value]
+      }
+      optionsY.value.push(tagY)
+      optionsX.value.push(tagY)
+  }
+
   return valueY.value;
 }
 
 function toggleMonochrome(){
-  console.log("MONOCHROME>? ", yColorTrack.value);
-  if(yColorTrack.value){
-    console.log("MONOCHROME>? ", yColorTrack.value);
-    if(yColorTrack.value === "colorX"){
-      yColorTrack.value = "colorY";
-    } else {
-      yColorTrack.value = "colorX";
-    }
+  // console.log("MONOCHROME>? ", axisColorMatchBool.value);
+  if(axisColorMatchBool.value === true){
+    axisColorMatchBool.value = false;
+  } else {
+    axisColorMatchBool.value = true;
   }
 }
 
 function openUpdatePopup(){
-    let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
-    if(updatePopup){
-      updatePopup.classList.remove("animate-close");
-    }
-    let updateDataBtn = document.getElementById("updatePopupButton");
-    if(updateDataBtn){
-      updateDataBtn.classList.add("animate-close");
-    }
+  let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+  if(updatePopup){
+    updatePopup.classList.remove("animate-close");
+  }
+  let updateDataBtn = document.getElementById("updatePopupButton");
+  if(updateDataBtn){
+    updateDataBtn.classList.add("animate-close");
+  }
 }
 
 function closeUpdatePopup(){
@@ -828,6 +859,16 @@ function closeUpdatePopup(){
     if(updateDataBtn){
       updateDataBtn.classList.remove("animate-close");
     }
+}
+
+function selectXAxis(event){
+  console.log(JSON.parse(JSON.stringify(selectedXAxisRef.value)).label)
+  console.log(JSON.parse(JSON.stringify(selectedXAxisRef.value)).value)
+}
+
+function selectYAxis(event){
+  console.log(JSON.parse(JSON.stringify(selectedYAxisRef.value)).label)
+  console.log(JSON.parse(JSON.stringify(selectedYAxisRef.value)).value)
 }
 
 </script>
@@ -887,19 +928,23 @@ function closeUpdatePopup(){
           <GraphModal 
             :graphstate="graphstateRef" 
             :dataObj="initialHumanReadableTextRef" 
-          
             :color0="color0"
             :color1="color1"
             :color2="color2"
             :color3="color3"
             :colorX="colorX"
-            :colorY="yColorTrack"
+            :colorY="colorY"
             :currentLinesCount="currentLinesCount"
+            :axisColorMatchBool="axisColorMatchBool"
+
+            :selectedXAxisRef="selectedXAxisRef"
+            :selectedYAxisRef="selectedYAxisRef"
             @closeUpdatePopup="closeUpdatePopup"
-         
-            @dataCountX="trySetDataCountXLength"
+            @numberXMin="trySetDataCountXLengthMin"
+            @numberXMax="trySetDataCountXLengthMax"
+            @numberYMin="trySetDataCountYLengthMin"
+            @numberYMax="trySetDataCountYLengthMax"
             @dataname_x="trySetDataNameX"
-            @dataCountY="trySetDataCountYLength"
             @dataname_y="trySetDataNameY"
 
           ></GraphModal>
@@ -910,6 +955,12 @@ function closeUpdatePopup(){
           <div id="newTextPopup" >
             <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
             <!-- v-if="additionalTexts" v-for="item in additionalTexts" :key="item.titleUrl"  -->
+            <td id="keyPopupCols" class="new-text-popup-row">
+              <tr class="new-text-text">1</tr>
+              <tr class="rangeDisplay">2</tr>
+              <tr class="new-text-viz-variable">3</tr>
+              <tr class="color-wrapper">4</tr>
+            </td>
             <td id="newRow_0" class="new-text-popup-row">
               <tr id="newText_0" class="new-text-text">
                 <span id="newAuthor_0" class="new-text-author">
@@ -920,8 +971,19 @@ function closeUpdatePopup(){
                   {{additionalTexts[0].title}}
                 </span>
               </tr>
+              <tr class="rangeDisplay">
+
+                X-Range: {{this.numberXMin[0]}} - {{this.numberXMax[0]}}
+           
+                <br/>
+ 
+                Y-Range: {{this.numberYMin[0]}} - {{this.numberYMax[0]}}
+            
+                <br/>
+              </tr>
               <tr id="newVariable_0" class="new-text-viz-variable">
                 <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
+                <!-- <span>{{JSON.parse(JSON.stringify(axisColorMatchBool)).value}}</span> -->
                 <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span>
               </tr>
               <tr class="color-wrapper">
@@ -939,9 +1001,19 @@ function closeUpdatePopup(){
                   {{additionalTexts[1].title}}
                 </span>
               </tr>
-             <tr id="newVariable_1" class="new-text-viz-variable">
-                  <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
-                  <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span>
+              <tr v-if="this.numberXMin.length > 1" class="rangeDisplay">
+ 
+                X-Range: {{this.numberXMin[1]}} - {{this.numberXMax[1]}}
+          
+                <br/>
+      
+                Y-Range: {{this.numberYMin[1]}} - {{this.numberYMax[1]}}
+            
+                <br/>
+              </tr>
+              <tr id="newVariable_1" class="new-text-viz-variable">
+                <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
+                <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span>
               </tr>
               <tr class="color-wrapper">
                 <color-input id="colorInput_1" class="color-input" v-model="color1" position="left" ref="colorInput_1" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
@@ -952,11 +1024,20 @@ function closeUpdatePopup(){
               <tr id="newText_2" class="new-text-text">
                 <span id="newAuthor_2" class="new-text-author">
                 {{additionalTexts[2].author}}
-              <!-- {{item.author}} -->
                 </span>
                 <span id="newTitle_2" class="new-text-title">
                   {{additionalTexts[2].title}}
                 </span>
+              </tr>
+              <tr v-if="this.numberXMin.length > 2" class="rangeDisplay">
+   
+                X-Range: {{this.numberXMin[2]}} - {{this.numberXMax[2]}}
+           
+                <br/>
+        
+                Y-Range: {{this.numberXMin[2]}} - {{this.numberYMax[2]}}
+            
+                <br/>
               </tr>
               <tr id="newVariable_2" class="new-text-viz-variable">
                   <span id="newVariable_2_xvar">{{additionalTexts[2].variableX}}</span>
@@ -977,6 +1058,16 @@ function closeUpdatePopup(){
                   {{additionalTexts[3].title}}
                 </span>
               </tr>
+              <tr v-if="this.numberXMin.length > 3" class="rangeDisplay">
+  
+                X-Range: {{this.numberXMin[3]}} - {{this.numberXMax[3]}}
+         
+                <br/>
+      
+                Y-Range: {{this.numberXMin[3]}} - {{this.numberYMax[3]}}
+         
+                <br/>
+              </tr>
               <tr id="newVariable_3" class="new-text-viz-variable">
                   <span id="newVariable_3_xvar">{{additionalTexts[3].variableX}}</span>
                   <span id="newVariable_3_yvar">{{additionalTexts[3].variableY}}</span>
@@ -988,16 +1079,22 @@ function closeUpdatePopup(){
               
             <td id="newRow_X" class="new-text-popup-row">
               <tr id="newText_X" class="new-text-text">
-              xVar
+              Create X-Axis
+              </tr>
+              <tr class="rangeDisplay">
+                X-Range: {{this.numberXMin[0]}} - {{this.numberXMax[0]}}
+                <br/>
               </tr>
               <tr id="newVariable_X" class="new-text-viz-variable">
                   <span id="newAxis_X" >
-                  <Multiselect
+                  <Multiselect                    
                     :placeholder="'Select'"
-                    v-model="valueX"
+                    id="xSelectDropdown"
+                    v-model="selectedXAxisRef"
+                    :object="true"
                     :options="optionsX"
+                    @select="selectXAxis(event)"
                     class="multiselect multiselect-tag is-user"
-                    
                   />
                 </span>
               </tr>
@@ -1008,33 +1105,38 @@ function closeUpdatePopup(){
 
             <td id="newRow_Y" class="new-text-popup-row">
               <tr id="newText_Y" class="new-text-text">
-                yVar
+                Create Y Axis
                 <button
                   type="button"
                   id="toggleMonochromeBtn"
                   class="green-btn"
                   @click="toggleMonochrome"
                 >
-                  <span v-if="yColorTrack.value">Unmatch</span>
-                  <span v-else>Match</span>
+                  <span v-if="axisColorMatchBool">Match</span>
+                  <span v-else>Unmatch</span>
                 </button>
               </tr>
-
-
-    
+              <tr class="rangeDisplay">
+              <span>{{this.numberYMax[0]}}</span>
+                Y-Range: {{this.numberYMin[0]}} - {{this.numberYMax[0]}}
+                <br/>
+              </tr>
               <tr id="newVariable_Y" class="new-text-viz-variable">
                   <span id="newAxis_Y" >
-                  <Multiselect
+                  <Multiselect                    
                     :placeholder="'Select'"
-                    v-model="valueY"
+                    id="ySelectDropdown"
+                    v-model="selectedYAxisRef"
+                    :object="true"
                     :options="optionsY"
+                    @select="selectYAxis(event)"
                     class="multiselect multiselect-tag is-user"
-                    
                   />
                 </span>
               </tr>
               <tr class="color-wrapper">
-                <color-input id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+                <color-input v-if="axisColorMatchBool" id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+                <color-input v-else id="colorInput_Y" class="color-input" v-model="colorX" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
               </tr>
             </td> 
             <div id="keyButtonWrapper">
@@ -1526,8 +1628,17 @@ body.modal-open {
 #newTextPopup {
   display:none;
   flex-direction: column;
-  left: 20%;
-  
+  left: 0%;
+  bottom: 0%;
+  top: 0%;
+  padding: 105px;
+  background: rgba(0,0,0,.9);
+}
+.rangeDisplay {
+  width:28%;
+  justify-content: center;
+  flex-direction: column;
+  display: flex;
 }
 .picker-popup {
   background:var(--color-background);
@@ -1577,48 +1688,55 @@ body.modal-open {
   color: #ffffff;
   flex-direction: row;
   display: flex;
-
+  padding-left:8px;
   text-align: left;
   border-top: 1px solid;
 }
 .new-text-text {
   flex-direction: column;
   display: flex;
-  width:50%;
+  width:35%;
   overflow:hidden;
   padding-left: 4px;
+  justify-content:center;
 }
 .new-text-viz-variable {
-  width: 40%;
+  width: 30%;
   text-align: left;
-  overflow:auto;
-  display:flex;
+  overflow: auto;
+  display: flex;
   flex-direction: column;
+  padding-left: 24px;
+  justify-content: center;
 }
 
 .color-input{
-  width: 10%;
+  width: 100%;
   display: flex;
   justify-content: center;
   flex-direction: column;
+  align-items: center;
 }
 
 
 
-.newTextPopupTitle {
-  width: 100%;
-  height: 60px;
+#newTextPopupTitle {
+  width:100%;
+  height:56px;
   color:#ffffff;
-  background:#000000;
-  position:relative;
-  display: flex;
+  font-weight:100;
+  font-size:36px;
+  background:rgba(255,255,255,0.078);
+
 }
 #keySelectorClose {
     float: right;
     padding: 0px;
     cursor: pointer;
     right: 4px;
-    position: relative;
+    position: absolute;
+    font-size: 26px;
+    padding-right: 8px;
 }
 .new-text-author, .new-text-title, .new-text-titleUrl {
     overflow-x: hidden;
@@ -1644,8 +1762,8 @@ body.modal-open {
   .multiselect-tag.is-user {
     padding: 8px 8px;
     border-radius: 22px;
-    background: #35495e;
-    margin: 11px -34px 20px;
+    margin: 10px -12px 20px;
+    max-width: 204px;
   }
 
 .multiselect-dropdown {
@@ -1663,11 +1781,14 @@ body.modal-open {
   display:flex;
   flex-direction:row;
   border-radius:0 0 8px 8px;
+  background: rgba(255,255,255,0.078);
 }
 .key-popup {
   width: 50%;
   background-color: hsla(160, 100%, 37%, 1);
   color: #181818;
+  height: 48px;
+  margin: 16px;
 }
 #newRow_1, #newRow_2, #newRow_3 {
   display:none;
@@ -1681,10 +1802,22 @@ body.modal-open {
 #newAxis_X, #newAxis_Y {
 
 }
+button.green-btn {
+  min-width: 160px;
+  font-size: 14px;
+  font-weight: 100;
+  max-height: 30px;
+}
 .color-wrapper {
-  justify-content:center;
-  flex-direction:column;
-  display:flex;
+    justify-content: center;
+    width: 16%;
+    /* top: 25%; */
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+}
+#keyPopupCols {
+  max-height:20px;
 }
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>
