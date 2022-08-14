@@ -64,7 +64,7 @@ export default {
         this.valueY = "Occurances";
         this.valueX = "Items";
         console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
-        console.log("TEMPDATA LENGTH: ", this.numberXMax[this.props.currentLinesCount]);
+        console.log("TEMPDATA: ", tempData);
         if(tempData.length > this.numberXMax[this.props.currentLinesCount]){
           this.numberXMax[this.props.currentLinesCount] = tempData.length; 
         }
@@ -195,7 +195,8 @@ const props = defineProps({
   },
   selectedYAxisRef:{
     label:String,
-    value:Array
+    value:Array,
+    isIndex:Boolean
   },
   selectedRow: Number
 });
@@ -214,13 +215,33 @@ numberYMax.value = [];
 numberYMin.value = []; 
 const tooltipMsg = ref();
 tooltipMsg.value = ''
+const resetXRef = ref(false);
+const resetYRef = ref(false);
 
-watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef,props.selectedRow], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData,currentSelectedRow], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData,oldSelectedRow]) => {
+watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef,props.selectedRow,resetXRef.value, resetYRef.value], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData,currentSelectedRow,currentResetX,currentResetY], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData,oldSelectedRow,oldResetX,oldResetY]) => {
     console.log("HEYA YMAX: ", Math.max(...JSON.parse(JSON.stringify(numberYMax.value))));
     console.log("HEYA XMAX: ", Math.max(...JSON.parse(JSON.stringify(numberXMax.value))));
     console.log("HEYA YMIN IN GRAPH<MODAL: ", Math.min(JSON.parse(JSON.stringify(numberYMin.value)).filter(a=>typeof a === "number")));
-    console.log("PROPS SELECTED X AXIS REF... ", props.selectedXAxisRef)
-    
+    if(props.selectedXAxisRef){
+      console.log("PROPS SELECTED X AXIS REF... ", JSON.parse(JSON.stringify(props.selectedXAxisRef)))
+    }
+    if(resetXRef.value === true){
+      let index = JSON.parse(JSON.stringify(numberXMax.value)).indexOf(Math.max(...JSON.parse(JSON.stringify(numberXMax.value))));
+      console.log("WHAT IS THE FUCKING X INDEX? ", index);
+      console.log("IS THIS THE ONE??? ", JSON.parse(JSON.stringify(numberXMax.value))[index])
+      JSON.parse(JSON.stringify(numberXMax.value)).slice(index);
+      resetXRef.value = false;
+      console.log("this should work for reset X");
+
+    }
+    if(resetYRef.value === true){
+      let index = JSON.parse(JSON.stringify(numberYMax.value)).indexOf(Math.max(...JSON.parse(JSON.stringify(numberYMax.value))));
+      console.log("WHAT IS THE FUCKING Y INDEX? ", index);
+      console.log("fucking numbermaxY ", JSON.parse(JSON.stringify(numberYMax.value)))
+      JSON.parse(JSON.stringify(numberYMax.value)).slice(index);
+      resetYRef.value = false;
+      console.log("this should work for reset Y");
+    }
     emit('numberXMax', JSON.parse(JSON.stringify(numberXMax.value)).filter(x=>typeof x === "number"));
     emit('numberXMin', JSON.parse(JSON.stringify(numberXMin.value)));
     emit('numberYMax', JSON.parse(JSON.stringify(numberYMax.value)).filter(z=>typeof z === "number"));
@@ -246,11 +267,21 @@ watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,
     emit('dataname_y',valueY.value)
   }
   if(props.selectedXAxisRef){
-    console.log("wtf: ", JSON.parse(JSON.stringify(props.selectedXAxisRef)));
+    console.log("wtf (LABEL): ", JSON.parse(JSON.stringify(props.selectedXAxisRef))['label']);
   }
 
   return;
 });
+
+function resetX(){
+  console.log("ready to reset X in graph file");
+  resetXRef.value = true;
+}
+
+function resetY(){
+  console.log("ready to reset Y in graph file");
+  resetYRef.value = true;
+}
 
 function updateTooltip(selected) {
     let grammarArr = [];
@@ -324,6 +355,8 @@ function emitterClose(command){
         :axisColorMatchBool="axisColorMatchBool"
         :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 
+        @resetX="resetX"
+        @resetY="resetY"
        >
       </TestChart>
 

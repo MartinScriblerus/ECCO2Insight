@@ -34,6 +34,18 @@ export default {
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     }, 
+    resetXNeeded:{
+      handler: function(newVal, oldVal){
+        console.log("RESET NEEDED ", resetXNeeded.value);
+
+      }
+    },
+    resetYNeeded:{
+      handler: function(newVal, oldVal){
+        console.log("RESET NEEDED ", resetYNeeded.value);
+
+      }
+    },
     axisColorMatchBool:{
         deep: true,
         handler: function(newVal, oldVal){
@@ -116,7 +128,7 @@ export default {
     numberXMax: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("new x number", newVal);
+          console.log("new x MAX number", newVal);
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
@@ -130,7 +142,7 @@ export default {
         numberYMax: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("new y number", Math.max(...JSON.parse(JSON.stringify(newVal))));
+          console.log("new y MAX number", Math.max(...JSON.parse(JSON.stringify(newVal))));
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
@@ -229,6 +241,8 @@ export default {
       }
     // create ref to pass to D3 for DOM manipulation
     const svgRef = ref(null);
+    const resetXNeeded = ref(false);
+    const resetYNeeded = ref(false);
 
     //this.data = newData;
     // this creates another ref to observe resizing, 
@@ -258,7 +272,8 @@ export default {
       const dataRef3 = ref();
       const dataRef4 = ref(); 
       const createdLine1 = ref(false);
-
+      const xMaxLabel = ref('');
+      const yMaxLabel = ref('');
       
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
@@ -279,17 +294,42 @@ export default {
 
         if(Math.max(...JSON.parse(JSON.stringify(props.data))) > yMax.value){
           yMax.value = Math.max(...JSON.parse(JSON.stringify(props.data)));
+
+let yMaxRescale = svg
+            .select(".y-axis")
+            .selectAll(`text`)['_groups'][0][svg
+            .select(".y-axis")
+            .selectAll(`text`)['_groups'][0].length -1]
+
+console.log("CHECK RECALE Y ", yMaxRescale);
+if(yMaxRescale.childNodes.length > 0){
+  yMaxLabel.value = yMaxRescale.childNodes[0].data;
+  console.log("recale y val ", yMaxLabel.value);
+}
         }
 
         if((!props.selectedXAxisRef || !props.selectedYAxisRef)){
           console.log("incoming! ", JSON.parse(JSON.stringify(props.data)).length - 1);
           if((JSON.parse(JSON.stringify(props.data)).length - 1) > xMax.value){
+            
             xMax.value = JSON.parse(JSON.stringify(props.data)).length - 1;
+
+let xMaxRescale = svg
+            .select(".x-axis")
+            .selectAll(`text`)['_groups'][0][svg
+            .select(".x-axis")
+            .selectAll(`text`)['_groups'][0].length -1]
+console.log("CHECK RECALE X ", xMaxRescale );
+if(xMaxRescale.childNodes.length > 0){
+  xMaxLabel.value = xMaxRescale.childNodes[0].data;
+  console.log("recale x val ", xMaxLabel.value);
+}
           }
           xMin.value = 0;
           // yMax.value = max(props.data);
 
           if(Math.max(...JSON.parse(JSON.stringify(props.numberYMax))) > yMax.value){
+      
             yMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberYMax)));
           }
           // yMin.value = min(props.data);
@@ -298,11 +338,14 @@ export default {
           console.log("jeepersmin: ", Math.min(...JSON.parse(JSON.stringify(props.numberYMin))));
           
         } else {
+
           if(Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
+     
             xMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
           }
           xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-          if(Math.max(JSON.parse(...JSON.stringify(props.numberYMax))) > yMax.value){
+          if(resetYNeeded.value || Math.max(JSON.parse(...JSON.stringify(props.numberYMax))) > yMax.value){
+          
             yMax.value = Math.max(JSON.parse(...JSON.stringify(props.numberYMax)));
           }
           xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
@@ -326,8 +369,9 @@ export default {
             if(xMin.value > JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0]){
               xMin.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0];
             }
-            if(yMax.value < JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0]){
+            if(resetYNeeded.value === true || yMax.value < JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0]){
               yMax.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0];
+              console.log("HEY NEEW YMMMMAX ", yMax.value);
             }
             if(yMin.value > JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0]){
               yMin.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0];
@@ -555,7 +599,14 @@ export default {
                 .attr("fill", "currentColor")
                 .attr("text-anchor", "end")
                 .text(JSON.parse(JSON.stringify(props.valueX))));
-     
+            // this should be new label!!
+          console.log("NEW LABEL: ", oldXLabel)
+          if(oldXLabel !== xMaxLabel.value && oldXLabel !== xMaxLabel.value){
+            console.log("RESETTING X");
+            xMax.value = JSON.parse(JSON.stringify(props.numberXMax))[1];
+            // emit("resetX")
+            resetXNeeded.value = true;
+          }
           return svg;
         }
         if(props.axisColorMatchBool){
@@ -586,6 +637,18 @@ export default {
                 .attr("text-anchor", "start")
        
                 .text(JSON.parse(JSON.stringify(props.valueY))));
+
+          console.log("NEW LABEL: ", oldYLabel)
+          console.log("Y MAXXXXXXX LLLLLAAAABBBBEEELLLL VALUE: ", yMaxLabel.value);
+          console.log("MAXXXXXXX LLLLLAAAABBBBEEELLLL VALUE: ", xMaxLabel.value);
+          if(oldYLabel !== yMaxLabel.value && oldYLabel !== xMaxLabel.value){
+            console.log("RESETTING Y");
+            console.log("OH YEAH>? ", JSON.parse(JSON.stringify(props.numberYMax))[1]);
+            yMax.value = JSON.parse(JSON.stringify(props.numberYMax))[1];
+            // emit("resetY")
+            console.log("CHECK CURRENT PROPS DATA HERE ", props.data);
+            resetYNeeded.value = true;
+          }
           console.log("*** SVG y axis *** ", svg);
           return svg
         }

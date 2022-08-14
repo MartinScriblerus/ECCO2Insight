@@ -332,6 +332,9 @@ additionalTexts.value = [
 ]
 
 watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberXMax.value,numberXMin.value, numberYMax.value,numberYMin.value,props.selected, currentLinesCount.value, currentTextData.value,axisColorMatchBool.value,selectedXAxisRef.value,selectedYAxisRef.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+    if(selectedXAxisRef.value){
+      console.log("SEL X AXIS REF: ", selectedXAxisRef.value);
+    }
     if(props.selected){
       console.log("Props selected: ", JSON.parse(JSON.stringify(props.selected)))
     }
@@ -855,6 +858,9 @@ function trySetDataCountYLengthMax(num){
 function trySetDataCountYLengthMin(num){
   num = Math.min(...num)
   console.log("WTF ymin??????? ", num);
+  console.log("curr lines count in y min / modal ", currentLinesCount.value - 1);
+  console.log("curr check in y min / modal ", numberYMin.value);
+
   if(numberYMin.value[currentLinesCount.value - 1] && JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1])).length > num){
     numberYMin.value[currentLinesCount.value - 1] = num;
     console.log("@@@ ", numberYMin.value[currentLinesCount.value - 1]);
