@@ -24,13 +24,15 @@ const props = defineProps({
   rawtextdata: String,
   selectedTitle: String,
   selectedAuthor: String,
-  graphstate: String
+  // graphstate: String
 });
 
 const currentTextData = ref([]);
-
+const selectedRow = ref(0);
 const selectedXAxisRef = ref();
 const selectedYAxisRef = ref();
+const xIsIndexAxis = ref(true);
+const yIsIndexAxis = ref(false);
 
 const secondTextRef = ref();
 secondTextRef.value = false;
@@ -215,6 +217,7 @@ socket.onmessage = event => {
         document.getElementById('main').style.display = "none";
         document.getElementById('graphs').style.display = "flex";
         document.getElementById('compareButton').style.visibility = "visible";
+        document.getElementById("buttonsInnerWrapper").style.display = "none"; 
         // document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
         document.getElementById("textRowAuthor").style.display = "none";
         document.getElementById("textRowTitle").style.display = "none";
@@ -328,8 +331,10 @@ additionalTexts.value = [
   },
 ]
 
-watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberXMax.value,numberXMin.value, numberYMax.value,numberYMin.value,props.selected, currentLinesCount.value, currentTextData.value,axisColorMatchBool.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
-
+watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberXMax.value,numberXMin.value, numberYMax.value,numberYMin.value,props.selected, currentLinesCount.value, currentTextData.value,axisColorMatchBool.value,selectedXAxisRef.value,selectedYAxisRef.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+    if(props.selected){
+      console.log("Props selected: ", JSON.parse(JSON.stringify(props.selected)))
+    }
       console.log(
         "Here Watch props.selected function called with args:",
 
@@ -389,7 +394,7 @@ function closeKeyModal () {
 async function resetRows(){
   console.log("resetting rows");
   document.getElementById("newTextPopup").style.display = "none";
-  const open = await openUpdatePopup()
+  // const open = await openUpdatePopup()
 
 
   document.getElementById("newTextPopup").style.display = "flex";
@@ -783,31 +788,101 @@ console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-  numberXMax.value[currentLinesCount.value -1] = JSON.parse(JSON.stringify(num))[1];
+  console.log("WTF xmax???? ", num);
+  num = Math.max(...num);
+  
+
+ if(numberXMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberXMax.value[currentLinesCount.value -1]))){
+    numberXMax.value[currentLinesCount.value - 1] = num;
+    if(numberXMax.value[currentLinesCount.value - 1]){
+      console.log("WTF xmax:=> ", numberXMax.value[currentLinesCount.value - 1]);
+    }
+ } else {
+   numberXMax.value[currentLinesCount.value - 1] = num;
+    if(numberXMax.value[currentLinesCount.value - 1]){
+      console.log("WTF xmax sheesh:=> ", numberXMax.value[currentLinesCount.value - 1]);
+    }
+ }
+
+
+
+
+  // if(num > numberXMax.value[currentLinesCount.value -1]){
+  //   numberXMax.value[currentLinesCount.value -1] = num;
+  // }
 }
 function trySetDataCountXLengthMin(num){
+  
+  console.log("WTF xmin???? ", num.filter(w=>w || w === 0)[0]);
+  console.log("AGGG NUM: ", num);
+  num = num.filter(w=>w || w === 0)[0]
   console.log("what are CURR LINES???? ", currentLinesCount.value)
-  numberXMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
+  // console.log(`what is num ${num} and what is prior xmin: ${JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))}`)
+  if(numberXMin.value[currentLinesCount.value - 1] && num <= JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))){
+    numberXMin.value[currentLinesCount.value - 1] = num;
+  } else if (!numberXMin.value[currentLinesCount.value - 1]){
+    console.log("middle road");
+    numberXMin.value[currentLinesCount.value - 1] = num;
+    console.log("middle road num: ", num)
+  } else {
+    console.log(`YOsdOdfOO ${numberXMin.value[currentLinesCount.value - 1]} is smaller than ${num}`);
+    numberXMin.value[currentLinesCount.value - 1] = numberXMin.value[currentLinesCount.value - 1];  
+  }
+
+  // else {
+  //   numberXMin.value[currentLinesCount.value - 1] = num;
+  // }
 }
 function trySetDataCountYLengthMax(num){
-  numberYMax.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
+//  console.log("WTF ymax???? ", num);
+ if(Math.max(...num) > num){
+  num = Math.max(...num);
+ }
+ console.log("WTF ymax???? ", num);
+ console.log("gadamint ", numberYMax.value[currentLinesCount.value - 1])
+ if(numberYMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberYMax.value[currentLinesCount.value - 1]))){
+    numberYMax.value[currentLinesCount.value - 1] = num;
+    if(numberYMax.value[currentLinesCount.value - 1]){
+      console.log("WTF ymax:=> ", numberYMax.value[currentLinesCount.value - 1]);
+    }
+ } else {
+   numberYMax.value[currentLinesCount.value - 1] = num;
+    if(numberYMax.value[currentLinesCount.value - 1]){
+      console.log("WTF ymax sheesh:=> ", numberYMax.value[currentLinesCount.value - 1]);
+    }
+ }
 }
 function trySetDataCountYLengthMin(num){
-  numberYMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(num))[1];
-}
+  num = Math.min(...num)
+  console.log("WTF ymin??????? ", num);
+  if(numberYMin.value[currentLinesCount.value - 1] && JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1])).length > num){
+    numberYMin.value[currentLinesCount.value - 1] = num;
+    console.log("@@@ ", numberYMin.value[currentLinesCount.value - 1]);
+  } else if(!numberYMin.value[currentLinesCount.value - 1]){
+    numberYMin.value[currentLinesCount.value - 1] = num
+  } else {
+    console.log(`${numberYMin.value[currentLinesCount.value - 1]} is smaller than ${num}`)
+    numberYMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1]));
+  }
+} 
 
 function trySetDataNameX(name){
   valueX.value=name;
-  
-  console.log("YVal Y VAL IN MODAL: ", valueX.value)
+  console.log("YVal X VAL IN MODAL: ", valueX.value);
   let labels = optionsX.value.map(x=>x.label);
+
+
+console.log("sanity check: ", numberXMax.value[currentLinesCount.value -1]);
+  
   if(labels.indexOf(valueX.value) === -1){
       let tagX = {
         label: valueX.value,
-        value:  [numberXMin.value, numberXMax.value]
+        value:  [numberXMin.value, numberXMax.value],
+        isIndex: xIsIndexAxis.value
       }
       optionsY.value.push(tagX)
       optionsX.value.push(tagX)
+      
   }
   return valueX.value; 
 }
@@ -819,7 +894,8 @@ function trySetDataNameY(name){
   if(labels.indexOf(valueY.value) === -1){
       let tagY = {
         label: valueY.value,
-        value:  [numberYMin.value, numberYMax.value]
+        value:  [numberYMin.value, numberYMax.value],
+        isIndex: yIsIndexAxis.value
       }
       optionsY.value.push(tagY)
       optionsX.value.push(tagY)
@@ -861,14 +937,55 @@ function closeUpdatePopup(){
     }
 }
 
-function selectXAxis(event){
-  console.log(JSON.parse(JSON.stringify(selectedXAxisRef.value)).label)
-  console.log(JSON.parse(JSON.stringify(selectedXAxisRef.value)).value)
+function selectXAxis(){
+  let keyPopupDisplay = document.querySelector('#newRow_X > .rangeDisplay');
+  if(keyPopupDisplay){
+    keyPopupDisplay.innerText = JSON.parse(JSON.stringify(selectedXAxisRef.value)).label;
+    xIsIndexAxis.value = JSON.parse(JSON.stringify(selectedXAxisRef.value)).isIndex;
+    if(xIsIndexAxis.value){
+      document.getElementById("xRangeDisplay").classList.add("is-index-axis");
+    } else {
+      document.getElementById("xRangeDisplay").classList.remove("is-index-axis");
+    }
+  }
 }
 
 function selectYAxis(event){
-  console.log(JSON.parse(JSON.stringify(selectedYAxisRef.value)).label)
-  console.log(JSON.parse(JSON.stringify(selectedYAxisRef.value)).value)
+  let keyPopupDisplay = document.querySelector('#newRow_Y > .rangeDisplay');
+  if(keyPopupDisplay){
+    keyPopupDisplay.innerText = JSON.parse(JSON.stringify(selectedYAxisRef.value)).label;
+    yIsIndexAxis.value = JSON.parse(JSON.stringify(selectedYAxisRef.value)).isIndex;
+    console.log("???? ", yIsIndexAxis.value);
+    if(yIsIndexAxis.value){
+      document.getElementById("yRangeDisplay").classList.add("is-index-axis");
+    } else {
+      document.getElementById("yRangeDisplay").classList.remove("is-index-axis");
+    }
+  }
+}
+
+function clickedLineRow(row){
+  // alert('works!')
+  console.log("is this hitting row: ", row);
+  let sel = document.querySelector(`.selectedLine`);
+  console.log("check on sel: ", sel);
+  if(sel){
+    console.log("selected: ", sel);
+    sel.classList.remove("selectedLine");
+  }
+  if(row>0){
+  let newSel = document.getElementById(`newRow_${row}`);
+  console.log("check on newSel: ", newSel);
+  newSel.classList.add('selectedLine');
+  } else {
+      let newSel = document.getElementById(`newRow_${row}`);
+  console.log("check on newSel for zero: ", newSel);
+  newSel.classList.add('selectedLine');
+  }
+  console.log("row: ", row);
+  selectedRow.value = row;
+
+  console.log('check on selected row in modal: ', selectedRow.value)
 }
 
 </script>
@@ -902,7 +1019,7 @@ function selectYAxis(event){
             class="btn-green"
             @click="tryAddNewText"
           >
-            Add
+            Return
           </button>
           <button
             type="button"
@@ -936,7 +1053,7 @@ function selectYAxis(event){
             :colorY="colorY"
             :currentLinesCount="currentLinesCount"
             :axisColorMatchBool="axisColorMatchBool"
-
+            :selectedRow="selectedRow"
             :selectedXAxisRef="selectedXAxisRef"
             :selectedYAxisRef="selectedYAxisRef"
             @closeUpdatePopup="closeUpdatePopup"
@@ -956,12 +1073,12 @@ function selectYAxis(event){
             <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
             <!-- v-if="additionalTexts" v-for="item in additionalTexts" :key="item.titleUrl"  -->
             <td id="keyPopupCols" class="new-text-popup-row">
-              <tr class="new-text-text">1</tr>
-              <tr class="rangeDisplay">2</tr>
-              <tr class="new-text-viz-variable">3</tr>
-              <tr class="color-wrapper">4</tr>
+              <tr class="new-text-text">Text</tr>
+              <tr class="rangeDisplay">Values</tr>
+              <tr class="new-text-viz-variable">Display</tr>
+              <tr class="color-wrapper">Color</tr>
             </td>
-            <td id="newRow_0" class="new-text-popup-row">
+            <td @click="clickedLineRow(0)" id="newRow_0" class="new-text-popup-row selectedLine">
               <tr id="newText_0" class="new-text-text">
                 <span id="newAuthor_0" class="new-text-author">
                 {{additionalTexts[0].author}}
@@ -972,14 +1089,13 @@ function selectYAxis(event){
                 </span>
               </tr>
               <tr class="rangeDisplay">
-
-                X-Range: {{this.numberXMin[0]}} - {{this.numberXMax[0]}}
-           
-                <br/>
- 
-                Y-Range: {{this.numberYMin[0]}} - {{this.numberYMax[0]}}
-            
-                <br/>
+                <span id="xRangeDisplay">
+                X-Range: {{Math.min(...this.numberXMin)}} - {{Math.max(...this.numberXMax)}}
+                </span>
+  
+                <span id="yRangeDisplay">
+                Y-Range: {{Math.min(...this.numberYMin)}} - {{Math.max(...this.numberYMax)}}
+                </span>
               </tr>
               <tr id="newVariable_0" class="new-text-viz-variable">
                 <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
@@ -991,7 +1107,7 @@ function selectYAxis(event){
               </tr>
             </td> 
 
-            <td id="newRow_1" class="new-text-popup-row">
+            <td @click="clickedLineRow(1)" id="newRow_1" class="new-text-popup-row">
               <tr id="newText_1" class="new-text-text">
                 <span id="newAuthor_1" class="new-text-author">
                 {{additionalTexts[1].author}}
@@ -1003,11 +1119,11 @@ function selectYAxis(event){
               </tr>
               <tr v-if="this.numberXMin.length > 1" class="rangeDisplay">
  
-                X-Range: {{this.numberXMin[1]}} - {{this.numberXMax[1]}}
+                X-Range: {{Math.min(...this.numberXMin)}} - {{this.numberXMax[0]}}
           
                 <br/>
       
-                Y-Range: {{this.numberYMin[1]}} - {{this.numberYMax[1]}}
+                Y-Range: {{Math.max(this.numberYMin[1])}} - {{Math.max(...this.numberYMax)}}
             
                 <br/>
               </tr>
@@ -1020,7 +1136,7 @@ function selectYAxis(event){
               </tr>
             </td> 
 
-            <td id="newRow_2" class="new-text-popup-row">
+            <td @click="clickedLineRow(2)" id="newRow_2" class="new-text-popup-row">
               <tr id="newText_2" class="new-text-text">
                 <span id="newAuthor_2" class="new-text-author">
                 {{additionalTexts[2].author}}
@@ -1048,7 +1164,7 @@ function selectYAxis(event){
               </tr>
             </td> 
 
-            <td id="newRow_3" class="new-text-popup-row">
+            <td @click="clickedLineRow(3)" id="newRow_3" class="new-text-popup-row">
               <tr id="newText_3" class="new-text-text">
                 <span id="newAuthor_3" class="new-text-author">
                 {{additionalTexts[3].author}}
@@ -1064,7 +1180,7 @@ function selectYAxis(event){
          
                 <br/>
       
-                Y-Range: {{this.numberXMin[3]}} - {{this.numberYMax[3]}}
+                Y-Range: {{this.numberYMin[3]}} - {{this.numberYMax[3]}}
          
                 <br/>
               </tr>
@@ -1082,7 +1198,8 @@ function selectYAxis(event){
               Create X-Axis
               </tr>
               <tr class="rangeDisplay">
-                X-Range: {{this.numberXMin[0]}} - {{this.numberXMax[0]}}
+                <!-- sanity: {{this.numberXMin.toString()}} -->
+                X-Range: {{Math.min(...this.numberXMin)}} - {{Math.max(...this.numberXMax)}}
                 <br/>
               </tr>
               <tr id="newVariable_X" class="new-text-viz-variable">
@@ -1093,7 +1210,7 @@ function selectYAxis(event){
                     v-model="selectedXAxisRef"
                     :object="true"
                     :options="optionsX"
-                    @select="selectXAxis(event)"
+                    @select="selectXAxis()"
                     class="multiselect multiselect-tag is-user"
                   />
                 </span>
@@ -1117,8 +1234,7 @@ function selectYAxis(event){
                 </button>
               </tr>
               <tr class="rangeDisplay">
-              <span>{{this.numberYMax[0]}}</span>
-                Y-Range: {{this.numberYMin[0]}} - {{this.numberYMax[0]}}
+                Y-Range: {{Math.min(...this.numberYMin)}} - {{Math.max(...this.numberYMax)}}
                 <br/>
               </tr>
               <tr id="newVariable_Y" class="new-text-viz-variable">
@@ -1476,6 +1592,7 @@ body.modal-open {
   }
   .btn-close {
     position: absolute;
+    display:none;
     top: 0;
     right: 0;
     border: none;
@@ -1818,6 +1935,13 @@ button.green-btn {
 }
 #keyPopupCols {
   max-height:20px;
+}
+.is-index-axis {
+
+  background: hsla(160, 100%, 37%, 1);
+}
+.selectedLine {
+  border: solid 2px hsla(160, 100%, 37%, 1);
 }
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>

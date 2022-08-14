@@ -86,16 +86,15 @@ export default {
     const { resizeRef, resizeState } = useResizeObserver();
 
     onMounted((event) => {
-      console.log("fucking hell ", event)
       // pass ref with DOM element to D3, when mounted (DOM available)
       const svg = select(svgRef.value);
       const tooltipInner = ref(null)
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
         // tooltipInner.value.innerText = props.tooltipMsg;
-        document.getElementById('svgId').childNodes.forEach(c=>{
-          console.log("SVG CHILD NODE: ", c);
-        })
+        // document.getElementById('svgId').childNodes.forEach(c=>{
+        //   console.log("SVG CHILD NODE: ", c);
+        // })
         console.log("RESIZEE STATE: ", resizeState);
         const { width, height } = resizeState.dimensions;
             console.log("WIDTH: ", width);

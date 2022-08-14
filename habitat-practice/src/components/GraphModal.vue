@@ -11,7 +11,7 @@ export default {
   emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup','numberXMax','numberXMin','numberYMax','numberYMin'],
   data() {
     return {
-      data:[7,1,1,7],
+      data:[],
       currentXName: "X_",
       currentYName: "Y_",
       mode:[1],
@@ -63,22 +63,47 @@ export default {
         let tempData = this.data.map(i=>i)
         this.valueY = "Occurances";
         this.valueX = "Items";
-        this.numberXMax[this.props.currentLinesCount - 1] = tempData.length; 
-        this.numberXMin[this.props.currentLinesCount - 1] = 0;
-        this.numberYMax[this.props.currentLineCount - 1] = Math.max(...tempData)
-        this.numberYMin[this.props.currentLineCount - 1] = Math.min(...tempData);
+        console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
+        console.log("TEMPDATA LENGTH: ", this.numberXMax[this.props.currentLinesCount]);
+        if(tempData.length > this.numberXMax[this.props.currentLinesCount]){
+          this.numberXMax[this.props.currentLinesCount] = tempData.length; 
+        }
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        if(Math.max(...tempData) > this.numberYMax[this.props.currentLinesCount]){
+          this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+        }
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
+
+        console.log("common words in GM: ", this.numberXMax[this.props.currentLinesCount - 1]);
     },
     updateVizDataLineObj(){
+      this.data = Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['lineObj']).map(i=>i['syllablesInLine']);
+        let tempData = this.data.map(i=>i)
+        console.log("TEMP DATA IN SYLLABLEs ", tempData);
+        this.valueY = "Syllable Count";
+        this.valueX = "Sentence Count";
+        console.log("TEMP DDATA LENGTH IN SYLLABLES: ", tempData.length);
+        console.log("NUMBER XMAX IN SYLLABLES: ", this.numberXMax[this.props.currentLinesCount]);
+        if(tempData.length > this.numberXMax[this.props.currentLinesCount]){
+          this.numberXMax[this.props.currentLinesCount] = tempData.length; 
+        }
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        console.log("uuum,mmm ",tempData);
+        console.log("WTF IS YMAX>? ", Math.max(...tempData));
+        console.log("WTF IS CURRENT LINE COUNT? ", this.numberYMax[this.props.currentLinesCount]);
+        if(Math.max(...tempData) > this.numberYMax[this.props.currentLinesCount]){
+          this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+        }
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
       let lineObjVizPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['lineObj']).map(i=>lineObjVizPlaceholder1.push(i));
       console.log("LINE OBJECT !! ", lineObjVizPlaceholder1);
       let syllablesPerLinePlaceholder = [];
-      Object.values(lineObjVizPlaceholder1).map(j=>syllablesPerLinePlaceholder.push(j['syllablesInLine']));
+      Object.values(lineObjVizPlaceholder1).map(j=>{if(j['syllablesInLine']){syllablesPerLinePlaceholder.push(j['syllablesInLine'])}});
       this.data = syllablesPerLinePlaceholder;
     },
 
     updateVizDataSentiment(compound,negative,neutral,positive){
-      
       let sentenceVizSentimentPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['sentenceObj']).map(i=>sentenceVizSentimentPlaceholder1.push(Object.values(i)));
       sentenceVizSentimentPlaceholder1.pop()
@@ -117,8 +142,9 @@ export default {
       }
       if(positive){
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
-        this.valueY = "Sentiment (Positiive)";
+        this.valueY = "Sentiment (Positive)";
         this.valueX = "Sentence Count";
+        console.log("WHAT IS THIS & WHY CAUSING ISSUE? ", this.numberXMax);
         this.numberXMax[this.props.currentLinesCount] = tempData.length;
         this.numberXMin[this.props.currentLinesCount] = 0;
         this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
@@ -148,7 +174,7 @@ import StackedAreaChart from './StackedAreaChart.vue';
 const props = defineProps({
   open: Boolean,
   dataObj: Object,
-  graphstate: String,
+  graphstate: Number,
   color0: String,
   color1: String,
   color2: String,
@@ -157,17 +183,21 @@ const props = defineProps({
   colorY: String,
   secondTextRef: Boolean,
   currentLinesCount: Number,
+
+
   // numberX: Number,
   // numberY: Number,
   axisColorMatchBool: Boolean,
   selectedXAxisRef:{
     label:String,
-    value:Array
+    value:Array,
+    isIndex:Boolean
   },
   selectedYAxisRef:{
     label:String,
     value:Array
-  }
+  },
+  selectedRow: Number
 });
 
 const emit = defineEmits(['numberXMin','numberXMax','numberYMin','numberYMax','dataname_y', 'dataname_x','closeUpdatePopup']); 
@@ -185,12 +215,17 @@ numberYMin.value = [];
 const tooltipMsg = ref();
 tooltipMsg.value = ''
 
-watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData]) => {
+watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef,props.selectedRow], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData,currentSelectedRow], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData,oldSelectedRow]) => {
+    console.log("HEYA YMAX: ", Math.max(...JSON.parse(JSON.stringify(numberYMax.value))));
+    console.log("HEYA XMAX: ", Math.max(...JSON.parse(JSON.stringify(numberXMax.value))));
+    console.log("HEYA YMIN IN GRAPH<MODAL: ", Math.min(JSON.parse(JSON.stringify(numberYMin.value)).filter(a=>typeof a === "number")));
+    console.log("PROPS SELECTED X AXIS REF... ", props.selectedXAxisRef)
+    
+    emit('numberXMax', JSON.parse(JSON.stringify(numberXMax.value)).filter(x=>typeof x === "number"));
+    emit('numberXMin', JSON.parse(JSON.stringify(numberXMin.value)));
+    emit('numberYMax', JSON.parse(JSON.stringify(numberYMax.value)).filter(z=>typeof z === "number"));
+    emit('numberYMin', JSON.parse(JSON.stringify(numberYMin.value)).filter(a=>typeof a === "number"));
 
-    emit('numberXMax', JSON.parse(JSON.stringify(numberXMax.value)))
-    emit('numberXMin', JSON.parse(JSON.stringify(numberXMin.value)))
-    emit('numberYMax', JSON.parse(JSON.stringify(numberYMax.value)))
-    emit('numberYMin', JSON.parse(JSON.stringify(numberYMin.value)))
   if(currentXLabel !== oldXLabel){
     emit('dataname_x', this.valueX);
   }
@@ -210,7 +245,10 @@ watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,
   if(valueY.value){
     emit('dataname_y',valueY.value)
   }
-  
+  if(props.selectedXAxisRef){
+    console.log("wtf: ", JSON.parse(JSON.stringify(props.selectedXAxisRef)));
+  }
+
   return;
 });
 
@@ -267,6 +305,7 @@ function emitterClose(command){
         :selectedYAxisRef="props.selectedYAxisRef"
         :secondTextRef="props.secondTextRef" 
         :tooltipmsg="tooltipMsg" 
+        :selectedRow="props.selectedRow"
         :mode="mode"
         @selected="updateTooltip"
         :currentLinesCount="props.currentLinesCount"
@@ -290,8 +329,9 @@ function emitterClose(command){
 
     
       <div class="buttons" >
-        <button class="green-btn bottom-btn" @click="addData">Add data</button>
-        <button class="green-btn bottom-btn" @click="filterData">Filter data</button>
+      <!-- BRING BACK SOON! -->
+        <!-- <button class="green-btn bottom-btn" @click="addData">Add data</button>
+        <button class="green-btn bottom-btn" @click="filterData">Filter data</button> -->
         <div id="d3UpdateButtonsWrapper">
           <h1 id="buttonsWrapperTitle">Let's Begin...</h1>
           <h3 id="buttonsWrapperSubtitle">
