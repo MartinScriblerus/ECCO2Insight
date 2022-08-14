@@ -390,35 +390,26 @@ export default {
           if(props.graphstate === 0){
             dataRef1.value = props.data; 
             createLine([dataRef1.value],props.color0,1.5,"line_0");
-   
-            
           }
-          console.log("CHECK! ", props.graphstate);
+
           if(props.graphstate === 1){
             // This will be line #2
-            console.log("WTF AYEAYEAYE: ", Math.max(JSON.parse(JSON.stringify(props.data))))
-            
             dataRef2.value = JSON.parse(JSON.stringify(props.data)); 
             let toDel = svg.selectAll(`.line#line_1`);
-            console.log("to DEL outer ", toDel);
             if(toDel.length > 0){
-              console.log("to DEL ", toDel);
               for(let i = 0;i<toDel.length - 1;i++){
                 console.log(toDel[i]);
                 toDel[i].remove();
               }
             }
             if(dataRef2.value.length > 0){
-              console.log("DATA 2 ref: ", Math.max(...JSON.parse(JSON.stringify(dataRef2.value))));
-              console.log("what is ymaxc val? ", yMax.value);
               if(Math.max(JSON.parse(JSON.stringify(dataRef2.value)))> yMax.value){
                 yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef2.value)))
               }
-              console.log("what is ymaxc val? ", yMax.value);
-              
               createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.5,"line_1");
             }
           }
+
           if(props.graphstate === 2){
             // this will be for line #3
             dataRef3.value = props.data; 
@@ -441,8 +432,6 @@ export default {
             createNewLine3([dataRef4.value],props.color3,1.5,"line_3");
           }
           
-          console.log("@@@@ current lines count: ", JSON.parse(JSON.stringify(props.currentLinesCount))-1);
-          
           let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_xvar`);
         
           if(textDivX){
@@ -460,23 +449,21 @@ export default {
       
         // function to render path element with D3's General Update Pattern
         function createLine(dataIn,strokeColor,strokeWidth,chosenClassName){ 
-         
-          console.log("creating line ", strokeColor);
-
-            svg
-                .selectAll(".line") // get all "existing" lines in svg
-                .data(dataIn) // sync them with our data
-                .join("path") // create a new "path" for new pieces of data (if needed)
-                // everything after .join() is applied to every "new" and "existing" element
-                .attr("id", `line_0`)
-                .attr("class", "line") // attach class (important for updating)
-                .attr("stroke", strokeColor)
-                .attr("stroke-width", strokeWidth)
-                .attr("d", lineGen); // shape and form of our line!
-            return svg; 
+          svg
+            .selectAll(".line") // get all "existing" lines in svg
+            .data(dataIn) // sync them with our data
+            .join("path") // create a new "path" for new pieces of data (if needed)
+            // everything after .join() is applied to every "new" and "existing" element
+            .attr("id", `line_0`)
+            .attr("class", "line") // attach class (important for updating)
+            .attr("stroke", strokeColor)
+            .attr("stroke-width", strokeWidth)
+            .attr("d", lineGen); // shape and form of our line!
+          return svg; 
         }
 
         // function to render new path element with D3's General Update Pattern
+        // --------------------------------------------------------------------
         function createNewLine1(dataIn,strokeColor,strokeWidth,chosenClassName){ 
           JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
             if(typeof t === "undefined" || typeof t === "null"){
@@ -484,37 +471,19 @@ export default {
               dataIn=dataIn.slice(ind)
             }
           })
-            if(svg.selectAll(`line_1`).length > 2){
-              console.log("SVG IN NEWLINE_1: ", svg.selectAll(`#line_1`))
-            }
-          console.log("creating NEW line ", strokeColor);
+          //recreate original line
           svg.selectAll(`#line_0`).remove();
-            createLine([dataRef1.value],props.color0,1.5,"line_0");
-            svg
-                .selectAll(`#line_1`)
-                .data(dataIn) // sync them with our data
-                .join(`path`) // create a new "path" for new pieces of data (if needed)
-                .attr("stroke", strokeColor)
-                // .attr("class, line")
-                .attr("id", "line_1")
-                .attr("stroke-width", strokeWidth)
-                .attr("d", lineGen2); // shape and form of our line!          
-
-
+          createLine([dataRef1.value],props.color0,1.5,"line_0");
+          svg
+              .selectAll(`#line_1`)
+              .data(dataIn) // sync them with our data
+              .join(`path`) // create a new "path" for new pieces of data (if needed)
+              .attr("stroke", strokeColor)
+              .attr("id", "line_1")
+              .attr("stroke-width", strokeWidth)
+              .attr("d", lineGen); // shape and form of our line!          
           const xAxis = axisBottom(xScale);
-            
-          //   svg
-          //     .select(".x-axis")
-          //     // Add X axis label:
-          //     .call(xAxis);
-
-          //   const yAxis = axisLeft(yScale);
-          
-          //   svg
-          //     .select(".y-axis")
-          //     // Add X axis label:
-          //     .call(xAxis);
-      
+                  
           return svg; 
         }
 
@@ -543,10 +512,7 @@ export default {
                 // function to render new path element with D3's General Update Pattern
         function createNewLine3(dataIn,strokeColor,strokeWidth,chosenClassName){ 
             console.log("creating NEW line ", strokeColor);
-            // svg
-            //     .selectAll(`.line`) // get all "existing" lines in svg
-            //       .clone()
-            //       .attr("class",chosenClassName)
+
             svg
                 .selectAll(`.line`)
                 .data(dataIn) // sync them with our data
@@ -558,19 +524,38 @@ export default {
         }
         
         
+
+        // create axes
+        // -----------------------------------------------------------------------
         function createXAxis(color){
          
           // render axes with help of scales
           // (we let Vue render our axis-containers and let D3 populate the elements inside it)
           const xAxis = axisBottom(xScale);
-          
+     
+          let oldXLabel = svg
+            .select(".x-axis")
+            .selectAll(`text`)['_groups'][0][svg
+            .select(".x-axis")
+            .selectAll(`text`)['_groups'][0].length -1]
+          if(oldXLabel){
+            oldXLabel.remove();
+          }
+
           svg
             .select(".x-axis")
+           
             .style("transform", `translateY(${height}px)`) // position on the bottom
             .style("color", color)
             // Add X axis label:
-            .call(xAxis);
-          
+            .call(xAxis)
+                .call(g => g.append("text")
+                .attr("x", resizeState.dimensions.width)
+                .attr("y", 30)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "end")
+                .text(JSON.parse(JSON.stringify(props.valueX))));
+     
           return svg;
         }
         if(props.axisColorMatchBool){
@@ -580,21 +565,31 @@ export default {
         }
           createXAxis(props.colorX);
 
-
-
-        
-        
         function createYAxis(color){
-          
           const yAxis = axisLeft(yScale);
-          svg.select(".y-axis")
-              .style("color", color)
-              .call(yAxis);
+          let oldYLabel = svg
+            .select(".y-axis")
+            .selectAll(`text`)['_groups'][0][svg
+            .select(".y-axis")
+            .selectAll(`text`)['_groups'][0].length -1]
+          if(oldYLabel){
+            oldYLabel.remove();
+          }
+            svg.select(".y-axis")
+                .style("color", color)
+                .call(yAxis)
+                // add y axis label
+                .call(g => g.append("text")
+                .attr("y", -12)
+                .attr("x", -40)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "start")
+       
+                .text(JSON.parse(JSON.stringify(props.valueY))));
           console.log("*** SVG y axis *** ", svg);
           return svg
         }
-        
-        // createYAxis(props.colorY);
+
 
         svg.on('mouseover', function(d) {
           let selectedIndexX = Math.floor((d.offsetX/width) * props.data.length);
@@ -602,15 +597,14 @@ export default {
           if(!selectedIndexX ){
             return;
           } else {
-             console.log("HOW LONG IS PROPS DATA? ", selectedIndexX);
             if(!selectedIndexX){
               return;
             }
-            console.log(d)
+            console.log("what is D? ", d);
             this.selectedIndexX = selectedIndexX;
          
             if(selectedIndexX > 0){
-              console.log("emitting the selected location ", selectedIndexX)
+              console.log("emitting the selected x index ", selectedIndexX)
               emit('selected',selectedIndexX);
             }
           }
@@ -623,7 +617,7 @@ export default {
             max: height
           })
         }
-            console.log("!!##POINTS: ", points.value);
+        console.log("!!##POINTS: ", points.value);
       });
     });
     console.log("RESIZEREF ", resizeRef);
@@ -632,20 +626,19 @@ export default {
   },
   methods: {
     tryAppendTopics(newVal){
-           let topicListWrapper = document.getElementById("topicListWrapper");
-            if(topicListWrapper && tooltipInner.value){
-              JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach((entArr)=>{
-                try{
-                  if(entityArr.indexOf(entArr[0]) === -1){
-                    entityArr.push(entArr[0]);
-        
-                  }
-                } catch {
-                  console.log("ERROR!!!! ------------ ",entArr)
-                }
-                console.log("ENTITY ARR: ", entityArr);
-              })
-           }
+      let topicListWrapper = document.getElementById("topicListWrapper");
+      if(topicListWrapper && tooltipInner.value){
+        JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach((entArr)=>{
+          try{
+            if(entityArr.indexOf(entArr[0]) === -1){
+              entityArr.push(entArr[0]);
+            }
+          } catch {
+            console.log("ERROR!!!! ------------ ",entArr)
+          }
+          console.log("ENTITY ARR: ", entityArr);
+        })
+      }
     },
 
     mouseMove(event) {
@@ -660,22 +653,17 @@ export default {
 
 <template>
   <div id="barChartWrapper" ref="resizeRef">
-  <!-- $emit('mouseover') -->
-  <!-- :style="{ top: `${clientY}px`, left: `${clientX}px` }" -->
+    <!-- :style="{ top: `${clientY}px`, left: `${clientX}px` }" -->
     <div
         id="tooltip"
-     
           :style="{ top: `${0}px`, left: `${0}px`, width: `${60}vw`,position:`absolute` }"
-        v-if="this.show"
-        @mouseout="this.show = false"
+          v-if="this.show"
+          @mouseout="this.show = false"
       >
-    
         <div id="tooltipInner" ref="tooltipInner">
-        
         </div>
-
     </div>
-    <span v-if="this.xAxisLabel" id="yAxisLabel">{{this.xAxisLabel}}</span>
+    <!-- <span v-if="this.xAxisLabel" id="yAxisLabel">{{this.xAxisLabel}}</span> -->
     <svg @mouseover="mouseMove" id="svgId" ref="svgRef">
       <g class="x-axis" />
       <g class="y-axis" />
@@ -729,12 +717,5 @@ export default {
 #topicListWrapper {
   text-align:left;
 }
-#yAxisLabel {
-    transform: rotate(270DEG);
-    Z-INDEX: 9999;
-    POSITION: FIXED;
-    COLOR: WHITE;
-    TOP: 44%;
-    left: -32px;
-}
+
 </style>
