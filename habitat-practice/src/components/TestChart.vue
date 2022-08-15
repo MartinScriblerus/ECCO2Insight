@@ -403,7 +403,6 @@ export default {
            
             let vals = Object.values(JSON.parse(JSON.stringify(dataRef1.value)))
             for(let v = 0;v<vals.length-1;v++){
-              console.log("hell ", Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v])
               if(typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v] === "number"){
 
               } else {
