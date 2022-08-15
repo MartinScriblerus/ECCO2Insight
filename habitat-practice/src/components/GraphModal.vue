@@ -61,10 +61,15 @@ export default {
     updateVizDataCommonWords(){
       this.data = JSON.parse(JSON.stringify(this.props.dataObj))['textObj']['mostCommonWords'].map(i=>i['occurances']);
         let tempData = this.data.map(i=>i)
+
         this.valueY = "Occurances";
         this.valueX = "Items";
-        console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
-        console.log("TEMPDATA: ", tempData);
+
+        this.numberXMax[this.props.currentLinesCount] = tempData.length; 
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData)
+
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
         if(tempData.length > this.numberXMax[this.props.currentLinesCount]){
           this.numberXMax[this.props.currentLinesCount] = tempData.length; 
         }
@@ -72,27 +77,34 @@ export default {
         if(Math.max(...tempData) > this.numberYMax[this.props.currentLinesCount]){
           this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
         }
+
+        this.numberXMax[this.props.currentLinesCount] = tempData.length - 1; 
         this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
 
         console.log("common words in GM: ", this.numberXMax[this.props.currentLinesCount - 1]);
     },
     updateVizDataLineObj(){
+      Object.keys(JSON.parse(JSON.stringify(this.props.dataObj))['lineObj']).slice(-1)
       this.data = Object.values(JSON.parse(JSON.stringify(this.props.dataObj))['lineObj']).map(i=>i['syllablesInLine']);
+        // this is only necessary if it is stopping point errors
         let tempData = this.data.map(i=>i)
-        console.log("TEMP DATA IN SYLLABLEs ", tempData);
+
         this.valueY = "Syllable Count";
         this.valueX = "Sentence Count";
-        console.log("TEMP DDATA LENGTH IN SYLLABLES: ", tempData.length);
-        console.log("NUMBER XMAX IN SYLLABLES: ", this.numberXMax[this.props.currentLinesCount]);
+        console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
+        console.log("TEMPDATA: ", tempData);
+        this.numberXMax[this.props.currentLinesCount] = tempData.length; 
+        this.numberXMin[this.props.currentLinesCount] = 0;
+        this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData)
+        this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
         if(tempData.length > this.numberXMax[this.props.currentLinesCount]){
           this.numberXMax[this.props.currentLinesCount] = tempData.length; 
         }
+        
         this.numberXMin[this.props.currentLinesCount] = 0;
-        console.log("uuum,mmm ",tempData);
-        console.log("WTF IS YMAX>? ", Math.max(...tempData));
-        console.log("WTF IS CURRENT LINE COUNT? ", this.numberYMax[this.props.currentLinesCount]);
+
         if(Math.max(...tempData) > this.numberYMax[this.props.currentLinesCount]){
-          this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
+          this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData) - 1;
         }
         this.numberYMin[this.props.currentLinesCount] = Math.min(...tempData);
       let lineObjVizPlaceholder1 = [];
@@ -144,7 +156,7 @@ export default {
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
         this.valueY = "Sentiment (Positive)";
         this.valueX = "Sentence Count";
-        console.log("WHAT IS THIS & WHY CAUSING ISSUE? ", this.numberXMax);
+
         this.numberXMax[this.props.currentLinesCount] = tempData.length;
         this.numberXMin[this.props.currentLinesCount] = 0;
         this.numberYMax[this.props.currentLinesCount] = Math.max(...tempData);
@@ -153,8 +165,6 @@ export default {
         this.mode[0] = 1;
         this.mode = [4];
       }
-
-//  emit('dataCountXLength', tempData.length)
       this.data = tempData;
     },
   },
@@ -219,25 +229,15 @@ const resetXRef = ref(false);
 const resetYRef = ref(false);
 
 watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,valueY.value,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax.value,numberXMin.value,numberYMax.value,numberYMin.value,props.selectedXAxisRef,props.selectedYAxisRef,props.selectedRow,resetXRef.value, resetYRef.value], ([currentValueA,currentData,currentTooltip,currentXLabel,currentYLabel,currentLineCount,currentColorX,currentMatchBool,currentXMax,currentXMin,currentYMax,currentYMin,currentXAxisData,currentYAxisData,currentSelectedRow,currentResetX,currentResetY], [oldValueA,oldData,oldTooltip,oldXLabel,oldYLabel,oldLineCount,oldColorX,oldMatchBool,oldXMax,oldXMin,oldYMax,oldYMin,oldXAxisData,oldYAxisData,oldSelectedRow,oldResetX,oldResetY]) => {
-    console.log("HEYA YMAX: ", Math.max(...JSON.parse(JSON.stringify(numberYMax.value))));
-    console.log("HEYA XMAX: ", Math.max(...JSON.parse(JSON.stringify(numberXMax.value))));
-    console.log("HEYA YMIN IN GRAPH<MODAL: ", Math.min(JSON.parse(JSON.stringify(numberYMin.value)).filter(a=>typeof a === "number")));
-    if(props.selectedXAxisRef){
-      console.log("PROPS SELECTED X AXIS REF... ", JSON.parse(JSON.stringify(props.selectedXAxisRef)))
-    }
+
     if(resetXRef.value === true){
       let index = JSON.parse(JSON.stringify(numberXMax.value)).indexOf(Math.max(...JSON.parse(JSON.stringify(numberXMax.value))));
-      console.log("WHAT IS THE FUCKING X INDEX? ", index);
-      console.log("IS THIS THE ONE??? ", JSON.parse(JSON.stringify(numberXMax.value))[index])
       JSON.parse(JSON.stringify(numberXMax.value)).slice(index);
       resetXRef.value = false;
       console.log("this should work for reset X");
-
     }
     if(resetYRef.value === true){
       let index = JSON.parse(JSON.stringify(numberYMax.value)).indexOf(Math.max(...JSON.parse(JSON.stringify(numberYMax.value))));
-      console.log("WHAT IS THE FUCKING Y INDEX? ", index);
-      console.log("fucking numbermaxY ", JSON.parse(JSON.stringify(numberYMax.value)))
       JSON.parse(JSON.stringify(numberYMax.value)).slice(index);
       resetYRef.value = false;
       console.log("this should work for reset Y");
@@ -266,20 +266,15 @@ watch([props,props.dataObj, tooltipMsg, props.secondTextRef.value, valueX.value,
   if(valueY.value){
     emit('dataname_y',valueY.value)
   }
-  if(props.selectedXAxisRef){
-    console.log("wtf (LABEL): ", JSON.parse(JSON.stringify(props.selectedXAxisRef))['label']);
-  }
 
   return;
 });
 
 function resetX(){
-  console.log("ready to reset X in graph file");
   resetXRef.value = true;
 }
 
 function resetY(){
-  console.log("ready to reset Y in graph file");
   resetYRef.value = true;
 }
 
@@ -311,7 +306,6 @@ function updateTooltip(selected) {
     }
 
   console.log("SOME READING MATERIAL: ", JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected])
-
 
 }
 function tryToggleComparative(){
@@ -400,6 +394,7 @@ function emitterClose(command){
   position:relative;
   text-align:center;
   color:white;
+  visibility:hidden;
 }
 .picker-popup > .slider:before {
   height:0px !important;
@@ -456,7 +451,7 @@ svg {
 
 .color-input .picker-popup {
   background-color:var(--color-background) !important;
-  color:pink;
+  color:#ffffff;
   background:var(--color-background) !important;
 }
 
@@ -465,7 +460,7 @@ svg {
 } 
 
 .text-format-arrows {
-  --arrow-color: pink;
+  --arrow-color: #000000;
 }
 
 #newTextPopup {

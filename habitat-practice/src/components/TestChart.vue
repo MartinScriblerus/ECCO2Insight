@@ -244,6 +244,8 @@ export default {
     const resetXNeeded = ref(false);
     const resetYNeeded = ref(false);
 
+    const lineLabelsArr = ref([]);
+
     //this.data = newData;
     // this creates another ref to observe resizing, 
     // which we will attach to a DIV,
@@ -254,8 +256,6 @@ export default {
       // pass ref with DOM element to D3, when mounted (DOM available)
       const svg = select(svgRef.value);
 
-      console.log("WTF IS SVGREF VAL ", svgRef.value);
-      console.log("WTF IS SVG: ", svg)
       let tempSVGs=[]
 
       const created_svgs = ref([]);
@@ -277,11 +277,8 @@ export default {
       
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
-
-        if(props.selectedRow){
-          console.log("ARE EWE SELECTING AN SVG HERE????? : ", props.selectedRow)
-        } else {
-           console.log("ARE WE GETTING THJAT LINE??? ", svg.selectAll(`.line`));
+        if(JSON.parse(JSON.stringify(props.data)).length < 1){
+          return;
         }
 
         // console.log("RESIZEE STATE: ", resizeState);
@@ -290,22 +287,24 @@ export default {
             console.log("HEIGHT: ", height);
             console.log("D3=> ", d3);
               
-        console.log("What is props data in test chart?: ", Math.max(...JSON.parse(JSON.stringify(props.data))));
+        console.log("What is props data in test chart?: ", JSON.parse(JSON.stringify(props.data)));
 
         if(Math.max(...JSON.parse(JSON.stringify(props.data))) > yMax.value){
           yMax.value = Math.max(...JSON.parse(JSON.stringify(props.data)));
-
-let yMaxRescale = svg
+        if(Object.keys(svg).length < 1){
+          return;
+        } else {
+          console.log("SVG IS: ", Object.keys(svg));
+        }
+          let yMaxRescale = svg
             .select(".y-axis")
             .selectAll(`text`)['_groups'][0][svg
             .select(".y-axis")
             .selectAll(`text`)['_groups'][0].length -1]
 
-console.log("CHECK RECALE Y ", yMaxRescale);
-if(yMaxRescale.childNodes.length > 0){
-  yMaxLabel.value = yMaxRescale.childNodes[0].data;
-  console.log("recale y val ", yMaxLabel.value);
-}
+          if(yMaxRescale && yMaxRescale.childNodes.length > 0){
+            yMaxLabel.value = yMaxRescale.childNodes[0].data;
+          }
         }
 
         if((!props.selectedXAxisRef || !props.selectedYAxisRef)){
@@ -314,16 +313,15 @@ if(yMaxRescale.childNodes.length > 0){
             
             xMax.value = JSON.parse(JSON.stringify(props.data)).length - 1;
 
-let xMaxRescale = svg
-            .select(".x-axis")
-            .selectAll(`text`)['_groups'][0][svg
-            .select(".x-axis")
-            .selectAll(`text`)['_groups'][0].length -1]
-console.log("CHECK RECALE X ", xMaxRescale );
-if(xMaxRescale.childNodes.length > 0){
-  xMaxLabel.value = xMaxRescale.childNodes[0].data;
-  console.log("recale x val ", xMaxLabel.value);
-}
+            let xMaxRescale = svg
+              .select(".x-axis")
+              .selectAll(`text`)['_groups'][0][svg
+              .select(".x-axis")
+              .selectAll(`text`)['_groups'][0].length -1]
+
+            if(xMaxRescale && xMaxRescale.childNodes.length > 0){
+              xMaxLabel.value = xMaxRescale.childNodes[0].data;
+            }
           }
           xMin.value = 0;
           // yMax.value = max(props.data);
@@ -334,35 +332,24 @@ if(xMaxRescale.childNodes.length > 0){
           }
           // yMin.value = min(props.data);
           yMin.value = Math.min(...JSON.parse(JSON.stringify(props.numberYMin)));
-          console.log("jeepers: ", Math.max(...JSON.parse(JSON.stringify(props.numberYMax))));
-          console.log("jeepersmin: ", Math.min(...JSON.parse(JSON.stringify(props.numberYMin))));
-          
+
         } else {
 
-          if(Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
-     
+          if(resetXNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
+            resetXNeeded.value = false;
             xMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
           }
           xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-          if(resetYNeeded.value || Math.max(JSON.parse(...JSON.stringify(props.numberYMax))) > yMax.value){
-          
+          if(resetYNeeded.value === true || Math.max(JSON.parse(...JSON.stringify(props.numberYMax))) > yMax.value){
+            resetYNeeded.value = false;
             yMax.value = Math.max(JSON.parse(...JSON.stringify(props.numberYMax)));
           }
           xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-          console.log("X MAXX: ", xMax.value);
-          console.log("X MINN: ", xMin.value);
-          console.log("Y MAXX: ", yMax.value);
-          console.log("Y MINN: ", yMin.value);
-          console.log("2 ymax ", JSON.parse(JSON.stringify(props.numberYMax)))
-          console.log("2 ymin ", JSON.parse(JSON.stringify(props.numberYMin)))
-          console.log("2 xmax ", JSON.parse(JSON.stringify(props.numberXMax)))
-          console.log("2 xmin ", JSON.parse(JSON.stringify(props.numberXMin)))
-
-          console.log("new x/y axes in test chart ", JSON.parse(JSON.stringify(props.selectedYAxisRef)))
 
             console.log("GET VALUE BEFORE ARRAYS ", JSON.parse(JSON.stringify(props.selectedXAxisRef))['value']);
 
-            if(xMax.value < JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0]){
+            if(resetXNeeded.value === true || xMax.value < JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0]){
+              resetXNeeded.value = false;
               xMax.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0];
             }
 
@@ -370,20 +357,14 @@ if(xMaxRescale.childNodes.length > 0){
               xMin.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0];
             }
             if(resetYNeeded.value === true || yMax.value < JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0]){
+              resetYNeeded.value = false;
               yMax.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0];
-              console.log("HEY NEEW YMMMMAX ", yMax.value);
             }
             if(yMin.value > JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0]){
               yMin.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0];
             }
             console.log(`xmin: ${xMin.value} / xmax: ${xMax.value} / ymin ${yMax.value} / ymax ${xMin.value}`)
         }
-
-
-        console.log("new xMax: ", xMax.value);
-        console.log("new xMin: ", xMin.value);
-        console.log("new yMax: ", yMax.value);
-        console.log("new yMin: ", yMin.value);
 
         // scales: map index / data values to pixel values on x-axis / y-axis
         const xScale = scaleLinear()
@@ -402,19 +383,6 @@ if(xMaxRescale.childNodes.length > 0){
           // if axes are inverted from usual, flip these... 
           .x((value, index) => xScale(index))
           .y((value) => yScale(value));
-        
-        const lineGen1 = area()
-          .curve(curveBasis)
-          // if axes are inverted from usual, flip these... 
-          .x((value, index) => xScale(index))
-          .y((value) => yScale(value));
-
-        const lineGen2 = area()
-          .curve(curveBasis)
-          // if axes are inverted from usual, flip these... 
-          .x((value, index) => xScale(index))
-          .y((value) => yScale(value));
-      
       
       /////////////////////// error catching (TODOs)
         // removed undefined values that throw errors
@@ -423,7 +391,6 @@ if(xMaxRescale.childNodes.length > 0){
             props.data=props.data.slice(ind)
           }
         })
-       
         //////////////////////////////////////////////
 
         if(props.length < 1){
@@ -433,6 +400,16 @@ if(xMaxRescale.childNodes.length > 0){
           console.log("WTF IS GRAPHSTATE ", props.graphstate);
           if(props.graphstate === 0){
             dataRef1.value = props.data; 
+           
+            let vals = Object.values(JSON.parse(JSON.stringify(dataRef1.value)))
+            for(let v = 0;v<vals.length-1;v++){
+              console.log("hell ", Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v])
+              if(typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v] === "number"){
+
+              } else {
+                console.log("what type is this? ", typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v]);
+              }
+            }
             createLine([dataRef1.value],props.color0,1.5,"line_0");
           }
 
@@ -450,30 +427,40 @@ if(xMaxRescale.childNodes.length > 0){
               if(Math.max(JSON.parse(JSON.stringify(dataRef2.value)))> yMax.value){
                 yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef2.value)))
               }
-              createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.5,"line_1");
+              createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
             }
           }
 
           if(props.graphstate === 2){
             // this will be for line #3
-            dataRef3.value = props.data; 
+            dataRef3.value = JSON.parse(JSON.stringify(props.data)); 
             let toDel = svg.selectAll(".line#line_2")
             if(toDel.length > 0){
               for(let i = 0;i<toDel.length - 1;i++){
                 toDel[i].remove();
               }
             }
-            createNewLine2([dataRef3.value],props.color2,1.5,"line_2");
+            if(dataRef3.value.length > 0){
+              if(Math.max(JSON.parse(JSON.stringify(dataRef3.value)))> yMax.value){
+                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef3.value)))
+              }
+              createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2,"line_2");
+            }
           }
           if(props.graphstate === 3){
-            dataRef4.value = props.data; 
+            dataRef4.value = JSON.parse(JSON.stringify(props.data));
             let toDel = svg.selectAll(".line#line_3")
             if(toDel.length > 0){
               for(let i = 0;i<toDel.length - 1;i++){
                 toDel[i].remove();
               }
             }
-            createNewLine3([dataRef4.value],props.color3,1.5,"line_3");
+            if(dataRef4.value.length > 0){
+              if(Math.max(JSON.parse(JSON.stringify(dataRef4.value)))> yMax.value){
+                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef4.value)))
+              }
+               createNewLine3([JSON.parse(JSON.stringify(dataRef4.value))],props.color3,2.25,"line_3");
+            }
           }
           
           let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_xvar`);
@@ -481,16 +468,21 @@ if(xMaxRescale.childNodes.length > 0){
           if(textDivX){
             textDivX.innerText = JSON.parse(JSON.stringify(props.valueX));
             console.log("inner text div x ", textDivX.innerText);
+            if(lineLabelsArr.value.indexOf(textDivX.innerText) === -1){
+              lineLabelsArr.value.push(textDivX.innerText);
+            }
           }
           let textDivY = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_yvar`);
       
           if(textDivY){
             textDivY.innerText = JSON.parse(JSON.stringify(props.valueY));
             console.log("text div Y: ", textDivY);
+            if(lineLabelsArr.value.indexOf(textDivY.innerText) === -1){
+              lineLabelsArr.value.push(textDivY.innerText);
+            }
           }
         }
 
-      
         // function to render path element with D3's General Update Pattern
         function createLine(dataIn,strokeColor,strokeWidth,chosenClassName){ 
           svg
@@ -531,39 +523,57 @@ if(xMaxRescale.childNodes.length > 0){
           return svg; 
         }
 
-                // function to render new path element with D3's General Update Pattern
+        // function to render new path element with D3's General Update Pattern
         function createNewLine2(dataIn,strokeColor,strokeWidth,chosenClassName){ 
-          console.log("creating NEW line ", strokeColor);
-
-            // svg
-            //     //.selectAll(`line`) // get all "existing" lines in svg
-            //     .clone()
-                
-            svg
-                .selectAll(`.line`)
-                .data(dataIn) // sync them with our data
-                .join(`path`) // create a new "path" for new pieces of data (if needed)
-                .attr("id",`line_2`)
-                .attr("stroke", strokeColor)
-                .attr("stroke-width", strokeWidth)
-                .attr("id",`line_2`)
-                .attr("d", lineGen); // shape and form of our line!          
-
-            return svg; 
+          JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
+            if(typeof t === "undefined" || typeof t === "null"){
+              console.log("removed undefined point ", dataIn[ind]);
+              dataIn=dataIn.slice(ind)
+            }
+          })
+          //recreate original line
+          svg.selectAll(`#line_0`).remove();
+          svg.selectAll(`#line_1`).remove();
+          createLine([dataRef1.value],props.color0,1.5,"line_0");
+          createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
+          svg
+              .selectAll(`#line_2`)
+              .data(dataIn) // sync them with our data
+              .join(`path`) // create a new "path" for new pieces of data (if needed)
+              .attr("stroke", strokeColor)
+              .attr("id", "line_2")
+              .attr("stroke-width", strokeWidth)
+              .attr("d", lineGen); // shape and form of our line!          
+          const xAxis = axisBottom(xScale);
+                  
+          return svg; 
         }
         
         
                 // function to render new path element with D3's General Update Pattern
         function createNewLine3(dataIn,strokeColor,strokeWidth,chosenClassName){ 
-            console.log("creating NEW line ", strokeColor);
-
+            JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
+              if(typeof t === "undefined" || typeof t === "null"){
+                console.log("removed undefined point ", dataIn[ind]);
+                dataIn=dataIn.slice(ind)
+              }
+            })
+            //recreate original line
+            svg.selectAll(`#line_0`).remove();
+            svg.selectAll(`#line_1`).remove();
+            svg.selectAll(`#line_2`).remove();
+            createLine([dataRef1.value],props.color0,1.5,"line_0");
+            createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
+            createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2.00,"line_2");
             svg
-                .selectAll(`.line`)
+                .selectAll(`#line_3`)
                 .data(dataIn) // sync them with our data
                 .join(`path`) // create a new "path" for new pieces of data (if needed)
                 .attr("stroke", strokeColor)
+                .attr("id", "line_3")
                 .attr("stroke-width", strokeWidth)
-                .attr("d", lineGen1); // shape and form of our line!          
+                .attr("d", lineGen); // shape and form of our line!          
+            const xAxis = axisBottom(xScale);        
             return svg; 
         }
         
@@ -600,11 +610,9 @@ if(xMaxRescale.childNodes.length > 0){
                 .attr("text-anchor", "end")
                 .text(JSON.parse(JSON.stringify(props.valueX))));
             // this should be new label!!
-          console.log("NEW LABEL: ", oldXLabel)
-          if(oldXLabel !== xMaxLabel.value && oldXLabel !== xMaxLabel.value){
-            console.log("RESETTING X");
+          if(props.graphstate < 1 && oldXLabel !== xMaxLabel.value && oldXLabel !== xMaxLabel.value){
+            
             xMax.value = JSON.parse(JSON.stringify(props.numberXMax))[1];
-            // emit("resetX")
             resetXNeeded.value = true;
           }
           return svg;
@@ -641,7 +649,7 @@ if(xMaxRescale.childNodes.length > 0){
           console.log("NEW LABEL: ", oldYLabel)
           console.log("Y MAXXXXXXX LLLLLAAAABBBBEEELLLL VALUE: ", yMaxLabel.value);
           console.log("MAXXXXXXX LLLLLAAAABBBBEEELLLL VALUE: ", xMaxLabel.value);
-          if(oldYLabel !== yMaxLabel.value && oldYLabel !== xMaxLabel.value){
+          if(props.graphstate < 1 && oldYLabel !== yMaxLabel.value && oldYLabel !== xMaxLabel.value){
             console.log("RESETTING Y");
             console.log("OH YEAH>? ", JSON.parse(JSON.stringify(props.numberYMax))[1]);
             yMax.value = JSON.parse(JSON.stringify(props.numberYMax))[1];

@@ -276,10 +276,10 @@ const color3 = ref("");
 color3.value = "#00bd7e";
 
 const colorX = ref("");
-colorX.value = "pink";
+colorX.value = "#ffffff";
 
 const colorY = ref("");
-colorY.value = "pink";
+colorY.value = "#ffffff";
 
 // TODO -> need a less hard-coded implementation of keybuilder UI   
 // TODO -> check if this (or other implementation below) can be removed
@@ -716,15 +716,6 @@ function selected(e){
   console.log("received SELECTED emit in the modal parent: ", e);
 };
 
-// function closeKeyModal () {
-//   let popup = document.getElementById("newTextPopup");
-//   if(popup){
-//     popup.style.display = "none";
-//   }
-// }
-// function handleSelect(e){
-//   console.log("e t v ", e);
-// }
 const lineThickness = 3;
 
 function colorInputMountedHandler(){
@@ -764,34 +755,23 @@ function colorInputMountedHandler(){
             additionalTexts.value[currentLinesCount.value].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
             additionalTexts.value[currentLinesCount.value].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
           }
-          
-
     return additionalTexts.value;      
    // console.log("LOOK: ", document.getElementById("text-input-hex"));
 } 
 
 function colorPickerShowHandler(){
   console.log("showpicker mounted: ", color0.value);
-  console.log("showpicker mounted: ", color1.value);
-  console.log("showpicker mounted: ", color2.value);
-  console.log("showpicker mounted: ", color3.value);
-  console.log("showpicker mounted: ", colorX.value);
-  console.log("showpicker mounted: ", colorY.value);
   //console.log("LOOK 2: ", document.getElementById("text-input-hex"));
   
 }
 function colorChanged(){
   console.log("color changed: ", color0.value);
-  console.log("color changed: ", color1.value);
-  console.log("color changed: ", color2.value);
-  console.log("color changed: ", color3.value);
   console.log("HERE IS TEXT INPUT: ", document.querySelector(`.text-input`))
 }
 console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-  console.log("WTF xmax???? ", num);
   num = Math.max(...num);
   
 
@@ -806,29 +786,16 @@ function trySetDataCountXLengthMax(num){
       console.log("WTF xmax sheesh:=> ", numberXMax.value[currentLinesCount.value - 1]);
     }
  }
-
-
-
-
-  // if(num > numberXMax.value[currentLinesCount.value -1]){
-  //   numberXMax.value[currentLinesCount.value -1] = num;
-  // }
 }
 function trySetDataCountXLengthMin(num){
   
-  console.log("WTF xmin???? ", num.filter(w=>w || w === 0)[0]);
-  console.log("AGGG NUM: ", num);
   num = num.filter(w=>w || w === 0)[0]
-  console.log("what are CURR LINES???? ", currentLinesCount.value)
   // console.log(`what is num ${num} and what is prior xmin: ${JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))}`)
   if(numberXMin.value[currentLinesCount.value - 1] && num <= JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))){
     numberXMin.value[currentLinesCount.value - 1] = num;
   } else if (!numberXMin.value[currentLinesCount.value - 1]){
-    console.log("middle road");
     numberXMin.value[currentLinesCount.value - 1] = num;
-    console.log("middle road num: ", num)
   } else {
-    console.log(`YOsdOdfOO ${numberXMin.value[currentLinesCount.value - 1]} is smaller than ${num}`);
     numberXMin.value[currentLinesCount.value - 1] = numberXMin.value[currentLinesCount.value - 1];  
   }
 
@@ -841,26 +808,17 @@ function trySetDataCountYLengthMax(num){
  if(Math.max(...num) > num){
   num = Math.max(...num);
  }
- console.log("WTF ymax???? ", num);
- console.log("gadamint ", numberYMax.value[currentLinesCount.value - 1])
  if(numberYMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberYMax.value[currentLinesCount.value - 1]))){
     numberYMax.value[currentLinesCount.value - 1] = num;
-    if(numberYMax.value[currentLinesCount.value - 1]){
-      console.log("WTF ymax:=> ", numberYMax.value[currentLinesCount.value - 1]);
-    }
  } else {
    numberYMax.value[currentLinesCount.value - 1] = num;
-    if(numberYMax.value[currentLinesCount.value - 1]){
-      console.log("WTF ymax sheesh:=> ", numberYMax.value[currentLinesCount.value - 1]);
-    }
  }
 }
 function trySetDataCountYLengthMin(num){
   num = Math.min(...num)
-  console.log("WTF ymin??????? ", num);
-  console.log("curr lines count in y min / modal ", currentLinesCount.value - 1);
-  console.log("curr check in y min / modal ", numberYMin.value);
-
+  if(!numberYMin.value[currentLinesCount.value - 1]){
+    return;
+  }
   if(numberYMin.value[currentLinesCount.value - 1] && JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1])).length > num){
     numberYMin.value[currentLinesCount.value - 1] = num;
     console.log("@@@ ", numberYMin.value[currentLinesCount.value - 1]);
@@ -874,12 +832,8 @@ function trySetDataCountYLengthMin(num){
 
 function trySetDataNameX(name){
   valueX.value=name;
-  console.log("YVal X VAL IN MODAL: ", valueX.value);
   let labels = optionsX.value.map(x=>x.label);
 
-
-console.log("sanity check: ", numberXMax.value[currentLinesCount.value -1]);
-  
   if(labels.indexOf(valueX.value) === -1){
       let tagX = {
         label: valueX.value,
@@ -895,7 +849,6 @@ console.log("sanity check: ", numberXMax.value[currentLinesCount.value -1]);
 
 function trySetDataNameY(name){
   valueY.value = name;
-  console.log("YVal Y VAL IN MODAL: ", valueY.value)
   let labels = optionsY.value.map(x=>x.label);
   if(labels.indexOf(valueY.value) === -1){
       let tagY = {
@@ -906,12 +859,10 @@ function trySetDataNameY(name){
       optionsY.value.push(tagY)
       optionsX.value.push(tagY)
   }
-
   return valueY.value;
 }
 
 function toggleMonochrome(){
-  // console.log("MONOCHROME>? ", axisColorMatchBool.value);
   if(axisColorMatchBool.value === true){
     axisColorMatchBool.value = false;
   } else {
@@ -931,9 +882,7 @@ function openUpdatePopup(){
 }
 
 function closeUpdatePopup(){
-  console.log("herre");
     let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
-    console.log("what is update popup? ", updatePopup)
     if(updatePopup){
       updatePopup.classList.add("animate-close");
     }
@@ -1222,7 +1171,7 @@ function clickedLineRow(row){
                 </span>
               </tr>
               <tr class="color-wrapper">
-                <color-input id="colorInput_X" class="color-input" v-model="colorX" position="right" ref="colorInput_X" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+                <color-input id="colorInput_X" class="color-input" v-model="colorX" position="left" ref="colorInput_X" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
               </tr>
             </td> 
 
@@ -1257,8 +1206,8 @@ function clickedLineRow(row){
                 </span>
               </tr>
               <tr class="color-wrapper">
-                <color-input v-if="axisColorMatchBool" id="colorInput_Y" class="color-input" v-model="colorY" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-                <color-input v-else id="colorInput_Y" class="color-input" v-model="colorX" position="right" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+                <color-input v-if="axisColorMatchBool" id="colorInput_Y" class="color-input" v-model="colorY" position="left" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
+                <color-input v-else id="colorInput_Y" class="color-input" v-model="colorX" position="left" ref="colorInput_Y" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
               </tr>
             </td> 
             <div id="keyButtonWrapper">
@@ -1773,12 +1722,12 @@ body.modal-open {
 }
 .color-input .picker-popup {
   background-color:var(--color-background) !important;
-  color:pink;
-  --arrow-color:pink;
+  color:#ffffff;
+  --arrow-color:#ffffff;
   background:var(--color-background) !important;
 }
 .text-format-arrows,.arrow-up,.arrow-down {
-  --arrow-color: pink;
+  --arrow-color: #ffffff;
 }
 .color-input .slider-canvas {
   border-radius: 0 8px 0 0;
@@ -1800,8 +1749,8 @@ body.modal-open {
   float: right;
 }
 .color{
-  color: pink;
-  background: pink;  
+  color: #ffffff;
+  background: #ffffff;  
 }
 .new-text-popup-row {
   width: 100%;
