@@ -34,22 +34,24 @@ def load_yaml():
         print('ok')
         ## LOAD THE YAML WHEN RECREATING DATABASE
         ## TODO: GET MORE SOPHISTICATED HERE W DEPLOY STEP...
-        # for data in yaml.load_all(open('books.yaml')):
-        #     book = Book(**data)
-        #     # print(book)
-        #     s.add(book)
+        for data in yaml.load_all(open('books.yaml')):
+            book = Book(**data)
+            # print(book)
+            s.add(book)
+            s.commit()
 
 if __name__ == '__main__':
     recreate_database()
     book = Book(
             title='Deep Learning',
             author='Ian Goodfellow',
-            pages=775,
+            id=0,
             published=datetime(2016, 11, 18),
-            title_url="https://en.wikipedia.org/wiki/Deep_learning"
+            title_url="https://en.wikipedia.org/wiki/Deep_learning",
+            origin="none"
     )
     with session_scope() as s:
         ## SEE NOTE ABOVE REGARDING DEPLOY & FUTURE STEPS
-        # s.add(book)
+        s.add(book)
         s.query(Book).filter_by(title="Deep Learning").delete()
         load_yaml()

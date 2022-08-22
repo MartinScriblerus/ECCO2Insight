@@ -92,7 +92,7 @@ export default {
       
       x.domain(d3.extent(this.data, (d, i) => i));
       y.domain([0, d3.max(this.data, d => d)]);
-      console.log(`god fucking damnit... what a shitty day ${x} / ${y}`);
+
       return { x, y };
     },
     calculatePath() {

@@ -1,29 +1,14 @@
-title: "An Introduction to Statistical Learning: with Applications in R"
-author: Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani
-pages: 426
-published: 01-01-2013
-title_url: "https://en.wikipedia.org/wiki/Statistical_learning_theory"
----
-title: "The Elements of Statistical Learning: Data Mining, Inference and Prediction"
-author: Trevor Hastie, Robert Tibshirani, Jerome Friedman
-pages: 745
-published: 01-01-2009
-title_url: "https://www.sas.upenn.edu/~fdiebold/NoHesitations/BookAdvanced.pdf"
----
-title: "Pattern Recognition and Machine Learning"
-author: Christopher Bishop
-pages: 738
-published: 04-06-2011
-title_url: "https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"
----
-title: "Machine Learning: A Probabilistic Perspective"
-author: Kevin Murphy
-pages: 1104
-published: 08-24-2012
-title_url: "https://en.wikipedia.org/wiki/Probabilistic_classification#:~:text=In%20machine%20learning%2C%20a%20probabilistic,the%20observation%20should%20belong%20to."
----
-title: "Deep Learning"
-author: Ian Goodfellow, Yoshua Bengio, Aaron Courville, Francis Bach
-pages: 775
-published: 10-08-2016
-title_url: "https://en.wikipedia.org/wiki/Deep_learning"
+title: "A worthy panegyrick upon monarchy; written anno MDCLVIII. / By a learned and truly loyal gentleman, for information of the miserably mis-led Commonwealths-Men (falsely so called) of that deluded age; and now revived by one that honours the author, and the established government of these nations." 
+author: "A learned and truly loyal gentleman"
+id: 1
+published: 1680-06-06
+origin: "eebo"
+title_url: "https://quod.lib.umich.edu/e/eebo/B06712.0001.001?view=toc" 
+
+title: "An elegy on that illustrious and high-born Prince Rupert, who dyed on Wednesday November the 29th."
+author: "A person of quality"
+id: 2
+published: 1682-06-06
+origin: "eebo"
+title_url: "https://quod.lib.umich.edu/e/eebo/B06712.0001.001?view=toc" 
+  

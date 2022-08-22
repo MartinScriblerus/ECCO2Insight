@@ -85,6 +85,23 @@ export default {
     });
     props = state; 
     onMounted(async () => {
+
+
+// ///
+// // UNCOMMENT TO RE-SCRAPE DATABASE:
+    // let test = await fetch('http://localhost:5000/scraper', {
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json'
+    //   },
+    //   method: "POST",
+    //   body: JSON.stringify({"test": "test"})
+    // }).then(response => response.json())
+    // console.log(test);
+// ///
+
+
+
       if (!localStorage.getItem("url"))
         localStorage.setItem("url", "");
       // this.localStorage = localStorage
@@ -128,6 +145,7 @@ export default {
   }, 
   methods: {
     scrapeBasic: async function (this:any) {
+      
       scrape.basicData = await fetch('http://localhost:5000/scraper', {
             headers: {
               'Accept': 'application/json',
@@ -141,7 +159,9 @@ export default {
     handleKeyUpAuthor: async function (this: any) {
       this.state.data = {}
       console.log("here is author search query: ", this.props.authorSearch);
-
+      if(this.props.authorSearch.length < 2){
+        return null;
+      }
       scrape.basicData = await fetch('http://localhost:5000/scraper_author_filter', {
         headers: {
           'Accept': 'application/json',
@@ -170,7 +190,9 @@ export default {
     handleKeyUpTitle: async function (this:any) {
       this.state.data = {}
       console.log("here is author search query: ", this.props.titleSearch);
-
+      if(this.props.titleSearch.length < 2){
+        return null;
+      }
       scrape.basicData = await fetch('http://localhost:5000/scraper_title_filter', {
         headers: {
           'Accept': 'application/json',
@@ -294,11 +316,11 @@ export default {
         <div class="inputsRowWrapper">
           <div id="titleAuthorInputWrapper">
             <span class="label-wrap">
-              <input id="titleSearch" @keyup='handleKeyUpTitle' v-model='props.titleSearch'/>
+              <input id="titleSearch" @keyup='handleKeyUpTitle' v-model='props.titleSearch' :maxlength="30"/>
               <label class="green" for="titleSearch">Title</label>
             </span>
             <span class="label-wrap">
-              <input id="authorSearch" @keyup='handleKeyUpAuthor' v-model='props.authorSearch'/>
+              <input id="authorSearch" @keyup='handleKeyUpAuthor' v-model='props.authorSearch' :maxlength="30"/>
               <label class="green" for="authorSearch">Author</label>
             </span>
         </div>

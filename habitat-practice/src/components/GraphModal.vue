@@ -287,20 +287,21 @@ function updateTooltip(selected) {
     }
     try {
       JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceGrammarArray'].forEach((g)=>{
-        grammarArr.push([g.tokenTag,g.tokenPos,g.tokenText])
+        grammarArr.push({'tokenTag':g.tokenTag,'tokenPos':g.tokenPos,'tokenText':g.tokenText})
       });
       JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSpacyEntities'].forEach((h)=>{
         entitiesArr.push([h.text,h.type])
       })
       
       tooltipMsg.value = {
-        grammarArrays : grammarArr,
+        grammarArrays : JSON.parse(JSON.stringify(grammarArr)),
         sentimentCompound : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentCompound']['compound'],
         sentimentNegative : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNegative']['neg'],
         sentimentNeutral : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentNeutral']['neu'],
         sentimentPositive : JSON.parse(JSON.stringify(props.dataObj)).sentenceObj[selected]['sentenceSentimentPositive']['pos'],
         entityArrays : entitiesArr
       }
+      console.log("$$$ ", JSON.parse(JSON.stringify(tooltipMsg.value['grammarArrays'])))
     } catch(e){
       console.log("err: ",e)
     }

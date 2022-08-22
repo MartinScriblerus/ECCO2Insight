@@ -224,7 +224,7 @@ socket.onmessage = event => {
         document.getElementById("searchTextWrapper").style.display = "none";
 
         // document.getElementsByClassName('wrapper-outer').classList.add("hide");
-        document.getElementsByClassName('wrapper-outer').style.display = "none";
+        // document.getElementsByClassName('wrapper-outer').style.display = "none";
 
         document.getElementById('headerDiv').style.display = 'none';
         document.getElementById('headerDiv').style.visibility = 'hidden';
@@ -777,14 +777,14 @@ function trySetDataCountXLengthMax(num){
 
  if(numberXMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberXMax.value[currentLinesCount.value -1]))){
     numberXMax.value[currentLinesCount.value - 1] = num;
-    if(numberXMax.value[currentLinesCount.value - 1]){
-      console.log("WTF xmax:=> ", numberXMax.value[currentLinesCount.value - 1]);
-    }
+    // if(numberXMax.value[currentLinesCount.value - 1]){
+    //   console.log("xmax: ", numberXMax.value[currentLinesCount.value - 1]);
+    // }
  } else {
    numberXMax.value[currentLinesCount.value - 1] = num;
-    if(numberXMax.value[currentLinesCount.value - 1]){
-      console.log("WTF xmax sheesh:=> ", numberXMax.value[currentLinesCount.value - 1]);
-    }
+    // if(numberXMax.value[currentLinesCount.value - 1]){
+    //   console.log("xmax sheesh: ", numberXMax.value[currentLinesCount.value - 1]);
+    // }
  }
 }
 function trySetDataCountXLengthMin(num){
