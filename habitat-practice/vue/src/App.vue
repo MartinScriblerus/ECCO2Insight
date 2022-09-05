@@ -2,8 +2,10 @@
 //import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
 
+// @ts-ignore
 import { ref, onMounted, reactive } from 'vue'
 
+// @ts-ignore
 const scrape:any = {
   basicData:Object,
   letterData:Object
@@ -105,8 +107,9 @@ export default {
       if (!localStorage.getItem("url"))
         localStorage.setItem("url", "");
       // this.localStorage = localStorage
-    // localStorage.setItem("url", "hello");
+      // localStorage.setItem("url", "hello");
       const response = await fetch("http://localhost:5000");
+
       state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
       console.log("state data: ", state.data);
@@ -131,7 +134,7 @@ export default {
               searchForms.classList.remove("noDisplay");
             }
           }
-        }, 1000);
+        }, 10);
         clearTimeout();
       }   
     });
@@ -171,7 +174,7 @@ export default {
         body: JSON.stringify({author_filter: this.props.authorSearch})
       }).then(response => response.json()).then(result => {
         if(result.length){
-          let arr = [];
+          let arr  : Array<Object> = [];
           for(let i = 0; i < result.length; i++){
             JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
             arr.push(JSON.parse(result[i]));
@@ -202,7 +205,7 @@ export default {
         body: JSON.stringify({title_filter: this.props.titleSearch})
       }).then(response => response.json()).then(result => {
               if(result.length){
-                let arr = [];
+                let arr : Array<Object> = [];
                 for(let i = 0; i < result.length; i++){
                   
                   // console.log("efd ois i ", result[i]);
@@ -240,7 +243,7 @@ export default {
         body: JSON.stringify({yearBegin: yearBegin, yearEnd: yearEnd})
       }).then(response => response.json()).then(result => {
               console.log("RESULT ", result);
-              let arr = [];
+              let arr : Array<Object> = [];
               for(let i = 0; i < result.length; i++){
                 
                 // console.log("efd ois i ", result[i]);
@@ -272,7 +275,7 @@ export default {
         body: JSON.stringify({letter: letter, filter_mode: this.currentState})
       }).then(response => response.json()).then(result => {
               
-              let arr = [];
+              let arr : Array<Object> = [];
               for(let i = 0; i < result.length; i++){
                 
                 // console.log("efd ois i ", result[i]);
@@ -296,6 +299,7 @@ export default {
 </script>
 
 <template>
+  
   <h1 id="jumbotron" class="jumbotron intro-cover">ECCO-TCP Data Viz</h1>
   <header id="headerDiv">
   <h3 id="mainTextSubheader">Main Text Subheader</h3>

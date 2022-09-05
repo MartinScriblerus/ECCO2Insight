@@ -13,11 +13,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, euclidean_distances, jaccard_score
 
-from tsfresh.examples import load_robot_execution_failures
-from tsfresh.transformers import RelevantFeatureAugmenter
-from tsfresh.utilities.dataframe_functions import impute
-from tsfresh.feature_extraction import extract_features
-from tsfresh.feature_extraction import settings
+# from tsfresh.examples import load_robot_execution_failures
+# from tsfresh.transformers import RelevantFeatureAugmenter
+# from tsfresh.utilities.dataframe_functions import impute
+# from tsfresh.feature_extraction import extract_features
+# from tsfresh.feature_extraction import settings
 import pandas as pd
 import sys
 
@@ -79,10 +79,10 @@ def machine_learning(old_df,sents):
     # soct.send("twelfth_msg")
     df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
     print(f"TUUUUST: {df}")
-    settings_minimal = settings.MinimalFCParameters() 
-    # print(f"MIN SEETT TUUST: {settings_minimal}")
+    # settings_minimal = settings.MinimalFCParameters() 
+    # # print(f"MIN SEETT TUUST: {settings_minimal}")
     
-    settings.ComprehensiveFCParameters, settings.EfficientFCParameters, settings.MinimalFCParameters
+    # settings.ComprehensiveFCParameters, settings.EfficientFCParameters, settings.MinimalFCParameters
     print(f"DF COLS:::: ", df.columns)
     # X_tsfresh = extract_features(df, column_id='id', default_fc_parameters=settings_minimal)
     # X_tsfresh.head()
@@ -115,7 +115,7 @@ def machine_learning(old_df,sents):
     from sklearn.decomposition import PCA # dimensionality reduction
     from sklearn.metrics import silhouette_score # used as a metric to evaluate the cohesion in a cluster
     from sklearn.neighbors import NearestNeighbors # for selecting the optimal eps value when using DBSCAN
-    import numpy as np
+    # import numpy as np
 
     # plotting libraries
     import matplotlib.pyplot as plt

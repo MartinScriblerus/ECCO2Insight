@@ -4,20 +4,21 @@ monkey.patch_all()
 
 from gevent.pywsgi import WSGIServer
 from mimetypes import init
-from flask import Flask, request
+from flask import Flask,request,Response
+from flask_cors import CORS
+from flask_sock import Sock
 from matplotlib.pyplot import title
 # from cli import book_arr
 import pandas as pd
 import json 
-from flask import Flask,request,Response
-from flask_cors import CORS
+
 import requests
 from models import Book
 from sqlalchemy import delete
 from sqlalchemy import func 
 import re
 
-from flask_sock import Sock
+
 from crud import Session
 import mechanicalsoup
 
@@ -49,8 +50,10 @@ s = Session()
 ## -------------------------------------------------------------------
 app = Flask(__name__)
 sock = Sock(app)
+# print('what is sock??? ', sock)
 CORS(app, support_credentials=True)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
+print("WHAT IS FUCKING SOCKET: ", sock)
 # create handler for each connection
 ## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
 
@@ -60,7 +63,6 @@ app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 def echo(ws):
     global soct
     soct = ws
-
     while True:
         data = ws.receive()
 
@@ -526,17 +528,25 @@ def res_toc():
 
     browser = mechanicalsoup.StatefulBrowser()
     browser.open(r['titleUrl'])
-
-    all_toc = browser.page.find("div", id="toclist")
-    all_toc_list = []
-    obj = {}
-
+    try:
+        all_toc = browser.page.find("div", id="toclist")
+        all_toc_list = []
+        obj = {}
+    except:
+        browser.close()
+    while all_toc is None:
+        all_toc = browser.page.find("div", id="toclist")
+        all_toc_list = []
+        obj = {}
+        if all_toc is not None:
+            break
     for each in all_toc:
         link_text = each.find("a")
         if type(link_text) is not int:
             link_full = link_text.text
             link_href = link_text["href"]
             all_toc_list.append({"link_text": link_full, "link_href": link_href})
+    browser.close()
     return json.dumps(all_toc_list)
 
 
@@ -559,9 +569,11 @@ def res_text():
         else:
 
             text_in_html = browser.page.find('div',class_="maincontent").text
+            
             old_df, sents = nltk_analysis(r, text_in_html)
-       
+   
             mach_learning = machine_learning(old_df,sents)
+            #could move this (& whole socket) to nltk file...
             soct.send('fifteenth_msg')
             # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
             # soct.send("fifteenth_msg")
@@ -590,6 +602,8 @@ def res_t():
 
 
 if __name__ == '__main__':
+    app.debug=False
+    app.run(host='0.0.0.0',use_reloader=True,debug=True)
     WSGIServer(('127.0.0.1', 5000), app).serve_forever()
 
 

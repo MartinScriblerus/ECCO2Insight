@@ -1,0 +1,70 @@
+version: "2"
+services:
+  db:
+    image: postgres:12.12-alpine
+    container_name: postgres-container
+    restart: always
+    init: true
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: books
+    expose:
+      - "5432:5432"
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql
+  api:
+    image: flask-app
+    container_name: flask-container
+    build:
+      context: ./
+      dockerfile: ./python/Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      DB_HOST: db
+      PORT_APP: 5000
+      PORT_API: 5432
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: books
+    links:
+      - db
+    volumes:
+      - ./:/usr/src/app/
+    env_file:
+      - ./python/.env.dev
+    depends_on:
+      - db  
+  web: 
+    image: vue-app
+    container_name: vue-container
+    build:
+      context: ./
+      dockerfile: ./vue/Dockerfile
+    volumes:
+      - ./vue/build:/usr/src/app/vue
+    ports:
+      - 8080:8080
+  nginx:
+    image: nginx-app
+    container_name: nginx-container
+    build: 
+      dockerfile: ./nginx/Dockerfile
+    volumes:
+      - ./etc/nginx/nginx.conf:/etc/nginx/conf.d/
+    ports:
+      - "80:80"
+    depends_on:
+      - api 
+      - web   
+volumes:
+  db:
+    driver: local

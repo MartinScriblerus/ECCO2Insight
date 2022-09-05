@@ -31,8 +31,6 @@ const props = {
 };
 
 
-console.log("outer what is this: ", this);
-
 export default {
   name: 'LineChart',
   props,

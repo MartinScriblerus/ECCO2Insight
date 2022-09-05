@@ -1,6 +1,11 @@
-# habitat-practice
+# TCP DATA Viz
 
-This template should help get you started developing with Vue 3 in Vite.
+## Build Instructions
+
+### Local Testing
+* Build the frontend by running 'npm run build-only' in the vue/src directory
+
+* Create Docker images and containers for backend, frontend, db, and proxy server by entering the root directory ('habitat-practice') and running 'docker compose build --no-cache' and 'docker compose up --force-recreate'
 
 ## Recommended IDE Setup
 

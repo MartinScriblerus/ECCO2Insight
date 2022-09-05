@@ -19,7 +19,7 @@ import {
   axisBottom,
   axisLeft,
 } from "d3";
-import useResizeObserver from "@/use/resizeObserver";
+// import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",

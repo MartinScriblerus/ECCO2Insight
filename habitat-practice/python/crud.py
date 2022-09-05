@@ -55,3 +55,5 @@ if __name__ == '__main__':
         s.add(book)
         s.query(Book).filter_by(title="Deep Learning").delete()
         load_yaml()
+
+

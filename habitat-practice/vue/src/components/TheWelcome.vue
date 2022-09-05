@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import WelcomeItem from './WelcomeItem.vue'
+// import WelcomeItem from './WelcomeItem.vue'
 // import TheWelcome from './TheWelcome.vue'
 import Modal from './Modal.vue'
-import DocumentationIcon from './icons/IconDocumentation.vue'
-import ToolingIcon from './icons/IconTooling.vue'
-import EcosystemIcon from './icons/IconEcosystem.vue'
-import CommunityIcon from './icons/IconCommunity.vue'
-import SupportIcon from './icons/IconSupport.vue'
+// import DocumentationIcon from './icons/IconDocumentation.vue'
+// import ToolingIcon from './icons/IconTooling.vue'
+// import EcosystemIcon from './icons/IconEcosystem.vue'
+// import CommunityIcon from './icons/IconCommunity.vue'
+// import SupportIcon from './icons/IconSupport.vue'
 import moment from 'moment';
 import { watch, ref, computed } from 'vue'
 // import GraphModal from './GraphModal.vue'
@@ -14,7 +14,6 @@ const props = defineProps({
   items: Object,
   loaded: Boolean,
 });
-
 
 const selectedTitle : any = ref('');
 const selectedAuthor : any = ref('')
@@ -25,7 +24,6 @@ const openGraph : any = ref(false);
 const openFull : any = ref(false);
 // const modalFull : any = ref(null);
 // const modal : any = ref(Modal);
-
 
 if(props.items){
   watch(props.items, (currentValue, oldValue) => {
@@ -38,8 +36,8 @@ if(props.items){
 async function show_TOC(url:String, title:String, author:String){
   selectedTitle.value = title;
   selectedAuthor.value = author;
-  console.log("selected title in welcome: ", selectedTitle.value);
-  console.log("selected author in welcome: ", selectedAuthor.value);
+  // console.log("selected title in welcome: ", selectedTitle.value);
+  // console.log("selected author in welcome: ", selectedAuthor.value);
   let jumbotron = document.getElementById("jumbotron");
   if(jumbotron){
     jumbotron.style.display = "none";
@@ -75,6 +73,24 @@ async function show_TOC(url:String, title:String, author:String){
 };
 
 async function scrape_text(url:String){ 
+    let wrapperTitle = document.getElementById("buttonsWrapperTitle");
+    let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
+    let wrapperBtns = document.getElementById("buttonsInnerWrapper");
+    if(wrapperTitle){
+      wrapperTitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper title missing");
+    }
+    if(wrapperSubtitle){
+      wrapperSubtitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper subtitle missing");
+    }
+    if(wrapperBtns){
+      wrapperBtns.style.display = "inline-block";
+    } else {
+      console.log("wrapper btns missing");
+    }
     let jumbotron = document.getElementById("jumbotron");
     if(jumbotron){
       jumbotron.style.display = "none";
@@ -132,6 +148,7 @@ async function doOpenFullModal(){
 };
 
 async function doOpenAwaitScrape(){
+  console.log("in do open await scrape");
   openFull.value = true;
 };
 

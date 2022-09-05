@@ -33,6 +33,8 @@ const selectedXAxisRef = ref();
 const selectedYAxisRef = ref();
 const xIsIndexAxis = ref(true);
 const yIsIndexAxis = ref(false);
+const yAxisFramingLast = ref(false);
+
 
 const secondTextRef = ref();
 secondTextRef.value = false;
@@ -138,12 +140,15 @@ onMounted(()=>{
 // Initial soocket implementation 
 // ----------------------------------------------------
 const socket = new WebSocket('ws://localhost:5000/ws');
-
+console.log('do we have a socket? ', socket);
 socket.onopen = function (event) {
+  console.log('sent opening salvo');
   socket.send("Here's some text that the server is urgently awaiting!");
+  console.log('still going after opening salvo');
 }
 
 window.onbeforeunload = function() {
+    console.log('are we closing the socket now???');
     socket.onclose = function () {}; // disable onclose handler first
     socket.close();
 };
@@ -155,8 +160,9 @@ const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"
 let stepMessage = '';
 
 socket.onmessage = event => {
-
+    console.log("do we GET SOCKET MSGS!!@!!???");
     if(event.data === 'third_msg'){
+      console.log("got third socket msg");
       currentStepRef.value = 0;
       stepMessage = "Gathering text and preprocessing data"
       if(document.getElementById("progressMsg")){
@@ -164,6 +170,7 @@ socket.onmessage = event => {
       }
     }
     if(event.data === 'fourth_msg'){
+      console.log("got fourth socket msg");
       currentStepRef.value = 1;
       stepMessage = "Begin line-level and poetic analysis";
       if(document.getElementById("progressMsg")){
@@ -200,7 +207,7 @@ socket.onmessage = event => {
     }  
     if(event.data === 'fifteenth_msg'){
       currentStepRef.value = 6;
-      console.log("HIT FIFTEENTH!!!");
+      console.log("HIT FIFTEENTH!");
       stepMessage = "Feature Extraction"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
@@ -210,26 +217,59 @@ socket.onmessage = event => {
 // ----------------------------------------------------
     let results = document.getElementsByClassName('modal-single-text-results');
       if(results.length > 0){
+        console.log("why are we here????????? results length: ", results.length)
         results[0].style.visibility = "visible";
-        document.getElementById('progressCircles').style.display = "none";
-        document.getElementById('progressMsg').style.display = "none";
-        document.getElementById('progressMsgExplanation').style.display = "none";
-        document.getElementById('main').style.display = "none";
-        document.getElementById('graphs').style.display = "flex";
-        document.getElementById('compareButton').style.visibility = "visible";
-        document.getElementById("buttonsInnerWrapper").style.display = "none"; 
-        // document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
-        document.getElementById("textRowAuthor").style.display = "none";
-        document.getElementById("textRowTitle").style.display = "none";
-        document.getElementById("searchTextWrapper").style.display = "none";
+        try{
+          if(document.getElementById('progressCircles')){
+            document.getElementById('progressCircles').style.display = "none";
+          } else {
+            console.log("no prog circs");
+          }
+          if(document.getElementById('progressMsg')){
+            document.getElementById('progressMsg').style.display = "none";
+          } else {
+            console.log("no progress msgs");
+          }
+          if(document.getElementById('progressMsgExplanation')){
+            document.getElementById('progressMsgExplanation').style.display = "none";
+          } else {
+            console.log("no prog explanations");
+          }
+          if(document.getElementById('main')){
+            document.getElementById('main').style.display = "none";
+          } else {
+            console.log("no main");
+          } 
+          if(document.getElementById('graphs')){
+            document.getElementById('graphs').style.display = "flex";
+          } else {
+            console.log("no graphs");
+          }
+          if(document.getElementById('progressMsgExplanation')){
+            document.getElementById('progressMsgExplanation').style.display = "none";
+          }
+          try {
+          document.getElementById('compareButton').style.visibility = "visible";
+        // document.getElementById("buttonsInnerWrapper").style.display = "flex"; 
+          // document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
+          document.getElementById("textRowAuthor").style.display = "none";
+          document.getElementById("textRowTitle").style.display = "none";
+          document.getElementById("searchTextWrapper").style.display = "none";
 
-        // document.getElementsByClassName('wrapper-outer').classList.add("hide");
-        // document.getElementsByClassName('wrapper-outer').style.display = "none";
+          // document.getElementsByClassName('wrapper-outer').classList.add("hide");
+          // document.getElementsByClassName('wrapper-outer').style.display = "none";
 
-        document.getElementById('headerDiv').style.display = 'none';
-        document.getElementById('headerDiv').style.visibility = 'hidden';
-        document.getElementById('mainText').style.display = "none";
-        document.getElementById('mainTextSubheader').style.display = "none";
+          document.getElementById('headerDiv').style.display = 'none';
+          document.getElementById('headerDiv').style.visibility = 'hidden';
+          document.getElementById('mainText').style.display = "none";
+          document.getElementById('mainTextSubheader').style.display = "none";
+          } 
+          catch(e){
+            console.log("err_modal1 ", e);
+          }
+        } catch(e){
+          console.log("err_modal1 ", e);
+        }
       }
     }  
     let showExplanation = document.getElementById('progressMsgExplanation')
@@ -248,17 +288,36 @@ const valueX = ref('');
 // these are numbers for axes values
 const numberXMax = ref([]);
 const numberXMin = ref([]);
-numberXMax.value.push([]);
-numberXMin.value.push([]);
+const numberYMax = ref([]);
+const numberYMin = ref([]);
+numberXMax.value = [];
+numberXMin.value = [];
+numberYMax.value = [];
+numberYMin.value = [];
+function updateReadOnlyXMax(v){
+  numberXMax.value.push(v);
+  numberXMax.value.filter(i=>i);
+};
+function updateReadOnlyXMin(v){
+  numberXMin.value.push(v);
+  numberXMin.value.filter(i=>i);
+};
+function updateReadOnlyYMax(v){
+  numberYMax.value.push(v);
+  numberYMax.value.filter(i=>i);
+};
+function updateReadOnlyYMin(v){
+  numberXMin.value.push(v);
+  numberXMin.filter(i=>i);
+};
 // do the same for Y axis
 const optionsY = ref([]);
 const valueY = ref('');
 // valueY.value = "count_y";
-const numberYMax = ref([]);
-const numberYMin = ref([]);
-numberYMax.value.push([]);
-numberYMin.value.push([]);
+const graphReady = ref(false);
+graphReady.value = document.getElementById("graphs");
 
+// console.log()
 optionsX.value = []
 optionsY.value = []
 
@@ -280,6 +339,8 @@ colorX.value = "#ffffff";
 
 const colorY = ref("");
 colorY.value = "#ffffff";
+
+const ready = ref(false);
 
 // TODO -> need a less hard-coded implementation of keybuilder UI   
 // TODO -> check if this (or other implementation below) can be removed
@@ -331,21 +392,22 @@ additionalTexts.value = [
   },
 ]
 
-watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.value, color2.value, color3.value, colorX.value, colorY.value, optionsX.value, valueX.value,valueY.value,optionsY.value, numberXMax.value,numberXMin.value, numberYMax.value,numberYMin.value,props.selected, currentLinesCount.value, currentTextData.value,axisColorMatchBool.value,selectedXAxisRef.value,selectedYAxisRef.value],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+watch(() => [graphstateRef, additionalTexts, color0, color1, color2, color3, colorX, colorY, optionsX, valueX,valueY,optionsY, numberXMax,numberXMin, numberYMax,numberYMin,props.selected, currentLinesCount, currentTextData,axisColorMatchBool,selectedXAxisRef,selectedYAxisRef,props.openFull,yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+    
     if(selectedXAxisRef.value){
-      console.log("SEL X AXIS REF: ", selectedXAxisRef.value);
+      console.log("selected x axis ref: ", selectedXAxisRef.value);
+      console.log("TRY THIS XREF!!! ", JSON.parse(JSON.stringify(selectedXAxisRef.value)));
     }
     if(props.selected){
       console.log("Props selected: ", JSON.parse(JSON.stringify(props.selected)))
     }
-      console.log(
-        "Here Watch props.selected function called with args:",
+    if(numberXMin.value && Object.values(JSON.parse(JSON.stringify(numberXMin.value))).filter(i=>typeof i === "number").length > 0){
+      console.log("WTF IS XMIN VAL? ", Math.max(...Object.values(JSON.parse(JSON.stringify(numberXMin.value)))));
+    }
 
-        tocdata,
-        rawtextdata,
-        selectedTitle,
-        selectedAuthor
-      );
+    ready.value = JSON.parse(JSON.stringify(props.openFull));
+    console.log("what is props openfull? ", JSON.parse(JSON.stringify(props.openFull)));
+
       if(currentLinesCount.value === 1){
         showOne.value = true;
       } else if (currentLinesCount.value === 2){
@@ -364,7 +426,7 @@ watch(() => [graphstateRef.value, additionalTexts.value, color0.value, color1.va
 // Begin process for adding a new text...
 // ----------------------------------------------------
 function tryAddNewText(){
-
+  console.log("CHECK!!!");
   doCloseFullModalChild();
   secondTextRef.value = true;
   
@@ -375,7 +437,9 @@ function tryAddNewText(){
 // Opens Keybuilder Popup
 // ----------------------------------------------------
 function openKeyPopup(){
+
   let newTextPopup = document.getElementById("newTextPopup")
+  console.log("why ar we checking for modal full? ", modalFull.value);
   if(newTextPopup){
     newTextPopup.style.display = "flex";
     resetRows();
@@ -388,6 +452,7 @@ function openKeyPopup(){
 function closeKeyModal () {
   let popup = document.getElementById("newTextPopup");
   if(popup){
+    console.log("closed the key modal");
     popup.style.display = "none";
   }
 }
@@ -451,6 +516,7 @@ function removeLine(){
 // TODO => find a more performant and robust solution
 // ----------------------------------------------------
 function setLineCount(){
+  frameLast();
   // TODO=> rename or rework this variable to accomodate new flow
   graphstateRef.value = graphstateRef.value + 1;
   console.log("??? ", currentLinesCount.value);
@@ -476,9 +542,12 @@ function setLineCount(){
 
 
 function tryGetFullModal(){
+    console.log("innnnn try get full modal... ");
     setTimeout(()=>{
       let fullModal = modalFull.value;
+      // emit('closedmodal')
       emit('closedmodal')
+      console.log("FULL MODAL? ", fullModal);
       if(fullModal && fullModal.classList){
         fullModal.classList.add("awaiting");
         // hide thee text search
@@ -486,8 +555,11 @@ function tryGetFullModal(){
         if(main){
           main.style.visibility = "hidden";
         }
+        console.log("MAIN STYLE VISIBILITY: ", main.style.visibility);
       } else {
-        console.log("what is the else for full modal? ", fullModal);
+        console.log("hit the else");
+        
+       // console.log("what is the else for full modal? ", fullModal);
       }
     },10)
     clearTimeout();
@@ -496,6 +568,7 @@ function tryGetFullModal(){
 // Close full modal & return to initial search setup...
 // ----------------------------------------------------
 function doCloseFullModalChild(){
+  console.log('in close modal child');
   emit('closedfull')
   
   let jumbotron = document.getElementById('jumbotron');
@@ -519,14 +592,40 @@ function doCloseFullModalChild(){
 }
 
 // TODO: componentize and DRY this function (see TheWelcome)
-async function scrape_text(url){    
-    
+async function scrape_text(url){
+    console.log("DO WE HAVE NO FUCKING URL??? ", url);
+    if(!url){
+      return;
+    }  
+    let wrapperTitle = document.getElementById("buttonsWrapperTitle");
+    let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
+    let wrapperBtns = document.getElementById("buttonsInnerWrapper");
+    if(wrapperTitle){
+      wrapperTitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper title missing");
+    }
+    if(wrapperSubtitle){
+      wrapperSubtitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper subtitle missing");
+    }
+    if(wrapperBtns){
+      wrapperBtns.style.display = "inline-block";
+    } else {
+      console.log("wrapper btns missing");
+    }  
+    // setTimeout(()=>{console.log("jeesh")},2000);
+    // clearTimeout();
+    console.log("do we have a fucking url? ", url);
     let localStorageDataAvailable = localStorage.getItem(url);
-    if(localStorageDataAvailable){
-       initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-       console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
+    if(localStorageDataAvailable !== null){
+        console.log("THIS WOULD CAUSE A PROBLEM!!");
+        initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+        console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
           emit('closedmodal');
           emit('openedfull');
+
           let fullModal = await modalFull.value;
           if(fullModal && fullModal.classList){
             fullModal.classList.remove("awaiting");
@@ -540,33 +639,102 @@ async function scrape_text(url){
           }
 
         let graphs = document.getElementById('graphs')
-        if(graphs){
-          graphs.style.display = "flex";
-          document.getElementById('main').style.display = "none";
-          document.getElementById('progressCircles').style.display = "none";
-          document.getElementById('progressMsg').style.display = "none";
-          document.getElementById('progressMsgExplanation').style.display = "none";
+        let results = document.getElementsByClassName('modal-single-text-results')
+        if(results){
+          if(graphs){
+            graphs.style.display = "flex";
+            console.log("FLEXING GRAPHS NOW!");
+          } else {
+            console.log("NO GRAPHS NOW!");
+            console.log("not any graphs");
+          }
+          if(document.getElementById('main')){
+            console.log("HIDE MAIN NOW!")
+            document.getElementById('main').style.display = "none";
+          } else {
+            console.log("no main to hide!");
+            console.log("not any main");
+          }
+          if(document.getElementById('progressCircles')){
+            console.log("HIDE PROG CIRCLES NOW!")
+            document.getElementById('progressCircles').style.display = "none";
+          } else {
+            console.log("no progress circles");
+          }
+          if(document.getElementById('progressMsg')){
+            console.log("HIDE PROG CIRCLES NOW!");
+            document.getElementById('progressMsg').style.display = "none";
+          } else {
+            console.log("no progress msg");
+          }
+          if(document.getElementById('progressMsgExplanation')){
+            document.getElementById('progressMsgExplanation').style.display = "none";
+          } else {
+            console.log("no progress msg explanation");
+          }
+          
+          
+          if(document.getElementById('compareButton')){
           document.getElementById('compareButton').style.visibility = "visible";
-          document.getElementById("textRowAuthor").style.display = "none";
-          document.getElementById("textRowTitle").style.display = "none";
-          document.getElementById("searchTextWrapper").style.display = "none";
+          } else {
+            console.log("no compare button");
+          }
+          if(document.getElementById("textRowAuthor")){
+            document.getElementById("textRowAuthor").style.display = "none";
+          } else {
+            console.log("no text row author")
+          }
+          if(document.getElementById("textRowTitle")){
+            document.getElementById("textRowTitle").style.display = "none";
+          } else {
+            console.log("no textRowTitle");
+          }
+          if(document.getElementById("searchTextWrapper")){
+            document.getElementById("searchTextWrapper").style.display = "none";
+          } else {
+            console.log("no search text wrapper");
+          }
           // document.getElementsByClassName('wrapper-outer').classList.add("hide");
           // document.getElementsByClassName('wrapper-outer').style.display = "none";
-          document.getElementById('headerDiv').style.display = 'none';
-          document.getElementById('headerDiv').style.visibility = 'hidden';
-          document.getElementById('mainText').style.display = "none";
-          document.getElementById('mainTextSubheader').style.display = "none";
+
+          // document.getElementById('headerDiv').style.display = 'none';
+          if(document.getElementById('headerDiv')){
+            document.getElementById('headerDiv').style.visibility = 'hidden';
+          } else {
+            console.log("no header div");
+          }
+          if(document.getElementById('mainText')){
+            console.log("HIDE MAIN TEXT NOW");
+            document.getElementById('mainText').style.display = "none";
+          } else {
+            console.log("no main text");
+          }
+          if(document.getElementById('mainTextSubheader')){
+            document.getElementById('mainTextSubheader').style.display = "none";
+          } else {
+            console.log("no mainTextSubheader");
+          }  
         }
         return;
-    }
+    } 
+    // else { 
+    //   // TESTING THIS OUT...
+    //   emit('closedmodal');
+    //   emit('openedfull');
+    // }
+
+    // console.log("do we make it here?");
+  
     emit('openedfullawaitscrape');
+    // setTimeout(()=>{console.log("timeout up!!!")},4000);
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
     close();
-    setTimeout(()=>{},2000);
+    setTimeout(()=>{},2000);    
     clearTimeout();
     tryGetFullModal();
-    
+
+    console.log("CONTACT!!!");
     //document.getElementById("modal-full").classList.add("awaiting")
     rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
@@ -577,7 +745,7 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
-                
+          console.log("hey, got a response from server!");
           rawtextfromtoc.value = result;
           console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
@@ -663,7 +831,7 @@ async function scrape_text(url){
             }
           });
           temp.value.sentence_grammar.word_level_grammar_result.forEach(wordGram => {
-            initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']].sentenceGrammarArray.push({
+            initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']]['sentenceGrammarArray'].push({
               "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
               "tokenTag":JSON.parse(JSON.stringify(wordGram))['token_tag'],
               "tokenPos":JSON.parse(JSON.stringify(wordGram))['token_pos'],
@@ -679,6 +847,7 @@ async function scrape_text(url){
             )
        
           })
+
           // Update Local Storage
           if (!localStorage.getItem(url)){
             localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
@@ -689,18 +858,7 @@ async function scrape_text(url){
           ///////////////////////////////////////////////////////////////////////////////
           ///////////////////////////////////////////////////////////////////////////////
           ///////////////////////////////////////////////////////////////////////////////
-          
-          let fullModal = modalFull.value;
-          if(fullModal && fullModal.classList){
-            fullModal.classList.remove("awaiting");
-            fullModal.classList.add("receivedSingleTextData");
-            let main = document.getElementById("main");
-            if(main){
-              main.visibility = "visible";
-            }
-          } else {
-            console.log("in else for fullmodal: ", fullModal);
-          }
+
           return rawtextfromtoc.value;
         } else {
           return null;
@@ -708,7 +866,7 @@ async function scrape_text(url){
         }).catch(error => {
         console.log('Error:', error);
         }); 
-      
+    // }  
       return rawtextfromtoc;
 };
 
@@ -719,42 +877,38 @@ function selected(e){
 const lineThickness = 3;
 
 function colorInputMountedHandler(){
-  console.log("input mounted: ", color0.value);
-  console.log("input mounted: ", color1.value);
-  console.log("input mounted: ", color2.value);
-  console.log("input mounted: ", color3.value);
-  console.log("input mounted: ", colorX.value);
-  console.log("input mounted: ", colorY.value);
-
-            console.log("YOOO: ", additionalTexts.value[0])
-        if(currentLinesCount.value === 1){
-          console.log("LINE COUNT IS ONE")
-        } else if(currentLinesCount.value === 2){
-          console.log("LINE COUNT IS TWO")
-          
-        } else if(currentLinesCount.value === 3){
-          console.log("LINE COUNT IS THREE")
-        } else if((currentLinesCount.value === 4)){
-          console.log("LINE COUNT IS FOUR")
-        } else {
-          console.log("how did this happen to current lines count? ", (currentLinesCount.value === 1));
-        }
-          // Update Graph Keys
-          if(additionalTexts.value[0].title === ''){
-            additionalTexts.value[0].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
-            additionalTexts.value[0].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
-            additionalTexts.value[0].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
-          // } else if(additionalTexts.value[1].title === ''){
-          //   additionalTexts.value[1].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
-          //   additionalTexts.value[1].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
-          //   additionalTexts.value[1].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
-          } else {
-            //ADD OPTIONS FOR NEWLY SCRAPED TEXTS HERE
-            console.log("LINE COUNT: ", currentLinesCount.value);
-            additionalTexts.value[currentLinesCount.value].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
-            additionalTexts.value[currentLinesCount.value].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
-            additionalTexts.value[currentLinesCount.value].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
-          }
+  // if(!rawtextfromtoc.value){
+  //   return;
+  // }
+  console.log("additional texts val[0]: ", additionalTexts.value[0])
+  if(currentLinesCount.value === 1){
+    console.log("LINE COUNT IS ONE")
+  } else if(currentLinesCount.value === 2){
+    console.log("LINE COUNT IS TWO")
+    
+  } else if(currentLinesCount.value === 3){
+    console.log("LINE COUNT IS THREE")
+  } else if((currentLinesCount.value === 4)){
+    console.log("LINE COUNT IS FOUR")
+  } else {
+    console.log("how did this happen to current lines count? ", (currentLinesCount.value === 1));
+  }
+    // Update Graph Keys
+    if(additionalTexts.value[0].title === ''){
+      additionalTexts.value[0].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+      additionalTexts.value[0].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+      additionalTexts.value[0].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+    // } else if(additionalTexts.value[1].title === ''){
+    //   additionalTexts.value[1].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+    //   additionalTexts.value[1].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+    //   additionalTexts.value[1].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+    } else {
+      //ADD OPTIONS FOR NEWLY SCRAPED TEXTS HERE
+      console.log("LINE COUNT: ", currentLinesCount.value);
+      additionalTexts.value[currentLinesCount.value].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
+      additionalTexts.value[currentLinesCount.value].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
+      additionalTexts.value[currentLinesCount.value].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
+    }
     return additionalTexts.value;      
    // console.log("LOOK: ", document.getElementById("text-input-hex"));
 } 
@@ -762,7 +916,6 @@ function colorInputMountedHandler(){
 function colorPickerShowHandler(){
   console.log("showpicker mounted: ", color0.value);
   //console.log("LOOK 2: ", document.getElementById("text-input-hex"));
-  
 }
 function colorChanged(){
   console.log("color changed: ", color0.value);
@@ -772,77 +925,77 @@ console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-  num = Math.max(...num);
-  
 
- if(numberXMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberXMax.value[currentLinesCount.value -1]))){
+  num = Math.max.apply(Math, num);
+  console.log("in MAX X! ", num);
+  console.log("why are we here??")
+  console.log("WHAT THE FUDE IS THIS: ", JSON.parse(JSON.stringify(numberXMax.value))[currentLinesCount.value - 1]);
+  
+ if(numberXMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberXMax.value))[currentLinesCount.value -1]){
     numberXMax.value[currentLinesCount.value - 1] = num;
     // if(numberXMax.value[currentLinesCount.value - 1]){
     //   console.log("xmax: ", numberXMax.value[currentLinesCount.value - 1]);
     // }
  } else {
+    console.log(';whut is num: ', num);
    numberXMax.value[currentLinesCount.value - 1] = num;
     // if(numberXMax.value[currentLinesCount.value - 1]){
     //   console.log("xmax sheesh: ", numberXMax.value[currentLinesCount.value - 1]);
     // }
  }
+
 }
 function trySetDataCountXLengthMin(num){
-  
+
   num = num.filter(w=>w || w === 0)[0]
-  // console.log(`what is num ${num} and what is prior xmin: ${JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))}`)
-  if(numberXMin.value[currentLinesCount.value - 1] && num <= JSON.parse(JSON.stringify(numberXMin.value[currentLinesCount.value - 1]))){
+
+  if(numberXMin.value && numberXMin.value.length > 0 && numberXMin.value[currentLinesCount.value - 1] && num <= numberXMin.value[currentLinesCount.value - 1]){    
     numberXMin.value[currentLinesCount.value - 1] = num;
   } else if (!numberXMin.value[currentLinesCount.value - 1]){
     numberXMin.value[currentLinesCount.value - 1] = num;
   } else {
-    numberXMin.value[currentLinesCount.value - 1] = numberXMin.value[currentLinesCount.value - 1];  
+    numberXMin.value[currentLinesCount.value - 1] = num;
   }
-
-  // else {
-  //   numberXMin.value[currentLinesCount.value - 1] = num;
-  // }
 }
 function trySetDataCountYLengthMax(num){
-//  console.log("WTF ymax???? ", num);
- if(Math.max(...num) > num){
-  num = Math.max(...num);
+ if(Math.max.apply(Math, num) > num){
+  num = Math.max.apply(Math,num);
  }
  if(numberYMax.value[currentLinesCount.value - 1] && num > JSON.parse(JSON.stringify(numberYMax.value[currentLinesCount.value - 1]))){
     numberYMax.value[currentLinesCount.value - 1] = num;
  } else {
    numberYMax.value[currentLinesCount.value - 1] = num;
  }
+
 }
 function trySetDataCountYLengthMin(num){
-  num = Math.min(...num)
+  num = Math.min.apply(Math,num)
   if(!numberYMin.value[currentLinesCount.value - 1]){
     return;
   }
-  if(numberYMin.value[currentLinesCount.value - 1] && JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1])).length > num){
+  if(numberYMin.value[currentLinesCount.value - 1] && numberYMin.value[currentLinesCount.value - 1].length > num){
     numberYMin.value[currentLinesCount.value - 1] = num;
-    console.log("@@@ ", numberYMin.value[currentLinesCount.value - 1]);
   } else if(!numberYMin.value[currentLinesCount.value - 1]){
     numberYMin.value[currentLinesCount.value - 1] = num
   } else {
     console.log(`${numberYMin.value[currentLinesCount.value - 1]} is smaller than ${num}`)
     numberYMin.value[currentLinesCount.value - 1] = JSON.parse(JSON.stringify(numberYMin.value[currentLinesCount.value - 1]));
   }
+
 } 
 
 function trySetDataNameX(name){
   valueX.value=name;
-  let labels = optionsX.value.map(x=>x.label);
+  let labels = JSON.parse(JSON.stringify(optionsX.value)).map(x=>x.label);
 
   if(labels.indexOf(valueX.value) === -1){
       let tagX = {
         label: valueX.value,
-        value:  [numberXMin.value, numberXMax.value],
+        value: [Math.min(...JSON.parse(JSON.stringify(numberXMin.value)).filter(i=>typeof i === "number")), Math.max(...JSON.parse(JSON.stringify(numberXMax.value)).filter(i=>typeof i === "number"))],
         isIndex: xIsIndexAxis.value
       }
       optionsY.value.push(tagX)
       optionsX.value.push(tagX)
-      
   }
   return valueX.value; 
 }
@@ -853,7 +1006,7 @@ function trySetDataNameY(name){
   if(labels.indexOf(valueY.value) === -1){
       let tagY = {
         label: valueY.value,
-        value:  [numberYMin.value, numberYMax.value],
+        value:  [Math.min(...JSON.parse(JSON.stringify(numberXMin.value)).filter(i=>typeof i === "number")), Math.max(...JSON.parse(JSON.stringify(numberXMax.value)).filter(i=>typeof i === "number"))],
         isIndex: yIsIndexAxis.value
       }
       optionsY.value.push(tagY)
@@ -871,7 +1024,28 @@ function toggleMonochrome(){
 }
 
 function openUpdatePopup(){
+
+  let wrapperTitle = document.getElementById("buttonsWrapperTitle");
+  let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
+  let wrapperBtns = document.getElementById("buttonsInnerWrapper");
+  if(wrapperTitle){
+    wrapperTitle.style.display = "inline-block";
+  } else {
+    console.log("wrapper title missing");
+  }
+  if(wrapperSubtitle){
+    wrapperSubtitle.style.display = "inline-block";
+  } else {
+    console.log("wrapper subtitle missing");
+  }
+  if(wrapperBtns){
+    wrapperBtns.style.display = "inline-block";
+  } else {
+    console.log("wrapper btns missing");
+  }
+  
   let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+  console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
   if(updatePopup){
     updatePopup.classList.remove("animate-close");
   }
@@ -882,7 +1056,26 @@ function openUpdatePopup(){
 }
 
 function closeUpdatePopup(){
+  let wrapperTitle = document.getElementById("buttonsWrapperTitle");
+  let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
+  let wrapperBtns = document.getElementById("buttonsInnerWrapper");
+  if(wrapperTitle){
+    wrapperTitle.style.display = "none";
+  } else {
+    console.log("wrapper title missing");
+  }
+  if(wrapperSubtitle){
+    wrapperSubtitle.style.display = "none";
+  } else {
+    console.log("wrapper subtitle missing");
+  }
+  if(wrapperBtns){
+    wrapperBtns.style.display = "none";
+  } else {
+    console.log("wrapper btns missing");
+  }
     let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+    console.log("WEE SHOULD BE HITTING THIS!!!! CLOSE UPDATE POPUP", updatePopup);
     if(updatePopup){
       updatePopup.classList.add("animate-close");
     }
@@ -892,8 +1085,17 @@ function closeUpdatePopup(){
     }
 }
 
+function frameLast(){
+  if(yAxisFramingLast.value === true){
+    yAxisFramingLast.value = false;
+  } else {
+    yAxisFramingLast.value = true;
+  }
+}
+
 function selectXAxis(){
   let keyPopupDisplay = document.querySelector('#newRow_X > .rangeDisplay');
+
   if(keyPopupDisplay){
     keyPopupDisplay.innerText = JSON.parse(JSON.stringify(selectedXAxisRef.value)).label;
     xIsIndexAxis.value = JSON.parse(JSON.stringify(selectedXAxisRef.value)).isIndex;
@@ -902,6 +1104,8 @@ function selectXAxis(){
     } else {
       document.getElementById("xRangeDisplay").classList.remove("is-index-axis");
     }
+  } else {
+    alert("no keybuilder div!");
   }
 }
 
@@ -943,6 +1147,7 @@ function clickedLineRow(row){
   console.log('check on selected row in modal: ', selectedRow.value)
 }
 
+
 </script>
 
 <template>
@@ -954,11 +1159,11 @@ function clickedLineRow(row){
 
   </Head>
 <Teleport to="body">
-  <div v-if="openFull" class="full-screen-modal modal-backdrop">
+  <div v-if="ready" class="full-screen-modal modal-backdrop">
     <div id="modalFull" ref="modalFull">
       <header class="modal-header">
         <slot name="header">
-          Single Text Analysis
+          <!-- Single Text Analysis -->
         </slot>
           <button
             type="button"
@@ -1006,6 +1211,7 @@ function clickedLineRow(row){
             :color3="color3"
             :colorX="colorX"
             :colorY="colorY"
+            :yAxisFramingLast="yAxisFramingLast"
             :currentLinesCount="currentLinesCount"
             :axisColorMatchBool="axisColorMatchBool"
             :selectedRow="selectedRow"
@@ -1016,6 +1222,10 @@ function clickedLineRow(row){
             @numberXMax="trySetDataCountXLengthMax"
             @numberYMin="trySetDataCountYLengthMin"
             @numberYMax="trySetDataCountYLengthMax"
+            @resetXMaxReadOnly="updateReadOnlyXMax"
+            @resetYMaxReadOnly="updateReadOnlyYMax"
+            @resetXMinReadOnly="updateReadOnlyXMin"
+            @resetYMinReadOnly="updateReadOnlyYMin"
             @dataname_x="trySetDataNameX"
             @dataname_y="trySetDataNameY"
 
@@ -1044,14 +1254,14 @@ function clickedLineRow(row){
                 </span>
               </tr>
               <tr class="rangeDisplay">
-                <span id="xRangeDisplay">
-                X-Range: {{Math.min(...this.numberXMin)}} - {{Math.max(...this.numberXMax)}}
+                <span class="rangeDisplayRow">
+                  X-Range: <span id="xRangeDisplayXMin_0"></span> - <span id="xRangeDisplayXMax_0"></span> 
                 </span>
-  
-                <span id="yRangeDisplay">
-                Y-Range: {{Math.min(...this.numberYMin)}} - {{Math.max(...this.numberYMax)}}
-                </span>
+                <span class="rangeDisplayRow">
+                  Y-Range: <span id="yRangeDisplayYMin_0"></span> - <span id="yRangeDisplayYMax_0"></span>
+                </span>              
               </tr>
+          
               <tr id="newVariable_0" class="new-text-viz-variable">
                 <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
                 <!-- <span>{{JSON.parse(JSON.stringify(axisColorMatchBool)).value}}</span> -->
@@ -1072,15 +1282,13 @@ function clickedLineRow(row){
                   {{additionalTexts[1].title}}
                 </span>
               </tr>
-              <tr v-if="this.numberXMin.length > 1" class="rangeDisplay">
- 
-                X-Range: {{Math.min(...this.numberXMin)}} - {{this.numberXMax[0]}}
-          
-                <br/>
-      
-                Y-Range: {{Math.max(this.numberYMin[1])}} - {{Math.max(...this.numberYMax)}}
-            
-                <br/>
+              <tr class="rangeDisplay">
+                <span class="rangeDisplayRow">
+                  X-Range: <span id="xRangeDisplayXMin_1"></span> - <span id="xRangeDisplayXMax_1"></span>
+                </span>
+                <span class="rangeDisplayRow">
+                  Y-Range: <span id="yRangeDisplayYMin_1"></span> - <span id="yRangeDisplayYMax_1"></span> 
+                </span>
               </tr>
               <tr id="newVariable_1" class="new-text-viz-variable">
                 <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
@@ -1100,15 +1308,13 @@ function clickedLineRow(row){
                   {{additionalTexts[2].title}}
                 </span>
               </tr>
-              <tr v-if="this.numberXMin.length > 2" class="rangeDisplay">
-   
-                X-Range: {{this.numberXMin[2]}} - {{this.numberXMax[2]}}
-           
-                <br/>
-        
-                Y-Range: {{this.numberXMin[2]}} - {{this.numberYMax[2]}}
-            
-                <br/>
+              <tr class="rangeDisplay">
+                <span class="rangeDisplayRow">
+                  X-Range: <span id="xRangeDisplayXMin_2"></span> - <span id="xRangeDisplayXMax_2"></span>
+                </span>
+                <span class="rangeDisplayRow">
+                  Y-Range: <span id="yRangeDisplayYMin_2"></span> - <span id="yRangeDisplayYMax_2"></span> 
+                </span>
               </tr>
               <tr id="newVariable_2" class="new-text-viz-variable">
                   <span id="newVariable_2_xvar">{{additionalTexts[2].variableX}}</span>
@@ -1129,15 +1335,13 @@ function clickedLineRow(row){
                   {{additionalTexts[3].title}}
                 </span>
               </tr>
-              <tr v-if="this.numberXMin.length > 3" class="rangeDisplay">
-  
-                X-Range: {{this.numberXMin[3]}} - {{this.numberXMax[3]}}
-         
-                <br/>
-      
-                Y-Range: {{this.numberYMin[3]}} - {{this.numberYMax[3]}}
-         
-                <br/>
+              <tr class="rangeDisplay">
+                <span class="rangeDisplayRow">
+                  X-Range: <span id="xRangeDisplayXMin_3"></span> - <span id="xRangeDisplayXMax_3"></span>
+                </span>
+                <span class="rangeDisplayRow">
+                  Y-Range: <span id="yRangeDisplayYMin_3"></span> - <span id="yRangeDisplayYMax_3"></span> 
+                </span>
               </tr>
               <tr id="newVariable_3" class="new-text-viz-variable">
                   <span id="newVariable_3_xvar">{{additionalTexts[3].variableX}}</span>
@@ -1153,9 +1357,11 @@ function clickedLineRow(row){
               Create X-Axis
               </tr>
               <tr class="rangeDisplay">
-                <!-- sanity: {{this.numberXMin.toString()}} -->
-                X-Range: {{Math.min(...this.numberXMin)}} - {{Math.max(...this.numberXMax)}}
-                <br/>
+                X-Range: 
+                <span class="rangeDisplayRow">
+                  <span id="xAxisRangeDisplayMax"></span>
+                  <span id="xAxisRangeDisplayMin"></span>
+                </span>
               </tr>
               <tr id="newVariable_X" class="new-text-viz-variable">
                   <span id="newAxis_X" >
@@ -1189,8 +1395,11 @@ function clickedLineRow(row){
                 </button>
               </tr>
               <tr class="rangeDisplay">
-                Y-Range: {{Math.min(...this.numberYMin)}} - {{Math.max(...this.numberYMax)}}
-                <br/>
+                Y-Range: 
+                <span class="rangeDisplayRow">
+                  <span id="yAxisRangeDisplayMax"></span>
+                  <span id="yAxisRangeDisplayMin"></span>
+                </span>
               </tr>
               <tr id="newVariable_Y" class="new-text-viz-variable">
                   <span id="newAxis_Y" >
@@ -1211,6 +1420,13 @@ function clickedLineRow(row){
               </tr>
             </td> 
             <div id="keyButtonWrapper">
+              <!-- <button 
+                type="button"
+                id="frameLastBtn"
+                class="key-popup"
+                @click="frameLast">
+                Frame
+              </button> -->
               <button
                   type="button"
                   id="removeLineButton"
@@ -1477,7 +1693,10 @@ body.modal-open {
     align-items: left;
 }
 
-
+.rangeDisplayRow {
+  flex-direction:row;
+  display:flex;
+}
 
 
 
@@ -1741,6 +1960,7 @@ body.modal-open {
   background:var(--color-background);
   color: #ffffff;
 }
+
 .saturation-area {
   background-color:var(--color-background) !important;
   background:var(--color-background) !important;
@@ -1898,5 +2118,6 @@ button.green-btn {
 .selectedLine {
   border: solid 2px hsla(160, 100%, 37%, 1);
 }
+
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>

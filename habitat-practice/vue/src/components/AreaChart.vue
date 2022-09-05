@@ -11,7 +11,7 @@ import {
   axisBottom,
   axisLeft,
 } from "d3";
-import useResizeObserver from "@/use/resizeObserver";
+// import useResizeObserver from "@/use/resizeObserver";
 
 export default {
   name: "ResponsiveLineChart",
@@ -21,7 +21,8 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
            console.log('Prop changed: ', newVal, ' | was: ', oldVal)
-           
+            console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
+            console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sent);
             let tooltip = document.getElementById("tooltipInner");
             if(tooltip){
               tooltip.innerHTML = `

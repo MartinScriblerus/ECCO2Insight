@@ -2,7 +2,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.dialects.postgresql import MONEY
 
- 
 Base = declarative_base()
 
 class Book(Base):
