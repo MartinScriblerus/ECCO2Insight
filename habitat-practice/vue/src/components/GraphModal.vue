@@ -54,7 +54,7 @@
   const resetXRef = ref(false);
   const resetYRef = ref(false);
   const mode = ref([1]);
-  const data = ref([]);
+  // const data = ref([]);
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
   function hideUpdateButtons(){
@@ -660,7 +660,7 @@ svg {
     height: auto;
     display: flex;
     text-align: center;
-    top: 72px;
+
     bottom: 0px;
     left: 0px;
     right:0px;

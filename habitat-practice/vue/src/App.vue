@@ -5,6 +5,7 @@ import TheWelcome from './components/TheWelcome.vue'
 // @ts-ignore
 import { ref, onMounted, reactive } from 'vue'
 
+
 // @ts-ignore
 const scrape:any = {
   basicData:Object,
@@ -85,7 +86,50 @@ export default {
       data: null,
       loaded: null,
     });
+    const authorPortraits:any = ref([]);
+    // authorPortraits.value = [];
     props = state; 
+    async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
+      console.log("fucking url ", wikiString);
+      console.log("fucking first name ", firstName);
+      console.log("fucking last name ", lastName);
+      
+      let getImg = await fetch('http://localhost:5000/tryWikiImg', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
+      }).then(response => response.json()).then(result => {
+        console.log("fuck shit: ", result);
+          let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
+          relevantImgEl['src'] = result['img_possible'][3]
+          // if(result['img_possible'].indexOf('.jpg') !== -1){
+          //   console.log("result length: ", result['img_possible'].length);
+          //   console.log("result type: ", typeof result['img_possible']);
+
+          //   authorPortraits.value.push(Object.keys(result)['img_possible']);
+          // }
+
+
+        if(result.length){
+          console.log("WHAT IS THE RESULT??? ");
+          // let arr  : Array<Object> = [];
+          // for(let i = 0; i < result.length; i++){
+          //   JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
+          //   arr.push(JSON.parse(result[i]));
+          // }
+          return result;
+        } else {
+          return null;
+        }
+        }).catch(error => {
+          console.log('Error:', error);
+        });   
+    }
+    
+    
     onMounted(async () => {
 
 
@@ -103,6 +147,8 @@ export default {
 // ///
 
 
+      
+
 
       if (!localStorage.getItem("url"))
         localStorage.setItem("url", "");
@@ -113,7 +159,55 @@ export default {
       state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
       console.log("state data: ", state.data);
-      
+   
+      let rawAuthorName = JSON.parse(JSON.stringify(state.data));
+
+      rawAuthorName.map((i)=>{
+          console.log("R A N: ", i['author']);
+          let splitSpaces = i['author'].split(' ');
+          splitSpaces.length = 2;
+          console.log("split spaces: ", splitSpaces);
+          let published = new Date(); 
+          let first = '';
+          let last = ''; 
+          let title = ''; 
+          let bookId = 0;
+
+          published = i['published'];
+          title = i['title']
+          bookId = i['id']
+          let getFirst = false;
+          for(let s = 0; s < splitSpaces.length; s++){
+            if(splitSpaces[s].indexOf(',') !== -1){
+              let cutIndex = splitSpaces[s].indexOf(',');
+              if(s === 0){
+                last = splitSpaces[s].slice(0,cutIndex);
+                getFirst = true;
+              } else if (s === 1){
+                first = splitSpaces[s].slice(0,cutIndex);
+              } else {}
+              getFirst = true;
+            } else {
+              if(getFirst){
+                getFirst = false;
+                first = splitSpaces[1]
+              }
+            }
+          }
+          let sub_url = first + '_' + last;
+          if(sub_url.indexOf(',') !== -1){ 
+            let cutIndex = sub_url.indexOf(',');  
+            sub_url = sub_url.slice(0,cutIndex);
+            return
+          }
+          first = '';
+          last = '';
+          console.log("SUB URL2 ", sub_url) //*********** build out image search here
+          let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
+          tryGetWikiImage(wikiString, first, last, title, published, bookId);
+          
+        });
+
       const totalVuePackages = await state.data;
       if(state && state.data){
         state.loaded = true;
@@ -262,6 +356,48 @@ export default {
         return null;
       }
     },
+    letterFilterDisplay: function(){
+      console.log('hit it!');
+      let getLetterFilter = document.getElementById("letter-wrapper");
+      if(getLetterFilter && getLetterFilter.style.display !== "flex"){
+        getLetterFilter.style.display = "flex";
+      } else if(getLetterFilter){
+        getLetterFilter.style.display = "none";
+      } else {
+
+      } 
+    },
+    fullTextSearchDisplay: async function(this:any,fullTextSearchInput:String){
+      this.state.data = {}
+      console.log("the letter is... ", fullTextSearchInput);
+      this.props.fullTextSearchInput = fullTextSearchInput;
+      scrape.basicData = await fetch('http://localhost:5000/scraper_fulltext_search_new', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({fullTextSearchInput: "monkeys", filter_mode: this.currentState})
+      }).then(response => response.json()).then(result => {
+              console.log("RESULT OF FULLTEXT SEARCH IS... ", result)
+              let arr : Array<Object> = [];
+              for(let i = 0; i < result.length; i++){
+                
+                // console.log("efd ois i ", result[i]);
+                arr.push(JSON.parse(result[i]));
+              }
+
+              scrape.basicData = arr;
+              console.log("FULL SEARCH RESULTS: ", arr);
+              return scrape.basicData;
+
+             }).catch(error => {
+              console.log('Error:', error);
+             }); 
+        this.state.data = scrape.basicData
+        return this.state;
+ 
+    },
     handleKeyUpLetter: async function(this:any,letter:String) {
       this.state.data = {}
       console.log("the letter is... ", letter);
@@ -300,104 +436,109 @@ export default {
 
 <template>
   
-  <h1 id="jumbotron" class="jumbotron intro-cover">ECCO-TCP Data Viz</h1>
-  <header id="headerDiv">
-  <h3 id="mainTextSubheader">Main Text Subheader</h3>
-  <p id="mainText">
-    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
-    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
-    Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem.
+  <h1 id="jumbotron" class="jumbotron intro-cover">TCP Data Viz</h1>
+  <div class="outer-row">
+    <header id="headerDiv">
+      <div id="headerWrapper"> 
+        <div  id="letter-wrapper">
+          <div id="alphabetWrapper" class="wrapper green">
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('A')">A</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('B')">B</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('C')">C</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('D')">D</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('E')">E</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('F')">F</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('G')">G</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('H')">H</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('I')">I</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('J')">J</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('K')">K</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('L')">L</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('M')">M</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('N')">N</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('O')">O</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('P')">P</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('Q')">Q</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('R')">R</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('S')">S</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('T')">T</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('U')">U</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('V')">V</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('W')">W</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('X')">X</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('Y')">Y</span>
+            <span class="letterClick green" v-on:click="handleKeyUpLetter('Z')">Z</span>
+          </div>
+          <div class="toggle-wrapper">
+            <div id="letterFilterToggleWrapper">
+              <label for="toggle_button" class="switch">
+                <input type="checkbox" id="toggle_button" v-model="checkedValue">
+                <div class="slider round"></div>
+                <span class="toggle-text" v-if="isActive">Search Authors</span>
+                <span class="toggle-text" v-if="! isActive">Search Titles</span>
+              </label>
+            </div>
+          
+          
+          
+          </div>
+      
+        </div>
+        <h3 id="mainTextSubheader">Main Text Subheader</h3>
+        <p id="mainText">
+          Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
+          Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem.
 
-  </p>
+        </p>
+      </div>
+   
 
 
+      <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" /> -->
+      <!-- <a id="rowanButton" href="https://www.youtube.com/watch?v=vRulmmH5G4U" width="125" height="125">CLICK ME ROWAN!!!</a> -->
 
-    <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" /> -->
-    <!-- <a id="rowanButton" href="https://www.youtube.com/watch?v=vRulmmH5G4U" width="125" height="125">CLICK ME ROWAN!!!</a> -->
+    </header>
     <div class="wrapper-outer">
-      <div class="wrapper">
+      <div class="wrapper search">
 
         <div class="inputsRowWrapper">
           <div id="titleAuthorInputWrapper">
             <span class="label-wrap">
-              <input id="titleSearch" @keyup='handleKeyUpTitle' v-model='props.titleSearch' :maxlength="30"/>
+              <input id="titleSearch" placeholder="ex. King Lear" @keyup='handleKeyUpTitle' v-model='props.titleSearch' :maxlength="30"/>
               <label class="green" for="titleSearch">Title</label>
             </span>
             <span class="label-wrap">
-              <input id="authorSearch" @keyup='handleKeyUpAuthor' v-model='props.authorSearch' :maxlength="30"/>
+              <input id="authorSearch" placeholder="ex. Shakespeare, William" @keyup='handleKeyUpAuthor' v-model='props.authorSearch' :maxlength="30"/>
               <label class="green" for="authorSearch">Author</label>
             </span>
         </div>
 
         <div id="yearsBetweenInputWrapper">
-
-            <span class="label-wrap">
-              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
-              <label class="green" for="yearSearch">Begin</label>
-            </span>
-            <span class="label-wrap">
-              <input id="yearSearch" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
-              <label class="green" for="yearSearch">End</label>
-            </span>
+          <div id="letterSearchBtnColumnWrap">
+            <button class="green header" v-on:click="letterFilterDisplay">Letter Search</button>
+            <button class="green header" v-on:click="fullTextSearchDisplay">Full Text Search</button>
+            <div id="yearsBetweenRowWrapper">
+              <span class="label-wrap">
+                <input id="yearSearch1" placeholder="1660" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
+                <label class="green" for="yearSearch1">Begin</label>
+              </span>
+            
+              <span class="label-wrap">
+                <input id="yearSearch2" placeholder="1745" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
+                <label class="green" for="yearSearch2">End</label>
+              </span>
+            </div>
+          </div>
           
         </div>
       </div>
-      <div id="letter-wrapper">
-        <div class="toggle-wrapper">
-          <div id="letterFilterToggleWrapper">
-            <label for="toggle_button" class="switch">
-              <input type="checkbox" id="toggle_button" v-model="checkedValue">
-              <div class="slider round"></div>
-              <span class="toggle-text" v-if="isActive">Filter Authors</span>
-              <span class="toggle-text" v-if="! isActive">Filter Titles</span>
-            </label>
-          </div>
-
-          <!-- <div id="searchModeToggleWrapper">
-            <label for="search_mode_toggle_button" class="switch">
-              <input type="checkbox" id="search_mode_toggle_button" v-model="checkedValueComparison">
-              <div class="slider round"></div>
-              <span class="toggle-text" v-if="isComparing">Single Text</span>
-              <span class="toggle-text" v-if="! isComparing">Comparisons</span>
-            </label>
-          </div> -->
-        </div>
-        <div id="alphabetWrapper" class="wrapper green">
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('A')">A</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('B')">B</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('C')">C</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('D')">D</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('E')">E</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('F')">F</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('G')">G</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('H')">H</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('I')">I</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('J')">J</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('K')">K</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('L')">L</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('M')">M</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('N')">N</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('O')">O</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('P')">P</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('Q')">Q</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('R')">R</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('S')">S</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('T')">T</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('U')">U</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('V')">V</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('W')">W</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('X')">X</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('Y')">Y</span>
-          <span class="letterClick green" v-on:click="handleKeyUpLetter('Z')">Z</span>
-        </div>
-      </div>
-
-
       </div>       
       <!-- <button class="green header" v-on:click="scrapeBasic">Reset DB</button> -->
       
     </div>
-  </header>
+
+
+  </div>
 
   <main id="main">
   
@@ -413,7 +554,7 @@ export default {
   /*max-width: 1280px;*/
   margin: 0 auto;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   font-weight: normal;
   position:absolute;
   top:0px;
@@ -447,14 +588,15 @@ a,
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
   text-align:center;
+  font-weight:100;
 }
 
 .letterClick {
     background: #181818;
-    padding-left: 10px;
+    padding-left: 8px;
     padding-right: 8px;
     margin-bottom: 0px;
-    font-size: 22px;
+    font-size: 18px;
 }
 
 .letterClick:hover {
@@ -464,9 +606,25 @@ a,
 
 button {
   background: #181818;
-  font-weight: 600;
-  font-size: 18px;
-  cursor:pointer;
+  cursor: pointer;
+  flex-direction: column;
+  font-size: 14px;
+  min-width: 100px;
+  align-items: center;
+  border: black;
+  margin: 4px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  /* color: hsla(160, 100%, 37%, 1); */
+  background-color: var(--color-background-mute);
+  min-height: 40px;
+}
+
+button:hover, .button:hover {
+  background-color: hsla(160, 100%, 37%, 1);
+  color: #181818;
 }
 
 button.green-btn {
@@ -484,42 +642,39 @@ button.green-btn.bottom-btn {
 input {
   margin-top: 8px;
   background: rgba(255,255,255,0.94);
-  margin-left: 8px;
-  margin-right: 8px;
   height: 32px;
   border-radius: 4px;
+  width:88%;
 }
 
 #main {
   max-height: 100vh;
   overflow-y: scroll;
-  top:72px;
   visibility: hidden;
-  padding-left:1%;
   display: flex;
   flex-direction: column;
 }
 
 #headerDiv {
   visibility:hidden;
-  padding: 2%;
-
+  width:100%;
   /*height:100vh;*/
 }
 
 #mainText {
-  padding-top: 8px;
+  padding-top: 4px;
   line-height: 1.5;
   text-align: left;
-  padding-bottom: 24px;
-  font-size: 18px;
-  padding-right: 4%;
+  padding-bottom: 4px;
+  font-size: 16px;
+
   padding-left: 4%;
+  width: 100%;
 }
 
 #mainTextSubheader {
-  font-size: 32px;
-  left:4%;
+  font-size: 24px;
+  padding-left: 4%;
 }
 
 .toggle__button {
@@ -587,18 +742,40 @@ input[type="checkbox"] {
   border: 1px solid rgba(255,255,255,0.78);
   display:flex;
   flex-direction:row;
-  min-height:108px;
+  width: 100%;
+  position: absolute;
+  margin:0%;
+  max-height: 300px;
+  z-index: 1;
+  height: 100%;
+  background: var(--color-background);
+  display: none;
+}
+
+#letterSearchBtnColWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+#yearsBetweenRowWrapper {
+  display: flex;
+  flex-direction: row;
+  text-align:center;
 }
 
 #titleAuthorInputWrapper {
     display: flex;
     flex-direction: column;
-    width: 64%;
+    width: 100%;
     padding-top: 20px;
     padding-bottom: 20px;
+    padding-right: 4%;  
 }
 #titleAuthorInputWrapper > .label-wrap {
   width:100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #yearsBetweenInputWrapper > .label-wrap {
@@ -610,7 +787,7 @@ input[type="checkbox"] {
 #yearsBetweenInputWrapper {
   display:flex;
   flex-direction:row;
-  float: right;
+  float: center;
   width: 40%;
 }
 
@@ -624,23 +801,38 @@ input[type="checkbox"] {
 }
 
 #alphabetWrapper {
-  overflow-wrap:normal;
-  overflow-x:scroll;
-  padding-left:8%;
-  overflow-wrap:break-word;
+  overflow-x: scroll;
+  overflow-wrap: break-word;
+  align-items: center;
+  width: 70%;
+  position: absolute;
+  /* top: 52px; */
+  background: transparent;
+  z-index: 2;
+  right: 0px;
+  height: 100%;
+  
 }
 
 .wrapper-outer {
-  border:1px solid rgba(255,255,255,0.78);
   width:100%;
+  max-height:300px;
+  padding-right:2%;
+}
+
+.wrapper.search {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .jumbotron {
 width: 100%;
-  position: fixed;
   z-index: 40;
   height: 68px;
-  padding-left: 40px;
+  padding-left:2%;
   font-size: 48px;
   font-weight: 100;
   top: 0px;
@@ -660,17 +852,21 @@ width: 100%;
 }
 
 #letterFilterToggleWrapper, #searchModeToggleWrapper {
-  min-width: 16%;
-  height:50%;
-  white-space:nowrap
+  background-color: var(--color-background);
+  height: 100%;
+  white-space: nowrap;
+  /* padding-top: 188px; */
+  width: 100%;
+
 }
+
 .switch {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
-  top: 32px;
-  left: 8px;
+  top: 30%;
+  left:5%;
 }
 
 .switch input {
@@ -725,7 +921,7 @@ input:checked + .slider:before {
 .toggle-text {
   top:32px;
   position:absolute;
-  padding-left:4px;
+  left:-12%;
 }
 
 /*
@@ -744,39 +940,51 @@ input:checked + .slider:before {
   .letterClick {
     line-height:2;
   }
+#headerWrapper {
+  max-height: 300px;
+
+}
+#titleAuthorInputWrapper {
+  display:flex;
+  flex-direction: column;
+}
+
+.outer-row {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom: solid 1px var(--color-text);
+}
+
 
 @media (max-width: 900px) {
 
-  #main {
-    top:80px;
-    padding-left:4%;
-  }
   #headerDiv.noDisplay {
     display: none;
-  }
-  #headerDiv {
-    top: 72px;
-    padding-left: 4%;
-    padding-right: 4%;
   }
   #newTextPopup {
     padding: 64px !important;
   }
-  .inputsRowWrapper {
-    padding-left:4%;
+
+  #mainText {
+    font-size: 14px;
   }
   .toggle-wrapper {
-    width: 12%;
-    left: 4%;
+    width: 100%;
+    background: var(--color-background);
+    z-index: 1;
+    bottom: 0px;
   }
   .inputsRowWrapper{
-    margin-top:24px;
-    margin-bottom:24px;
-    padding-left:10%;
-    padding-right:10%;
+    margin-top:8px;
+    margin-bottom:16px;
+    padding-left:0%;
+    padding-right:4%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
   input {
-    width:68%;
+    width:88%;
   }
   #toggle_button {
     max-width: 12px;
@@ -785,9 +993,7 @@ input:checked + .slider:before {
   /*.switch {
     top:12px;
   }*/
-  .wrapper-outer {
-    padding-left: 0px;
-  }
+
 
   #titleAuthorInputWrapper {
     padding-top: 0px;
@@ -799,11 +1005,6 @@ input:checked + .slider:before {
   }
   
 }
-
-
-
-
-
 
 
 @media (min-width: 900px) {
@@ -822,7 +1023,7 @@ input:checked + .slider:before {
   header {
     place-items: center;
     padding-right: calc(var(--section-gap) / 6);
-    top:72px;
+
   }
 
   header .wrapper {
@@ -833,14 +1034,9 @@ input:checked + .slider:before {
 
 
   }
-
-  #letterWrapper {
-    padding-bottom: 32px;
-    overflow-wrap: normal;
-    flex-direction:column;
-    padding-right: 8px;
+  #yearsBetweenInputerWrapper {
+    width: 40%;
   }
-
   .wrapper-outer {
     display: flex;
     flex-direction: column;
@@ -864,4 +1060,37 @@ input:checked + .slider:before {
     padding-left: 4%;
   }
 }
+
+@media(max-width:450px){
+  .outer-row {
+    flex-direction: column;
+  }
+  #headerDiv, #wrapper-outer {
+    width: 100%;
+    height:100%;
+  }
+  #letter-wrapper {
+    min-height:100px;
+  }
+  .book-item {
+    display:none;
+  }
+}
+
+@media(min-width:450px){
+  .outer-row {
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+    position: relative;
+  }
+  #headerDiv, #wrapper-outer {
+    width: 100%;
+    height:100%;
+  }
+  .book-item {
+    display:flex;
+  }
+}
+
 </style>

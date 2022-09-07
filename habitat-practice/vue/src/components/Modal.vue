@@ -272,10 +272,10 @@ socket.onmessage = event => {
         }
       }
     }  
-    let showExplanation = document.getElementById('progressMsgExplanation')
-    if(showExplanation){
-      showExplanation.style.display = "flex";
-    }
+    // let showExplanation = document.getElementById('progressMsgExplanation')
+    // if(showExplanation){
+    //   showExplanation.style.display = "flex";
+    // }
 }
 
 // these are options for the keybuilder dropdown
@@ -1725,7 +1725,7 @@ body.modal-open {
     position: absolute;
     z-index: 40;
     height: 68px;
-    padding-left: 40px;
+
     font-size: 48px;
     font-weight: 100;
     top: 0px;
@@ -1749,7 +1749,6 @@ body.modal-open {
     position: relative;
     padding: 0% 0%;
     max-width: 100%;
-    top:72px;
     height: 100%;
   }
   #progressMsgExplanation {
@@ -1761,7 +1760,6 @@ body.modal-open {
     width: 68%;
     height: 16%;
     border-radius: 8px;
-    display: none;
     bottom:30px;
   }
   .btn-close {
@@ -1914,7 +1912,6 @@ body.modal-open {
   display: none;
   width: 100%;
   height: auto;
-  top: 72px;
 }
 #newTextPopup {
   display:none;

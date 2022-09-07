@@ -1,3 +1,4 @@
+from select import select
 from tokenize import Number
 from gevent import monkey
 monkey.patch_all()
@@ -11,7 +12,7 @@ from matplotlib.pyplot import title
 # from cli import book_arr
 import pandas as pd
 import json 
-
+from flask import jsonify
 import requests
 from models import Book
 from sqlalchemy import delete
@@ -92,7 +93,11 @@ def hello():
     count = 0
     multiplier = 20 * (count + 1)
     ## TODO: better strategy for minimizing load times...
-    books = s.query(Book).limit(multiplier).all()
+    # books = s.query(Book).limit(multiplier).all()
+    
+    books = s.query(Book).filter_by(author="Shakespeare, William")
+    typeCheck = type(books)
+  
     # books = s.query(Book)
     book_arr = []
     book_dict = {}
@@ -105,20 +110,59 @@ def hello():
         book_dict['title_url'] = u.__dict__['title_url']
         book_dict['author'] = u.__dict__['author']
         book_dict['published'] = u.__dict__['published'].isoformat()
+       
         book_json = json.loads(json.dumps(book_dict))
-    
+
         if book_json in book_arr:
             print('no dupes')
         else:
             book_arr.append(book_json) 
         
         count = count + 1 
+       
     return json.dumps(book_arr, indent=4, separators=(',', ': '))
 
 current_url = ''  
 all_letter_urls=[]  
 started = False
 
+######################
+@app.route('/tryWikiImg', methods=['POST'])
+def try_wiki_img():
+    resp = request.get_json()
+    url = resp['wikiString']
+    first_name = resp['first_name']
+    last_name = resp['last_name']
+    title = resp['title']
+    book_id = resp['book_id']
+    publication_year = resp['published'] 
+    browser = mechanicalsoup.StatefulBrowser()
+    
+    browser.open(url)
+    # form_field = browser.page.find("form")
+    # browser.select_form(form_field)
+    # ##form_field.set_input({"searchInput": title + ' ' + first_name + ' ' + last_name + ' ' + publication_year})
+    # browser['search'] = first_name + ' ' + last_name + ' ' + publication_year + ' ' + title
+    # browser.submit_selected()
+    
+    # time.sleep(5)
+    # browser.launch_browser()
+    
+    new_links = browser.page.find_all('img')
+
+    testArr = []
+    for n in new_links:
+        if n['src']:
+            testArr.append(n['src'])            
+
+    possible_img = ''
+
+    # browser.open(url)
+
+    # possible_img = browser.page.find_all('img')
+
+    return json.dumps({'img_possible':testArr, 'book_id':book_id})
+################################################
 
 ## This route scrapes metadata from all the texts in ECCO2. 
 ## It is gathering data that will be used for gathering full texts...
@@ -449,6 +493,51 @@ def scraper():
 ## ------ FINAL RETURN
 
 
+@app.route('/scraper_fulltext_search_new', methods = ['POST'])
+def f_t_search():
+    fulltext_search_input = request.get_json()['fullTextSearchInput']
+    print('WORKS!! ', fulltext_search_input)
+    browser = mechanicalsoup.StatefulBrowser()
+    
+    urls = ['https://quod.lib.umich.edu/cgi/t/text/text-idx?page=simple;g=eebogroup']
+    browser.open(urls[0])
+    
+    input_field = browser.page.find("form", id="search")
+    browser.select_form(input_field)
+    form = browser.get_current_form()
+
+    browser['q1'] = "monkeys"
+    # form.set_input({"q1": fulltext_search_input})
+    # btn = browser.page.find('input')
+    # for a in btn:
+    #     if a.value == "Search":
+    #         a.click()
+    check = browser.submit_selected()
+
+    browser.launch_browser()
+
+    time.sleep(4)
+    form_field = browser.page.find("form", id="sort")
+    form_sel = browser.select_form(form_field)
+
+    form_sel.set_select({'sort':'freq'})
+    
+    time.sleep(4)
+
+    full_search_test = []
+    full_search_titles = []
+    available_titles = browser.page.find('div', class_="itemcitation")
+
+    for i in available_titles:
+        full_search_titles.append(i)
+
+    evidence = {} 
+
+    evidence['titles'] = check.text.replace("\n","")
+    evidence['search_term'] = fulltext_search_input
+
+    return json.dumps({'evidenceArr':evidence})
+
 ## A few search endpoints / methods here... 
 ## TODO: Add one more using mechanical soup to use ECCO2's search input form
 ## --------------------------------------------------------------------------
@@ -602,7 +691,7 @@ def res_t():
 
 
 if __name__ == '__main__':
-    app.debug=False
+    app.debug=True
     app.run(host='0.0.0.0',use_reloader=True,debug=True)
     WSGIServer(('127.0.0.1', 5000), app).serve_forever()
 

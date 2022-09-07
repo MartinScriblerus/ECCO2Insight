@@ -15,6 +15,7 @@ const props = defineProps({
   loaded: Boolean,
 });
 
+
 const selectedTitle : any = ref('');
 const selectedAuthor : any = ref('')
 const tocData : any = ref({});
@@ -26,9 +27,11 @@ const openFull : any = ref(false);
 // const modal : any = ref(Modal);
 
 if(props.items){
+  
   watch(props.items, (currentValue, oldValue) => {
     console.log(currentValue);
     console.log(oldValue);
+
     return;
   });
 }
@@ -126,9 +129,9 @@ async function doCloseModal(){
   // document.getElementById("jumbotron").style.display = "flex";
   let main = document.getElementById("main");
   let headerDiv = document.getElementById("headerDiv");
-  if(main){
-    main.style.top = "72px";
-  }
+  // if(main){
+  //   main.style.top = "72px";
+  // }
   if(headerDiv){
     headerDiv.style.visibility = "visible";
   }
@@ -155,7 +158,9 @@ async function doOpenAwaitScrape(){
 function scrapeAnotherUrl(url : String){
   console.log("hit scrape another url...")
   return scrape_text(url);
-}
+};
+
+
 
 </script>
 
@@ -177,44 +182,65 @@ function scrapeAnotherUrl(url : String){
 />
   <!-- set up a scroll here to show as many as we need -->
   <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
-    
-      <h3 class="book-title">
-        {{ item ? item.title : null}}
-      </h3>
-      <h4 class="book-author">
-        {{ item ? item.author : null}}
-      </h4>
-      <div id="search-bottom-wrapper" class="book-items">
-        <p class="book-item">
-          Published {{ item ? moment(item.published).format('YYYY')  : null}}
-        </p>
-        <!-- <p class="book-item">
-          {{ item ? item.pages : null}} pages
-        </p> -->
-        
-        <!-- <p class="book-item">
-          {{ item ? item.price : null}}
-        </p> -->
-        <button v-on:click="open = true,show_TOC(item.title_url, item.title, item.author)" class="book-item button">See Contents</button>
-        <button v-on:click="open = true,scrape_text(item.title_url)" class="book-item button">Load Full Text</button>
+    <div id="bookSearchMainWrapper">
+
+      <img :id="`authorImage_${item.id}`" src="//upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Alexander_Pope_by_Michael_Dahl.jpg/220px-Alexander_Pope_by_Michael_Dahl.jpg"/>
+      
+
+      <div id="bookSearchMainInfoWrapper">
+        <h3 class="book-title">
+          {{ item ? item.title : null}}
+        </h3>
+        <div id="search-bottom-wrapper" class="book-items">
+          <h4 class="book-author">
+            {{ item ? item.author : null}}
+          </h4> 
+          <p class="book-item">
+            Pub. {{ item ? moment(item.published).format('YYYY')  : null}}
+          </p>
+        </div>
       </div>
+ 
+      <div id="bookSearchMainButtonsWrapper">
+        <button v-on:click="open = true,show_TOC(item.title_url, item.title, item.author)" class="book-item button">Contents</button>
+        <button v-on:click="open = true,scrape_text(item.title_url)" class="book-item button">Full Text</button>
+      </div>
+    </div>
+    
+      
+
   </div>
 
 </template> 
 
 <style>
+#authorImage {
+  max-width: 100%;
+  max-height: auto;
+  position: relative;
+  max-height: 152px;
+}
 .book-title {
-  font-size: 1.2rem;
+  font-size: 16px;
   font-weight: 500;
   margin-bottom: 0.2rem;
   color: var(--color-heading);
-  padding-top: 12px;
+  padding-top: 8px;
+  height:120px;
+  overflow-y:scroll;
+  padding:2%;
 }
 .book-author {
   font-size: 1rem;
   font-weight: 300;
   margin-bottom: 0.1rem;
   color: var(--color-text);
+  width: 100%;
+  line-height: 1.5;
+  padding-left: 2%;
+}
+.search-bottom-wrapper{
+  max-height:32px;
 }
 .book-items {
   font-size: 0.8rem;
@@ -222,19 +248,50 @@ function scrapeAnotherUrl(url : String){
   color: hsla(160, 100%, 37%, 1);
   display: flex;
   flex-direction: row;
-  border-bottom: solid 1px var(--color-text)
+
 }
 .book-item {
   width: 50%;
   color: rgba(255,255,255,0.94);
+  line-height:1.8;
 }
 .book-item.button {
   display: flex;
   justify-content: center;
- 
+  width: 100%;
   color: hsla(160, 100%, 37%, 1);
+  background-color: var(--color-background-mute);
+  min-height: 40px;
+  flex-direction: column;
+  /* top: 10%; */
+  margin: 0;
+  font-weight: 100;
+  font-size: 14px;
+  min-width: 100px;
+  align-items: center;
+  border: black;
+  margin: 4px;
+  border-radius: 8px;
 }
 
-
+#bookSearchMainWrapper {
+  display:flex;
+  flex-direction:row;
+  border-bottom: solid 1px var(--color-text);
+  font-weight: 100;
+  padding-right:2%;
+}
+#bookSearchMainInfoWrapper {
+  display:flex;
+  flex-direction:column;
+  width: 100%;
+}
+#bookSearchMainButtonsWrapper {
+  display:flex;
+  flex-direction:column;
+  width:20%;
+  padding-top:2%;
+  padding-right: 2%;
+}
 
 </style>
