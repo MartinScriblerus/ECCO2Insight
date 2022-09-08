@@ -86,13 +86,15 @@ export default {
       data: null,
       loaded: null,
     });
+    const firstOne = ref(true);
+    firstOne.value = true;
     const authorPortraits:any = ref([]);
     // authorPortraits.value = [];
     props = state; 
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
-      console.log("fucking url ", wikiString);
-      console.log("fucking first name ", firstName);
-      console.log("fucking last name ", lastName);
+      console.log("wiki url ", wikiString);
+      console.log("wiki first name ", firstName);
+      console.log("wiki last name ", lastName);
       
       let getImg = await fetch('http://localhost:5000/tryWikiImg', {
         headers: {
@@ -102,24 +104,11 @@ export default {
         method: "POST",
         body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
       }).then(response => response.json()).then(result => {
-        console.log("fuck shit: ", result);
           let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
-          relevantImgEl['src'] = result['img_possible'][3]
-          // if(result['img_possible'].indexOf('.jpg') !== -1){
-          //   console.log("result length: ", result['img_possible'].length);
-          //   console.log("result type: ", typeof result['img_possible']);
-
-          //   authorPortraits.value.push(Object.keys(result)['img_possible']);
-          // }
-
-
+            relevantImgEl['src'] = result['img_possible'][0];
         if(result.length){
-          console.log("WHAT IS THE RESULT??? ");
-          // let arr  : Array<Object> = [];
-          // for(let i = 0; i < result.length; i++){
-          //   JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
-          //   arr.push(JSON.parse(result[i]));
-          // }
+          // console.log("WHAT IS THE RESULT??? ");
+
           return result;
         } else {
           return null;

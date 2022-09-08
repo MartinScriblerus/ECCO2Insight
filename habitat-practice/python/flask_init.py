@@ -17,6 +17,9 @@ import requests
 from models import Book
 from sqlalchemy import delete
 from sqlalchemy import func 
+from sqlalchemy import and_, or_, not_
+from sqlalchemy.sql import union
+from sqlalchemy.sql import text
 import re
 
 
@@ -54,7 +57,7 @@ sock = Sock(app)
 # print('what is sock??? ', sock)
 CORS(app, support_credentials=True)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
-print("WHAT IS FUCKING SOCKET: ", sock)
+
 # create handler for each connection
 ## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
 
@@ -95,9 +98,51 @@ def hello():
     ## TODO: better strategy for minimizing load times...
     # books = s.query(Book).limit(multiplier).all()
     
-    books = s.query(Book).filter_by(author="Shakespeare, William")
-    typeCheck = type(books)
-  
+   # books = s.query(Book).filter(Book.author=="Shakespeare, William" and Book.author=="Pope, Alexander")
+    
+    ###########
+    # shakespeare = s.query(Book).filter(Book.title == "Poems: vvritten by Wil. Shake-speare. Gent").first()
+    # pope = s.query(Book).filter(Book.title == "The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727.").first()
+    books = s.query(Book).filter(
+        or_(
+            Book.title == "Poems: vvritten by Wil. Shake-speare. Gent",
+            Book.title == "The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."
+        )
+    ).all()
+    
+    # and Book.title="The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."))
+    ######
+    # books = union(
+    #     Book.select(where(Book.c.title == "Poems: vvritten by Wil. Shake-speare. Gent")),
+    #     Book.select(where(Book.c.title == "The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."))
+    #     .order_by(Book.c.title)
+    # )
+    #pope = s.query(Book).filter_by(author="Pope, Alexander")
+    
+
+    # austen = s.query(Book).filter_by(author="Austen, Jane").first()
+    # behn = s.query(Book).filter_by(author="Behn, Aphra").first()
+    # equiano = s.query(Book).filter_by(author="Equiano, Olaudah").first()
+    # smart = s.query(Book).filter_by(author="Smart, Christopher").first()
+    # leapor = s.query(Book).filter_by(author="Leapor, Mary").first()
+    # marlowe = s.query(Book).filter_by(author="Marlowe, Christopher").first()
+    # franklin s.query(Book).filter_by(author="Franklin, Ben").first()
+    # swift = s.query(Book).filter_by(author="Swift, Jonathan").first()
+    # sterne = s.query(Book).filter_by(author="Sterne, Laurence").first()
+    # donne = s.query(Book).filter_by(author="Donne, John").first()
+    # johnson = s.query(Book).filter_by(author="Johnson, Samuel").first()
+    # bacon = s.query(Book).filter_by(author="Francis Bacon").first()
+    # locke = s.query(Book).filter_by(author="Locke, John").first()
+    # milton = s.query(Book).filter_by(author="Milton, John").first()
+    # chatterton = s.query(Book).filter_by(author="Chatteron, Thomas").first()
+    # paine = s.query(Book).filter_by(author="Leapor, Mary").first()
+    # augustine = s.query(Book).filter_by(author="Augstine, Saint", title="Digitus dei or God appearing in his wonderfull works For the conuiction of nullifidians.").first()
+    # radcliffe = s.query(Book).filter_by(author="Radcliffe, Ann").first()
+    #paracelsus = s.query(Book).filter_by(author="Paracelsus").first()
+    # wheatley = s.query(Book).filter_by(author="Wheatley, Phillis").first()
+ 
+    
+
     # books = s.query(Book)
     book_arr = []
     book_dict = {}
@@ -148,11 +193,11 @@ def try_wiki_img():
     # time.sleep(5)
     # browser.launch_browser()
     
-    new_links = browser.page.find_all('img')
+    # new_links = browser.page.find_all('img')
+    new_links = browser.page.select('td.infobox-image > a > img')
 
     testArr = []
-    for n in new_links:
-        if n['src']:
+    if n['src']:
             testArr.append(n['src'])            
 
     possible_img = ''
