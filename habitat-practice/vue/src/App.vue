@@ -93,9 +93,40 @@ export default {
     props = state; 
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
       console.log("wiki url ", wikiString);
-      console.log("wiki first name ", firstName);
-      console.log("wiki last name ", lastName);
-      
+      if(wikiString === "https://en.wikipedia.org/wiki/Robert_Herrick"){
+        wikiString = "https://en.wikipedia.org/wiki/Robert_Herrick_(poet)";
+      } 
+      if(wikiString === "https://en.wikipedia.org/wiki/Charles_Churchill"){
+        wikiString = "https://en.wikipedia.org/wiki/Charles_Churchill_(satirist)";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Cavendish_Newcastle"){
+        wikiString = "https://en.wikipedia.org/wiki/Margaret_Cavendish,_Duchess_of_Newcastle-upon-Tyne";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Charles_Brown"){
+        wikiString = " https://en.wikipedia.org/wiki/Charles_Brockden_Brown";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Home_Kames"){
+        wikiString = "https://en.wikipedia.org/wiki/Henry_Home,_Lord_Kames"; 
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Mrs_Leapor"){
+        wikiString = "https://en.wikipedia.org/wiki/Mary_Leapor";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Nicholas_Rowe"){
+        wikiString = "https://en.wikipedia.org/wiki/Nicholas_Rowe_(writer)";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/Charlotte_Smith"){
+        wikiString = "https://en.wikipedia.org/wiki/Charlotte_Smith_(writer)";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/alMalik"){
+        wikiString = "https://en.wikipedia.org/wiki/Ibn_Tufail";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/"){
+        wikiString = "https://en.wikipedia.org/wiki/Elizabeth_I";
+      }
+      if(wikiString === "https://en.wikipedia.org/wiki/I"){
+        wikiString = "https://en.wikipedia.org/wiki/Charles_I_of_England";
+      }
+
       let getImg = await fetch('http://localhost:5000/tryWikiImg', {
         headers: {
           'Accept': 'application/json',
@@ -105,7 +136,11 @@ export default {
         body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
       }).then(response => response.json()).then(result => {
           let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
-            relevantImgEl['src'] = result['img_possible'][0];
+       
+          if(result['img_possible'].length < 1){
+            console.log("PROBLEM TEXT 2 ", result)
+          } 
+          relevantImgEl['src'] = result['img_possible'][0];
         if(result.length){
           // console.log("WHAT IS THE RESULT??? ");
 
@@ -152,47 +187,83 @@ export default {
       let rawAuthorName = JSON.parse(JSON.stringify(state.data));
 
       rawAuthorName.map((i)=>{
-          console.log("R A N: ", i['author']);
-          let splitSpaces = i['author'].split(' ');
-          splitSpaces.length = 2;
-          console.log("split spaces: ", splitSpaces);
+
+          
           let published = new Date(); 
           let first = '';
           let last = ''; 
           let title = ''; 
           let bookId = 0;
+          let sub_url = ''
+          let splitSpaces = []
+          if(i['author'].indexOf(' ')){
+            splitSpaces = i['author'].split(' ');
+            let getFirst = false;
 
-          published = i['published'];
-          title = i['title']
-          bookId = i['id']
-          let getFirst = false;
           for(let s = 0; s < splitSpaces.length; s++){
+            
+            if(s>2){
+              splitSpaces.slice(s,2);
+          
+            }
+            
             if(splitSpaces[s].indexOf(',') !== -1){
               let cutIndex = splitSpaces[s].indexOf(',');
+              first = splitSpaces[s].slice(0,cutIndex)
+              
               if(s === 0){
                 last = splitSpaces[s].slice(0,cutIndex);
                 getFirst = true;
-              } else if (s === 1){
-                first = splitSpaces[s].slice(0,cutIndex);
-              } else {}
-              getFirst = true;
+              } 
+   
             } else {
               if(getFirst){
                 getFirst = false;
                 first = splitSpaces[1]
+              } else {
+                console.log("PROBLEM TEXT: ", splitSpaces[s]);
+
               }
             }
+
+
+
+
           }
-          let sub_url = first + '_' + last;
-          if(sub_url.indexOf(',') !== -1){ 
-            let cutIndex = sub_url.indexOf(',');  
-            sub_url = sub_url.slice(0,cutIndex);
-            return
+          if(first.indexOf(',') !== -1 ){ 
+            let cutIndex = first.indexOf(',');  
+            first = first.slice(0,cutIndex);
           }
-          first = '';
-          last = '';
-          console.log("SUB URL2 ", sub_url) //*********** build out image search here
+
+          if(last.indexOf(',') !== -1){ 
+            let cutIndex = last.indexOf(',');  
+            last = last.slice(0,cutIndex);
+          }
+
+          if(last === ''){
+            sub_url = first;
+          } else if(last === 'Ibn') {
+            console.log("HIT THIS!!! ", last);
+            sub_url = last + '_' + first;
+          } 
+          
+          else {
+            sub_url = first + '_' + last;
+          }
+
+          } 
+
+       
+          if(splitSpaces.length === 1){
+            sub_url = splitSpaces[0]
+          }
+
+          published = i['published'];
+          title = i['title']
+          bookId = i['id']
+
           let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
+          
           tryGetWikiImage(wikiString, first, last, title, published, bookId);
           
         });

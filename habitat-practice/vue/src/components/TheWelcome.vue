@@ -184,7 +184,7 @@ function scrapeAnotherUrl(url : String){
   <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
     <div id="bookSearchMainWrapper">
 
-      <img :id="`authorImage_${item.id}`" src="//upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Alexander_Pope_by_Michael_Dahl.jpg/220px-Alexander_Pope_by_Michael_Dahl.jpg"/>
+      <img class="author-image" :id="`authorImage_${item.id}`" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Blank_woman_placeholder.svg"/>
       
 
       <div id="bookSearchMainInfoWrapper">
@@ -214,11 +214,15 @@ function scrapeAnotherUrl(url : String){
 </template> 
 
 <style>
-#authorImage {
-  max-width: 100%;
-  max-height: auto;
-  position: relative;
-  max-height: 152px;
+
+.author-image {
+  max-height: 320px;
+  width: 180px;
+  object-fit: cover;
+  align-items: center;
+  justify-content: center;
+  min-width: 164px;
+  min-height:200px;
 }
 .book-title {
   font-size: 16px;
@@ -226,7 +230,7 @@ function scrapeAnotherUrl(url : String){
   margin-bottom: 0.2rem;
   color: var(--color-heading);
   padding-top: 8px;
-  height:120px;
+  height:90%;
   overflow-y:scroll;
   padding:2%;
 }
@@ -280,6 +284,7 @@ function scrapeAnotherUrl(url : String){
   border-bottom: solid 1px var(--color-text);
   font-weight: 100;
   padding-right:2%;
+  max-height:260px;
 }
 #bookSearchMainInfoWrapper {
   display:flex;
@@ -289,7 +294,7 @@ function scrapeAnotherUrl(url : String){
 #bookSearchMainButtonsWrapper {
   display:flex;
   flex-direction:column;
-  width:20%;
+  width:40%;
   padding-top:2%;
   padding-right: 2%;
 }

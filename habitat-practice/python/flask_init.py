@@ -105,11 +105,93 @@ def hello():
     # pope = s.query(Book).filter(Book.title == "The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727.").first()
     books = s.query(Book).filter(
         or_(
-            Book.title == "Poems: vvritten by Wil. Shake-speare. Gent",
-            Book.title == "The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."
+            Book.title.contains("Poems: vvritten by Wil. Shake-speare. Gent"),
+            Book.title.contains("The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."),
+            Book.title.contains("Letters of the late Rev. Mr. Laurence Sterne, to his most intimate friends. With a fragment in the manner of Rabelais. To which are prefix'd, memoirs of his life and family. Written by himself. And published by his daughter, Mrs. Medalle. In three volumes."),
+            Book.title.contains("The interesting narrative of the life of Olaudah Equiano: or Gustavus Vassa, the African. Written by himself."),
+            Book.title.contains("Poems on several occasions: By Christopher Smart"),
+            Book.title.contains("Poems upon several occasions: By Mrs. Leapor"),
+            Book.title.contains("A tragedy. As it is acted at the Theatre-Royal in Drury-Lane, by Her Majesty's servants. By Mr. Addison."),
+            Book.title.contains("The Rambler.: [pt."),
+            Book.title.contains("The beggar's opera: As it is acted at the Theatre-Royal in Lincolns-Inn-Fields. Written by Mr. Gay."),
+            Book.title.contains("The mysteries of Udolpho: a romance; interspersed with some pieces of poetry. By Ann Radcliffe"),
+            Book.title.contains("A wife well manag'd: A farce"),
+            Book.title.contains("An elegiac poem, on the death of that celebrated divine, and eminent servant of Jesus Christ, the late Reverend, and pious George Whitefield"),
+            Book.title.contains("A proposal for promoting useful knowledge among the British plantations in America."),
+            Book.title.contains("Little flocks guarded against grievous wolves. An address unto those parts of New-England which are most exposed unto assaults, from the modern teachers of the misled Quakers. : In a letter, which impartially discovers the manifold haeresies and blasphemies, and the strong delusions of even the most refined Quakerism; and thereupon demonstrates the truth of those principles and assertions, which are most opposite thereunto. : With just reflections upon the extream ignorance and wickedness, of George Keith, who is the seducer that now most ravines upon the churches in this wilderness."),
+            Book.title.contains("Dissertations on government, the affairs of the bank, and paper-money. By the author of Common sense."),
+            Book.title.contains("Paradise lost a poem written in ten books"),
+            Book.title.contains("The temple Sacred poems and private ejaculations. By Mr. George Herbert."),
+            Book.title.contains("Resuscitatio, or, Bringing into publick light severall pieces of the works, civil, historical, philosophical, & theological, hitherto sleeping, of the Right Honourable Francis Bacon, Baron of Verulam, Viscount Saint Alban according to the best corrected coppies"),
+            Book.title.contains("All the histories and novels written by the late ingenious Mrs. Behn entire in one volume : together with the history of the life and memoirs of Mrs. Behn never before printed"),
+            Book.title.contains("Philosophicall fancies. Written by the Right Honourable, the Lady Newcastle."),
+            Book.title.contains("Paradoxes, problemes, essayes, characters written by Dr. Donne, dean of Pauls"),
+            Book.title.contains("De co[n]temptu mundi The dispisyng of the worlde"),
+            Book.title.contains("Paracelsus his Aurora, & treasure of the philosophers· As also the water-stone of the wise men; describing the matter of, and manner how to attain the universal tincture."),
+            Book.title.contains("The tragedie of Dido Queene of Carthage played by the Children of her Maiesties Chappell"),
+            Book.title.contains("The life and strange surprizing adventures of Robinson Crusoe: of York, mariner: who lived eight and twenty years, all alone in an un-inhabited island on the coast of America, near the mouth of the great river of Oroonoque"),
+            Book.title.contains("Sketches of the history of man: In four volumes."),
+            Book.title.contains("The castle of Otranto: a story. Translated by William Marshal, Gent."),
+            Book.title.contains("The botanic garden: a poem, in two parts. Part I. Containing the economy of vegetation. Part II. The loves of the plants. With philosophical notes."),
+            Book.title.contains("Miscellanies in prose and verse: by Thomas Chatterton, the supposed author of the poems published under the names of Rowley, Canning, &c."),
+            Book.title.contains("Reflections on the Revolution in France: and on the proceedings in certain societies in London relative to that event. In a letter intended to have been sent to a gentleman in Paris. By the Right Honourable Edmund Burke."),
+            Book.title.contains("The history of the decline and fall of the Roman Empire: By Edward Gibbon, Esq; ... [pt."),
+            Book.title.contains("A paraphrase on the book of Job as likewise on the songs of Moses, Deborah, David, on four select psalms, some chapters of Isaiah, and the third chapter of Habakkuk"),
+            Book.title.contains("The foure ages of England, or, The iron age with other select poems"),
+            Book.title.contains("Elements of philosophy the first section, concerning body / written in Latine by Thomas Hobbes of Malmesbury ; and now translated into English ; to which are added Six lessons to the professors of mathematicks of the Institution of Sr. Henry Savile, in the University of Oxford."),
+            Book.title.contains("Dialogues concerning natural religion: By David Hume, Esq;."),
+            Book.title.contains("Memoirs of the extraordinary life, works, and discoveries of Martinus Scriblerus. By Mr. Pope:"),
+            Book.title.contains("The emigrants, a poem, in two books. By Charlotte Smith:"),
+            Book.title.contains("The history of Tom Jones: a foundling. In three volumes. ... By Henry Fielding, Esq;. [pt."),
+            Book.title.contains("Utopia written in Latin by Sir Thomas More, Chancellor of England ; translated into English."),
+            Book.title.contains("Poems, with a maske by Thomas Carew ... ; the songs were set in musick by Mr. Henry Lawes"),
+            Book.title.contains("Philosophiæ naturalis principia mathematica autore Js. Newton"),
+            Book.title.contains("Animadversions upon Mr. Hobbes's Problemata de vacuo by the Honourable Robert Boyle"),
+            Book.title.contains("The workes of Geffray Chaucer newlye printed, wyth dyuers workes whych were neuer in print before: as in the table more playnly doth appere. Cum priuilegio ad imprimendum solum."),
+            Book.title.contains("MacFlecknoe"),
+            Book.title.contains("The shepheardes calender conteyning tvvelue æglogues proportionable to the twelue monethes. Entitled to the noble and vertuous gentleman most worthy of all titles both of learning and cheualrie M. Philip Sidney."),
+            Book.title.contains("The loyal Protestants vindication, fairly offered to all those sober minds who have the art of using reason, and the power of suppressing passion by a Queen Elizabeth Protestant."),
+            Book.title.contains("An apologie for poetrie. VVritten by the right noble, vertuous, and learned, Sir Phillip Sidney, Knight"),
+            Book.title.contains("The Spanish tragedie containing the lamentable end of Don Horatio, and Bel-imperia: with the pittifull death of olde Hieronimo."),
+            Book.title.contains("The poems: of Mr. Gray. To which are prefixed Memoirs of his life and writings by W. Mason, M.A."),
+            Book.title.contains("The life of Samuel Johnson, LL.D: comprehending an account of his studies and numerous works, ... In two volumes. By James Boswell, Esq. ... [pt"),
+            Book.title.contains("Miscellanies; or, literary recreations. By I. D'Israeli:"),
+            Book.title.contains("Patriarcha, or, The natural power of Kings by the learned Sir Robert Filmer."),
+            Book.title.contains("The displaying of supposed witchcraft wherein is affirmed that there are many sorts of deceivers and impostors and divers persons under a passive delusion of melancholy and fancy, but that there is a corporeal league made betwixt the Devil and the witch ... is utterly denied and disproved : wherein also is handled, the existence of angels and spirits, the truth of apparitions, the nature of astral and sydereal spirits, the force of charms, and philters, with other abstruse matters"),
+            Book.title.contains("The anatomy of melancholy vvhat it is. VVith all the kindes, causes, symptomes, prognostickes, and seuerall cures of it. In three maine partitions with their seuerall sections, members, and subsections. Philosophically, medicinally, historically, opened and cut vp. By Democritus Iunior. With a satyricall preface, conducing to the following discourse."),
+            Book.title.contains("An account of the Oriental philosophy shewing the wisdom of some renowned men of the East and particularly the profound wisdom of Hai Ebn Yokdan, both in natural and divine things, which he attained without all converse with men, (while he lived in an island a solitary life, remote from all men from his infancy, till he arrived at such perfection)"),
+            Book.title.contains("Poems on several occasions: By N. Rowe, Esq;."),
+            Book.title.contains("A defence of free-thinking in mathematics: In answer to a pamphlet of Philalethes Cantabrigiensis, intituled, Geometry no friend to infidelity, or a defence of Sir Isaac Newton, and the British mathematicians. Also an appendix concerning Mr. Walton's Vindication of the principles of fluxions ... By the author of The minute philosopher."),
+            Book.title.contains("Lectures on rhetoric and belles lettres: By Hugh Blair, ... In three volumes. ... [pt."),
+            Book.title.contains("The prophecy of famine. A Scots pastoral: By C. Churchill. Inscribed to John Wilkes, Esq;."),
+            Book.title.contains("Basiliká the works of King Charles the martyr : with a collection of declarations, treaties, and other papers concerning the differences betwixt His said Majesty and his two houses of Parliament : with the history of his life : as also of his tryal and martyrdome."),
+            Book.title.contains("Hesperides, or, The works both humane & divine of Robert Herrick, Esq."),
+            Book.title.contains("A letter to the Reverend Mr. Dean Swift, occasion'd by a satire said to be written by him, entitled, A dedication to a great man, ... By a sparkish pamphleteer of Button's Coffee-house:"),
+            Book.title.contains("An essay on man: In epistles to a friend."),
+            Book.title.contains("Sketches of the history of America. By James Thomson Callender. ; (Entered according to law.)"),
+            Book.title.contains("Wieland; or The transformation. An American tale. : [Four lines of verse] : Copy-right secured."),
+            Book.title.contains("An address to the Negroes in the state of New-York, by Jupiter Hammon, servant of John Lloyd, Jun, Esq; of the manor of Queen's Village, Long-Island. ; [Four lines from Acts]"),
+
+            Book.title.contains("An address to Protestant dissenters of all denominations, on the approaching election of members of Parliament, with respect to the state of public liberty in general, and of American affairs in particular."),
+            Book.title.contains("The tragicall historie of Hamlet Prince of Denmarke by William Shake-speare. As it hath beene diuerse times acted by his Highnesse seruants in the cittie of London: as also in the two vniuersities of Cambridge and Oxford, and else-where"),
+            Book.title.contains("Maria: or, The wrongs of woman. A posthumous fragment. / By Mary Wollstonecraft Godwin. Author of A vindication of the rights of woman."),
+            Book.title.contains("What think ye of Christ? A sermon / preached by the Rev. George Whitefield, on Kennington-Common, after he was refused the use of all the churches."),
+            
+            Book.title.contains("The vision of Columbus; a poem in nine books. / By Joel Barlow, Esquire."),
+            Book.title.contains("Memoirs of the author of A vindication of the rights of woman: By William Godwin."),
+            Book.title.contains("A voyage to Boston. A poem. : [Five lines from Shakespeare]"),
+            Book.title.contains("The adventures of Colonel Daniel Boon, one of the first settlers at Kentucke: containing the wars with the Indians on the Ohio, from 1769 to 1783, and the first establishment and progress of the settlement on that river. / Written by the colonel himself. ; To which are added, a narrative of the captivity and extraordinary escape of Mrs. Francis [sic] Scott, an inhabitant of Washington-County Virginia"),
+            Book.title.contains("Several poems compiled with great variety of wit and learning, full of delight, wherein especially is contained a compleat discourse, and description of the four elements constitutions, ages of man, seasons of the year. : Together with an exact epitome of the three first monarchyes viz. the Assyrian, Persian, Grecian. And beginning of the Romane Common-Wealth to the end of their last king: : with diverse other pleasant & serious poems, / by a gentlewoman in New-England."),
+            Book.title.contains("The last official address, of His Excellency General Washington, to the legislatures of the United States. To which is annexed, a collection of papers relative to half-pay, and commutation of half-pay, granted by Congress to the officers of the army."),
+            Book.title.contains("The Federalist: a collection of essays, written in favour of the new Constitution, as agreed upon by the Federal Convention, September 17, 1787. : In two volumes"),
+            Book.title.contains("Thoughts on government: applicable to the present state of the American colonies. : In a letter from a gentleman to his friend."),
+            Book.title.contains("An oration, pronounced July 4th, 1793, at the request of the inhabitants of the town of Boston, in commemoration of the anniversary of American independence. / By John Quincy Adams. ; [Five lines of quotations]"),
+            Book.title.contains("An address to the inhabitants of the British settlements, on the slavery of the Negroes in America. To which is added, A vindication of the address, in answer to a pamphlet entitled, 'Slavery not forbidden in Scripture; or, A defence of the West India planters.' / By a Pennsylvanian. ; [Fifteen lines of verse, signed Proteus]")
         )
     ).all()
-    
+    res = [] 
+    [res.append(Book.id) for Book.id in books if Book.id not in res]
+    books = res
     # and Book.title="The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."))
     ######
     # books = union(
@@ -120,28 +202,7 @@ def hello():
     #pope = s.query(Book).filter_by(author="Pope, Alexander")
     
 
-    # austen = s.query(Book).filter_by(author="Austen, Jane").first()
-    # behn = s.query(Book).filter_by(author="Behn, Aphra").first()
-    # equiano = s.query(Book).filter_by(author="Equiano, Olaudah").first()
-    # smart = s.query(Book).filter_by(author="Smart, Christopher").first()
-    # leapor = s.query(Book).filter_by(author="Leapor, Mary").first()
-    # marlowe = s.query(Book).filter_by(author="Marlowe, Christopher").first()
-    # franklin s.query(Book).filter_by(author="Franklin, Ben").first()
-    # swift = s.query(Book).filter_by(author="Swift, Jonathan").first()
-    # sterne = s.query(Book).filter_by(author="Sterne, Laurence").first()
-    # donne = s.query(Book).filter_by(author="Donne, John").first()
-    # johnson = s.query(Book).filter_by(author="Johnson, Samuel").first()
-    # bacon = s.query(Book).filter_by(author="Francis Bacon").first()
-    # locke = s.query(Book).filter_by(author="Locke, John").first()
-    # milton = s.query(Book).filter_by(author="Milton, John").first()
-    # chatterton = s.query(Book).filter_by(author="Chatteron, Thomas").first()
-    # paine = s.query(Book).filter_by(author="Leapor, Mary").first()
-    # augustine = s.query(Book).filter_by(author="Augstine, Saint", title="Digitus dei or God appearing in his wonderfull works For the conuiction of nullifidians.").first()
-    # radcliffe = s.query(Book).filter_by(author="Radcliffe, Ann").first()
-    #paracelsus = s.query(Book).filter_by(author="Paracelsus").first()
-    # wheatley = s.query(Book).filter_by(author="Wheatley, Phillis").first()
- 
-    
+
 
     # books = s.query(Book)
     book_arr = []
@@ -180,6 +241,7 @@ def try_wiki_img():
     last_name = resp['last_name']
     title = resp['title']
     book_id = resp['book_id']
+    print(last_name)
     publication_year = resp['published'] 
     browser = mechanicalsoup.StatefulBrowser()
     
@@ -195,10 +257,14 @@ def try_wiki_img():
     
     # new_links = browser.page.find_all('img')
     new_links = browser.page.select('td.infobox-image > a > img')
-
+    if len(new_links) < 1:
+        new_links = browser.page.select('img.thumbimage')
     testArr = []
-    if n['src']:
-            testArr.append(n['src'])            
+
+    for n in new_links:
+        if n['src']:
+            testArr.append(n['src']) 
+         
 
     possible_img = ''
 
@@ -206,7 +272,7 @@ def try_wiki_img():
 
     # possible_img = browser.page.find_all('img')
 
-    return json.dumps({'img_possible':testArr, 'book_id':book_id})
+    return json.dumps({'img_possible':testArr, 'book_id':book_id, 'book_last_name':last_name})
 ################################################
 
 ## This route scrapes metadata from all the texts in ECCO2. 
