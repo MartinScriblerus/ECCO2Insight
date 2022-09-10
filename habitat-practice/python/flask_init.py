@@ -679,7 +679,7 @@ def full_text_search():
 def resp():
     author_to_filter = request.get_json()['author_filter']
     query_res = s.query(Book).filter(Book.author.contains(str(author_to_filter))).all()
-    test = s.query(Book).filter(Book.origin.contains(str("eai"))).all()
+    #test = s.query(Book).filter(Book.origin.contains(str("eai"))).all()
     resp1 = []
     if query_res is not None:
         for i in query_res:
@@ -706,21 +706,21 @@ def resp_title():
 
 @app.route('/scraper_year_filter', methods = ['POST'])
 def resp_2():
-    if int(request.get_json()['yearBegin']) > 1699:
-        if int(request.get_json()['yearEnd']) > 1699:
-            year_to_filter_begin = date(int(request.get_json()['yearBegin']),1,1)
-            year_to_filter_end = date(int(request.get_json()['yearEnd']),1,1)
-            query_res_year = s.query(Book).filter(Book.published.between(year_to_filter_begin,year_to_filter_end)).all()
-            resp_year = []
-            if query_res_year is not None:
-                for i in query_res_year:
-                    bk_year = json.dumps(i.as_dict(), indent=4, sort_keys=True, default=str)
-                    resp_year.append(bk_year)
-                return json.dumps(resp_year)
-        else:
-            return {}    
-    else:
-        return {}    
+    # if int(request.get_json()['yearBegin']) > 1399:
+    #     if int(request.get_json()['yearEnd']) > 1899:
+    year_to_filter_begin = date(int(request.get_json()['yearBegin']),1,1)
+    year_to_filter_end = date(int(request.get_json()['yearEnd']),1,1)
+    query_res_year = s.query(Book).filter(Book.published.between(year_to_filter_begin,year_to_filter_end)).all()
+    resp_year = []
+    if query_res_year is not None:
+        for i in query_res_year:
+            bk_year = json.dumps(i.as_dict(), indent=4, sort_keys=True, default=str)
+            resp_year.append(bk_year)
+        return json.dumps(resp_year)
+    #     else:
+    #         return {}    
+    # else:
+    #     return {}    
 
 @app.route('/scraper_get_toc', methods = ['POST'])
 def res_toc():  

@@ -27,14 +27,23 @@ const openFull : any = ref(false);
 // const modal : any = ref(Modal);
 
 if(props.items){
-  
+  emit("getImages", props.items)
+  console.log("hitting this/////// ")
   watch(props.items, (currentValue, oldValue) => {
     console.log(currentValue);
     console.log(oldValue);
-
+    console.log("OUTSIDE");
+    if(props.items){
+      console.log("INSIDE: ", props.items);
+      console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
+      
+      emit("getWikiUrl", props.items)
+    }
     return;
   });
 }
+
+const emit = defineEmits(["getWikiURL", "getImages"])
 
 async function show_TOC(url:String, title:String, author:String){
   selectedTitle.value = title;

@@ -6,6 +6,7 @@ import TheWelcome from './components/TheWelcome.vue'
 import { ref, onMounted, reactive } from 'vue'
 
 
+
 // @ts-ignore
 const scrape:any = {
   basicData:Object,
@@ -13,6 +14,7 @@ const scrape:any = {
 };
 scrape.basicData = scrape.basicData || {};
 scrape.letterData = scrape.letterData || {};
+const textsToReturn : any = ref([])
 
 export default {
   props: {
@@ -75,6 +77,7 @@ export default {
         }
     }
   },
+
   components: {
     TheWelcome
   },
@@ -85,14 +88,16 @@ export default {
     const state:any = reactive({
       data: null,
       loaded: null,
+      
     });
     const firstOne = ref(true);
     firstOne.value = true;
     const authorPortraits:any = ref([]);
     // authorPortraits.value = [];
     props = state; 
+
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
-      console.log("wiki url ", wikiString);
+
       if(wikiString === "https://en.wikipedia.org/wiki/Robert_Herrick"){
         wikiString = "https://en.wikipedia.org/wiki/Robert_Herrick_(poet)";
       } 
@@ -126,7 +131,7 @@ export default {
       if(wikiString === "https://en.wikipedia.org/wiki/I"){
         wikiString = "https://en.wikipedia.org/wiki/Charles_I_of_England";
       }
-
+   
       let getImg = await fetch('http://localhost:5000/tryWikiImg', {
         headers: {
           'Accept': 'application/json',
@@ -138,9 +143,12 @@ export default {
           let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
        
           if(result['img_possible'].length < 1){
-            console.log("PROBLEM TEXT 2 ", result)
+            console.log("PROBLEM TEXT 2 ", result);
+            console.log("what was the problematic wiki string? ", wikiString);
           } 
-          relevantImgEl['src'] = result['img_possible'][0];
+          if(relevantImgEl && result && result['img_possible']){
+            relevantImgEl['src'] = result['img_possible'][0];
+          }
         if(result.length){
           // console.log("WHAT IS THE RESULT??? ");
 
@@ -155,7 +163,7 @@ export default {
     
     
     onMounted(async () => {
-
+     
 
 // ///
 // // UNCOMMENT TO RE-SCRAPE DATABASE:
@@ -185,88 +193,8 @@ export default {
       console.log("state data: ", state.data);
    
       let rawAuthorName = JSON.parse(JSON.stringify(state.data));
-
-      rawAuthorName.map((i)=>{
-
-          
-          let published = new Date(); 
-          let first = '';
-          let last = ''; 
-          let title = ''; 
-          let bookId = 0;
-          let sub_url = ''
-          let splitSpaces = []
-          if(i['author'].indexOf(' ')){
-            splitSpaces = i['author'].split(' ');
-            let getFirst = false;
-
-          for(let s = 0; s < splitSpaces.length; s++){
-            
-            if(s>2){
-              splitSpaces.slice(s,2);
-          
-            }
-            
-            if(splitSpaces[s].indexOf(',') !== -1){
-              let cutIndex = splitSpaces[s].indexOf(',');
-              first = splitSpaces[s].slice(0,cutIndex)
-              
-              if(s === 0){
-                last = splitSpaces[s].slice(0,cutIndex);
-                getFirst = true;
-              } 
-   
-            } else {
-              if(getFirst){
-                getFirst = false;
-                first = splitSpaces[1]
-              } else {
-                console.log("PROBLEM TEXT: ", splitSpaces[s]);
-
-              }
-            }
-
-
-
-
-          }
-          if(first.indexOf(',') !== -1 ){ 
-            let cutIndex = first.indexOf(',');  
-            first = first.slice(0,cutIndex);
-          }
-
-          if(last.indexOf(',') !== -1){ 
-            let cutIndex = last.indexOf(',');  
-            last = last.slice(0,cutIndex);
-          }
-
-          if(last === ''){
-            sub_url = first;
-          } else if(last === 'Ibn') {
-            console.log("HIT THIS!!! ", last);
-            sub_url = last + '_' + first;
-          } 
-          
-          else {
-            sub_url = first + '_' + last;
-          }
-
-          } 
-
-       
-          if(splitSpaces.length === 1){
-            sub_url = splitSpaces[0]
-          }
-
-          published = i['published'];
-          title = i['title']
-          bookId = i['id']
-
-          let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
-          
-          tryGetWikiImage(wikiString, first, last, title, published, bookId);
-          
-        });
+      
+      tryGetWikiURL(rawAuthorName)
 
       const totalVuePackages = await state.data;
       if(state && state.data){
@@ -293,11 +221,78 @@ export default {
       }   
     });
 
+    function tryGetWikiURL(rawAuthorName:any){
+      console.log("RAW_AUTHOR_NAME: ", rawAuthorName);
+      rawAuthorName.map((i)=>{ 
+          let published = new Date(); 
+          let first = '';
+          let last = ''; 
+          let title = ''; 
+          let bookId = 0;
+          let sub_url = ''
+          let splitSpaces : any = []
+          if(i['author'].indexOf(' ')){
+            splitSpaces = i['author'].split(' ');
+            let getFirst = false;
+
+            for(let s = 0; s < splitSpaces.length; s++){          
+              if(s>2){
+                splitSpaces.slice(s,2);
+              }
+              if(splitSpaces[s].indexOf(',') !== -1){
+                let cutIndex = splitSpaces[s].indexOf(',');
+                first = splitSpaces[s].slice(0,cutIndex) 
+                if(s === 0){
+                  last = splitSpaces[s].slice(0,cutIndex);
+                  getFirst = true;
+                }
+              } else {
+                if(getFirst){
+                  getFirst = false;
+                  first = splitSpaces[1]
+                } else {
+                  console.log("PROBLEM TEXT: ", splitSpaces[s]);
+                }
+              }
+            }
+            if(first.indexOf(',') !== -1 ){ 
+              let cutIndex = first.indexOf(',');  
+              first = first.slice(0,cutIndex);
+            }
+            if(last.indexOf(',') !== -1){ 
+              let cutIndex = last.indexOf(',');  
+              last = last.slice(0,cutIndex);
+            }
+            if(last === ''){
+              sub_url = first;
+            } else if(last === 'Ibn') {
+              console.log("HIT THIS!!! ", last);
+              sub_url = last + '_' + first;
+            } else {
+              sub_url = first + '_' + last;
+            }
+          } 
+          if(splitSpaces.length === 1){
+            sub_url = splitSpaces[0]
+          }
+
+          published = i['published'];
+          title = i['title']
+          bookId = i['id']
+
+          let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
+          
+          tryGetWikiImage(wikiString, first, last, title, published, bookId);
+          
+        });
+    }
+
     props = state;
 
     return {
     state,
-    props
+    props,
+    tryGetWikiURL
     };
   }, 
   methods: {
@@ -316,7 +311,7 @@ export default {
     handleKeyUpAuthor: async function (this: any) {
       this.state.data = {}
       console.log("here is author search query: ", this.props.authorSearch);
-      if(this.props.authorSearch.length < 2){
+      if(this.props && this.props.authorSearch && this.props.authorSearch.length < 2){
         return null;
       }
       scrape.basicData = await fetch('http://localhost:5000/scraper_author_filter', {
@@ -331,9 +326,11 @@ export default {
           let arr  : Array<Object> = [];
           for(let i = 0; i < result.length; i++){
             JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
+            // tryGetWikiURL(scrape.basicData);
             arr.push(JSON.parse(result[i]));
           }
           scrape.basicData = arr;
+ 
           return scrape.basicData;
         } else {
           return null;
@@ -342,7 +339,11 @@ export default {
           console.log('Error:', error);
         }); 
         this.state.data = scrape.basicData
+
         return this.state;
+    },
+    test: function(this:any) {
+      console.log("hey this")
     },
     handleKeyUpTitle: async function (this:any) {
       this.state.data = {}
@@ -367,6 +368,8 @@ export default {
                 }
 
                 scrape.basicData = arr;
+                
+                // tryGetWikiURL(scrape.basicData);
                 return scrape.basicData;
               } else {
                 return null;
@@ -488,7 +491,165 @@ export default {
         return this.state;
  
     },
+    searchBasicOrchestrate: async function(this:any){
+      // let authors = this.searchBasicAuthor();
+      // let titles = this.searchBasicTitle();
+      let titles : Array<String> = [];
+      let authors : Array<String> = [];
+      console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
+      console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
+      if(this.props && this.props.titleSearch && this.props.authorSearch.length < 3){
+        titles = await this.searchBasicTitle();
+        textsToReturn.value.push(titles);
+      } 
+      if(this.props && this.props.authorSearch){
+        authors = await this.searchBasicAuthor();
+        textsToReturn.value.push(authors);
+      } 
+
+      console.log("Texts to return ", textsToReturn.value); 
+      return textsToReturn.value;
+    },
+    searchBasicTitle: async function(this:any){
+      this.state.data = {}
+      console.log("here is title search query: ", this.props.titleSearch);
+      if(this.props && this.props.titleSearch && this.props.titleSearch.length < 2){
+        return null;
+      }
+      console.log("ABOUT TO SEARCH FOR THIS TITLE: ", this.props.titleSearch);
+      scrape.basicData = await fetch('http://localhost:5000/scraper_title_filter', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({title_filter: this.props.titleSearch})
+      }).then(response => response.json()).then(result => {
+              if(result.length){
+
+                let arr : Array<Object> = [];
+                for(let i = 0; i < result.length; i++){
+                  if(this.props.yearSearchEnd){
+                    console.log("we've got to check year search end: ", this.props.yearSearchEnd)
+                    if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
+                      console.log("this result happened before search end: ", JSON.parse(result[i]))
+                      if(arr.indexOf(JSON.parse(result[i])) !== -1){
+                        console.log("result is not in ARR... pushing it!")
+                        arr.push(JSON.parse(result[i]));
+                      }
+                    } 
+                    else {
+                      console.log("out of year range: ", result[i])
+                    }
+                  } 
+                  
+                  else {
+                    arr.push(JSON.parse(result[i]));
+                  }
+                }
+
+                scrape.basicData = arr;
+                
+                // tryGetWikiURL(scrape.basicData);
+                return scrape.basicData;
+              } else {
+                return null;
+              }
+
+             }).catch(error => {
+              console.log('Error:', error);
+             }); 
+        this.state.data = scrape.basicData
+        return this.state;
+    },
+    searchBasicAuthor: async function(this:any){
+      this.state.data = {}
+      console.log("here is author search query: ", this.props.authorSearch);
+      if(this.props && this.props.authorSearch && (this.props.authorSearch.length < 2 )){
+        console.log("author search length too short --> returning")
+        return null;
+      }
+
+      scrape.basicData = await fetch('http://localhost:5000/scraper_author_filter', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({author_filter: this.props.authorSearch})
+      }).then(response => response.json()).then(result => {
+
+        if(result.length){
+          let arr  : Array<Object> = [];
+          for(let i = 0; i < result.length; i++){
+            JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
+            
+            if(this.props.yearSearchBegin){
+              if(parseInt(JSON.parse(result[i]).published) > parseInt(this.props.yearSearchBegin)){
+                if(this.props.yearSearchEnd){
+                  if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
+                    if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                    arr.push(JSON.parse(result[i]));
+                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                    console.log("title mismatch")
+                  } else {
+                    arr.push(JSON.parse(result[i]));
+                  }
+                  } else {
+                    console.log("out of year range: ", result[i])
+                  }
+                } else {
+                  if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                    arr.push(JSON.parse(result[i]));
+                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                    console.log("title mismatch")
+                  } else {
+                    arr.push(JSON.parse(result[i]));
+                  }
+                }
+              } else {
+                console.log("out of year range: ", result[i])
+              }
+            } else {
+              if(this.props.yearSearchEnd){
+                  if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
+                    if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                    arr.push(JSON.parse(result[i]));
+                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                    console.log("title mismatch")
+                  } else {
+                    arr.push(JSON.parse(result[i]));
+                  }
+                } else {
+                  console.log("out of year range: ", result[i])
+                }
+              } else {
+                if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                  arr.push(JSON.parse(result[i]));
+                } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                  console.log("title mismatch")
+                } else {
+                  arr.push(JSON.parse(result[i]));
+                }
+              }
+            }
+          }
+          scrape.basicData = arr;
+
+          this.tryGetWikiURL(arr)
+          return scrape.basicData;
+        } else {
+          return null;
+        }
+        }).catch(error => {
+          console.log('Error:', error);
+        }); 
+        this.state.data = scrape.basicData
+
+        return this.state;
+    }
   },
+  
 
 }
 
@@ -564,13 +725,14 @@ export default {
         <div class="inputsRowWrapper">
           <div id="titleAuthorInputWrapper">
             <span class="label-wrap">
-              <input id="titleSearch" placeholder="ex. King Lear" @keyup='handleKeyUpTitle' v-model='props.titleSearch' :maxlength="30"/>
+              <input id="titleSearch" placeholder="ex. King Lear" v-model='props.titleSearch' :maxlength="30"/>
               <label class="green" for="titleSearch">Title</label>
             </span>
             <span class="label-wrap">
-              <input id="authorSearch" placeholder="ex. Shakespeare, William" @keyup='handleKeyUpAuthor' v-model='props.authorSearch' :maxlength="30"/>
+              <input id="authorSearch" placeholder="ex. Shakespeare, William" v-model='props.authorSearch' :maxlength="30"/>
               <label class="green" for="authorSearch">Author</label>
             </span>
+            <button class="green header" v-on:click="searchBasicOrchestrate">Search</button>
         </div>
 
         <div id="yearsBetweenInputWrapper">
@@ -579,12 +741,12 @@ export default {
             <button class="green header" v-on:click="fullTextSearchDisplay">Full Text Search</button>
             <div id="yearsBetweenRowWrapper">
               <span class="label-wrap">
-                <input id="yearSearch1" placeholder="1660" @keyup='handleKeyUpYear' v-model='props.yearSearchBegin'/>
+                <input id="yearSearch1" placeholder="1660" v-model='props.yearSearchBegin'/>
                 <label class="green" for="yearSearch1">Begin</label>
               </span>
             
               <span class="label-wrap">
-                <input id="yearSearch2" placeholder="1745" @keyup='handleKeyUpYear' v-model='props.yearSearchEnd'/>
+                <input id="yearSearch2" placeholder="1745" v-model='props.yearSearchEnd'/>
                 <label class="green" for="yearSearch2">End</label>
               </span>
             </div>
@@ -602,7 +764,10 @@ export default {
 
   <main id="main">
   
-    <TheWelcome :items="state.data" />
+    <TheWelcome 
+      :items="state.data" 
+
+    />
   </main>
 </template>
 
@@ -713,11 +878,12 @@ input {
   visibility: hidden;
   display: flex;
   flex-direction: column;
+  padding-bottom:400px;
 }
 
 #headerDiv {
   visibility:hidden;
-  width:100%;
+  width:84%;
   /*height:100vh;*/
 }
 
@@ -848,7 +1014,7 @@ input[type="checkbox"] {
   display:flex;
   flex-direction:row;
   float: center;
-  width: 40%;
+  width: 60%;
 }
 
 .inputsRowWrapper {
