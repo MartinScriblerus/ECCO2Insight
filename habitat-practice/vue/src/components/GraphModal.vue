@@ -54,7 +54,7 @@
   const resetXRef = ref(false);
   const resetYRef = ref(false);
   const mode = ref([1]);
-  // const data = ref([]);
+  const data = ref([]);
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
   function hideUpdateButtons(){
@@ -285,6 +285,7 @@
         mode.value[0] = 1;
         mode.value = [4];
       }
+     
       data.value = tempData;
       if(!data.value){
         return;
@@ -693,7 +694,7 @@ svg {
     background: var(--color-background);
     background-color: var(--color-background);
     border-radius: 8px;
-    display: flex;
+
     z-index: 99;
     /* margin-left: -96px; */
     text-align: center;
@@ -727,6 +728,7 @@ svg {
   padding-left: 24px;
   border-radius: 0px 0px 8px 8px;
   pointer-events:all;
+  display: flex;
 }
 #buttonsWrapperTitle,#buttonsWrapperSubtitle,#buttonsInnerWrapper {
   background-color:var(--color-background);

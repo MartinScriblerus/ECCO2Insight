@@ -54,7 +54,7 @@ s = Session()
 ## -------------------------------------------------------------------
 app = Flask(__name__)
 sock = Sock(app)
-# print('what is sock??? ', sock)
+print('what is sock??? ', sock)
 CORS(app, support_credentials=True)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 
@@ -63,12 +63,15 @@ app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 
 ## WEBSOCKETS ROUTE CONNECTED TO FLASK ENDPOINT
 ## -------------------------------------------------------------------
+soct = None
 @sock.route('/ws')
 def echo(ws):
-    global soct
+    global soct 
     soct = ws
     while True:
         data = ws.receive()
+        ws.send(data)
+
 
 ## TODO: ... is this left over from edit? check whether this can go!
 ## -------------------------------------------------------------------
@@ -92,7 +95,7 @@ comp_texts_array = []
 
 @app.route('/')
 def hello():
-
+    
     count = 0
     multiplier = 20 * (count + 1)
     ## TODO: better strategy for minimizing load times...
@@ -235,7 +238,9 @@ started = False
 ######################
 @app.route('/tryWikiImg', methods=['POST'])
 def try_wiki_img():
+    print("fuck!")
     resp = request.get_json()
+    print("HI ROWAN: ", resp)
     url = resp['wikiString']
     first_name = resp['first_name']
     last_name = resp['last_name']
@@ -244,8 +249,9 @@ def try_wiki_img():
     print(last_name)
     publication_year = resp['published'] 
     browser = mechanicalsoup.StatefulBrowser()
-    
-    browser.open(url)
+    print('is there a browser? ', browser)
+    if browser is not None:
+        browser.open(url)
     # form_field = browser.page.find("form")
     # browser.select_form(form_field)
     # ##form_field.set_input({"searchInput": title + ' ' + first_name + ' ' + last_name + ' ' + publication_year})
@@ -752,6 +758,7 @@ def res_toc():
 
 
 @app.route('/scraper_get_text', methods=['POST'])
+
 def res_text():
     r = request.get_json()
     browser = mechanicalsoup.StatefulBrowser()
@@ -769,12 +776,12 @@ def res_text():
         else:
 
             text_in_html = browser.page.find('div',class_="maincontent").text
-            
+
             old_df, sents = nltk_analysis(r, text_in_html)
-   
+            
             mach_learning = machine_learning(old_df,sents)
             #could move this (& whole socket) to nltk file...
-            soct.send('fifteenth_msg')
+            # soct.send('fifteenth_msg')
             # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
             # soct.send("fifteenth_msg")
             initial_text_obj = old_df
@@ -802,8 +809,8 @@ def res_t():
 
 
 if __name__ == '__main__':
-    app.debug=True
-    app.run(host='0.0.0.0',use_reloader=True,debug=True)
+    app.debug=False
+    #app.run(host='0.0.0.0',use_reloader=True,debug=False)
     WSGIServer(('127.0.0.1', 5000), app).serve_forever()
 
 

@@ -13,18 +13,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, euclidean_distances, jaccard_score
 
-# from tsfresh.examples import load_robot_execution_failures
-# from tsfresh.transformers import RelevantFeatureAugmenter
-# from tsfresh.utilities.dataframe_functions import impute
-# from tsfresh.feature_extraction import extract_features
-# from tsfresh.feature_extraction import settings
 import pandas as pd
 import sys
 
 machine_dict = {}
 
 def machine_learning(old_df,sents): 
-
     if 'flask_init' in sys.modules:
         from flask_init import soct
 
@@ -40,7 +34,6 @@ def machine_learning(old_df,sents):
     df_abstracts_tfidf = tfidf.fit_transform(text_df)    
     print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
 
-    
     for idx, s in enumerate(sents):
         ### vectorize features in array of sentences
         vectorizer = CountVectorizer()
@@ -75,40 +68,13 @@ def machine_learning(old_df,sents):
         for i, f in enumerate(features):
             print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
             old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
-    soct.send("eleventh_msg")         
+    # soct.send("eleventh_msg")         
     # soct.send("twelfth_msg")
     df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
     print(f"TUUUUST: {df}")
-    # settings_minimal = settings.MinimalFCParameters() 
-    # # print(f"MIN SEETT TUUST: {settings_minimal}")
-    
-    # settings.ComprehensiveFCParameters, settings.EfficientFCParameters, settings.MinimalFCParameters
+
     print(f"DF COLS:::: ", df.columns)
-    # X_tsfresh = extract_features(df, column_id='id', default_fc_parameters=settings_minimal)
-    # X_tsfresh.head()
-    # fc_parameters_pressure = {"length": None, 
-    #                         "sum_values": None}
 
-    # fc_parameters_temperature = {"maximum": None, 
-    #                             "minimum": None}
-
-    # kind_to_fc_parameters = {
-    #     "temperature": fc_parameters_temperature,
-    #     "pressure": fc_parameters_pressure
-    # }
-
-    # print(kind_to_fc_parameters)
-
-
-
-    # display dataset structure with the pandas .info() method
-    # print(text_df.info())
-
-    # # show first 5 rows
-    # print(text_df.head(5))
-
-    # # display some statistics
-    # print(text_df.describe())
 
     from sklearn.preprocessing import StandardScaler as SS # z-score standardization 
     from sklearn.cluster import KMeans, DBSCAN # clustering algorithms
@@ -208,7 +174,8 @@ def machine_learning(old_df,sents):
                     high_score = score_
             selected_features.append(selected_feature)
             feature_list.remove(selected_feature)
-            soct.send("fifteenth_msg")
+            if soct is not None:
+                soct.send("fifteenth_msg")
             print("Selected new feature {} with score {}". format(selected_feature, high_score))
         # soct.send("fifteenth_msg")
         return selected_features
@@ -222,7 +189,8 @@ def machine_learning(old_df,sents):
         print(f"sanity sake: {type(text_df[columnName].iloc[0])}")
         
         try:
-            soct.send("twelfth_msg")  
+            if soct is not None:
+                soct.send("twelfth_msg")  
             for s in text_df[columnName].values.reshape(1, -1):  
 
                 try:
@@ -294,8 +262,8 @@ def machine_learning(old_df,sents):
                     
                     # elbowPlot(range(1,11), df_standardized_sliced)
                     # silhouettePlot(range(3,9), df_standardized_sliced)
-                    
-                    soct.send("thirteenth_msg")  
+                    if soct is not None:
+                        soct.send("thirteenth_msg")  
                     kmeans = KMeans(n_clusters=5, random_state=42)
                     cluster_labels = kmeans.fit_predict(df_standardized_sliced)
                     df_standardized_sliced["clusters"] = cluster_labels
@@ -329,8 +297,8 @@ def machine_learning(old_df,sents):
             # le.fit(reshaped.astype(str))
             # list(le.classes_)
             # transformedColumn = le.transform(reshaped.astype(str))
-           
-            soct.send("fifteenthfth_msg") 
+            if soct is not None:
+                soct.send("fifteenthfth_msg") 
     machine_dict['vectorized_features'] = old_df_vectorized_features
     machine_dict['vectorized_vocab'] = old_df_vectorized_vocab
     machine_dict['vectorized_tfidf'] = old_df_vectorized_tfidf

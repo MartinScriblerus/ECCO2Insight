@@ -15,6 +15,9 @@ const scrape:any = {
 scrape.basicData = scrape.basicData || {};
 scrape.letterData = scrape.letterData || {};
 const textsToReturn : any = ref([])
+const triedWikiExtension1 = ref(false);
+const triedWikiExtension2 = ref(false);
+const triedWikiExtension3 = ref(false);
 
 export default {
   props: {
@@ -95,6 +98,23 @@ export default {
     const authorPortraits:any = ref([]);
     // authorPortraits.value = [];
     props = state; 
+    console.log("jesus fucking christ");
+    function tryWikiExtension1(wikiString,firstName,lastName, title, published, bookId){
+      console.log("motherfucker")
+  
+      wikiString = wikiString + "_(writer)";
+      tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId)
+    }
+    function tryWikiExtension2(wikiString,firstName,lastName, title, published, bookId){
+
+      wikiString = wikiString + "_(poet)";
+      tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId)
+    }
+    function tryWikiExtension3(wikiString,firstName,lastName, title, published, bookId){
+  
+      wikiString = wikiString + "_(satirist)";
+      tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId)
+    }
 
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
 
@@ -131,6 +151,9 @@ export default {
       if(wikiString === "https://en.wikipedia.org/wiki/I"){
         wikiString = "https://en.wikipedia.org/wiki/Charles_I_of_England";
       }
+      if(wikiString === "https://en.wikipedia.org/wiki/W_Kenrick"){
+        wikiString = "https://en.wikipedia.org/wiki/William_Kenrick_(writer)";
+      }
    
       let getImg = await fetch('http://localhost:5000/tryWikiImg', {
         headers: {
@@ -141,9 +164,21 @@ export default {
         body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
       }).then(response => response.json()).then(result => {
           let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
-       
+        
           if(result['img_possible'].length < 1){
-            console.log("PROBLEM TEXT 2 ", result);
+            if(triedWikiExtension1.value === false){
+              tryWikiExtension1(wikiString, firstName,lastName, title, published, bookId);
+              triedWikiExtension1.value = true;
+            }
+            if(triedWikiExtension2.value === false){
+              tryWikiExtension2(wikiString, firstName,lastName, title, published, bookId);
+              triedWikiExtension2.value = true;
+            }
+            if(triedWikiExtension3.value === false){
+              tryWikiExtension3(wikiString, firstName,lastName, title, published, bookId);
+              triedWikiExtension3.value = true;
+            }
+            // console.log("PROBLEM TEXT 2 ", result);
             console.log("what was the problematic wiki string? ", wikiString);
           } 
           if(relevantImgEl && result && result['img_possible']){
@@ -195,7 +230,7 @@ export default {
       let rawAuthorName = JSON.parse(JSON.stringify(state.data));
       
       tryGetWikiURL(rawAuthorName)
-
+      
       const totalVuePackages = await state.data;
       if(state && state.data){
         state.loaded = true;
@@ -234,11 +269,15 @@ export default {
           if(i['author'].indexOf(' ')){
             splitSpaces = i['author'].split(' ');
             let getFirst = false;
-
+            // splitSpaces = splitSpaces.filter(i=>i.length > 2)
             for(let s = 0; s < splitSpaces.length; s++){          
+              if(splitSpaces[s].length < 3){
+                splitSpaces.slice(0,s);
+              }
               if(s>2){
                 splitSpaces.slice(s,2);
               }
+              // console.log("???? ", splitSpaces[s]);
               if(splitSpaces[s].indexOf(',') !== -1){
                 let cutIndex = splitSpaces[s].indexOf(',');
                 first = splitSpaces[s].slice(0,cutIndex) 
@@ -251,7 +290,7 @@ export default {
                   getFirst = false;
                   first = splitSpaces[1]
                 } else {
-                  console.log("PROBLEM TEXT: ", splitSpaces[s]);
+                  // console.log("PROBLEM TEXT: ", splitSpaces[s]);
                 }
               }
             }
@@ -297,7 +336,7 @@ export default {
   }, 
   methods: {
     scrapeBasic: async function (this:any) {
-      
+      console.log("CALLING SCRAPER");
       scrape.basicData = await fetch('http://localhost:5000/scraper', {
             headers: {
               'Accept': 'application/json',

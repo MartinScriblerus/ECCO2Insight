@@ -27,7 +27,7 @@ const openFull : any = ref(false);
 // const modal : any = ref(Modal);
 
 if(props.items){
-  emit("getImages", props.items)
+  // emit("getImages", props.items)
   console.log("hitting this/////// ")
   watch(props.items, (currentValue, oldValue) => {
     console.log(currentValue);
@@ -37,7 +37,7 @@ if(props.items){
       console.log("INSIDE: ", props.items);
       console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
       
-      emit("getWikiUrl", props.items)
+      // emit("getWikiUrl", props.items)
     }
     return;
   });
@@ -151,15 +151,18 @@ async function doCloseModal(){
 }
 
 async function doCloseFullModal(){
+    console.log("hit 1");
     openFull.value = false;
     openGraph.value = true;
 };
 
 async function doOpenFullModal(){
+  console.log("hit 2")
   openFull.value = true;
 };
 
 async function doOpenAwaitScrape(){
+  
   console.log("in do open await scrape");
   openFull.value = true;
 };

@@ -24,6 +24,7 @@ RUN python -m nltk.downloader -d /usr/share/nltk_data all
 # # Run the application:
 COPY python/flask_init.py .
 COPY python/nltk_analysis.py .
+COPY python/machine_learning.py .
 COPY python/ .
 COPY python/bin .
 COPY python/wsgi.py .
@@ -36,7 +37,7 @@ EXPOSE 5000
 # RUN pip install -r /requirements.txt
 
 # ENTRYPOINT . /opt/venv/bin/activate && ["bash", "/bin/run.sh"]
-CMD . /opt/venv/bin/activate && gunicorn --config ./gunicorn.conf.py --bind 0.0.0.0:5000 --timeout 120 --worker-class gevent wsgi:app --reload
+CMD . /opt/venv/bin/activate && gunicorn --config ./gunicorn.conf.py --bind 0.0.0.0:5000 --timeout 120 --worker-class gevent --workers=4 --log-level debug wsgi:app 
 
 # this one 'works'=>
 # ENTRYPOINT ["bash", "/bin/run.sh"]

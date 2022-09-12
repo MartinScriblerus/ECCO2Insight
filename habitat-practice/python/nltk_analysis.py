@@ -13,10 +13,12 @@ import sys, json
 import datetime
 import sys
 from flask import Flask
-from gevent import monkey
-monkey.patch_all()
-from gevent.pywsgi import WSGIServer
-from flask_sock import Sock
+# from gevent import monkey
+# monkey.patch_all()
+# from gevent.pywsgi import WSGIServer
+# from flask_sock import Sock
+from flask_init import *
+
 import time
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
@@ -56,18 +58,18 @@ from crud import Session
 s = Session()
 
 from word_keylists import keyList,fullKeyList
-# print(sys.path)
+print(sys.path)
 app = Flask(__name__)
 sock = Sock(app)
-print('what is sock in NLTK??? ', sock)
+
 # # CORS(app, support_credentials=True)
 # app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
-# @sock.route('/ws')
-# def echo(ws):
-#     global soct
-#     soct = ws
-#     while True:
-#         data = ws.receive()
+@sock.route('/ws')
+def echo(ws):
+    global soct
+    soct = ws
+    while True:
+        data = ws.receive()
 # if 'flask_init' in sys.modules:
 #     print('SYSMODULES: ', sys.modules)
 #     import flask_init
@@ -79,26 +81,20 @@ print('what is sock in NLTK??? ', sock)
 ########################################################################
 ########################################################################
 
-@sock.route('/ws')
-def echo(ws):
-    global soct
-    soct = ws
-    print("FUCKING CHRIST WHAT IS SOCK??? ", soct)
-
+# @sock.route('/ws')
+# def echo(ws):
+#     global soct
+#     soct = ws
+#     print("FUCKING CHRIST WHAT IS SOCK??? ", soct)
 def nltk_analysis(r, text_in_html):
-    ## Import the websocket connection here for loading updates 
-    ## I've named this connection "soct" just to emphasize its 
-    ## uniqueness as the thing that is established in flask_init.py  
-    # if 'flask_init' in sys.modules:
-    #     print('SYSMODULES: ', sys.modules)
-    #     from flask_init import soct;
 
-       # print('what are SYS MODULES? ', sys.modules)
-        #if 'flask_init' in sys.modules:
-        # from flask_init import soct
-    if 'flask_init' in sys.modules:
-        from flask_init import soct
-        soct.send("third_msg")    
+        if 'flask_init' in sys.modules:
+            # time.sleep(3)
+            from flask_init import soct
+            # # from flask_init import *
+            if soct is not None:
+                soct.send("third_msg") 
+          
         ## Here come a bunch of NLTK imports
         ## TODO: DO MORE WITH PUNKT
         lemmatizer = WordNetLemmatizer()  
@@ -294,7 +290,9 @@ def nltk_analysis(r, text_in_html):
         print("loop every line in array of lines -----------------------------------------")
         # soct.send("seventh_msg") 
         # soct.send("fifth_msg")
-        soct.send("fourth_msg")
+        if soct is not None:
+            soct.send("fourth_msg")
+  
         
         for idx, li in enumerate(lines_in_corpus):
             # if idx == 0:
@@ -528,7 +526,8 @@ def nltk_analysis(r, text_in_html):
             s = " ".join(s_tok)
 
             words = s
-            soct.send("eighth_msg") 
+            if soct is not None:
+                soct.send("eighth_msg") 
             doc = nlp(s)
                 # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
         
@@ -775,6 +774,8 @@ def nltk_analysis(r, text_in_html):
         # print("The number of total tokens after removing stopwords are", len((final_tokens)))
         # socketio.send('message', {'data':old_df})
         # soct.send("tenth_msg")
+        if soct is not None:
+            soct.send('fifteenth_msg')
         return old_df,sents
 
 # if __name__ == '__main__':

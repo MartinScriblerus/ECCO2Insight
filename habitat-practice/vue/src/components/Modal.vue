@@ -156,7 +156,7 @@ window.onbeforeunload = function() {
 // Text loading steps
 // TODO => sort out which we need for initial text loading
 // TODO => get these callback numbers in proper 1-2-3 order
-const mySteps = ['Text', 'Lines', 'Sentences', 'Vectors', 'Clusters', "Features"]
+const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
 let stepMessage = '';
 
 socket.onmessage = event => {
@@ -217,7 +217,6 @@ socket.onmessage = event => {
 // ----------------------------------------------------
     let results = document.getElementsByClassName('modal-single-text-results');
       if(results.length > 0){
-        console.log("why are we here????????? results length: ", results.length)
         results[0].style.visibility = "visible";
         try{
           if(document.getElementById('progressCircles')){
@@ -250,15 +249,9 @@ socket.onmessage = event => {
           }
           try {
           document.getElementById('compareButton').style.visibility = "visible";
-        // document.getElementById("buttonsInnerWrapper").style.display = "flex"; 
-          // document.getElementsByClassName('modal-textAnalysis-title').classList.add("hide");
           document.getElementById("textRowAuthor").style.display = "none";
           document.getElementById("textRowTitle").style.display = "none";
           document.getElementById("searchTextWrapper").style.display = "none";
-
-          // document.getElementsByClassName('wrapper-outer').classList.add("hide");
-          // document.getElementsByClassName('wrapper-outer').style.display = "none";
-
           document.getElementById('headerDiv').style.display = 'none';
           document.getElementById('headerDiv').style.visibility = 'hidden';
           document.getElementById('mainText').style.display = "none";
@@ -272,10 +265,7 @@ socket.onmessage = event => {
         }
       }
     }  
-    // let showExplanation = document.getElementById('progressMsgExplanation')
-    // if(showExplanation){
-    //   showExplanation.style.display = "flex";
-    // }
+
 }
 
 // these are options for the keybuilder dropdown
@@ -439,7 +429,7 @@ function tryAddNewText(){
 function openKeyPopup(){
 
   let newTextPopup = document.getElementById("newTextPopup")
-  console.log("why ar we checking for modal full? ", modalFull.value);
+  
   if(newTextPopup){
     newTextPopup.style.display = "flex";
     resetRows();
@@ -546,7 +536,7 @@ function tryGetFullModal(){
     setTimeout(()=>{
       let fullModal = modalFull.value;
       // emit('closedmodal')
-      emit('closedmodal')
+      // emit('closedmodal')
       console.log("FULL MODAL? ", fullModal);
       if(fullModal && fullModal.classList){
         fullModal.classList.add("awaiting");
@@ -593,7 +583,6 @@ function doCloseFullModalChild(){
 
 // TODO: componentize and DRY this function (see TheWelcome)
 async function scrape_text(url){
-    console.log("DO WE HAVE NO FUCKING URL??? ", url);
     if(!url){
       return;
     }  
@@ -617,12 +606,12 @@ async function scrape_text(url){
     }  
     // setTimeout(()=>{console.log("jeesh")},2000);
     // clearTimeout();
-    console.log("do we have a fucking url? ", url);
+ 
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable !== null){
-        console.log("THIS WOULD CAUSE A PROBLEM!!");
+
         initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-        console.log("GOT IT!!! ", initialHumanReadableTextRef.value)
+
           emit('closedmodal');
           emit('openedfull');
 
@@ -719,8 +708,8 @@ async function scrape_text(url){
     } 
     // else { 
     //   // TESTING THIS OUT...
-    //   emit('closedmodal');
-    //   emit('openedfull');
+      emit('closedmodal');
+      emit('openedfull');
     // }
 
     // console.log("do we make it here?");
@@ -730,7 +719,7 @@ async function scrape_text(url){
     // retract this when modal is closed...
     document.body.style.overflowY = "hidden";
     close();
-    setTimeout(()=>{},2000);    
+    setTimeout(()=>{},100);    
     clearTimeout();
     tryGetFullModal();
 
@@ -1613,7 +1602,7 @@ body.modal-open {
     align-items: center;
     left: 0%;
     grid-template-columns: 1fr;
-    width: 50%;
+    width: 100%;
     height: 100vh;
     animation: animate-text-scrape 1s linear;
     background: var(--color-background);
@@ -1630,8 +1619,9 @@ body.modal-open {
     position: absolute;
     color: rgba(255,255,255,0.9);
     z-index: 1001;
-    top: 16px;
+    top: 8px;
     position: fixed;
+    width: 16px; 
 }
 #tocHeader {
     width: 100%;
@@ -1648,24 +1638,36 @@ body.modal-open {
     padding-right: 4px;
 
 }
+
 #tocData {
     margin-top: 8px;
     border-bottom: solid 1px rgba(255, 255, 255, 0.3);
     color: rgba(255,255,255,1);
-    font-size: 1rem;
+    font-size: 16px;
     font-family: 'Inter' sans-serif;
-    font-style:italic;
+
     margin-bottom: 0.1rem;
-    font-weight: 500;
+    font-weight: 100;
     cursor: pointer;
-    color: var(--color-heading);
+    color: var(--color-text);
     padding-top: 12px;
 }
+#tocData:hover{
+  color:rgba(255,255,255,1);
+}
 #tocDataWrapper {
-    margin: 12px;
-    margin-top: 16px;
-    padding-left: 24px;
-    padding-right: 24px;
+  margin: 12px;
+  margin-top: 16px;
+  padding-left: 6%;
+  padding-right: 6%;
+  padding-bottom: 100px;
+  padding-top: 24px;
+  border-radius: 8px;
+  background: var(--color-background-mute);
+  margin-right: 6%;
+  margin-left: 6%;
+  margin-top: 48px;
+  margin-bottom: 100px;
 }
 
 #modalFull {
