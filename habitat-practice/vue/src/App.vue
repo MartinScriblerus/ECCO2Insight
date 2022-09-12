@@ -934,6 +934,9 @@ input {
   font-size: 16px;
 
   padding-left: 4%;
+  padding-right: 0%;
+  padding-top:1%;
+  padding-bottom:1%;
   width: 100%;
 }
 
@@ -1004,7 +1007,7 @@ input[type="checkbox"] {
 }
 
 #letter-wrapper {
-  border: 1px solid rgba(255,255,255,0.78);
+
   display:flex;
   flex-direction:row;
   width: 100%;
@@ -1026,15 +1029,17 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: row;
   text-align:center;
+  justify-content: center;
 }
 
 #titleAuthorInputWrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-right: 4%;  
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-right: 4%;
+  padding-left: 4%;
 }
 #titleAuthorInputWrapper > .label-wrap {
   width:100%;
@@ -1050,9 +1055,9 @@ input[type="checkbox"] {
 }
 
 #yearsBetweenInputWrapper {
-  display:flex;
-  flex-direction:row;
-  float: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 60%;
 }
 
@@ -1062,7 +1067,7 @@ input[type="checkbox"] {
   overflow:auto;
   width:100%;
   padding-left:0%;
-  padding-right:0%;
+  padding-right:2%;
 }
 
 #alphabetWrapper {
@@ -1207,7 +1212,7 @@ input:checked + .slider:before {
   }
 #headerWrapper {
   max-height: 300px;
-
+  padding-left: 4%;
 }
 #titleAuthorInputWrapper {
   display:flex;
@@ -1242,7 +1247,7 @@ input:checked + .slider:before {
   .inputsRowWrapper{
     margin-top:8px;
     margin-bottom:16px;
-    padding-left:0%;
+    padding-left:4%;
     padding-right:4%;
     display: flex;
     flex-direction: row;
@@ -1268,7 +1273,6 @@ input:checked + .slider:before {
   .modal.searching {
     width: 100vw;
   }
-  
 }
 
 
@@ -1326,13 +1330,18 @@ input:checked + .slider:before {
   }
 }
 
-@media(max-width:450px){
+@media(max-width:600px){
   .outer-row {
     flex-direction: column;
   }
+  
   #headerDiv, #wrapper-outer {
     width: 100%;
-    height:100%;
+    height: 100%;
+    padding-right: 4%;
+    padding-left: 0%;
+    padding-top: 1%;
+    padding-bottom: 1%;
   }
   #letter-wrapper {
     min-height:100px;
@@ -1342,7 +1351,7 @@ input:checked + .slider:before {
   }
 }
 
-@media(min-width:450px){
+@media(min-width:600px){
   .outer-row {
     display: flex;
     flex-direction: row;
@@ -1350,7 +1359,7 @@ input:checked + .slider:before {
     position: relative;
   }
   #headerDiv, #wrapper-outer {
-    width: 100%;
+    width: 60%;
     height:100%;
   }
   .book-item {

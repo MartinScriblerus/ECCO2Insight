@@ -1724,7 +1724,7 @@ body.modal-open {
 
   .modal-header {
     width: 100%;
-    position: absolute;
+    position: relative;
     z-index: 40;
     height: 68px;
 
@@ -1816,8 +1816,8 @@ body.modal-open {
 
   .modal-textAnalysis-title {
     /* this is the overarching modal */
-    padding-left: 4%;
-    padding-right: 4%;
+    padding-left: 8%;
+    padding-right: 8%;
     position: absolute;
     background: var(--color-background);
     height: calc(100% - 164px);
@@ -1904,10 +1904,11 @@ body.modal-open {
   visibility: hidden;
 }
 #compareButton {
+  right: 224px;
   
 }
 #addTextButton {
-  right: 128px;
+  right: 116px;
 }
 
 #graphs {
@@ -2088,7 +2089,7 @@ body.modal-open {
   display: none;
 }
 #updatePopupButton {
-  right: 220px;
+  right: 8px;
 }
 #newAxis_X, #newAxis_Y {
 

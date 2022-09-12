@@ -245,6 +245,8 @@ function scrapeAnotherUrl(url : String){
   height:90%;
   overflow-y:scroll;
   padding:2%;
+  padding-left: 2%;
+  padding-top: 1%;
 }
 .book-author {
   font-size: 1rem;

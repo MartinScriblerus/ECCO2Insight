@@ -588,21 +588,38 @@
             Reopen this window any time you'd like to update the data displayed in the graph. Select a value to track with your first line.
           </h3>
           <div id="buttonsInnerWrapper">
-            <span>Sentiment Scores</span>
+            <div id="sentimentBtns">
+              <span class="label-wrapper">
+                <span class="buttons-row">
+                  <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Pos</button>
+                  <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Comp</button>
+                  <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Neg</button>
+                  <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neu</button>
+                </span>
+                <span>Sentiment Scores</span>
+                <br/>
+              </span>
+            </div>
             <br/>
-            <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Pos</button>
-            <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Comp</button>
-            <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Neg</button>
-            <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neu</button>
-            <br/>
-            <span>Text-Level Statistics</span>
-            <br/>
-            <button class="green-btn" @click="updateVizDataCommonWords(); emitterClose('closeUpdatePopup')">Common Words</button>
-            <br/>
-            <span>Line-Level Analysis</span>
-            <br/>
-            <button class="green-btn" @click="updateVizDataLineObj(); emitterClose('closeUpdatePopup')">Syllables Per Line</button>
-            <br/>
+            
+            <div class="inner-wrap">
+
+              <span class="buttons-row">
+                <div id="textStatsBtns">
+                  <span class="label-wrapper">
+                    <button class="green-btn" @click="updateVizDataCommonWords(); emitterClose('closeUpdatePopup')">Common Words</button>
+                    <span>Text-Level Statistics</span>
+                  </span>
+                </div>
+                <div id="lineStatsBtns">                      
+                  <span class="label-wrapper">
+                    <button class="green-btn" @click="updateVizDataLineObj(); emitterClose('closeUpdatePopup')">Syllables Per Line</button>
+                    <span>Line-Level Analysis</span>
+                  </span>
+                </div>
+              </span>
+
+            </div>
           </div>
         </div>
       </div>
@@ -670,8 +687,9 @@ svg {
 #button {
   background-color: green;
 }
-
-
+#sentimentBtns,#textStatsBtns,#lineStatsBtns{
+  display:flex;
+}
 .color-input .picker-popup {
   background-color:var(--color-background) !important;
   color:#ffffff;
@@ -729,6 +747,21 @@ svg {
   border-radius: 0px 0px 8px 8px;
   pointer-events:all;
   display: flex;
+  flex-direction: column;
+}
+.label-wrapper {
+  display:flex;
+  flex-direction: column;
+}
+.buttons-row {
+  display: flex;
+  flex-direction: row;
+}
+.inner-wrap {
+  width:100%;
+  flex-direction: row;
+  display:flex;
+  justify-content: center;
 }
 #buttonsWrapperTitle,#buttonsWrapperSubtitle,#buttonsInnerWrapper {
   background-color:var(--color-background);
