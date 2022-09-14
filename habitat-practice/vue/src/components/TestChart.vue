@@ -25,24 +25,28 @@ export default {
     xMax:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 1");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     yMax:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 2");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     xMin:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 3");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     yMin:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 4");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
@@ -61,23 +65,27 @@ export default {
     selectedRow:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 5");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     currentLinesCount:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 6");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     }, 
     resetXNeeded:{
       handler: function(newVal, oldVal){
+        console.log("fuck shit testchart 7");
         console.log("RESET NEEDED ", resetXNeeded.value);
 
       }
     },
     resetYNeeded:{
       handler: function(newVal, oldVal){
+        console.log("fuck shit testchart 8");
         console.log("RESET NEEDED ", resetYNeeded.value);
 
       }
@@ -92,6 +100,7 @@ export default {
     color0:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 9");
           console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
@@ -140,6 +149,7 @@ export default {
     valueX: {
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 10");
           console.log("new x value", JSON.parse(JSON.stringify(newVal)));
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
           //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
@@ -150,6 +160,7 @@ export default {
     valueY: {
         deep: true,
         handler: function(newVal, oldVal){
+
           console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
           
           // yAxisLabel.value = JSON.parse(JSON.stringify(newVal));
@@ -166,6 +177,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("in new xmax!")
+          console.log("fuck shit testchart 12");
           // console.log("new x MAX number", Math.max(...Object.values(JSON.parse(JSON.stringify(newVal)))));
           // if(JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number").length > 0){
           //   numberXMax.value = Math.min(...JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number"))
@@ -180,6 +192,7 @@ export default {
         handler: function(newVal, oldVal){
           console.log("in new ymin!")
           console.log("new y number", JSON.parse(JSON.stringify(newVal)));
+          console.log("fuck shit testchart 13");
             // if(JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number").length > 0){
             //   this.numberYMin = Math.min(...JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number"))
             //this.numberYMin = JSON.parse(JSON.stringify(newVal));
@@ -201,6 +214,7 @@ export default {
         handler: function(newVal, oldVal){
           console.log("********* new x number", JSON.parse(JSON.stringify(newVal)));
           console.log("new x axis ref in test", Math.max(...JSON.parse(JSON.stringify(newVal))));
+          console.log("fuck shit testchart 15");
           this.selectedXAxisRef = JSON.parse(JSON.stringify(newVal))
         }
     },
@@ -214,6 +228,7 @@ export default {
     yAxisFramingLast: {
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 6");
             if(newVal){
               console.log("AXES FRAMING CHANGHED IN TEST FILE! ",JSON.parse(JSON.stringify(newVal)));
             } 
@@ -222,7 +237,7 @@ export default {
     graphstate: {
         deep: true,
         handler: function(newVal, oldVal){
- 
+          console.log("fuck shit testchart 17");
             console.log("graphstate changed in area! ", newVal)
             if(newVal > 0){
                 
@@ -240,7 +255,7 @@ export default {
     tooltipmsg: {
       deep: true,
       handler: function(newVal, oldVal){
-      
+        console.log("fuck shit testchart 18");
         console.log('Prop changed: ', JSON.parse(JSON.stringify(newVal)), ' | was: ', oldVal)
         // updateTooltip(newVal);
           // let tooltip = document.getElementById("tooltipInner");
@@ -276,12 +291,12 @@ export default {
   },
   data(){
     return {
-      // show: false,
+      show: false,
       clientX: 0,
       clientY: 0,
       closestPoint: null,
       // entityArr:[],
-      graphstate: 0,
+      // graphstate: 0,
       // xAxisLabel: '',
       // numberXMax: [],
       // numberYMax: [],
@@ -336,6 +351,7 @@ export default {
     let tooltip = document.getElementById("tooltipInner");
 
     function updateTooltip(newVal){
+      console.log("fuck shit testchart 20");
       newVal = tooltipmsg.value
        let tooltip = document.getElementById("tooltipInner");
           console.log("tooltip inner: ", tooltip);
@@ -375,7 +391,7 @@ export default {
     onMounted((event) => {
       // pass ref with DOM element to D3, when mounted (DOM available)
       const svg = select(svgRef.value);
-
+      console.log("fuck shit testchart 21");
       let tempSVGs=[]
 
       const created_svgs = ref([]);
@@ -402,6 +418,7 @@ export default {
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
         if(JSON.parse(JSON.stringify(props.data)).length < 1){
+          console.log("fuck shit testchart 22");
           return;
         }
 

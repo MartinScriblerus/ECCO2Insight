@@ -35,7 +35,7 @@ const xIsIndexAxis = ref(true);
 const yIsIndexAxis = ref(false);
 const yAxisFramingLast = ref(false);
 
-
+const inGraphs = ref(false);
 const secondTextRef = ref();
 secondTextRef.value = false;
 
@@ -43,6 +43,151 @@ const graphstateRef = ref(0);
 const axisColorMatchBool = ref(false);
 
 // graphstate.value = "singleText";
+
+// // Initial soocket implementation 
+// // ----------------------------------------------------
+// const socket = new WebSocket('ws://localhost:5000/ws');
+// console.log('do we have a socket? ', socket);
+// socket.onopen = function (event) {
+//   console.log('sent opening salvo');
+//   socket.send("Here's some text that the server is urgently awaiting!");
+//   console.log('still going after opening salvo');
+// }
+// socket.onclose = function(event) {
+//     console.log("AHHHHHHH ", event);
+// }
+
+// console.log("fuck shit 2");
+
+// window.onbeforeunload = function() {
+//   console.log("fuck shit 3");
+//     console.log('are we closing the socket now???');
+//     socket.onclose = function () {}; // disable onclose handler first
+//     socket.close();
+// };
+
+// console.log("fuck shit 4");
+
+// // Text loading steps
+// // TODO => sort out which we need for initial text loading
+// // TODO => get these callback numbers in proper 1-2-3 order
+// const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
+// let stepMessage = '';
+
+// socket.onmessage = event => {
+//   console.log("fuck shit 5");
+//     console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
+//     if(event.data === 'third_msg'){
+//       console.log("got third socket msg");
+//       currentStepRef.value = 0;
+//       stepMessage = "Gathering text and preprocessing data"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'fourth_msg'){
+//       console.log("got fourth socket msg");
+//       currentStepRef.value = 1;
+//       stepMessage = "Begin line-level and poetic analysis";
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'eighth_msg'){
+//       currentStepRef.value = 2;
+//       stepMessage = "Begin sentence-level analysis"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'eleventh_msg'){
+//       currentStepRef.value = 3;
+//       stepMessage = "Training"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'twelfth_msg'){
+//       currentStepRef.value = 4;
+//       stepMessage = "Clustering"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'thirteenth_msg'){
+//       currentStepRef.value = 5;
+//       stepMessage = "Time Series Analysis"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }  
+//     if(event.data === 'fifteenth_msg'){
+//       currentStepRef.value = 3;
+//       console.log("HIT FIFTEENTH!");
+//       inGraphs.value = true;
+//       stepMessage = "Feature Extraction"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+    
+// // We've got the text -> reorder the DOM
+// // ----------------------------------------------------
+//     let results = document.getElementsByClassName('modal-single-text-results');
+    
+//       if(results.length > 0){
+//         // results[0].style.visibility = "visible";
+        
+//         try{
+//           if(document.getElementById('progressCircles')){
+//             document.getElementById('progressCircles').style.display = "none";
+//           } else {
+//             console.log("no prog circs");
+//           }
+//           if(document.getElementById('progressMsg')){
+//             document.getElementById('progressMsg').style.display = "none";
+//           } else {
+//             console.log("no progress msgs");
+//           }
+//           if(document.getElementById('progressMsgExplanation')){
+//             document.getElementById('progressMsgExplanation').style.display = "none";
+//           } else {
+//             console.log("no prog explanations");
+//           }
+//           if(document.getElementById('main')){
+//             document.getElementById('main').style.display = "none";
+//           } else {
+//             console.log("no main");
+//           } 
+//           if(document.getElementById('graphs')){
+//             document.getElementById('graphs').style.display = "flex";
+//           } else {
+//             console.log("no graphs");
+//           }
+//           if(document.getElementById('progressMsgExplanation')){
+//             document.getElementById('progressMsgExplanation').style.display = "none";
+//           }
+        
+//           try {
+//           document.getElementById('compareButton').style.visibility = "visible";
+//           document.getElementById("textRowAuthor").style.display = "none";
+//           document.getElementById("textRowTitle").style.display = "none";
+//           document.getElementById("searchTextWrapper").style.display = "none";
+//           document.getElementById('headerDiv').style.display = 'none';
+//           document.getElementById('headerDiv').style.visibility = 'hidden';
+//           document.getElementById('mainText').style.display = "none";
+//           document.getElementById('mainTextSubheader').style.display = "none";
+//           } 
+//           catch(e){
+//             console.log("err_modal1 ", e);
+//           }
+//         } catch(e){
+//           console.log("err_modal1 ", e);
+//         }
+//       }
+//     }  
+
+// }
+
 
 const initialHumanReadableTextRef = ref({
   title: String,
@@ -136,7 +281,10 @@ onMounted(()=>{
   `
 })
 
+console.log("fuck shit 1"); // HITTING THIS INITIAL
 
+// // Initial soocket implementation 
+// // ----------------------------------------------------
 // Initial soocket implementation 
 // ----------------------------------------------------
 const socket = new WebSocket('ws://localhost:5000/ws');
@@ -146,12 +294,20 @@ socket.onopen = function (event) {
   socket.send("Here's some text that the server is urgently awaiting!");
   console.log('still going after opening salvo');
 }
+socket.onclose = function(event) {
+    console.log("AHHHHHHH ", event);
+}
+
+console.log("fuck shit 2");
 
 window.onbeforeunload = function() {
+  console.log("fuck shit 3");
     console.log('are we closing the socket now???');
     socket.onclose = function () {}; // disable onclose handler first
     socket.close();
 };
+
+console.log("fuck shit 4");
 
 // Text loading steps
 // TODO => sort out which we need for initial text loading
@@ -160,7 +316,8 @@ const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
 let stepMessage = '';
 
 socket.onmessage = event => {
-    console.log("do we GET SOCKET MSGS!!@!!???");
+  console.log("fuck shit 5");
+    console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
     if(event.data === 'third_msg'){
       console.log("got third socket msg");
       currentStepRef.value = 0;
@@ -186,7 +343,7 @@ socket.onmessage = event => {
     }
     if(event.data === 'eleventh_msg'){
       currentStepRef.value = 3;
-      stepMessage = "Vectorizing"
+      stepMessage = "Training"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
       }
@@ -206,8 +363,9 @@ socket.onmessage = event => {
       }
     }  
     if(event.data === 'fifteenth_msg'){
-      currentStepRef.value = 6;
+      currentStepRef.value = 3;
       console.log("HIT FIFTEENTH!");
+      inGraphs.value = true;
       stepMessage = "Feature Extraction"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
@@ -216,8 +374,10 @@ socket.onmessage = event => {
 // We've got the text -> reorder the DOM
 // ----------------------------------------------------
     let results = document.getElementsByClassName('modal-single-text-results');
+    
       if(results.length > 0){
-        results[0].style.visibility = "visible";
+        // results[0].style.visibility = "visible";
+        
         try{
           if(document.getElementById('progressCircles')){
             document.getElementById('progressCircles').style.display = "none";
@@ -247,6 +407,7 @@ socket.onmessage = event => {
           if(document.getElementById('progressMsgExplanation')){
             document.getElementById('progressMsgExplanation').style.display = "none";
           }
+        
           try {
           document.getElementById('compareButton').style.visibility = "visible";
           document.getElementById("textRowAuthor").style.display = "none";
@@ -267,6 +428,148 @@ socket.onmessage = event => {
     }  
 
 }
+
+// const socket = new WebSocket('ws://localhost:5000/ws');
+// console.log('do we have a socket? ', socket);
+// socket.onopen = function (event) {
+//   console.log('sent opening salvo');
+//   socket.send("Here's some text that the server is urgently awaiting!");
+//   console.log('still going after opening salvo');
+// }
+// socket.onclose = function(event) {
+//     console.log("AHHHHHHH ", event);
+// }
+
+// console.log("fuck shit 2");
+
+// window.onbeforeunload = function() {
+//   console.log("fuck shit 3");
+//     console.log('are we closing the socket now???');
+//     socket.onclose = function () {}; // disable onclose handler first
+//     socket.close();
+// };
+
+// console.log("fuck shit 4");
+
+// // Text loading steps
+// // TODO => sort out which we need for initial text loading
+// // TODO => get these callback numbers in proper 1-2-3 order
+// const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
+// let stepMessage = '';
+
+// socket.onmessage = event => {
+//   console.log("fuck shit 5");
+//     console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
+//     if(event.data === 'third_msg'){
+//       console.log("got third socket msg");
+//       currentStepRef.value = 0;
+//       stepMessage = "Gathering text and preprocessing data"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'fourth_msg'){
+//       console.log("got fourth socket msg");
+//       currentStepRef.value = 1;
+//       stepMessage = "Begin line-level and poetic analysis";
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'eighth_msg'){
+//       currentStepRef.value = 2;
+//       stepMessage = "Begin sentence-level analysis"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'eleventh_msg'){
+//       currentStepRef.value = 3;
+//       stepMessage = "Vectorizing"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'twelfth_msg'){
+//       currentStepRef.value = 4;
+//       stepMessage = "Clustering"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }
+//     if(event.data === 'thirteenth_msg'){
+//       currentStepRef.value = 5;
+//       stepMessage = "Time Series Analysis"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+//     }  
+//     if(event.data === 'fifteenth_msg'){
+//       currentStepRef.value = 3;
+//       console.log("HIT FIFTEENTH!");
+//       stepMessage = "Feature Extraction"
+//       if(document.getElementById("progressMsg")){
+//         document.getElementById("progressMsg").innerText = stepMessage;
+//       }
+    
+// // We've got the text -> reorder the DOM
+// // ----------------------------------------------------
+//     let results = document.getElementsByClassName('modal-single-text-results');
+    
+//       if(results.length > 0){
+//         results[0].style.visibility = "visible";
+//         try{
+//           if(document.getElementById('progressCircles')){
+//             document.getElementById('progressCircles').style.display = "none";
+//           } else {
+//             console.log("no prog circs");
+//           }
+//           if(document.getElementById('progressMsg')){
+//             document.getElementById('progressMsg').style.display = "none";
+//           } else {
+//             console.log("no progress msgs");
+//           }
+//           if(document.getElementById('progressMsgExplanation')){
+//             document.getElementById('progressMsgExplanation').style.display = "none";
+//           } else {
+//             console.log("no prog explanations");
+//           }
+//           if(document.getElementById('main')){
+//             document.getElementById('main').style.display = "none";
+//           } else {
+//             console.log("no main");
+//           } 
+//           if(document.getElementById('graphs')){
+//             document.getElementById('graphs').style.display = "flex";
+//           } else {
+//             console.log("no graphs");
+//           }
+//           if(document.getElementById('progressMsgExplanation')){
+//             document.getElementById('progressMsgExplanation').style.display = "none";
+//           }
+//           inGraphs.value=true;
+//           try {
+//           document.getElementById('compareButton').style.visibility = "visible";
+//           document.getElementById("textRowAuthor").style.display = "none";
+//           document.getElementById("textRowTitle").style.display = "none";
+//           document.getElementById("searchTextWrapper").style.display = "none";
+//           document.getElementById('headerDiv').style.display = 'none';
+//           document.getElementById('headerDiv').style.visibility = 'hidden';
+//           document.getElementById('mainText').style.display = "none";
+//           document.getElementById('mainTextSubheader').style.display = "none";
+//           } 
+//           catch(e){
+//             console.log("err_modal1 ", e);
+//           }
+//         } catch(e){
+//           console.log("err_modal1 ", e);
+//         }
+//       }
+//     }  
+
+// }
+
+console.log("fuck shit 6");
 
 // these are options for the keybuilder dropdown
 // ----------------------------------------------------
@@ -382,8 +685,53 @@ additionalTexts.value = [
   },
 ]
 
-watch(() => [graphstateRef, additionalTexts, color0, color1, color2, color3, colorX, colorY, optionsX, valueX,valueY,optionsY, numberXMax,numberXMin, numberYMax,numberYMin,props.selected, currentLinesCount, currentTextData,axisColorMatchBool,selectedXAxisRef,selectedYAxisRef,props.openFull,yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
-    
+async function trySetReady(){
+  console.log("SOURCE OF PROBLEM ", JSON.parse(JSON.stringify(props.openFull)))
+  
+  let test = await modalFull.value;
+  console.log("TESTING!!!! ", test);
+  
+  if(test && JSON.parse(JSON.stringify(props.openFull)) ){
+      inGraphs.value = false;
+      ready.value = JSON.parse(JSON.stringify(props.openFull));
+      console.log("what is props openfull? ", JSON.parse(JSON.stringify(props.openFull)));
+    } else {
+     
+      let test = await modalFull.value;
+      inGraphs.value = false;
+      ready.value = JSON.parse(JSON.stringify(props.openFull));
+      if(test){
+        trySetReady();
+      }
+    }
+}
+
+watch(() => [graphstateRef, 
+inGraphs,
+additionalTexts, 
+color0, 
+color1, 
+color2, 
+color3, 
+colorX, 
+colorY, 
+optionsX, 
+valueX,
+valueY,
+optionsY, 
+// numberXMax,
+// numberXMin, 
+// numberYMax,
+// numberYMin,
+// props.selected, 
+currentLinesCount, 
+currentTextData,
+axisColorMatchBool,
+selectedXAxisRef,
+selectedYAxisRef,
+props.openFull,
+yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+  console.log("fuck shit 7");
     if(selectedXAxisRef.value){
       console.log("selected x axis ref: ", selectedXAxisRef.value);
       console.log("TRY THIS XREF!!! ", JSON.parse(JSON.stringify(selectedXAxisRef.value)));
@@ -394,11 +742,12 @@ watch(() => [graphstateRef, additionalTexts, color0, color1, color2, color3, col
     if(numberXMin.value && Object.values(JSON.parse(JSON.stringify(numberXMin.value))).filter(i=>typeof i === "number").length > 0){
       console.log("WTF IS XMIN VAL? ", Math.max(...Object.values(JSON.parse(JSON.stringify(numberXMin.value)))));
     }
-
-    ready.value = JSON.parse(JSON.stringify(props.openFull));
-    console.log("what is props openfull? ", JSON.parse(JSON.stringify(props.openFull)));
-
-      if(currentLinesCount.value === 1){
+    trySetReady();
+    if(JSON.parse(JSON.stringify(props.openFull)) !== true){
+      return;
+    }
+    
+      if(currentLinesCount.value === 1 && inGraphs.value === true){
         showOne.value = true;
       } else if (currentLinesCount.value === 2){
         showTwo.value = true;
@@ -427,10 +776,11 @@ function tryAddNewText(){
 // Opens Keybuilder Popup
 // ----------------------------------------------------
 function openKeyPopup(){
-
+  console.log("fuck shit 8");
   let newTextPopup = document.getElementById("newTextPopup")
   
-  if(newTextPopup){
+  if(newTextPopup ){
+    console.log("fuck shit fuck shit fuck shit")
     newTextPopup.style.display = "flex";
     resetRows();
   }
@@ -440,6 +790,7 @@ function openKeyPopup(){
 // Closes Keybuilder Popup
 // ----------------------------------------------------
 function closeKeyModal () {
+  console.log("fuck shit are we here????")
   let popup = document.getElementById("newTextPopup");
   if(popup){
     console.log("closed the key modal");
@@ -450,12 +801,13 @@ function closeKeyModal () {
 // Reset row count if # of lines changes 
 // ----------------------------------------------------
 async function resetRows(){
+  console.log("fuck shit 9");
   console.log("resetting rows");
   document.getElementById("newTextPopup").style.display = "none";
   // const open = await openUpdatePopup()
 
 
-  document.getElementById("newTextPopup").style.display = "flex";
+  //document.getElementById("newTextPopup").style.display = "flex";
 
   if(currentLinesCount.value === 4){
     let row4 = document.getElementById("newRow_3");
@@ -531,33 +883,60 @@ function setLineCount(){
 }
 
 
-function tryGetFullModal(){
+async function tryGetFullModal(){
+  console.log("fuck shit 10");
     console.log("innnnn try get full modal... ");
-    setTimeout(()=>{
-      let fullModal = modalFull.value;
-      // emit('closedmodal')
-      // emit('closedmodal')
-      console.log("FULL MODAL? ", fullModal);
+      let fullModal = await modalFull.value !== false;
+      let mainPage = document.getElementById("main");
       if(fullModal && fullModal.classList){
+        console.log("fuck shit 12");
         fullModal.classList.add("awaiting");
         // hide thee text search
-        let main = document.getElementById("main");
-        if(main){
-          main.style.visibility = "hidden";
-        }
+        // let main = document.getElementById("main");
+        // if(main){
+        //   main.style.visibility = "hidden";
+        //   main.style.opacity = 0;
+        // }
+        
         console.log("MAIN STYLE VISIBILITY: ", main.style.visibility);
       } else {
         console.log("hit the else");
-        
+        console.log("fuck shit 13");
        // console.log("what is the else for full modal? ", fullModal);
       }
-    },10)
+    setTimeout(()=>{
+      if(mainPage){
+        mainPage.style.opacity = 0;
+        mainPage.style.visibility = "hidden";
+      }
+      // emit('closedmodal')
+      // emit('closedmodal')
+      console.log("FULL MODAL? ", fullModal);
+      console.log("fuck shit 11");
+      // if(fullModal && fullModal.classList){
+      //   console.log("fuck shit 12");
+      //   fullModal.classList.add("awaiting");
+      //   // hide thee text search
+      //   // let main = document.getElementById("main");
+      //   // if(main){
+      //   //   main.style.visibility = "hidden";
+      //   //   main.style.opacity = 0;
+      //   // }
+        
+      //   console.log("MAIN STYLE VISIBILITY: ", main.style.visibility);
+      // } else {
+      //   console.log("hit the else");
+      //   console.log("fuck shit 13");
+      //  // console.log("what is the else for full modal? ", fullModal);
+      // }
+    },1000)
     clearTimeout();
   };
 
 // Close full modal & return to initial search setup...
 // ----------------------------------------------------
 function doCloseFullModalChild(){
+  console.log("fuck shit 14");
   console.log('in close modal child');
   emit('closedfull')
   
@@ -569,25 +948,32 @@ function doCloseFullModalChild(){
   // show the text search again
   let main = document.getElementById("main");
   if(main){
+    console.log("fuck shit 15");
     main.style.visibility = "visible";
+    main.style.opacity = 1;
     main.style.display = "flex";
   }
   let headerDiv = document.getElementById("headerDiv");
+  console.log("fuck shit 16");
   if (headerDiv && headerDiv.classList){
     headerDiv.classList.remove("noDisplay");
     headerDiv.style.visibility = "visible";
+    console.log("fuck shit 17");
   } else {
     console.log("in the else for headerdiv classlist");
+    console.log("fuck shit 18");
   }
 }
 
 // TODO: componentize and DRY this function (see TheWelcome)
 async function scrape_text(url){
+    console.log("fuck shit 19");
     if(!url){
       return;
     }  
+    console.log("fuck shit 20");
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
-    let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
+    let wrapperSubtitle =  document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
     if(wrapperTitle){
       wrapperTitle.style.display = "inline-block";
@@ -604,12 +990,13 @@ async function scrape_text(url){
     } else {
       console.log("wrapper btns missing");
     }  
+    console.log("fuck shit 21");
     // setTimeout(()=>{console.log("jeesh")},2000);
     // clearTimeout();
  
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable !== null){
-
+      console.log("fuck shit 22");
         initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
 
           emit('closedmodal');
@@ -617,46 +1004,59 @@ async function scrape_text(url){
 
           let fullModal = await modalFull.value;
           if(fullModal && fullModal.classList){
+            console.log("fuck shit 23"); // HITTING THIS INITIAL
             fullModal.classList.remove("awaiting");
             fullModal.classList.add("receivedSingleTextData");
             let main = document.getElementById("main");
             if(main){
+              console.log("fuck shit 24");
               main.visibility = "visible";
             }
           } else {
             console.log("in else for fullmodal: ", fullModal);
+            console.log("fuck shit 25");
           }
 
         let graphs = document.getElementById('graphs')
         let results = document.getElementsByClassName('modal-single-text-results')
         if(results){
+          console.log("fuck shit 26");
           if(graphs){
+            console.log("fuck shit 27");
             graphs.style.display = "flex";
             console.log("FLEXING GRAPHS NOW!");
           } else {
+            console.log("fuck shit 28");
             console.log("NO GRAPHS NOW!");
             console.log("not any graphs");
           }
           if(document.getElementById('main')){
+            console.log("fuck shit 29");
             console.log("HIDE MAIN NOW!")
             document.getElementById('main').style.display = "none";
           } else {
+            console.log("fuck shit 30");
             console.log("no main to hide!");
             console.log("not any main");
           }
           if(document.getElementById('progressCircles')){
+            console.log("fuck shit 31");
             console.log("HIDE PROG CIRCLES NOW!")
             document.getElementById('progressCircles').style.display = "none";
           } else {
+            console.log("fuck shit 32");
             console.log("no progress circles");
           }
           if(document.getElementById('progressMsg')){
+            console.log("fuck shit 33");
             console.log("HIDE PROG CIRCLES NOW!");
             document.getElementById('progressMsg').style.display = "none";
           } else {
+            console.log("fuck shit 34");
             console.log("no progress msg");
           }
           if(document.getElementById('progressMsgExplanation')){
+            console.log("fuck shit 35");
             document.getElementById('progressMsgExplanation').style.display = "none";
           } else {
             console.log("no progress msg explanation");
@@ -664,13 +1064,17 @@ async function scrape_text(url){
           
           
           if(document.getElementById('compareButton')){
+            console.log("fuck shit 36");
           document.getElementById('compareButton').style.visibility = "visible";
           } else {
+            console.log("fuck shit 37");
             console.log("no compare button");
           }
           if(document.getElementById("textRowAuthor")){
+            console.log("fuck shit 38");
             document.getElementById("textRowAuthor").style.display = "none";
           } else {
+            console.log("fuck shit 39");
             console.log("no text row author")
           }
           if(document.getElementById("textRowTitle")){
@@ -683,22 +1087,31 @@ async function scrape_text(url){
           } else {
             console.log("no search text wrapper");
           }
+          if(document.getElementById("searchFields")){
+            document.getElementById("searchFields").style.display = "none";
+          } else {
+            console.log("no search text wrapper");
+          }
           // document.getElementsByClassName('wrapper-outer').classList.add("hide");
           // document.getElementsByClassName('wrapper-outer').style.display = "none";
 
           // document.getElementById('headerDiv').style.display = 'none';
           if(document.getElementById('headerDiv')){
+            console.log("fuck shit 40");
             document.getElementById('headerDiv').style.visibility = 'hidden';
           } else {
             console.log("no header div");
           }
           if(document.getElementById('mainText')){
+            console.log("fuck shit 41");
             console.log("HIDE MAIN TEXT NOW");
+            inGraphs.value=true;
             document.getElementById('mainText').style.display = "none";
           } else {
             console.log("no main text");
           }
           if(document.getElementById('mainTextSubheader')){
+            console.log("fuck shit 42");
             document.getElementById('mainTextSubheader').style.display = "none";
           } else {
             console.log("no mainTextSubheader");
@@ -706,23 +1119,32 @@ async function scrape_text(url){
         }
         return;
     } 
+    
     // else { 
     //   // TESTING THIS OUT...
       emit('closedmodal');
       emit('openedfull');
+      
     // }
-
+    console.log("fuck shit 43");
     // console.log("do we make it here?");
   
     emit('openedfullawaitscrape');
+ 
     // setTimeout(()=>{console.log("timeout up!!!")},4000);
     // retract this when modal is closed...
+    console.log("fuck shit 44");
     document.body.style.overflowY = "hidden";
-    close();
-    setTimeout(()=>{},100);    
-    clearTimeout();
-    tryGetFullModal();
 
+    // close();
+    console.log("fuck shit 45");
+    ready.value = true;
+    inGraphs.value = false;
+    setTimeout(()=>{},2000);  
+    clearTimeout();
+    console.log("fuck shit 46");
+    tryGetFullModal();
+    console.log("fuck shit 47");
     console.log("CONTACT!!!");
     //document.getElementById("modal-full").classList.add("awaiting")
     rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
@@ -734,7 +1156,13 @@ async function scrape_text(url){
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
         if(result){
+          console.log("fuck shit 48");
           console.log("hey, got a response from server!");
+          let modalHeader = document.getElementById("modalHead");
+          if(modalHeader){
+            modalHeader.style.display = "flex";
+          }
+          console.log("fuck shit 49");
           rawtextfromtoc.value = result;
           console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
           // document.getElementById("modalFull").classList.add("awaiting")
@@ -841,6 +1269,7 @@ async function scrape_text(url){
           if (!localStorage.getItem(url)){
             localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
           }
+          inGraphs.value = true;
           console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
           //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
           // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
@@ -858,7 +1287,7 @@ async function scrape_text(url){
     // }  
       return rawtextfromtoc;
 };
-
+console.log("fuck shit 23");
 function selected(e){
   console.log("received SELECTED emit in the modal parent: ", e);
 };
@@ -866,11 +1295,13 @@ function selected(e){
 const lineThickness = 3;
 
 function colorInputMountedHandler(){
-  // if(!rawtextfromtoc.value){
-  //   return;
-  // }
+  console.log("fuck shit 50");
+  if(!rawtextfromtoc.value){
+    return;
+  }
   console.log("additional texts val[0]: ", additionalTexts.value[0])
   if(currentLinesCount.value === 1){
+    console.log("fuck shit 51");
     console.log("LINE COUNT IS ONE")
   } else if(currentLinesCount.value === 2){
     console.log("LINE COUNT IS TWO")
@@ -914,7 +1345,7 @@ console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-
+  console.log("fuck shit 52");
   num = Math.max.apply(Math, num);
   console.log("in MAX X! ", num);
   console.log("why are we here??")
@@ -935,7 +1366,7 @@ function trySetDataCountXLengthMax(num){
 
 }
 function trySetDataCountXLengthMin(num){
-
+  console.log("fuck shit 53");
   num = num.filter(w=>w || w === 0)[0]
 
   if(numberXMin.value && numberXMin.value.length > 0 && numberXMin.value[currentLinesCount.value - 1] && num <= numberXMin.value[currentLinesCount.value - 1]){    
@@ -974,6 +1405,8 @@ function trySetDataCountYLengthMin(num){
 } 
 
 function trySetDataNameX(name){
+  inGraphs.value=true;
+  
   valueX.value=name;
   let labels = JSON.parse(JSON.stringify(optionsX.value)).map(x=>x.label);
 
@@ -1013,7 +1446,7 @@ function toggleMonochrome(){
 }
 
 function openUpdatePopup(){
-
+  console.log("fuck shit 54");
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1032,19 +1465,23 @@ function openUpdatePopup(){
   } else {
     console.log("wrapper btns missing");
   }
-  
+  console.log("fuck shit 55");
   let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
   console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
+  console.log("fuck shit 56");
   if(updatePopup){
+    console.log("fuck shit 57");
     updatePopup.classList.remove("animate-close");
   }
   let updateDataBtn = document.getElementById("updatePopupButton");
   if(updateDataBtn){
+    console.log("fuck shit 58");
     updateDataBtn.classList.add("animate-close");
   }
 }
 
 function closeUpdatePopup(){
+  console.log("fuck shit 59");
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1065,6 +1502,7 @@ function closeUpdatePopup(){
   }
     let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
     console.log("WEE SHOULD BE HITTING THIS!!!! CLOSE UPDATE POPUP", updatePopup);
+    console.log("fuck shit 60");
     if(updatePopup){
       updatePopup.classList.add("animate-close");
     }
@@ -1150,7 +1588,7 @@ function clickedLineRow(row){
 <Teleport to="body">
   <div v-if="ready" class="full-screen-modal modal-backdrop">
     <div id="modalFull" ref="modalFull">
-      <header class="modal-header">
+      <header v-if="inGraphs" id="modalHead" class="modal-header">
         <slot name="header">
           <!-- Single Text Analysis -->
         </slot>
@@ -1188,7 +1626,7 @@ function clickedLineRow(row){
         </button>
       </header>
 
-      <section id="graphs">
+      <section v-if="inGraphs" id="graphs">
         <slot  name="graphs">
  
           <GraphModal 
@@ -1221,7 +1659,7 @@ function clickedLineRow(row){
           ></GraphModal>
         </slot>
       </section>
-      <section class="linePickerPopup">
+      <section v-if="inGraphs" class="linePickerPopup">
         <slot>            
           <div id="newTextPopup" >
             <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
@@ -1690,7 +2128,7 @@ body.modal-open {
 }
 
 #modalFull.awaiting {
-    background: var(--color-background);
+    background: transparent;
     pointer-events:all;
     align-items: left;
 }
@@ -1708,7 +2146,8 @@ body.modal-open {
 }
 
 #modalFull.receivedSingleTextData {
-
+  background:transparent;
+  pointer-events: none;
 }
 
   .modal-header,
@@ -1727,7 +2166,7 @@ body.modal-open {
     position: relative;
     z-index: 40;
     height: 68px;
-
+    
     font-size: 48px;
     font-weight: 100;
     top: 0px;
@@ -1735,6 +2174,7 @@ body.modal-open {
     background: rgba(255, 255, 255, 0.078);
     transition: height 1s ease-in;
   }
+
 
   .modal-footer {
     border-top: 1px solid #eeeeee;
@@ -1809,9 +2249,11 @@ body.modal-open {
   .self-building-square-spinner {
     top: -60px !important;
     position: absolute;
+    left:50%;
   }
   #textRowTitle, #textRowAuthor{
     width: 100%;
+    display:none;
   }
 
   .modal-textAnalysis-title {
@@ -1821,6 +2263,7 @@ body.modal-open {
     position: absolute;
     background: var(--color-background);
     height: calc(100% - 164px);
+    display:none;
   }
   .modal-single-text-results {
     width: 100%;
@@ -1959,6 +2402,7 @@ body.modal-open {
   background-color:var(--color-background);
   background:var(--color-background);
   color: #ffffff;
+  display:none;
 }
 
 .saturation-area {

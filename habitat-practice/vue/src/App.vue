@@ -18,7 +18,7 @@ const textsToReturn : any = ref([])
 const triedWikiExtension1 = ref(false);
 const triedWikiExtension2 = ref(false);
 const triedWikiExtension3 = ref(false);
-
+const in_toc = ref(false)
 export default {
   props: {
     data: {
@@ -117,7 +117,12 @@ export default {
     }
 
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
-
+      console.log("trying to get wiki img")
+      if(in_toc.value === true){
+        return;
+      }
+      
+      console.log("here now!");
       if(wikiString === "https://en.wikipedia.org/wiki/Robert_Herrick"){
         wikiString = "https://en.wikipedia.org/wiki/Robert_Herrick_(poet)";
       } 
@@ -163,7 +168,15 @@ export default {
         method: "POST",
         body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
       }).then(response => response.json()).then(result => {
-          let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
+        console.log("hearing back from server!")
+        if(in_toc.value === true){
+          console.log("IN OPENFULL ", result);
+          return Promise.all([]);
+          throw new Error("reject all promises!!")
+          // return Promise.all([])
+        }
+        
+        let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
         
           if(result['img_possible'].length < 1){
             if(triedWikiExtension1.value === false){
@@ -256,9 +269,14 @@ export default {
       }   
     });
 
-    function tryGetWikiURL(rawAuthorName:any){
+    async function tryGetWikiURL(rawAuthorName:any){
       console.log("RAW_AUTHOR_NAME: ", rawAuthorName);
-      rawAuthorName.map((i)=>{ 
+      // rawAuthorName.forEach((i)=>{ 
+        for(let i = 0; i < rawAuthorName.length; i++){
+          if(in_toc.value === true){
+            console.log("ENDING LOOP!")
+            return;
+          }
           let published = new Date(); 
           let first = '';
           let last = ''; 
@@ -266,8 +284,8 @@ export default {
           let bookId = 0;
           let sub_url = ''
           let splitSpaces : any = []
-          if(i['author'].indexOf(' ')){
-            splitSpaces = i['author'].split(' ');
+          if(rawAuthorName[i]['author'].indexOf(' ')){
+            splitSpaces = rawAuthorName[i]['author'].split(' ');
             let getFirst = false;
             // splitSpaces = splitSpaces.filter(i=>i.length > 2)
             for(let s = 0; s < splitSpaces.length; s++){          
@@ -315,15 +333,22 @@ export default {
             sub_url = splitSpaces[0]
           }
 
-          published = i['published'];
-          title = i['title']
-          bookId = i['id']
+          published = rawAuthorName[i]['published'];
+          title = rawAuthorName[i]['title']
+          bookId = rawAuthorName[i]['id']
 
           let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
-          
-          tryGetWikiImage(wikiString, first, last, title, published, bookId);
-          
-        });
+          console.log("IN TOC?> CHECK SYNTAX: ", in_toc.value);
+          if(in_toc.value === false){
+            console.log("here!")
+            let images = await tryGetWikiImage(wikiString, first, last, title, published, bookId);
+            console.log("images: ", images)
+ 
+          } else {
+            console.log("stopped sending try get wiki img");
+          }
+        // });
+        }
     }
 
     props = state;
@@ -381,8 +406,10 @@ export default {
 
         return this.state;
     },
-    test: function(this:any) {
-      console.log("hey this")
+    in_toc_now: function(this:any) {
+      console.log("IN TOC NOW!");
+      in_toc.value = true;
+      console.log("fuck shit APP 1");
     },
     handleKeyUpTitle: async function (this:any) {
       this.state.data = {}
@@ -686,7 +713,10 @@ export default {
         this.state.data = scrape.basicData
 
         return this.state;
-    }
+    },
+    // reset_opened_toc: function(this:any){
+    //   opened_toc.value =
+    // }
   },
   
 
@@ -697,7 +727,7 @@ export default {
 <template>
   
   <h1 id="jumbotron" class="jumbotron intro-cover">TCP Data Viz</h1>
-  <div class="outer-row">
+  <div id="searchFields" class="outer-row">
     <header id="headerDiv">
       <div id="headerWrapper"> 
         <div  id="letter-wrapper">
@@ -805,7 +835,7 @@ export default {
   
     <TheWelcome 
       :items="state.data" 
-
+      @in_toc_now="in_toc_now"
     />
   </main>
 </template>
@@ -918,6 +948,7 @@ input {
   display: flex;
   flex-direction: column;
   padding-bottom:400px;
+  transition: all .5s;
 }
 
 #headerDiv {

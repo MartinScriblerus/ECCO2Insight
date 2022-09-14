@@ -58,6 +58,7 @@
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
   function hideUpdateButtons(){
+    console.log("fuck shit graph 1");
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -72,7 +73,7 @@
     } 
   }
   popupOpen.value = false;
-    
+  console.log("fuck shit graph 2");
     function setWidth(width){
       // this.width = width;
       console.log("SET WIDTH TO ", width);
@@ -89,10 +90,12 @@
       data.value = data.value.filter((v) => v <= 35);
     }
     function updateVizDataCommonWords(){
+      console.log("fuck shit graph 3");
       hideUpdateButtons();
+      console.log("fuck shit graph 4");
       data.value = JSON.parse(JSON.stringify(props)).dataObj.textObj.mostCommonWords.map(i=>i['occurances']);
         let tempData = data.value.map(i=>i)
-        
+        console.log("fuck shit graph 5");
         valueY.value = "Occurances";
         valueX.value = "Items";
         console.log("is thissss the problem? check temp data", tempData)
@@ -122,17 +125,19 @@
         numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
         numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min.apply(Math,tempData);
         console.log("common words in GM: ", numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]);
-
+        console.log("fuck shit graph 6");
         //console.log("common words in GM: ", this.numberXMax[this.props.currentLinesCount - 1]);
     }
     function updateVizDataLineObj(){
+      console.log("fuck shit graph 7");
       hideUpdateButtons();
+      console.log("fuck shit graph 8");
       Object.keys(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).slice(-1)
       data = Object.values(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).map(i=>i['syllablesInLine']);
     
       // this is only necessary if it is stopping point errors
       let tempData = data.map(i=>i)
-      
+      console.log("fuck shit graph 9");
       valueY.value = "Syllable Count";
       valueX.value = "Sentence Count";
       //console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
@@ -163,14 +168,17 @@
 
       let lineObjVizPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).map(i=>lineObjVizPlaceholder1.push(i));
+      console.log("fuck shit graph 10");
       console.log("LINE OBJECT !! ", lineObjVizPlaceholder1);
       let syllablesPerLinePlaceholder = [];
       Object.values(lineObjVizPlaceholder1).map(j=>{if(j['syllablesInLine']){syllablesPerLinePlaceholder.push(j['syllablesInLine'])}});
-      
+      console.log("fuck shit graph 11");
       data.value = syllablesPerLinePlaceholder;
     }
     function updateVizDataSentiment(compound,negative,neutral,positive){
+      console.log("fuck shit graph 12");
       hideUpdateButtons();
+      console.log("fuck shit graph 13");
       let sentenceVizSentimentPlaceholder1 = [];
 
       try{
@@ -179,16 +187,20 @@
         numberXMin.value = numberXMin.value.filter(i=>i);
         numberYMax.value = numberYMax.value.filter(i=>i);
         numberYMin.value = numberYMin.value.filter(i=>i);
+        console.log("fuck shit graph 14");
       } catch(e){
         console.log("e1: ", e);
+        console.log("fuck shit graph 15");
       }  
       try {
+        console.log("fuck shit graph 16");
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{
           if(sentenceVizSentimentPlaceholder1.indexOf(Object.values(i)) === -1){
             sentenceVizSentimentPlaceholder1.push(Object.values(i));
           }
         });
       } catch(e){
+        console.log("fuck shit graph 17");
         console.log("that object is not happy")
       }
 
@@ -199,7 +211,7 @@
       // console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
       let tempData = [];
       Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).filter(i=>i.sentenceSentiment)
-        
+      console.log("fuck shit graph 19");
       if(compound){
         tempData = sentenceVizSentimentPlaceholder2.map((i)=>i[0])
         valueY.value = "Sentiment (Compound)";
@@ -285,69 +297,115 @@
         mode.value[0] = 1;
         mode.value = [4];
       }
-     
+      console.log("fuck shit graph 20");
       data.value = tempData;
       if(!data.value){
+        console.log("fuck shit graph 21");
         return;
       }
+      console.log("fuck shit graph 22");
       numberXMax.value = numberXMax.value.filter(a=>typeof a === "number");
       numberXMin.value = numberXMin.value.filter(b=>typeof b === "number");
       numberYMax.value = numberYMax.value.filter(c=>typeof c === "number");
       numberYMin.value = numberYMin.value.filter(d=>typeof d === "number");
       
       console.log(`check on ... ${numberXMax.value} / ${numberXMin.value} / ${numberYMax.value} / ${numberYMin.value}`);
-
+      console.log("fuck shit graph 23");
     }
       
-    watch([props,props.dataObj, tooltipMsg, props.secondTextRef, valueX,valueY,props.currentLinesCount,props.colorX,props.axisColorMatchBool,numberXMax,numberXMin,numberYMax,numberYMin,props.selectedXAxisRef,props.selectedYAxisRef,props.selectedRow,resetXRef, resetYRef], ([currentXLabel,currentYLabel], [oldXLabel,oldYLabel]) => {
+    watch([props,
+    props.dataObj, 
+    tooltipMsg, 
+    props.secondTextRef, 
+    valueX,
+    valueY,
+    props.currentLinesCount,
+    props.colorX,
+    props.axisColorMatchBool,
+    // numberXMax,
+    // numberXMin,
+    // numberYMax,
+    // numberYMin,
+    props.selectedXAxisRef,
+    props.selectedYAxisRef,
+    props.selectedRow,
+    resetXRef, 
+    resetYRef], ([currentXLabel,currentYLabel], [oldXLabel,oldYLabel]) => {
+      console.log("fuck shit 100");
+      console.log("fuck shit graph 24");
+      if(Object.values(JSON.parse(JSON.stringify(props.dataObj))).length < 1){
+        console.log("fuck shit graph 25");
+        return;
+      }
       if(numberXMax.value && resetXRef.value === true){
+        console.log("fuck shit 101");
+        console.log("fuck shit graph 26");
         let index = numberXMax.value.indexOf(Math.max(...numberXMax.value));
         numberXMax.value.slice(index);
         resetXRef.value = false;
+        console.log("fuck shit graph 27");
         emit('numberYMax', numberYMax.value.filter(z=>typeof z === "number"));
       }
       if(numberXMin.value && resetXRef === true){
+        console.log("fuck shit 102");
         let index = numberXMin.value.indexOf(Math.min(...numberXMin.value));
         numberXMin.value.slice(index);
         resetXRef.value = false;
+        console.log("fuck shit graph 28");
         emit('numberXMin', numberXMin.value.filter(g=>typeof g === "number"));
       }
       if(numberYMax.value && resetYRef === true){
+        console.log("fuck shit 103");
         let index = numberYMax.value.indexOf(Math.max(...numberYMax.value));
         numberYMax.value.slice(index);
         resetYRef.value = false;
+        console.log("fuck shit graph 29");
         emit('numberYMax', numberYMax.value.filter(g=>typeof g === "number"));
       }
       if(numberYMin.value && resetYRef === true){
+        console.log("fuck shit 104");
         let index = numberYMin.value.indexOf(Math.max(...numberYMin.value));
         numberYMin.value.slice(index);
         resetYRef.value = false;
+        console.log("fuck shit graph 30");
         emit('numberYMin', numberYMin.value.filter(g=>typeof g === "number"));
       }
       if(resetYRef.value === true){
+        console.log("fuck shit 105");
         let index = JSON.parse(JSON.stringify(numberYMax.value)).indexOf(Math.max(...numberYMax.value));
         JSON.parse(JSON.stringify(numberYMax.value)).slice(index);
         resetYRef.value = false;
+        console.log("fuck shit graph 31");
       }
       if(currentXLabel !== oldXLabel){
+        console.log("fuck shit 106");
         console.log('curr x label val: ', JSON.parse(JSON.stringify(valueX.value)));
+        console.log("fuck shit graph 32");
         emit('dataname_x', valueX.value);
+       
       }
       if(currentYLabel !== oldYLabel){
+        console.log("fuck shit 107");
         console.log('curr y label val: ', JSON.parse(JSON.stringify(valueY.value)));
         emit('dataname_y',valueY.value);
       }
+      console.log("fuck shit 108");
+      console.log("fuck shit graph 33");
       let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
       if(keyBuilder){
+        console.log("fuck shit 109");
         keyBuilder.style.borderColor = props.colorX;
       }
       if(valueX.value){
+        console.log("fuck shit 110");
         emit('dataname_x',valueX.value)
       } 
       if(valueY.value){
-
+        console.log("fuck shit 111");
         emit('dataname_y',valueY.value)
+
       }
+
       return;
     });
     
@@ -360,6 +418,7 @@
     }
     
   function updateTooltip(selected) {
+    console.log("fuck shit graph 36");
       console.log("IN UPDATE TOOLTIP!!! ", selected);
       let grammarArr = [];
       let entitiesArr = [];
@@ -376,7 +435,7 @@
             entitiesArr.push([h.text,h.type,h.id])
           }
         });
-
+        console.log("fuck shit graph 37");
         tooltipMsg.value = {
           grammarArrays : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceGrammarArray'],
           sentimentCompound : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentCompound']['compound'],
@@ -387,6 +446,7 @@
         }
         console.log("$$$ ", JSON.parse(JSON.stringify(tooltipMsg.value)));
       } else {
+        console.log("fuck shit graph 38");
         console.log("tooltip failure: ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
       }
   }
@@ -395,6 +455,7 @@
   }
   
   function emitterClose(command){
+    console.log("fuck shit graph 39");
     console.log("emitting");
     emit(command);
   }
@@ -413,7 +474,56 @@
       TestChart
     },
     emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup','numberXMax','numberXMin','numberYMax','numberYMin'],
-    watch: ['dataname_x','dataname_y','numberXMin','numberXMax','numberYMin','numberYMax'],
+    watch: 
+    {
+      dataname_x:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+      dataname_y:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+      numberXMax:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("num x changes")
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+      numberYMax:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("num x changes")
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+      numberXMin:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("num y changes")
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+      numberYMin:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("num y changes")
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+      },
+    },
+    // [
+    //   'dataname_x',
+    //   'dataname_y',
+    //   'numberXMin',
+    //   'numberXMax',
+    //   'numberYMin',
+    //   'numberYMax'],
     props : {
       open: {
         type: Boolean,
@@ -583,7 +693,7 @@
         <!-- <button class="green-btn bottom-btn" @click="addData">Add data</button>
         <button class="green-btn bottom-btn" @click="filterData">Filter data</button> -->
         <div id="d3UpdateButtonsWrapper">
-          <h1 id="buttonsWrapperTitle">Let's Begin...</h1>
+          <h1 id="buttonsWrapperTitle">Update Graph</h1>
           <h3 id="buttonsWrapperSubtitle">
             Reopen this window any time you'd like to update the data displayed in the graph. Select a value to track with your first line.
           </h3>
@@ -688,7 +798,9 @@ svg {
   background-color: green;
 }
 #sentimentBtns,#textStatsBtns,#lineStatsBtns{
-  display:flex;
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }
 .color-input .picker-popup {
   background-color:var(--color-background) !important;
@@ -723,6 +835,7 @@ svg {
 }
 
 #d3UpdateButtonsWrapper {
+    
     position: fixed;
     justify-content: center;
     width: 100%;
@@ -748,6 +861,7 @@ svg {
   pointer-events:all;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 .label-wrapper {
   display:flex;
@@ -756,6 +870,8 @@ svg {
 .buttons-row {
   display: flex;
   flex-direction: row;
+  width: 100%;
+  padding: 2%;
 }
 .inner-wrap {
   width:100%;
