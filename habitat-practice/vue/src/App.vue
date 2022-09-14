@@ -121,7 +121,7 @@ export default {
       if(in_toc.value === true){
         return;
       }
-      
+
       console.log("here now!");
       if(wikiString === "https://en.wikipedia.org/wiki/Robert_Herrick"){
         wikiString = "https://en.wikipedia.org/wiki/Robert_Herrick_(poet)";
@@ -948,7 +948,7 @@ input {
   display: flex;
   flex-direction: column;
   padding-bottom:400px;
-  transition: all .5s;
+  transition: all 1s;
 }
 
 #headerDiv {
@@ -1278,7 +1278,7 @@ input:checked + .slider:before {
   .inputsRowWrapper{
     margin-top:8px;
     margin-bottom:16px;
-    padding-left:4%;
+    padding-left:2%;
     padding-right:4%;
     display: flex;
     flex-direction: row;

@@ -182,7 +182,7 @@ async function doCloseFullModal(){
 async function doOpenFullModal(){
   console.log("fuck shit welcome 11");
   console.log("hit 2")
-  openFull.value = true;
+  // openFull.value = true;
 };
 
 async function doOpenAwaitScrape(){
@@ -193,7 +193,7 @@ async function doOpenAwaitScrape(){
   }
   console.log("fuck shit welcome 13");
   console.log("in do open await scrape");
-  openFull.value = true;
+  // openFull.value = true;
   console.log("fuck shit welcome 14");
 };
 

@@ -28,8 +28,8 @@ import mechanicalsoup
 
 from config import API_KEY
 from datetime import date, datetime
-from nltk_analysis import nltk_analysis
-from machine_learning import machine_learning
+# from nltk_analysis import nltk_analysis    
+# from machine_learning import machine_learning
 # from ast import While
 # import asyncio
 import asyncio
@@ -52,25 +52,33 @@ s = Session()
 
 ## FLASK APPLICATION wrapped in WEBSOCKET
 ## -------------------------------------------------------------------
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    CORS(app, support_credentials=True)
+    app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
+    return app
+app = create_app()
 sock = Sock(app)
-print('what is sock??? ', sock)
-CORS(app, support_credentials=True)
-app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 
-# create handler for each connection
-## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
 
-## WEBSOCKETS ROUTE CONNECTED TO FLASK ENDPOINT
-## -------------------------------------------------------------------
-soct = None
+
+
+# # create handler for each connection
+# ## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
+
+# ## WEBSOCKETS ROUTE CONNECTED TO FLASK ENDPOINT
+# ## -------------------------------------------------------------------
+
 @sock.route('/ws')
 def echo(ws):
     global soct 
     soct = ws
     while True:
         data = ws.receive()
+        if data == 'close':
+            break
         ws.send(data)
+        
 
 
 ## TODO: ... is this left over from edit? check whether this can go!
@@ -95,7 +103,7 @@ comp_texts_array = []
 
 @app.route('/')
 def hello():
-    
+
     count = 0
     multiplier = 20 * (count + 1)
     ## TODO: better strategy for minimizing load times...
@@ -111,11 +119,11 @@ def hello():
             Book.title.contains("Poems: vvritten by Wil. Shake-speare. Gent"),
             Book.title.contains("The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."),
             Book.title.contains("Letters of the late Rev. Mr. Laurence Sterne, to his most intimate friends. With a fragment in the manner of Rabelais. To which are prefix'd, memoirs of his life and family. Written by himself. And published by his daughter, Mrs. Medalle. In three volumes."),
-            Book.title.contains("The interesting narrative of the life of Olaudah Equiano: or Gustavus Vassa, the African. Written by himself."),
+            Book.title.contains("The interesting narrative of the life of Olaudah Equiano: or Gustavus Vassa, the African. Written by himself. [pt.1]"),
             Book.title.contains("Poems on several occasions: By Christopher Smart"),
             Book.title.contains("Poems upon several occasions: By Mrs. Leapor"),
             Book.title.contains("A tragedy. As it is acted at the Theatre-Royal in Drury-Lane, by Her Majesty's servants. By Mr. Addison."),
-            Book.title.contains("The Rambler.: [pt."),
+            Book.title.contains("The Rambler.: [pt.1"),
             Book.title.contains("The beggar's opera: As it is acted at the Theatre-Royal in Lincolns-Inn-Fields. Written by Mr. Gay."),
             Book.title.contains("The mysteries of Udolpho: a romance; interspersed with some pieces of poetry. By Ann Radcliffe"),
             Book.title.contains("A wife well manag'd: A farce"),
@@ -138,14 +146,14 @@ def hello():
             Book.title.contains("The botanic garden: a poem, in two parts. Part I. Containing the economy of vegetation. Part II. The loves of the plants. With philosophical notes."),
             Book.title.contains("Miscellanies in prose and verse: by Thomas Chatterton, the supposed author of the poems published under the names of Rowley, Canning, &c."),
             Book.title.contains("Reflections on the Revolution in France: and on the proceedings in certain societies in London relative to that event. In a letter intended to have been sent to a gentleman in Paris. By the Right Honourable Edmund Burke."),
-            Book.title.contains("The history of the decline and fall of the Roman Empire: By Edward Gibbon, Esq; ... [pt."),
+            Book.title.contains("The history of the decline and fall of the Roman Empire: By Edward Gibbon, Esq; ... [pt.1"),
             Book.title.contains("A paraphrase on the book of Job as likewise on the songs of Moses, Deborah, David, on four select psalms, some chapters of Isaiah, and the third chapter of Habakkuk"),
             Book.title.contains("The foure ages of England, or, The iron age with other select poems"),
             Book.title.contains("Elements of philosophy the first section, concerning body / written in Latine by Thomas Hobbes of Malmesbury ; and now translated into English ; to which are added Six lessons to the professors of mathematicks of the Institution of Sr. Henry Savile, in the University of Oxford."),
             Book.title.contains("Dialogues concerning natural religion: By David Hume, Esq;."),
             Book.title.contains("Memoirs of the extraordinary life, works, and discoveries of Martinus Scriblerus. By Mr. Pope:"),
             Book.title.contains("The emigrants, a poem, in two books. By Charlotte Smith:"),
-            Book.title.contains("The history of Tom Jones: a foundling. In three volumes. ... By Henry Fielding, Esq;. [pt."),
+            Book.title.contains("The history of Tom Jones: a foundling. In three volumes. ... By Henry Fielding, Esq;. [pt.1"),
             Book.title.contains("Utopia written in Latin by Sir Thomas More, Chancellor of England ; translated into English."),
             Book.title.contains("Poems, with a maske by Thomas Carew ... ; the songs were set in musick by Mr. Henry Lawes"),
             Book.title.contains("Philosophiæ naturalis principia mathematica autore Js. Newton"),
@@ -157,7 +165,7 @@ def hello():
             Book.title.contains("An apologie for poetrie. VVritten by the right noble, vertuous, and learned, Sir Phillip Sidney, Knight"),
             Book.title.contains("The Spanish tragedie containing the lamentable end of Don Horatio, and Bel-imperia: with the pittifull death of olde Hieronimo."),
             Book.title.contains("The poems: of Mr. Gray. To which are prefixed Memoirs of his life and writings by W. Mason, M.A."),
-            Book.title.contains("The life of Samuel Johnson, LL.D: comprehending an account of his studies and numerous works, ... In two volumes. By James Boswell, Esq. ... [pt"),
+            Book.title.contains("The life of Samuel Johnson, LL.D: comprehending an account of his studies and numerous works, ... In two volumes. By James Boswell, Esq. ... [pt.1"),
             Book.title.contains("Miscellanies; or, literary recreations. By I. D'Israeli:"),
             Book.title.contains("Patriarcha, or, The natural power of Kings by the learned Sir Robert Filmer."),
             Book.title.contains("The displaying of supposed witchcraft wherein is affirmed that there are many sorts of deceivers and impostors and divers persons under a passive delusion of melancholy and fancy, but that there is a corporeal league made betwixt the Devil and the witch ... is utterly denied and disproved : wherein also is handled, the existence of angels and spirits, the truth of apparitions, the nature of astral and sydereal spirits, the force of charms, and philters, with other abstruse matters"),
@@ -165,7 +173,7 @@ def hello():
             Book.title.contains("An account of the Oriental philosophy shewing the wisdom of some renowned men of the East and particularly the profound wisdom of Hai Ebn Yokdan, both in natural and divine things, which he attained without all converse with men, (while he lived in an island a solitary life, remote from all men from his infancy, till he arrived at such perfection)"),
             Book.title.contains("Poems on several occasions: By N. Rowe, Esq;."),
             Book.title.contains("A defence of free-thinking in mathematics: In answer to a pamphlet of Philalethes Cantabrigiensis, intituled, Geometry no friend to infidelity, or a defence of Sir Isaac Newton, and the British mathematicians. Also an appendix concerning Mr. Walton's Vindication of the principles of fluxions ... By the author of The minute philosopher."),
-            Book.title.contains("Lectures on rhetoric and belles lettres: By Hugh Blair, ... In three volumes. ... [pt."),
+            Book.title.contains("Lectures on rhetoric and belles lettres: By Hugh Blair, ... In three volumes. ... [pt.1]"),
             Book.title.contains("The prophecy of famine. A Scots pastoral: By C. Churchill. Inscribed to John Wilkes, Esq;."),
             Book.title.contains("Basiliká the works of King Charles the martyr : with a collection of declarations, treaties, and other papers concerning the differences betwixt His said Majesty and his two houses of Parliament : with the history of his life : as also of his tryal and martyrdome."),
             Book.title.contains("Hesperides, or, The works both humane & divine of Robert Herrick, Esq."),
@@ -238,9 +246,9 @@ started = False
 ######################
 @app.route('/tryWikiImg', methods=['POST'])
 def try_wiki_img():
-    print("fuck!")
+
     resp = request.get_json()
-    print("HI ROWAN: ", resp)
+    # print('is it just timing? ', resp)
     url = resp['wikiString']
     first_name = resp['first_name']
     last_name = resp['last_name']
@@ -249,7 +257,7 @@ def try_wiki_img():
     print(last_name)
     publication_year = resp['published'] 
     browser = mechanicalsoup.StatefulBrowser()
-    print('is there a browser? ', browser)
+    # print('is there a browser? ', browser)
     if browser is not None:
         browser.open(url)
     # form_field = browser.page.find("form")
@@ -764,7 +772,9 @@ def res_text():
     browser = mechanicalsoup.StatefulBrowser()
     browser.open(r['titleUrl'])
     h=browser.page.select('a', class_="buttonlink")
-
+   
+    from nltk_analysis import nltk_analysis    
+    # from machine_learning import machine_learning
     for a in h:
         if a.text == "View entire text":
             ######### TODO:
@@ -776,16 +786,17 @@ def res_text():
         else:
 
             text_in_html = browser.page.find('div',class_="maincontent").text
-
+        
             old_df, sents = nltk_analysis(r, text_in_html)
             
-            mach_learning = machine_learning(old_df,sents)
+            # mach_learning = machine_learning(old_df,sents)
             #could move this (& whole socket) to nltk file...
             # soct.send('fifteenth_msg')
             # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
             # soct.send("fifteenth_msg")
-            initial_text_obj = old_df
+            # initial_text_obj = old_df
             # soct.send("second_msg")
+
             return old_df 
 
 
@@ -810,7 +821,7 @@ def res_t():
 
 if __name__ == '__main__':
     app.debug=False
-    #app.run(host='0.0.0.0',use_reloader=True,debug=False)
+    app.run(host='0.0.0.0',use_reloader=True,debug=False)
     WSGIServer(('127.0.0.1', 5000), app).serve_forever()
 
 

@@ -42,151 +42,7 @@ secondTextRef.value = false;
 const graphstateRef = ref(0);
 const axisColorMatchBool = ref(false);
 
-// graphstate.value = "singleText";
 
-// // Initial soocket implementation 
-// // ----------------------------------------------------
-// const socket = new WebSocket('ws://localhost:5000/ws');
-// console.log('do we have a socket? ', socket);
-// socket.onopen = function (event) {
-//   console.log('sent opening salvo');
-//   socket.send("Here's some text that the server is urgently awaiting!");
-//   console.log('still going after opening salvo');
-// }
-// socket.onclose = function(event) {
-//     console.log("AHHHHHHH ", event);
-// }
-
-// console.log("fuck shit 2");
-
-// window.onbeforeunload = function() {
-//   console.log("fuck shit 3");
-//     console.log('are we closing the socket now???');
-//     socket.onclose = function () {}; // disable onclose handler first
-//     socket.close();
-// };
-
-// console.log("fuck shit 4");
-
-// // Text loading steps
-// // TODO => sort out which we need for initial text loading
-// // TODO => get these callback numbers in proper 1-2-3 order
-// const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
-// let stepMessage = '';
-
-// socket.onmessage = event => {
-//   console.log("fuck shit 5");
-//     console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
-//     if(event.data === 'third_msg'){
-//       console.log("got third socket msg");
-//       currentStepRef.value = 0;
-//       stepMessage = "Gathering text and preprocessing data"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }
-//     if(event.data === 'fourth_msg'){
-//       console.log("got fourth socket msg");
-//       currentStepRef.value = 1;
-//       stepMessage = "Begin line-level and poetic analysis";
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }
-//     if(event.data === 'eighth_msg'){
-//       currentStepRef.value = 2;
-//       stepMessage = "Begin sentence-level analysis"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }
-//     if(event.data === 'eleventh_msg'){
-//       currentStepRef.value = 3;
-//       stepMessage = "Training"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }
-//     if(event.data === 'twelfth_msg'){
-//       currentStepRef.value = 4;
-//       stepMessage = "Clustering"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }
-//     if(event.data === 'thirteenth_msg'){
-//       currentStepRef.value = 5;
-//       stepMessage = "Time Series Analysis"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-//     }  
-//     if(event.data === 'fifteenth_msg'){
-//       currentStepRef.value = 3;
-//       console.log("HIT FIFTEENTH!");
-//       inGraphs.value = true;
-//       stepMessage = "Feature Extraction"
-//       if(document.getElementById("progressMsg")){
-//         document.getElementById("progressMsg").innerText = stepMessage;
-//       }
-    
-// // We've got the text -> reorder the DOM
-// // ----------------------------------------------------
-//     let results = document.getElementsByClassName('modal-single-text-results');
-    
-//       if(results.length > 0){
-//         // results[0].style.visibility = "visible";
-        
-//         try{
-//           if(document.getElementById('progressCircles')){
-//             document.getElementById('progressCircles').style.display = "none";
-//           } else {
-//             console.log("no prog circs");
-//           }
-//           if(document.getElementById('progressMsg')){
-//             document.getElementById('progressMsg').style.display = "none";
-//           } else {
-//             console.log("no progress msgs");
-//           }
-//           if(document.getElementById('progressMsgExplanation')){
-//             document.getElementById('progressMsgExplanation').style.display = "none";
-//           } else {
-//             console.log("no prog explanations");
-//           }
-//           if(document.getElementById('main')){
-//             document.getElementById('main').style.display = "none";
-//           } else {
-//             console.log("no main");
-//           } 
-//           if(document.getElementById('graphs')){
-//             document.getElementById('graphs').style.display = "flex";
-//           } else {
-//             console.log("no graphs");
-//           }
-//           if(document.getElementById('progressMsgExplanation')){
-//             document.getElementById('progressMsgExplanation').style.display = "none";
-//           }
-        
-//           try {
-//           document.getElementById('compareButton').style.visibility = "visible";
-//           document.getElementById("textRowAuthor").style.display = "none";
-//           document.getElementById("textRowTitle").style.display = "none";
-//           document.getElementById("searchTextWrapper").style.display = "none";
-//           document.getElementById('headerDiv').style.display = 'none';
-//           document.getElementById('headerDiv').style.visibility = 'hidden';
-//           document.getElementById('mainText').style.display = "none";
-//           document.getElementById('mainTextSubheader').style.display = "none";
-//           } 
-//           catch(e){
-//             console.log("err_modal1 ", e);
-//           }
-//         } catch(e){
-//           console.log("err_modal1 ", e);
-//         }
-//       }
-//     }  
-
-// }
 
 
 const initialHumanReadableTextRef = ref({
@@ -257,7 +113,7 @@ onMounted(()=>{
   currentStepRef.value = 0;
   setTimeout(() => {
     searchModal = modal.value;
-  }, 10);
+  }, 1);
   clearTimeout();
    
   const css = `
@@ -719,17 +575,17 @@ optionsX,
 valueX,
 valueY,
 optionsY, 
-// numberXMax,
-// numberXMin, 
-// numberYMax,
-// numberYMin,
-// props.selected, 
+numberXMax,
+numberXMin, 
+numberYMax,
+numberYMin,
+props.selected, 
 currentLinesCount, 
 currentTextData,
 axisColorMatchBool,
 selectedXAxisRef,
 selectedYAxisRef,
-props.openFull,
+// props.openFull,
 yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
   console.log("fuck shit 7");
     if(selectedXAxisRef.value){
@@ -883,7 +739,7 @@ function setLineCount(){
 }
 
 
-async function tryGetFullModal(){
+async function tryGetFullModal(url){
   console.log("fuck shit 10");
     console.log("innnnn try get full modal... ");
       let fullModal = await modalFull.value !== false;
@@ -891,12 +747,6 @@ async function tryGetFullModal(){
       if(fullModal && fullModal.classList){
         console.log("fuck shit 12");
         fullModal.classList.add("awaiting");
-        // hide thee text search
-        // let main = document.getElementById("main");
-        // if(main){
-        //   main.style.visibility = "hidden";
-        //   main.style.opacity = 0;
-        // }
         
         console.log("MAIN STYLE VISIBILITY: ", main.style.visibility);
       } else {
@@ -904,15 +754,25 @@ async function tryGetFullModal(){
         console.log("fuck shit 13");
        // console.log("what is the else for full modal? ", fullModal);
       }
-    setTimeout(()=>{
-      if(mainPage){
-        mainPage.style.opacity = 0;
-        mainPage.style.visibility = "hidden";
-      }
+      setTimeout(()=>{
+        if(mainPage){
+          mainPage.style.opacity = 0;
+          mainPage.style.visibility = "hidden";
+        }
+      },1)
+      clearTimeout();
       // emit('closedmodal')
       // emit('closedmodal')
       console.log("FULL MODAL? ", fullModal);
       console.log("fuck shit 11");
+      // while(!fullModal || !fullModal.classList){
+      //   setTimeout(()=>{console.log("jeesh")},500);
+      //   clearTimeout();
+      //   if(currentStepRef.value){
+      //     fullModal.classList.add("awaiting");
+      //     break;
+      //   }
+      // }
       // if(fullModal && fullModal.classList){
       //   console.log("fuck shit 12");
       //   fullModal.classList.add("awaiting");
@@ -929,224 +789,8 @@ async function tryGetFullModal(){
       //   console.log("fuck shit 13");
       //  // console.log("what is the else for full modal? ", fullModal);
       // }
-    },1000)
-    clearTimeout();
-  };
-
-// Close full modal & return to initial search setup...
-// ----------------------------------------------------
-function doCloseFullModalChild(){
-  console.log("fuck shit 14");
-  console.log('in close modal child');
-  emit('closedfull')
-  
-  let jumbotron = document.getElementById('jumbotron');
-  if(jumbotron){
-    jumbotron.style.display = "flex";
-    jumbotron.style.display = "visible";
-  }
-  // show the text search again
-  let main = document.getElementById("main");
-  if(main){
-    console.log("fuck shit 15");
-    main.style.visibility = "visible";
-    main.style.opacity = 1;
-    main.style.display = "flex";
-  }
-  let headerDiv = document.getElementById("headerDiv");
-  console.log("fuck shit 16");
-  if (headerDiv && headerDiv.classList){
-    headerDiv.classList.remove("noDisplay");
-    headerDiv.style.visibility = "visible";
-    console.log("fuck shit 17");
-  } else {
-    console.log("in the else for headerdiv classlist");
-    console.log("fuck shit 18");
-  }
-}
-
-// TODO: componentize and DRY this function (see TheWelcome)
-async function scrape_text(url){
-    console.log("fuck shit 19");
-    if(!url){
-      return;
-    }  
-    console.log("fuck shit 20");
-    let wrapperTitle = document.getElementById("buttonsWrapperTitle");
-    let wrapperSubtitle =  document.getElementById("buttonsWrapperSubtitle");
-    let wrapperBtns = document.getElementById("buttonsInnerWrapper");
-    if(wrapperTitle){
-      wrapperTitle.style.display = "inline-block";
-    } else {
-      console.log("wrapper title missing");
-    }
-    if(wrapperSubtitle){
-      wrapperSubtitle.style.display = "inline-block";
-    } else {
-      console.log("wrapper subtitle missing");
-    }
-    if(wrapperBtns){
-      wrapperBtns.style.display = "inline-block";
-    } else {
-      console.log("wrapper btns missing");
-    }  
-    console.log("fuck shit 21");
-    // setTimeout(()=>{console.log("jeesh")},2000);
+    // },10)
     // clearTimeout();
- 
-    let localStorageDataAvailable = localStorage.getItem(url);
-    if(localStorageDataAvailable !== null){
-      console.log("fuck shit 22");
-        initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-
-          emit('closedmodal');
-          emit('openedfull');
-
-          let fullModal = await modalFull.value;
-          if(fullModal && fullModal.classList){
-            console.log("fuck shit 23"); // HITTING THIS INITIAL
-            fullModal.classList.remove("awaiting");
-            fullModal.classList.add("receivedSingleTextData");
-            let main = document.getElementById("main");
-            if(main){
-              console.log("fuck shit 24");
-              main.visibility = "visible";
-            }
-          } else {
-            console.log("in else for fullmodal: ", fullModal);
-            console.log("fuck shit 25");
-          }
-
-        let graphs = document.getElementById('graphs')
-        let results = document.getElementsByClassName('modal-single-text-results')
-        if(results){
-          console.log("fuck shit 26");
-          if(graphs){
-            console.log("fuck shit 27");
-            graphs.style.display = "flex";
-            console.log("FLEXING GRAPHS NOW!");
-          } else {
-            console.log("fuck shit 28");
-            console.log("NO GRAPHS NOW!");
-            console.log("not any graphs");
-          }
-          if(document.getElementById('main')){
-            console.log("fuck shit 29");
-            console.log("HIDE MAIN NOW!")
-            document.getElementById('main').style.display = "none";
-          } else {
-            console.log("fuck shit 30");
-            console.log("no main to hide!");
-            console.log("not any main");
-          }
-          if(document.getElementById('progressCircles')){
-            console.log("fuck shit 31");
-            console.log("HIDE PROG CIRCLES NOW!")
-            document.getElementById('progressCircles').style.display = "none";
-          } else {
-            console.log("fuck shit 32");
-            console.log("no progress circles");
-          }
-          if(document.getElementById('progressMsg')){
-            console.log("fuck shit 33");
-            console.log("HIDE PROG CIRCLES NOW!");
-            document.getElementById('progressMsg').style.display = "none";
-          } else {
-            console.log("fuck shit 34");
-            console.log("no progress msg");
-          }
-          if(document.getElementById('progressMsgExplanation')){
-            console.log("fuck shit 35");
-            document.getElementById('progressMsgExplanation').style.display = "none";
-          } else {
-            console.log("no progress msg explanation");
-          }
-          
-          
-          if(document.getElementById('compareButton')){
-            console.log("fuck shit 36");
-          document.getElementById('compareButton').style.visibility = "visible";
-          } else {
-            console.log("fuck shit 37");
-            console.log("no compare button");
-          }
-          if(document.getElementById("textRowAuthor")){
-            console.log("fuck shit 38");
-            document.getElementById("textRowAuthor").style.display = "none";
-          } else {
-            console.log("fuck shit 39");
-            console.log("no text row author")
-          }
-          if(document.getElementById("textRowTitle")){
-            document.getElementById("textRowTitle").style.display = "none";
-          } else {
-            console.log("no textRowTitle");
-          }
-          if(document.getElementById("searchTextWrapper")){
-            document.getElementById("searchTextWrapper").style.display = "none";
-          } else {
-            console.log("no search text wrapper");
-          }
-          if(document.getElementById("searchFields")){
-            document.getElementById("searchFields").style.display = "none";
-          } else {
-            console.log("no search text wrapper");
-          }
-          // document.getElementsByClassName('wrapper-outer').classList.add("hide");
-          // document.getElementsByClassName('wrapper-outer').style.display = "none";
-
-          // document.getElementById('headerDiv').style.display = 'none';
-          if(document.getElementById('headerDiv')){
-            console.log("fuck shit 40");
-            document.getElementById('headerDiv').style.visibility = 'hidden';
-          } else {
-            console.log("no header div");
-          }
-          if(document.getElementById('mainText')){
-            console.log("fuck shit 41");
-            console.log("HIDE MAIN TEXT NOW");
-            inGraphs.value=true;
-            document.getElementById('mainText').style.display = "none";
-          } else {
-            console.log("no main text");
-          }
-          if(document.getElementById('mainTextSubheader')){
-            console.log("fuck shit 42");
-            document.getElementById('mainTextSubheader').style.display = "none";
-          } else {
-            console.log("no mainTextSubheader");
-          }  
-        }
-        return;
-    } 
-    
-    // else { 
-    //   // TESTING THIS OUT...
-      emit('closedmodal');
-      emit('openedfull');
-      
-    // }
-    console.log("fuck shit 43");
-    // console.log("do we make it here?");
-  
-    emit('openedfullawaitscrape');
- 
-    // setTimeout(()=>{console.log("timeout up!!!")},4000);
-    // retract this when modal is closed...
-    console.log("fuck shit 44");
-    document.body.style.overflowY = "hidden";
-
-    // close();
-    console.log("fuck shit 45");
-    ready.value = true;
-    inGraphs.value = false;
-    setTimeout(()=>{},2000);  
-    clearTimeout();
-    console.log("fuck shit 46");
-    tryGetFullModal();
-    console.log("fuck shit 47");
-    console.log("CONTACT!!!");
-    //document.getElementById("modal-full").classList.add("awaiting")
     rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
         'Accept': 'application/json',
@@ -1283,9 +927,375 @@ async function scrape_text(url){
         }
         }).catch(error => {
         console.log('Error:', error);
-        }); 
+    }); 
     // }  
-      return rawtextfromtoc;
+
+    return rawtextfromtoc;
+  };
+
+// Close full modal & return to initial search setup...
+// ----------------------------------------------------
+function doCloseFullModalChild(){
+  console.log("fuck shit 14");
+  console.log('in close modal child');
+  emit('closedfull')
+  
+  let jumbotron = document.getElementById('jumbotron');
+  if(jumbotron){
+    jumbotron.style.display = "flex";
+    jumbotron.style.display = "visible";
+  }
+  // show the text search again
+
+  if(main){
+    console.log("fuck shit 15");
+    main.style.visibility = "visible";
+    main.style.opacity = 1;
+    main.style.display = "flex";
+  }
+  let headerDiv = document.getElementById("headerDiv");
+  console.log("fuck shit 16");
+  if (headerDiv && headerDiv.classList){
+    headerDiv.classList.remove("noDisplay");
+    headerDiv.style.visibility = "visible";
+    console.log("fuck shit 17");
+  } else {
+    console.log("in the else for headerdiv classlist");
+    console.log("fuck shit 18");
+  }
+}
+
+// TODO: componentize and DRY this function (see TheWelcome)
+async function scrape_text(url){
+    console.log("fuck shit 19");
+    if(!url){
+      return;
+    }  
+    console.log("fuck shit 20");
+    let wrapperTitle = document.getElementById("buttonsWrapperTitle");
+    let wrapperSubtitle =  document.getElementById("buttonsWrapperSubtitle");
+    let wrapperBtns = document.getElementById("buttonsInnerWrapper");
+    if(wrapperTitle){
+      wrapperTitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper title missing");
+    }
+    if(wrapperSubtitle){
+      wrapperSubtitle.style.display = "inline-block";
+    } else {
+      console.log("wrapper subtitle missing");
+    }
+    if(wrapperBtns){
+      wrapperBtns.style.display = "inline-block";
+    } else {
+      console.log("wrapper btns missing");
+    }  
+    console.log("fuck shit 21");
+
+    // while(!currentStepRef.value){
+    //   setTimeout(()=>{console.log("jeesh")},500);
+    //   clearTimeout();
+    //   if(currentStepRef.value){
+    //     break;
+    //   }
+    // }
+
+ 
+    let localStorageDataAvailable = localStorage.getItem(url);
+    if(localStorageDataAvailable !== null){
+      console.log("fuck shit 22");
+        initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+
+          emit('closedmodal');
+          emit('openedfull');
+
+          let fullModal = await modalFull.value;
+          if(fullModal && fullModal.classList){
+            console.log("fuck shit 23"); // HITTING THIS INITIAL
+            fullModal.classList.remove("awaiting");
+            fullModal.classList.add("receivedSingleTextData");
+            let main = document.getElementById("main");
+            if(main){
+              console.log("fuck shit 24");
+              main.visibility = "visible";
+            }
+          } else {
+            console.log("in else for fullmodal: ", fullModal);
+            console.log("fuck shit 25");
+          }
+
+        let graphs = document.getElementById('graphs')
+        let results = document.getElementsByClassName('modal-single-text-results')
+        if(results){
+          console.log("fuck shit 26");
+          if(graphs){
+            console.log("fuck shit 27");
+            graphs.style.display = "flex";
+            console.log("FLEXING GRAPHS NOW!");
+          } else {
+            console.log("fuck shit 28");
+            console.log("NO GRAPHS NOW!");
+            console.log("not any graphs");
+          }
+          if(document.getElementById('main')){
+            console.log("fuck shit 29");
+            console.log("HIDE MAIN NOW!")
+            document.getElementById('main').style.display = "none";
+          } else {
+            console.log("fuck shit 30");
+            console.log("no main to hide!");
+            console.log("not any main");
+          }
+          if(document.getElementById('progressCircles')){
+            console.log("fuck shit 31");
+            console.log("HIDE PROG CIRCLES NOW!")
+            document.getElementById('progressCircles').style.display = "none";
+          } else {
+            console.log("fuck shit 32");
+            console.log("no progress circles");
+          }
+          if(document.getElementById('progressMsg')){
+            console.log("fuck shit 33");
+            console.log("HIDE PROG CIRCLES NOW!");
+            document.getElementById('progressMsg').style.display = "none";
+          } else {
+            console.log("fuck shit 34");
+            console.log("no progress msg");
+          }
+          if(document.getElementById('progressMsgExplanation')){
+            console.log("fuck shit 35");
+            document.getElementById('progressMsgExplanation').style.display = "none";
+          } else {
+            console.log("no progress msg explanation");
+          }
+          
+          
+          if(document.getElementById('compareButton')){
+            console.log("fuck shit 36");
+          document.getElementById('compareButton').style.visibility = "visible";
+          } else {
+            console.log("fuck shit 37");
+            console.log("no compare button");
+          }
+          if(document.getElementById("textRowAuthor")){
+            console.log("fuck shit 38");
+            document.getElementById("textRowAuthor").style.display = "none";
+          } else {
+            console.log("fuck shit 39");
+            console.log("no text row author")
+          }
+          if(document.getElementById("textRowTitle")){
+            document.getElementById("textRowTitle").style.display = "none";
+          } else {
+            console.log("no textRowTitle");
+          }
+          if(document.getElementById("searchTextWrapper")){
+            document.getElementById("searchTextWrapper").style.display = "none";
+          } else {
+            console.log("no search text wrapper");
+          }
+          if(document.getElementById("searchFields")){
+            document.getElementById("searchFields").style.display = "none";
+          } else {
+            console.log("no search text wrapper");
+          }
+          // document.getElementsByClassName('wrapper-outer').classList.add("hide");
+          // document.getElementsByClassName('wrapper-outer').style.display = "none";
+
+          // document.getElementById('headerDiv').style.display = 'none';
+          if(document.getElementById('headerDiv')){
+            console.log("fuck shit 40");
+            document.getElementById('headerDiv').style.visibility = 'hidden';
+          } else {
+            console.log("no header div");
+          }
+          if(document.getElementById('mainText')){
+            console.log("fuck shit 41");
+            console.log("HIDE MAIN TEXT NOW");
+            // inGraphs.value=true;
+            document.getElementById('mainText').style.display = "none";
+          } else {
+            console.log("no main text");
+          }
+          if(document.getElementById('mainTextSubheader')){
+            console.log("fuck shit 42");
+            document.getElementById('mainTextSubheader').style.display = "none";
+          } else {
+            console.log("no mainTextSubheader");
+          }  
+        }
+        return;
+    } 
+    
+    // else { 
+    //   // TESTING THIS OUT...
+      emit('closedmodal');
+      // emit('openedfull');
+      
+    // }
+    console.log("fuck shit 43");
+    // console.log("do we make it here?");
+  
+    emit('openedfullawaitscrape');
+ 
+    // setTimeout(()=>{console.log("timeout up!!!")},4000);
+    // retract this when modal is closed...
+    console.log("fuck shit 44");
+    document.body.style.overflowY = "hidden";
+
+    // close();
+    console.log("fuck shit 45");
+    ready.value = true;
+    console.log("READY IS NOW TRUE");
+    inGraphs.value = false;
+    // setTimeout(()=>{},1000);  
+    // clearTimeout();
+    console.log("fuck shit 46");
+    tryGetFullModal(url);
+    console.log("fuck shit 47");
+    console.log("CONTACT!!!");
+    //document.getElementById("modal-full").classList.add("awaiting")
+
+    // rawtextfromtoc.value = await fetch('http://localhost:5000/scraper_get_text', {
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json'
+    //   },
+    //   method: "POST",
+    //   body: JSON.stringify({titleUrl: url})
+    // }).then(response => response.json()).then(result => {
+    //     if(result){
+    //       console.log("fuck shit 48");
+    //       console.log("hey, got a response from server!");
+    //       let modalHeader = document.getElementById("modalHead");
+    //       if(modalHeader){
+    //         modalHeader.style.display = "flex";
+    //       }
+    //       console.log("fuck shit 49");
+    //       rawtextfromtoc.value = result;
+    //       console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
+    //       // document.getElementById("modalFull").classList.add("awaiting")
+    //       temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
+    //       ///////////////////////////////////////////////////////////////////////////////
+    //       // --> Catch Data in Complex Object (break this all up in future for better user exp)
+    //       initialHumanReadableTextRef.value.title = props.selectedTitle;
+    //       initialHumanReadableTextRef.value.author = props.selectedAuthor;
+    //       // TODO:
+    //       initialHumanReadableTextRef.value.textId = 0; 
+    //       initialHumanReadableTextRef.value.textObj.summary = temp.value.summary
+    //       initialHumanReadableTextRef.value.textObj.titleUrl = temp.value.title_url;
+    //       initialHumanReadableTextRef.value.textObj.averageLinesPerSentence = temp.value.avg_tokens_sentence;
+    //       initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
+    //       initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
+    //       initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
+    //       temp.value.last_word_per_line.forEach((li,lineIndex)=>{
+            
+    //         initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
+    //         initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
+    //         temp.value.poetic_form.forEach(form=>{
+    //           if(form['index'] === lineIndex){
+    //             initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
+    //           }
+    //         })
+            
+    //         temp.value.poetic_form.forEach(pf=>{
+    //           try {
+    //             if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
+    //               initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
+    //                 "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
+    //                 "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
+    //                 "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
+    //                 "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
+    //                 "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
+    //                 "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
+    //                 "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
+    //                 "lastInterLine": JSON.parse(JSON.stringify(pf))['last_interline'] || '',
+    //                 "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
+    //               }
+    //             }
+    //           } catch {
+    //           }
+    //         })
+    //         temp.value.internal_rhyme_most_recent.forEach(ry=>{
+    //           try {
+    //             if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
+    //               try {
+    //                   initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
+    //                     "endRhyme": JSON.parse(JSON.stringify(ry))['end_rhyme'] || '',
+    //                     "internalRhyme": JSON.parse(JSON.stringify(ry))['internal_rhyme']
+    //                 }
+    //               } catch (e) {
+    //                 console.warn("error getting internal rhymes: ", e);
+    //               }
+    //             }
+    //           } catch(e){
+    //           console.log("error: ", e);
+    //           } finally {
+    //           }  
+    //           try {
+    //             initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
+    //           } catch {
+    //             console.log("error getting syllables in line *** ");
+    //           }
+    //         })         
+    //     })
+    //       const tempGramArr = ref([])
+   
+    //       temp.value.most_common_words.forEach((word, rank) => {
+    
+    //         initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
+    //       });
+         
+    //       temp.value.sentence_id.forEach(sentence => {
+    //         initialHumanReadableTextRef.value.sentenceObj[sentence] = {
+    //           sentenceSentimentCompound: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_compound[parseInt(sentence)])),
+    //           sentenceSentimentNegative: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neg[parseInt(sentence)])),
+    //           sentenceSentimentNeutral: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_neu[parseInt(sentence)])),
+    //           sentenceSentimentPositive: JSON.parse(JSON.stringify(temp.value.sentence_sentiment_pos[parseInt(sentence)])),
+    //           sentenceGrammarArray: [],
+    //           sentenceSpacyEntities: []
+    //         }
+    //       });
+    //       temp.value.sentence_grammar.word_level_grammar_result.forEach(wordGram => {
+    //         initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(wordGram))['sentence_index']]['sentenceGrammarArray'].push({
+    //           "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
+    //           "tokenTag":JSON.parse(JSON.stringify(wordGram))['token_tag'],
+    //           "tokenPos":JSON.parse(JSON.stringify(wordGram))['token_pos'],
+    //           "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text']
+    //         })    
+    //       });
+    //       temp.value.spacy_entities.forEach(entity=>{
+    //         initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
+    //           {
+    //             "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+    //             "type": Object.values(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
+    //           }
+    //         )
+       
+    //       })
+
+    //       // Update Local Storage
+    //       if (!localStorage.getItem(url)){
+    //         localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
+    //       }
+    //       inGraphs.value = true;
+    //       console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
+    //       //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
+    //       // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
+    //       ///////////////////////////////////////////////////////////////////////////////
+    //       ///////////////////////////////////////////////////////////////////////////////
+    //       ///////////////////////////////////////////////////////////////////////////////
+
+    //       return rawtextfromtoc.value;
+    //     } else {
+    //       return null;
+    //     }
+    //     }).catch(error => {
+    //     console.log('Error:', error);
+    // }); 
+    // // }  
+
+    // return rawtextfromtoc;
 };
 console.log("fuck shit 23");
 function selected(e){
@@ -1405,7 +1415,7 @@ function trySetDataCountYLengthMin(num){
 } 
 
 function trySetDataNameX(name){
-  inGraphs.value=true;
+  // inGraphs.value=true;
   
   valueX.value=name;
   let labels = JSON.parse(JSON.stringify(optionsX.value)).map(x=>x.label);
@@ -1629,7 +1639,7 @@ function clickedLineRow(row){
       <section v-if="inGraphs" id="graphs">
         <slot  name="graphs">
  
-          <GraphModal 
+          <GraphModal v-if="inGraphs" 
             :graphstate="graphstateRef" 
             :dataObj="initialHumanReadableTextRef" 
             :color0="color0"
@@ -1661,7 +1671,7 @@ function clickedLineRow(row){
       </section>
       <section v-if="inGraphs" class="linePickerPopup">
         <slot>            
-          <div id="newTextPopup" >
+          <div id="newTextPopup" v-if="inGraphs">
             <span id="newTextPopupTitle">Create Key <span id="keySelectorClose" @click="closeKeyModal">X</span></span>
             <!-- v-if="additionalTexts" v-for="item in additionalTexts" :key="item.titleUrl"  -->
             <td id="keyPopupCols" class="new-text-popup-row">
@@ -1920,7 +1930,7 @@ function clickedLineRow(row){
           <section class="modal-single-text-results">
             <slot name="textAnalysis-results">
 
-                <div id="fullTextGraphWrapper" class="results-col">
+                <!-- <div id="fullTextGraphWrapper" class="results-col">
                   Yo full text
 
                 </div>
@@ -1929,7 +1939,7 @@ function clickedLineRow(row){
                 </div>
                 <div class="results-col">
                   Yo Lines
-                </div>
+                </div> -->
             </slot>
           </section>
         </slot>
@@ -2165,16 +2175,18 @@ body.modal-open {
     width: 100%;
     position: relative;
     z-index: 40;
-    height: 68px;
-    
+    height: 0px;
     font-size: 48px;
     font-weight: 100;
-    top: 0px;
+    top: 8px;
     left: 0px;
     background: rgba(255, 255, 255, 0.078);
     transition: height 1s ease-in;
+    position: absolute;
   }
-
+  .modal-header:hover {
+    background: hsla(193, 82%, 49%, 0.7);
+  }
 
   .modal-footer {
     border-top: 1px solid #eeeeee;
@@ -2195,14 +2207,20 @@ body.modal-open {
   }
   #progressMsgExplanation {
     text-align: center;
-    background: rgba(0,0,0,0.4);
+    /* background: rgba(0,0,0,0.4); */
     justify-content: center;
     left: 16%;
     right: 16%;
     width: 68%;
     height: 16%;
     border-radius: 8px;
-    bottom:30px;
+    top: 112px;
+    position: absolute;
+    flex-direction: column;
+    display: flex;
+    padding: 4%;
+    line-height: 1.5;
+    font-size: 18px;
   }
   .btn-close {
     position: absolute;
@@ -2223,14 +2241,13 @@ body.modal-open {
     background: hsla(193, 82%, 49%, 0.7);
     border: 1px solid hsla(160, 100%, 37%, 0.7);
     border-radius: 2px;
-    width: 80px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     float: right;
-    margin-right:4px;
-    margin-left:4px;
+    margin-right: 4px;
+    margin-left: 4px;
     position: absolute;
-    right: 36px;
-    top: 12px;
+    background: 36px;
   }
 
   .hideFullModal {
@@ -2303,7 +2320,8 @@ body.modal-open {
     bottom: 0px;
     font-size: 28px;
     text-align: center;
-    bottom:40px;
+    top: 52px;
+    position: absolute;
   }
   .step-progress__wrapper {
     width: 90vw;
@@ -2360,7 +2378,7 @@ body.modal-open {
   height: auto;
 }
 #newTextPopup {
-  display:none;
+
   flex-direction: column;
   left: 0%;
   bottom: 0%;

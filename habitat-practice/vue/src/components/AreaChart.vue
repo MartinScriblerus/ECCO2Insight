@@ -240,6 +240,10 @@ export default {
   display: flex;
   height: 100%;
   z-index: 10;
+  margin-left: 44px;
+  margin-right: 12px;
+  top: -42px;
+  pointer-events: all;
 }
 #svgId {
   background: rgba(0,0,0,0.98);

@@ -13,13 +13,16 @@ import sys, json
 import datetime
 import sys
 from flask import Flask
+from machine_learning import machine_learning
 # from gevent import monkey
 # monkey.patch_all()
 # from gevent.pywsgi import WSGIServer
 # from flask_sock import Sock
-from flask_init import *
+
 
 import time
+
+# from flask_sock import Sock
 # these two unused imports are referenced in collocations.doctest
 # from nltk.metrics import (
 #     BigramAssocMeasures,
@@ -51,6 +54,8 @@ import spacy
 from spacy import displacy
 from collections import Counter
 import en_core_web_sm
+
+from machine_learning import machine_learning
 nlp = en_core_web_sm.load()
 from flask import Flask, request,Response
 
@@ -58,18 +63,16 @@ from crud import Session
 s = Session()
 
 from word_keylists import keyList,fullKeyList
-print(sys.path)
-app = Flask(__name__)
-sock = Sock(app)
+
 
 # # CORS(app, support_credentials=True)
 # app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
-@sock.route('/ws')
-def echo(ws):
-    global soct
-    soct = ws
-    while True:
-        data = ws.receive()
+
+# def echo(ws):
+#     global soct
+#     soct = ws
+#     while True:
+#         data = ws.receive()
 # if 'flask_init' in sys.modules:
 #     print('SYSMODULES: ', sys.modules)
 #     import flask_init
@@ -86,15 +89,42 @@ def echo(ws):
 #     global soct
 #     soct = ws
 #     print("FUCKING CHRIST WHAT IS SOCK??? ", soct)
-def nltk_analysis(r, text_in_html):
 
-        if 'flask_init' in sys.modules:
-            # time.sleep(3)
-            from flask_init import soct
-            # # from flask_init import *
-            if soct is not None:
-                soct.send("third_msg") 
-          
+# def set_soct(socket_import):
+#     global soct
+#     soct = socket_import
+# app = Flask(__name__)
+
+# sock = Sock(app)
+
+
+
+
+# create handler for each connection
+## TODO: use gunicorn to thread -> make sure simultaneous users isn't an issue
+
+## WEBSOCKETS ROUTE CONNECTED TO FLASK ENDPOINT
+## -------------------------------------------------------------------
+
+# @sock.route('/ws')
+# def echo(ws):
+#     global soct 
+#     soct = ws
+#     while True:
+#         data = ws.receive()
+#         if data == 'close':
+#             break
+#         ws.send(data)
+        
+
+def nltk_analysis(r, text_in_html):
+ 
+    if 'flask_init' in sys.modules:
+        from flask_init import soct
+
+        soct.send("third_msg") 
+            
+
         ## Here come a bunch of NLTK imports
         ## TODO: DO MORE WITH PUNKT
         lemmatizer = WordNetLemmatizer()  
@@ -290,8 +320,8 @@ def nltk_analysis(r, text_in_html):
         print("loop every line in array of lines -----------------------------------------")
         # soct.send("seventh_msg") 
         # soct.send("fifth_msg")
-        if soct is not None:
-            soct.send("fourth_msg")
+        # if soct is not None:
+        soct.send("fourth_msg")
   
         
         for idx, li in enumerate(lines_in_corpus):
@@ -526,8 +556,8 @@ def nltk_analysis(r, text_in_html):
             s = " ".join(s_tok)
 
             words = s
-            if soct is not None:
-                soct.send("eighth_msg") 
+            # if soct is not None:
+            soct.send("eighth_msg") 
             doc = nlp(s)
                 # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
         
@@ -572,7 +602,7 @@ def nltk_analysis(r, text_in_html):
 
             # for idx, s in enumerate(sents):
             idx_array.append(idx)
-            
+            # soct.send("eleventh_msg") 
             ######### spacy entity recognition
             # doc = nlp(s)
                     
@@ -686,7 +716,7 @@ def nltk_analysis(r, text_in_html):
             old_df['perc_drama'] = old_df_perc_drama
             
         print()
-    
+        soct.send("eleventh_msg") 
         # soct.send("eighth_msg") 
         # socketio.send('message', {'data':old_df})
 
@@ -774,8 +804,9 @@ def nltk_analysis(r, text_in_html):
         # print("The number of total tokens after removing stopwords are", len((final_tokens)))
         # socketio.send('message', {'data':old_df})
         # soct.send("tenth_msg")
-        if soct is not None:
-            soct.send('fifteenth_msg')
+        # if soct is not None:
+        # soct.send('fifteenth_msg')
+        machine_learning(old_df,sents,soct)
         return old_df,sents
 
 # if __name__ == '__main__':

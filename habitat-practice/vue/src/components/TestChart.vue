@@ -770,6 +770,7 @@ export default {
                 dataHolder1.value.push(dataIn);
               }
               console.log("DATA IN in in create line: ", dataIn)
+              strokeWidth = 4;
               svg
                 .selectAll(".line") // get all "existing" lines in svg
                 .data([dataIn]) // sync them with our data

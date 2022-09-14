@@ -322,10 +322,10 @@
     props.currentLinesCount,
     props.colorX,
     props.axisColorMatchBool,
-    // numberXMax,
-    // numberXMin,
-    // numberYMax,
-    // numberYMin,
+    numberXMax,
+    numberXMin,
+    numberYMax,
+    numberYMin,
     props.selectedXAxisRef,
     props.selectedYAxisRef,
     props.selectedRow,
@@ -751,19 +751,18 @@
   width:0px !important;
 }
 #graphDiv {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    max-width: 100%;
-    padding: 0 0px;
-    width: 100%;
-    position: fixed;
-    z-index: 99;
-    top: 80px;
-    height: calc(72% - 52px);
-    
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  max-width: 100%;
+  padding: 0 0px;
+  width: 100%;
+  position: fixed;
+  z-index: 99;
+  top: 16%;
+  height: calc(76%);
 }
 
 svg {
@@ -818,7 +817,7 @@ svg {
 
 #newTextPopup {
     width: calc(100%);
-    display: none;
+
     flex-direction: row;
     position: fixed;
     background: var(--color-background);

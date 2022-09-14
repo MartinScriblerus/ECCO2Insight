@@ -18,10 +18,15 @@ import sys
 
 machine_dict = {}
 
-def machine_learning(old_df,sents): 
-    if 'flask_init' in sys.modules:
-        from flask_init import soct
+# def set_soct_mach(soct_import):
+#     global soct
+#     soct = soct_import
 
+def machine_learning(old_df,sents,soct): 
+    # if 'flask_init' in sys.modules:
+    #     from flask_init import soct
+    soct.send("eleventh-msg")
+    print("are we getting soct? ", soct)
     old_df_vectorized_features = []
     old_df_vectorized_vocab = []
     old_df_vectorized_tfidf = []
@@ -85,8 +90,8 @@ def machine_learning(old_df,sents):
 
     # plotting libraries
     import matplotlib.pyplot as plt
-    import seaborn as sns
-    from yellowbrick.cluster import SilhouetteVisualizer
+    # import seaborn as sns
+    # from yellowbrick.cluster import SilhouetteVisualizer
 
     # def silhouettePlot(range_, data):
     #     '''
@@ -174,8 +179,8 @@ def machine_learning(old_df,sents):
                     high_score = score_
             selected_features.append(selected_feature)
             feature_list.remove(selected_feature)
-            if soct is not None:
-                soct.send("fifteenth_msg")
+            # if soct is not None:
+            #     soct.send("fifteenth_msg")
             print("Selected new feature {} with score {}". format(selected_feature, high_score))
         # soct.send("fifteenth_msg")
         return selected_features
@@ -189,8 +194,8 @@ def machine_learning(old_df,sents):
         print(f"sanity sake: {type(text_df[columnName].iloc[0])}")
         
         try:
-            if soct is not None:
-                soct.send("twelfth_msg")  
+            # if soct is not None:
+            #     soct.send("twelfth_msg")  
             for s in text_df[columnName].values.reshape(1, -1):  
 
                 try:
@@ -262,8 +267,8 @@ def machine_learning(old_df,sents):
                     
                     # elbowPlot(range(1,11), df_standardized_sliced)
                     # silhouettePlot(range(3,9), df_standardized_sliced)
-                    if soct is not None:
-                        soct.send("thirteenth_msg")  
+                    # if soct is not None:
+                    #     soct.send("thirteenth_msg")  
                     kmeans = KMeans(n_clusters=5, random_state=42)
                     cluster_labels = kmeans.fit_predict(df_standardized_sliced)
                     df_standardized_sliced["clusters"] = cluster_labels
@@ -297,15 +302,15 @@ def machine_learning(old_df,sents):
             # le.fit(reshaped.astype(str))
             # list(le.classes_)
             # transformedColumn = le.transform(reshaped.astype(str))
-            if soct is not None:
-                soct.send("fifteenthfth_msg") 
+            # if soct is not None:
+            #     soct.send("fifteenthfth_msg") 
     machine_dict['vectorized_features'] = old_df_vectorized_features
     machine_dict['vectorized_vocab'] = old_df_vectorized_vocab
     machine_dict['vectorized_tfidf'] = old_df_vectorized_tfidf
     machine_dict['euclidean_distance_since_last_self'] = old_df_euclidean_distance_since_last_self
     
     ## this allows us to keep testing before all ML is ready or useful
-    
+    soct.send("fifteenth_msg")
     return machine_dict
 
     return 0
