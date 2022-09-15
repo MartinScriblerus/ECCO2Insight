@@ -479,18 +479,21 @@
       dataname_x:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 1");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
       },
       dataname_y:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 2");
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
       },
       numberXMax:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 3");
           console.log("num x changes")
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
@@ -498,6 +501,7 @@
       numberYMax:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 4");
           console.log("num x changes")
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
@@ -505,6 +509,7 @@
       numberXMin:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 5");
           console.log("num y changes")
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
@@ -512,6 +517,7 @@
       numberYMin:{
         deep: true,
         handler: function(newVal, oldVal){
+          console.log("FUCK! 6");
           console.log("num y changes")
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }

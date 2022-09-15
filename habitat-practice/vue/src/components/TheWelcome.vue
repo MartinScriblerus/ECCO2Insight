@@ -31,18 +31,18 @@ if(props.items){
   console.log("fuck shit welcome 2");
   // emit("getImages", props.items)
   console.log("hitting this/////// ")
-  // watch(props.items, (currentValue, oldValue) => {
-  //   console.log(currentValue);
-  //   console.log(oldValue);
-  //   console.log("OUTSIDE");
-  //   // if(props.items){
-  //   //   console.log("INSIDE: ", props.items);
-  //   //   console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
+  watch(props.items, (currentValue, oldValue) => {
+    // console.log(currentValue);
+    // console.log(oldValue);
+    // console.log("OUTSIDE");
+    // if(props.items){
+    //   console.log("INSIDE: ", props.items);
+    //   console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
       
-  //   //   // emit("getWikiUrl", props.items)
-  //   // }
-  //   return;
-  // });
+    //   // emit("getWikiUrl", props.items)
+    // }
+    return;
+  });
 }
 
 const emit = defineEmits(["getWikiURL", "getImages", "in_toc_now"])
@@ -68,6 +68,7 @@ async function show_TOC(url:String, title:String, author:String){
   if(searchForms){
     searchForms.style.visibility = "hidden";
   }
+  console.log("REACHING THIS")
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
     headers: {
       'Accept': 'application/json',

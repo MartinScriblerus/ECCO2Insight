@@ -1,11 +1,11 @@
 <script lang="ts">
-//import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-
-// @ts-ignore
-import { ref, onMounted, reactive } from 'vue'
-
-
+  //import HelloWorld from './components/HelloWorld.vue'
+  import TheWelcome from './components/TheWelcome.vue'
+  
+  // @ts-ignore
+  import { ref, onMounted, reactive } from 'vue'
+  
+  
 
 // @ts-ignore
 const scrape:any = {
@@ -25,6 +25,7 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    watch: [in_toc],
     loaded: {
       type: Boolean,
       default: () => (false),
@@ -225,9 +226,9 @@ export default {
     // }).then(response => response.json())
     // console.log(test);
 // ///
-
-
       
+
+
 
 
       if (!localStorage.getItem("url"))
@@ -274,7 +275,8 @@ export default {
       // rawAuthorName.forEach((i)=>{ 
         for(let i = 0; i < rawAuthorName.length; i++){
           if(in_toc.value === true){
-            console.log("ENDING LOOP!")
+            console.log("ENDING LOOP!");
+
             return;
           }
           let published = new Date(); 
@@ -339,14 +341,14 @@ export default {
 
           let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
           console.log("IN TOC?> CHECK SYNTAX: ", in_toc.value);
-          if(in_toc.value === false){
+          // if(in_toc.value === false){
             console.log("here!")
             let images = await tryGetWikiImage(wikiString, first, last, title, published, bookId);
             console.log("images: ", images)
  
-          } else {
-            console.log("stopped sending try get wiki img");
-          }
+          // } else {
+          //   console.log("stopped sending try get wiki img");
+          // }
         // });
         }
     }

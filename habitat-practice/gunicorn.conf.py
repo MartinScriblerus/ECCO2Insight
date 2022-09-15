@@ -3,7 +3,9 @@ from socket import timeout
 
 bind = "0.0.0.0:5000"
 # workers = os.getenv('GUNICORN_WORKER_NUM', 1)
-workers = 4
+# workers = 4
+worker_class = 'gevent'
+
 timeout = 120
 db_name = os.getenv('DB_NAME', 1)
 

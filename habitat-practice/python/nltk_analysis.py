@@ -130,7 +130,7 @@ def nltk_analysis(r, text_in_html):
         lemmatizer = WordNetLemmatizer()  
         stop_words = set(stopwords.words('english'))
         not_words = [">>","<<","[unnumbered]","unnumbered","page","Page","previous","Previous","Next","section","cite","bookbag","next","table","Table","contents","add","|","how","or","cite"]
-    
+
         nltk.download('wordnet','names','stopwords','averaged_perceptron_tagger','vader_lexicon','punkt')
 
         tokenizer = RegexpTokenizer(r'\w+')
@@ -278,7 +278,7 @@ def nltk_analysis(r, text_in_html):
         # fdist = nltk.FreqDist(bgs)
         # for k,v in fdist.items():
         #     print(f"BIGRAM BIGRAM BIGRAM _____________________ k: {k} / v: {v}")
-
+        soct.send('Finished tokenizing and lemmatizing text')
         print("about to get coountable words -----------------------------------------")
         countable_words = []
         for e_w in final_tokens:
@@ -316,7 +316,7 @@ def nltk_analysis(r, text_in_html):
         # ---------------------------------------------------------------------
         # Begin Poetic Analysis
         # ---------------------------------------------------------------------
-
+        
         print("loop every line in array of lines -----------------------------------------")
         # soct.send("seventh_msg") 
         # soct.send("fifth_msg")
@@ -354,6 +354,7 @@ def nltk_analysis(r, text_in_html):
             # print("loop each token in line -----------------------------------------")
             for w in tokens_in_line:
                 if w == tokens_in_line[-1]:
+                    soct.send(f'Last word in line: {w}')
                     old_df_last_word_per_line.append(w)
                     # print(f"check old df last word per line: {old_df_last_word_per_line}")
                 else: 
@@ -498,7 +499,7 @@ def nltk_analysis(r, text_in_html):
         ### ------------------------------------------------------------
         ### Analysis of sentence-level stuff
         ### ------------------------------------------------------------
-    
+        
         sents = nltk.sent_tokenize(corpus)
 
         line_division = len(lines_in_corpus)/len(sents)
@@ -516,7 +517,7 @@ def nltk_analysis(r, text_in_html):
         # soct.send("ninth_msg")
         ### loop through the array of sentences 
         ### this is a huge loop -- !!!
-
+        soct.send("eighth_msg")
         for idx,s in enumerate(sents):
 
             if "f" in s:
@@ -536,6 +537,7 @@ def nltk_analysis(r, text_in_html):
             ## loop through each token in this single sentence 
             # (this cleanup should be done by now...)
             for each in s_tok:
+                soct.send(each)
                 if each.lower() in not_words or each.lower() in stop_words:
                     try:
                         s_tok.remove(each)
@@ -557,7 +559,7 @@ def nltk_analysis(r, text_in_html):
 
             words = s
             # if soct is not None:
-            soct.send("eighth_msg") 
+            # soct.send("eighth_msg") 
             doc = nlp(s)
                 # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
         
@@ -570,7 +572,7 @@ def nltk_analysis(r, text_in_html):
             # (this may not be necessary)
             if words and lemmatized_words == []:
                 #prints the lemmatized words
-
+                
                 lemmatized_words_pos = [lemmatizer.lemmatize(s, pos = "v") for s in sents]
                 tagged_lems = nltk.pos_tag(lemmatized_words_pos)
                 ## print(f"TAGGED LEMS {tagged_lems}")
@@ -612,7 +614,7 @@ def nltk_analysis(r, text_in_html):
             # last_X_text = ''
             
             for i,X in enumerate(doc.ents):
-
+                soct.send(f'Entity: {X.text}')
                 old_df_spacy_ents.append({idx:{X.text:X.label_}})
                         
                 if X.label_ == "LOC":
@@ -648,7 +650,7 @@ def nltk_analysis(r, text_in_html):
                                 print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
                     except:
                         print('no items')                                
-
+                    
 
             ########################################################################
             ########################################################################
@@ -752,7 +754,7 @@ def nltk_analysis(r, text_in_html):
                 summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
                 
                 summary = ' '.join(summary_sentences)
-                
+                soct.send(summary)
                 # print(f"SUMMARY! {summary}")
                 regex = re.compile('[^a-zA-Z]')
                 cleaned_summary1 = re.sub("[^a-zA-Z.']+", " ", summary)

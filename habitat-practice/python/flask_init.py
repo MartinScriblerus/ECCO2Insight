@@ -821,7 +821,7 @@ def res_t():
 
 if __name__ == '__main__':
     app.debug=False
-    app.run(host='0.0.0.0',use_reloader=True,debug=False)
+    #app.run(host='0.0.0.0',use_reloader=True,debug=False)
     WSGIServer(('127.0.0.1', 5000), app).serve_forever()
 
 

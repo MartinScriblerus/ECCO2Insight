@@ -1112,7 +1112,7 @@ export default {
 }
 #svgId {
     background: rgba(0,0,0,0.98);
-    bottom: 20px;
+    bottom: 16%;
 }
 #tooltip {
   border: 1px solid black;
