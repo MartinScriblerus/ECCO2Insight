@@ -2,6 +2,7 @@
   import BarChart from './BarChart.vue';
   import TestChart from './TestChart.vue';
   import {watch, ref} from 'vue';
+
   // import AreaChart from './AreaChart.vue';
   // import LineChart from './LineChart.vue';
   // import StackedAreaChart from './StackedAreaChart.vue';
@@ -61,6 +62,13 @@
 
   const grammarArr = ref([]);
   const entitiesArr = ref([]);
+
+//RITA!
+  let words = window.RiTa.stresses("The elephant took a bite!")
+    // for (let i=0; i < words.length; i++) {
+    //     text(words[i], 50, 50 + i*20);
+    // }
+    console.log("RITA!!! ", words);
 
   function hideUpdateButtons(){
     console.log("fuck shit graph 1");
@@ -138,7 +146,7 @@
       hideUpdateButtons();
       console.log("fuck shit graph 8");
       Object.keys(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).slice(-1)
-      data = Object.values(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).map(i=>i['syllablesInLine']);
+      data.value = Object.values(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).map(i=>i['syllablesInLine']);
     
       // this is only necessary if it is stopping point errors
       let tempData = data.map(i=>i)
@@ -429,27 +437,210 @@
     let s = document.querySelector(".createdGrammarWrapper");
     if(t && t.length > 0){
       for(let i=0;i<t.length;i++){
-        t[i].remove();
+        if(i !== t.length-1){
+         t[i].remove();
+        }
       }
+      
     }
 
+ 
     var c = document.createDocumentFragment();
-    c.className = "createdGrammarWrapper";  
+    c.className = "createdGrammarWrapper"; 
     
-    let e = document.createElement("span");
-    e.className = "displayed-grammar";
-    let text = " " + g['tokenText'];
-    e.append(text);
+    let stopDupe = document.getElementById(g['tokenText'] + "_" + g['sentenceIndex']  + "_" + g['idx_in_sents'])
+    if(stopDupe){
+      console.log("FOUND MATCH!!!!!!")
+      return;
+    }
+    let removedShown = document.getElementsByClassName("createdGrammarWrapper");
+    if(removedShown){
+      for(let s = 0; s < removedShown.length; s++){
+        c.remove(removedShown[s]);
+      }
+    } 
 
+    let e = document.createElement("span");
+    e.id = g['tokenText'] + "_" + g['sentenceIndex']  + "_" + g['idx_in_sents']; 
+    e.className = "displayed-grammar";
+    let text = g['tokenText'];
+    e.append(text);
+    e.style.fontSize = "16px";
+    e.style.paddingRight = "4px";
+    e.style.paddingLeft = "4px";
+    e.style.paddingTop = "1px";
+    e.style.paddingBottom = "1px";
     console.log("tag: ", g['tokenTag'])
     switch(g['tokenTag']){
+      case "CC":
+        // coordinating conjunction
+        e.style.backgroundColor = "#00CC88";
+        break;
+      case "CD":
+        // numeral cardinal
+        e.style.backgroundColor = "#0A98BF";
+        break;
+      case "DT":
+        // determiner
+        e.style.backgroundColor = "#1C8A65";
+        break;
+      case "EX":
+        // existential there
+        e.style.backgroundColor = "#004D33";
+        break;
+      case "JJ":
+        // adjective or ordinal numeral
+        e.style.backgroundColor = "#6D33FF";
+        e.style.color = "#e6e4d6";
+        break;
+      case "JJR":
+        // comparative adjective
+        e.style.backgroundColor = "#0884A6";
+        eee.style.color = "#e6e4d6";
+        break;
+      case "JJS":
+        // superlative adjective
+        e.style.backgroundColor = "#26D0FF";
+        e.style.color = "#e6e4d6";
+        break;
+      case "LS":
+        // list item marker
+        e.style.backgroundColor = "#0A98BF";
+        break;
+      case "MD":
+        // modal auxiliary
+        e.style.backgroundColor = "#0097BF";
+        break;
+      case "NN":
+        // noun, common, singular or mass
+        e.style.backgroundColor = "#e6e4d6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
       case "NNP":
-        e.style.backgroundColor = "red"
+        // noun, proper, singular
+        e.style.backgroundColor = "#e6e4d6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "NNS":
+        // noun, common, plural
+        e.style.backgroundColor = "#e6e4d6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "PRP$":
+        // possessive pronoun
+        e.style.backgroundColor = "#BECCE6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "RB":
+        // adverb
+        e.style.backgroundColor = "#A90ACC";
+        e.style.color = "#e6e4d6";
+        break;
+      case "RBR":
+        // comparative adverb
+        e.style.backgroundColor = "#7F0899";
+        e.style.color = "#e6e4d6";
+        break;
+      case "RBS":
+        // superlative adverb
+        e.style.backgroundColor = "#74078C"
+        break;
+      case "PRP":
+        // personal pronoun
+        e.style.backgroundColor = "#BECCE6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "RP":
+        // particle
+        e.style.backgroundColor = "#241A40";
+        e.style.color = "#e6e4d6";
+        break;
+      case "TO":
+        //  "to" as preposition or infinitive marker
+        e.style.backgroundColor = "#170640"
+        break;
+      case "UH":
+        // interjection
+        e.style.backgroundColor = "#7351CA"
+        break;
+      case "VB":
+        // verb base form
+        // e.style.color = "#e6e4d6";
+        // e.style.backgroundColor = "rgba(0,0,0,1)";
+        e.style.backgroundColor = "#FF3377";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "VBD":
+        // past tense
+        e.style.backgroundColor = "#FF3377";
+        break;
+      case "VBG":
+        // present participle / gerund
+        // e.style.color = "#e6e4d6";
+        // e.style.backgroundColor = "rgba(0,0,0,1)";
+        e.style.backgroundColor = "#FF3377";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "VBN":
-        e.style.backgroundColor = "yellow";
+        // past participle
+        e.style.backgroundColor = "#FF4D88"
+        break;
+      case "VBP":
+        // present tense verb (not 3rd person singular)
+        e.style.backgroundColor = "#FF3377"
+        break;
+      case "VBZ":
+        // present tense verb 3rd person singular
+        // e.style.color = "#e6e4d6";
+        // e.style.backgroundColor = "rgba(0,0,0,1)";
+        e.style.backgroundColor = "#FF3377";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "WDT":
+        // WH determiner (that what whatever which)
+        e.style.backgroundColor = "#00402A"
+        break;
+      case "WP":
+        // WH pronoun (that what whatever whatsoever which who whom whosoever)
+        e.style.backgroundColor = "#DBBEE6"
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "WRB":
+        // WH Adverb (how however whence whenever where whereby whereever wherein whereof why)
+        e.style.backgroundColor = "#99707D";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "POS":
+        // genitive marker
+        e.style.backgroundColor = "#1B93B3";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
+      case "PUNCT":
+      e.style.backgroundColor = "red";
+        break;
+      case "PDT":
+        // predeterminer
+        e.style.backgroundColor = "#334546";
+        e.style.color = "#e6e4d6";
+        break;
+      case "IN":
+        // preposition / subordinating conjunction 
+        e.style.backgroundColor = "#00B311"
+        break;
+      case "VBN":
+        // past participle verb
+        e.style.backgroundColor = "#FF4D88";
         break;
       default:
+        e.style.color = "#e6e4d6";
         break;
 
     }
@@ -485,7 +676,28 @@
 
     }
 
+  const currSelected = ref(null);
+
   async function updateTooltip(selected) {
+    if(selected === currSelected.value){
+      return;
+    } else {
+      const elements = document.getElementsByClassName("displayed-grammar");
+      //const elements = document.getElementsByClassName(className);
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+      let s = document.querySelector(".createdGrammarWrapper");
+      // if(t && t.length > 0){
+      //   for(let i=0;i<t.length;i++){
+      //     if(i !== t.length-1){
+      //     parent.remove(t[i]);
+      //     }
+      //   }
+      // }
+    }
+    console.log("CHECK CURRENTLY SELECTED: ", currSelected.value);
+    currSelected.value = selected;
     console.log("fuck shit graph 36");
       console.log("IN UPDATE TOOLTIP!!! ", selected);
       // let grammarArr = [];
@@ -821,9 +1033,9 @@
             </div>
             <br/>
             
-            <div class="inner-wrap">
+            <!-- <div class="inner-wrap"> -->
 
-              <span class="buttons-row">
+              <!-- <span class="buttons-row">
                 <div id="textStatsBtns">
                   <span class="label-wrapper">
                     <button class="green-btn" @click="updateVizDataCommonWords(); emitterClose('closeUpdatePopup')">Common Words</button>
@@ -836,9 +1048,9 @@
                     <span>Line-Level Analysis</span>
                   </span>
                 </div>
-              </span>
+              </span> -->
 
-            </div>
+            <!-- </div> -->
           </div>
         </div>
       </div>
@@ -943,34 +1155,47 @@ svg {
 }
 
 #d3UpdateButtonsWrapper {
-    
     position: fixed;
     justify-content: center;
-    width: 100%;
+    width: 84%;
     top: 0%;
     z-index: 100;
     background-color: rgba(0, 0, 0, 0.88);
-    left: 0%;
-    padding-top: 20px;
+    left: 8%;
+    right: 8%;
     color: white;
-    padding: 12%;
+    padding: 4%;
     /* border: 1px solid white; */
     border-radius: 8px;
     bottom: 0%;
-    pointer-events:none;
+    pointer-events: none;
+    border: solid 4.5px brown;
+    top: 8%;
+    bottom: 16%;
+    min-height: 400px;
+
+
+    border: solid 4.5px brown;
 }
 #grammarDisplayWrapper {
-    align-items: center;
-    justify-content: center;
-    height: 160px;
-    bottom: 48px;
-    position: absolute;
-    margin-right: 12px;
-    left: 188px;
-    bottom: 80px;
-    background: teal;
-    z-index: 100;
-    width: calc(100% - 30%);
+  align-items: center;
+  justify-content: center;
+  height: 92%;
+  bottom: 48px;
+  position: absolute;
+  margin-right: 12px;
+  left: 60px;
+  border: solid 1px #0097BF;
+  border-radius: 8px;
+  z-index: 100;
+  width: calc(100% - 16%);
+  top: 64px;
+  flex-direction: row;
+  object-fit: contain;
+  display: inline-block;
+  overflow-y: scroll;
+  pointer-events: none;
+  color:#000000;
 }
 #tooltipEntityDisplay {
   z-index: 9999;
@@ -982,6 +1207,7 @@ svg {
   pointer-events: none;
   top: 80px;
   width: 112px;
+  display:none;
 }
 #buttonsInnerWrapper {
   padding-top: 24px;
@@ -1042,9 +1268,10 @@ button.green-btn.bottom-btn {
 }
 .displayed-grammar {
   font-size:16px;
-  min-height: 32px;
-
-  flex-direction:row;
+  min-height: 24px;
+  font-weight:300;
+  line-height:1.5;
+  display:inline-block;
   pointer-events:none;
 
   overflow-y: scroll;

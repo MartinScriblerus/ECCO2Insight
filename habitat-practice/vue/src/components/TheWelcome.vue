@@ -232,13 +232,13 @@ function scrapeAnotherUrl(url : String){
   :selectedAuthor="selectedAuthor" 
 />
   <!-- set up a scroll here to show as many as we need -->
-  <div id="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
-    <div id="bookSearchMainWrapper">
+  <div class="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
+    <div class="bookSearchMainWrapper">
 
       <img class="author-image" :id="`authorImage_${item.id}`" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Blank_woman_placeholder.svg"/>
       
 
-      <div id="bookSearchMainInfoWrapper">
+      <div class="bookSearchMainInfoWrapper">
         <h3 class="book-title">
           {{ item ? item.title : null}}
         </h3>
@@ -331,7 +331,7 @@ function scrapeAnotherUrl(url : String){
   border-radius: 8px;
 }
 
-#bookSearchMainWrapper {
+.bookSearchMainWrapper {
   display:flex;
   flex-direction:row;
   border-bottom: solid 1px var(--color-text);
@@ -339,7 +339,7 @@ function scrapeAnotherUrl(url : String){
   padding-right:2%;
   max-height:260px;
 }
-#bookSearchMainInfoWrapper {
+.bookSearchMainInfoWrapper {
   display:flex;
   flex-direction:column;
   width: 100%;

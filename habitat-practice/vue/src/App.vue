@@ -1,10 +1,15 @@
 <script lang="ts">
   //import HelloWorld from './components/HelloWorld.vue'
   import TheWelcome from './components/TheWelcome.vue'
-  
+  console.log("RITA! ", window);
   // @ts-ignore
   import { ref, onMounted, reactive } from 'vue'
   
+  // import "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+  // import "https://unpkg.com/rita"
+
+
+
   
 
 // @ts-ignore
@@ -173,8 +178,8 @@ export default {
         if(in_toc.value === true){
           console.log("IN OPENFULL ", result);
           return Promise.all([]);
-          throw new Error("reject all promises!!")
-          // return Promise.all([])
+  
+          return Promise.all([])
         }
         
         let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
@@ -276,8 +281,8 @@ export default {
         for(let i = 0; i < rawAuthorName.length; i++){
           if(in_toc.value === true){
             console.log("ENDING LOOP!");
-            
-            return {state, props};
+            // throw new Error("err!")
+            return;
           }
           let published = new Date(); 
           let first = '';
@@ -951,6 +956,12 @@ input {
   flex-direction: column;
   padding-bottom:400px;
   transition: all 1s;
+
+  border: solid 2px #FF3377; 
+}
+
+#searchFields {
+  border: solid 1px limegreen;
 }
 
 #headerDiv {
@@ -1143,6 +1154,8 @@ width: 100%;
   background: rgba(0, 0, 0, 1);
   transition: height 1s ease-in;
   pointer-events: none;
+
+  border: solid 1px magenta;
 } 
 
 .intro-cover {
@@ -1305,6 +1318,14 @@ input:checked + .slider:before {
 
   .modal.searching {
     width: 100vw;
+    margin-left: 12%;
+    margin-right: 12%;
+    width: 76%;
+    top: 4%;
+    bottom: 4%;
+    height: 92%;
+    border-radius: 12px;
+    border: solid 3px peru;
   }
 }
 

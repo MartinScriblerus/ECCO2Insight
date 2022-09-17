@@ -267,14 +267,16 @@ socket.onmessage = event => {
           }
         
           try {
-          document.getElementById('compareButton').style.visibility = "visible";
-          document.getElementById("textRowAuthor").style.display = "none";
-          document.getElementById("textRowTitle").style.display = "none";
-          document.getElementById("searchTextWrender").style.display = "none";
-          document.getElementById('headerDiv').style.display = 'none';
-          document.getElementById('headerDiv').style.visibility = 'hidden';
-          document.getElementById('mainText').style.display = "none";
-          document.getElementById('mainTextSubheader').style.display = "none";
+            if(document.getElementById('compareButton')){
+              document.getElementById('compareButton').style.visibility = "visible";
+            }
+            document.getElementById("textRowAuthor").style.display = "none";
+            document.getElementById("textRowTitle").style.display = "none";
+            document.getElementsByClassName("searchTextWrapper").style.display = "none";
+            document.getElementById('headerDiv').style.display = 'none';
+            document.getElementById('headerDiv').style.visibility = 'hidden';
+            document.getElementById('mainText').style.display = "none";
+            document.getElementById('mainTextSubheader').style.display = "none";
           } 
           catch(e){
             console.log("err_modal1 ", e);
@@ -947,7 +949,20 @@ async function scrape_text(url){
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable !== null && noLateUpdateAfterNLTK.value === false){
       console.log("fuck shit 22");
+      
+      /////////
+      // will this fix broken local storage?
       inGraphs.value = true;
+      let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+      console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
+      console.log("fuck shit 56");
+      if(updatePopup){
+        console.log("ADD A CHECK HERE FOR IN GRAPHS")
+        console.log("fuck shit 57");
+        updatePopup.classList.remove("animate-close");
+      }
+      /////////
+
         initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
 
           emit('closedmodal');
@@ -1042,8 +1057,12 @@ async function scrape_text(url){
           } else {
             console.log("no textRowTitle");
           }
-          if(document.getElementById("searchTextWrapper")){
-            document.getElementById("searchTextWrapper").style.display = "none";
+          let bookWrappers = document.getElementsByClassName("searchTextWrapper")
+          if(bookWrappers){
+            for(let i = 0; i < bookWrappers.length;i++){
+              bookWrappers[i].style.display = "none";
+            } 
+              
           } else {
             console.log("no search text wrapper");
           }
@@ -1274,6 +1293,7 @@ function openUpdatePopup(){
   console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
   console.log("fuck shit 56");
   if(updatePopup){
+    console.log("ADD A CHECK HERE FOR IN GRAPHS")
     console.log("fuck shit 57");
     updatePopup.classList.remove("animate-close");
   }
@@ -1821,17 +1841,26 @@ body.modal-open {
 .modal {
     position: fixed;
     z-index: 999;
-    top: 0%;
+
 
     align-items: center;
     left: 0%;
     grid-template-columns: 1fr;
-    width: 100%;
-    height: 100vh;
+
     animation: animate-text-scrape 1s linear;
     background: var(--color-background);
     backdrop-filter: blur(8px);
     overflow-y: scroll;
+
+    width: 100vw;
+    margin-left: 12%;
+    margin-right: 12%;
+    width: 76%;
+    top: 4%;
+    bottom: 4%;
+    height: 92%;
+    border-radius: 12px;
+    border: solid 3px peru;
 }
 
 #summaryWrapper {
@@ -1924,12 +1953,16 @@ body.modal-open {
     pointer-events:all;
     min-height:100vh;
     align-items: left;
+
+    border: solid 1px pink;
 }
 
 #modalFull.awaiting {
     background: transparent;
     pointer-events:all;
     align-items: left;
+
+    border: solid 4px teal;
 }
 
 .rangeDisplayRow {
@@ -1942,11 +1975,15 @@ body.modal-open {
 .modal.not-searching {
   background: teal;
   overflow-y: hidden;
+
+  z-index:9999;
 }
 
 #modalFull.receivedSingleTextData {
   background:transparent;
   pointer-events: none;
+
+  border: solid 4px yellow;
 }
 
   .modal-header,
@@ -2012,7 +2049,7 @@ body.modal-open {
   }
   #progressMsgExplanationText {
     width: 50%;
-    height: 80px;
+    height: 100px;
     top: 0px;
     border: dotted 0.5px orange;
     left: 0px;
@@ -2052,7 +2089,7 @@ body.modal-open {
     position: absolute;
     left: 0px;
     border: solid 1px teal;
-    height: 80px;
+    height: 100px;
     top: 0px;
     width: 50%;
     left:50%;
@@ -2112,11 +2149,12 @@ body.modal-open {
     display: flex;
     text-align: center;
     bottom: 32px;
-    visibility: hidden;
-    height: 120px;
+    visibility: visible;
+    height: 40px;
     position: absolute;
     flex-direction: row;
     pointer-events: none;
+    background:orange;
   }
   .results-col {
     width:33vw;
@@ -2231,6 +2269,9 @@ body.modal-open {
     height: 100%;
     top: 0px;
     bottom: 0px;
+
+    border: solid 5px orange;
+    z-index:9999;
 }
 #newTextPopup {
   display:none;
@@ -2276,6 +2317,8 @@ body.modal-open {
   background:var(--color-background);
   color: #ffffff;
 
+  border:solid 6px lightblue;
+  z-index:  9999;
 }
 
 .saturation-area {
