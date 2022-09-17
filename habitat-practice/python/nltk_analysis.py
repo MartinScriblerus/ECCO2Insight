@@ -256,12 +256,14 @@ def nltk_analysis(r, text_in_html):
 
         # unique_tokens = list(words_no_blanks)
         # old_df_unique.append(unique_tokens)
-        
+        soct.send("explain_tokens_and_lemmas")
         print("about to create final tokens -----------------------------------------")
         for each_word in words_no_blanks:
             if each_word not in stop_words:
                 if each_word not in not_words:
                     final_tokens.append(each_word)
+                    if len(each_word) > 0:
+                        soct.send(each_word)
 
         final_tokens = [lemmatizer.lemmatize(word) for word in final_tokens]
         
@@ -278,7 +280,7 @@ def nltk_analysis(r, text_in_html):
         # fdist = nltk.FreqDist(bgs)
         # for k,v in fdist.items():
         #     print(f"BIGRAM BIGRAM BIGRAM _____________________ k: {k} / v: {v}")
-        soct.send('Finished tokenizing and lemmatizing text')
+        
         print("about to get coountable words -----------------------------------------")
         countable_words = []
         for e_w in final_tokens:
@@ -291,7 +293,13 @@ def nltk_analysis(r, text_in_html):
         final_tokens_as_single_string = ' '.join(final_tokens)
         
         old_df['most_common_words'] = Counter(final_tokens).most_common(20)
-        # soct.send("fifth_msg")
+        # def unpack_tuple(x,y):
+        #     return x
+        # for z in old_df['most_common_words']:
+        #     cw = unpack_tuple(z,'')
+        #     soct.send(cw)
+        # soct.send(f"COMMON_WORDS_{str(old_df['most_common_words'])}")
+        # soct.send(f"Most Common Words: {old_df['most_common_words']}")
 
         # ------------------------------------------------------------
         # LINE LEVEL FOCUS -> INIT ANALYSIS OF POETRY / DRAMA FEATURES
@@ -304,7 +312,7 @@ def nltk_analysis(r, text_in_html):
         
         clean_lines = []
         lines_in_corpus = list(filter(None, lines_in_corpus))
-
+        soct.send("explain_poetry_intro")
         for clean_l in lines_in_corpus:
             clean_l = re.sub("[^a-zA-Z.,;:'\n]+", " ", clean_l)
             pattern_li = r"\b(?=[MDCLXVIΙ])M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})([IΙ]X|[IΙ]V|V?[IΙ]{0,3})\b\.?"
@@ -356,6 +364,8 @@ def nltk_analysis(r, text_in_html):
                 if w == tokens_in_line[-1]:
                     soct.send(f'Last word in line: {w}')
                     old_df_last_word_per_line.append(w)
+                    soct.send('explain_last_words_per_line')
+                    soct.send(w)
                     # print(f"check old df last word per line: {old_df_last_word_per_line}")
                 else: 
                     if len(w) > 3 and w.isalpha() is True:
@@ -378,7 +388,7 @@ def nltk_analysis(r, text_in_html):
                 if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1]) or old_df_last_word_per_line[index-1] in pronouncing.rhymes(old_df_last_word_per_line[index]):
                     print("PROBABLY A COUPLET! ", index)
                     print(f"couplet: does {old_df_last_word_per_line[index-1]} rhyme with {i}?")
-                   
+                    soct.send(f"RHYME_{old_df_last_word_per_line[index-1]}_{i}")
                     print(f"line 1 is {lines_in_corpus[index-1]}")
                     try:
                         appendage = {
@@ -412,10 +422,12 @@ def nltk_analysis(r, text_in_html):
                         if (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 2 ]) or old_df_last_word_per_line[index - 2] in pronouncing.rhymes(old_df_last_word_per_line[index])):
                             print("PROBABLY AN ABAB INTERLOCKING QUATRAIN! ", index)
                             print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 2 ]}?")
+                            soct.send(f"RHYME_{old_df_last_word_per_line[index]}_{old_df_last_word_per_line[index - 2 ]}")
                             appendage = {"index":count_form, "form":"interlocking quatrain (ABAB)", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 2],"this_interrhyme": old_df_last_word_per_line[index - 1],"last_interrhyme":old_df_last_word_per_line[index - 1], "this_line": lines_in_corpus[index], "last_line": lines_in_corpus[index-2],"this_interline":lines_in_corpus[index-1],"last_interline":lines_in_corpus[index-3]}
                         if (old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 3 ]) or old_df_last_word_per_line[index - 3] in pronouncing.rhymes(old_df_last_word_per_line[index])):
                             print("PROBABLY AN ABBA INTERLOCKING QUATRAIN! ", index)
                             print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 3 ]}?")
+                            soct.send(f"RHYME_{old_df_last_word_per_line[index]}_{old_df_last_word_per_line[index - 3 ]}")
                             appendage = {"index":count_form, "form":"interlocking quatrain (ABAB)", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 2],"this_interrhyme": old_df_last_word_per_line[index - 1],"last_interrhyme":old_df_last_word_per_line[index - 1], "this_line": lines_in_corpus[index], "last_line": lines_in_corpus[index-2],"this_interline":lines_in_corpus[index-1],"last_interline":lines_in_corpus[index-3]}
                         if appendage['index'] not in [m['index'] for m in old_df_poetic_form]:
                             old_df_poetic_form.append(appendage)
@@ -434,6 +446,7 @@ def nltk_analysis(r, text_in_html):
                     #if old_df_last_word_per_line[index] in pronouncing.rhymes(old_df_last_word_per_line[index - 1 ]) or old_df_last_word_per_line[index -1] in pronouncing.rhymes(old_df_last_word_per_line[index]):
                     print("PROBABLY A TERCET! ", index)
                     print(f"DOES {old_df_last_word_per_line[index]} rhyme with {old_df_last_word_per_line[index - 1 ]} and also with {old_df_last_word_per_line[index - 2 ]}?")
+                    soct.send(f"RHYME_{old_df_last_word_per_line[index]}_{old_df_last_word_per_line[index - 1 ]}_{old_df_last_word_per_line[index - 2 ]}")
                     appendage = {"index":count_form, "form":"tercet", "this_rhyme": old_df_last_word_per_line[index], "last_rhyme":old_df_last_word_per_line[index - 2 ],"this_interrhyme": old_df_last_word_per_line[index - 1],"last_interrhyme":"", "this_line": lines_in_corpus[index], "last_line": lines_in_corpus[index-2],"this_interline":lines_in_corpus[index-1],"last_interline":"",
                     
                     }
@@ -478,6 +491,8 @@ def nltk_analysis(r, text_in_html):
                     old_df_internal_rhyme_most_recent.remove(i)
                     
             old_df['internal_rhyme_most_recent'] = res
+    
+       
             # print(f"DO WE HAVE SYLL PER LINE??? {syllables_per_line}")
             syllables_per_line = list(filter(None, syllables_per_line))
 
@@ -491,10 +506,12 @@ def nltk_analysis(r, text_in_html):
                 isPoeticLine = isPoeticLine + 1
                 percentage_poetry_by_syllable = isPoeticLine / len(lines_in_corpus)
                 print(f"PERC POETRY {percentage_poetry_by_syllable}")
+                soct.send(f"PERC_POETRY_{percentage_poetry_by_syllable}")
                 old_df_perc_poetry_syllables = percentage_poetry_by_syllable
         elements = np.array(old_df_syllables_per_line)
         mean = np.mean(elements, axis=0)    
         print(f"MEAN IS {mean}")
+        soct.send(f"Average syllables per line is {mean}")
 
         ### ------------------------------------------------------------
         ### Analysis of sentence-level stuff
@@ -564,9 +581,11 @@ def nltk_analysis(r, text_in_html):
                 # # ## CVOULD DO GRAMMAR STUFF ON DOC LEVEL HERE (IF WE DON'T USEE NLTK MDLE ABOVE)
         
             for token in doc:
-                #print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
-                sentence_words_grammar.append({'sentence_index':idx,'token_text':token.text,'token_pos':token.pos_,'token_tag':token.tag_})
-            
+                print(f'token text: {token.text} / token pos: {token.pos_} / token tag: {token.tag_}')
+                word_index_in_sent = str(sents[idx]).find(token.text)
+                sentence_words_grammar.append({'sentence_index':idx,'token_text':token.text,'token_pos':token.pos_,'token_tag':token.tag_,'index_in_sent':word_index_in_sent})
+                if token.pos_ == "VERB" or token.pos == "NOUN":
+                    soct.send(token.text)
 
             ### lemmatize the words in each sentence
             # (this may not be necessary)
@@ -612,44 +631,48 @@ def nltk_analysis(r, text_in_html):
             api_key=API_KEY
             # cycle_ents = cycle(doc.ents)
             # last_X_text = ''
-            
+            soct.send("explain_entity_analysis")
             for i,X in enumerate(doc.ents):
-                soct.send(f'Entity: {X.text}')
+                           
                 old_df_spacy_ents.append({idx:{X.text:X.label_}})
                         
                 if X.label_ == "LOC":
+                    soct.send(X.text)
                     old_df_places.append(X.text)
                     print(f'DOCUMENT ENTITIES: {X.text}:{X.label_}')
                     
                 if X.label_ == "PERSON":
-                    url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
+                    soct.send(X.text)
+                    ## NO EUROPEANA API YET!!!!
+                    # url = 'https://api.europeana.eu/entity/suggest' + api_key + '&type=agent&text=' + X.text + '"'
+                    # # try:
+                    # suggested_ents = requests.get(url, timeout=10.00)
                     # try:
-                    suggested_ents = requests.get(url, timeout=10.00)
-                    try:
-                        print("ENTITY CHECK: ", json.loads(suggested_ents.text)['items'][0])
-                        ## AGENTS
-                        if(json.loads(suggested_ents.text)['items'] is not None):  
-                            if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
-                                print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
-                                try:
-                                    d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
-                                    if d1 is None:
-                                        d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
-                                    if(d1):
-                                        arr = d1.split('-')             
-                                        # print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
-                                    try:
-                                        if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
-                                            print(f"SUGGESTED ENTITIES::::::: {json.loads(suggested_ents.text)['items'][0]}")
-                                            old_df_entities.append(json.loads(suggested_ents.text)['items'][0])
-                                    except:
-                                        print("can't retrieve agent")
-                                except:
-                                    print('no DOB')
-                            else:
-                                print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
-                    except:
-                        print('no items')                                
+                    #     print("ENTITY CHECK: ", json.loads(suggested_ents.text)['items'][0])
+                    #     ## AGENTS
+                    #     if(json.loads(suggested_ents.text)['items'] is not None):  
+                    #         if json.loads(suggested_ents.text)['items'][0]['type'] == 'Agent':
+                    #             print(f"DOB: {json.loads(suggested_ents.text)['items'][0].keys()}")
+                    #             try:
+                    #                 d1 = json.loads(suggested_ents.text)['items'][0]['dateOfBirth'] 
+                    #                 if d1 is None:
+                    #                     d1 = json.loads(suggested_ents.text)['items'][0]['dateOfEstablishment']
+                    #                 if(d1):
+                    #                     arr = d1.split('-')             
+                    #                     # print(f'datetime test {datetime(int(arr[0]),int(arr[1]),int(arr[2]))}')
+                    #                 try:
+                    #                     if datetime(int(arr[0]),int(arr[1]),int(arr[2])) < datetime(1800,1,1):
+                    #                         print(f"SUGGESTED ENTITIES::::::: {json.loads(suggested_ents.text)['items'][0]}")
+                    #                         # soct.send(json.loads(suggested_ents.text)['items'][0])
+                    #                         old_df_entities.append(json.loads(suggested_ents.text)['items'][0])
+                    #                 except:
+                    #                     print("can't retrieve agent")
+                    #             except:
+                    #                 print('no DOB')
+                    #         else:
+                    #             print(f"WHAT TYPE IS THIS???!@!! {json.loads(suggested_ents.text)['items'][0]['type']}")
+                    # except:
+                    #     print('no items')                                
                     
 
             ########################################################################
@@ -679,6 +702,7 @@ def nltk_analysis(r, text_in_html):
             test_set = sentim_analyzer.apply_features(testing_docs)
             trainer = NaiveBayesClassifier.train
             classifier = sentim_analyzer.train(trainer, training_set)
+            # soct.send("explain_sentiment_analysis")
             #print(f'CLASSIFIER ACCURACY: {nltk.classify.accuracy(classifier, test_set)}')
             # for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
                 # print('{0}: {1}'.format(key, value))
@@ -754,7 +778,7 @@ def nltk_analysis(r, text_in_html):
                 summary_sentences = heapq.nlargest(7, sentence_scores, key=sentence_scores.get)
                 
                 summary = ' '.join(summary_sentences)
-                soct.send(summary)
+
                 # print(f"SUMMARY! {summary}")
                 regex = re.compile('[^a-zA-Z]')
                 cleaned_summary1 = re.sub("[^a-zA-Z.']+", " ", summary)
@@ -773,7 +797,8 @@ def nltk_analysis(r, text_in_html):
         old_df['places'] = old_df_places
         old_df['orgs'] = old_df_orgs
         # old_df['spacy_tokens'] = old_df_spacy_tokens
-
+        soct.send(f"SUMMARY_{old_df['summary']}")
+        soct.send("explain_sentence_summary")
         for k,v in old_df.items():
             print(f"wHAT TYPE IS THIS??? {k}: {type(v)}")
 

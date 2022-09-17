@@ -25,7 +25,7 @@ machine_dict = {}
 def machine_learning(old_df,sents,soct): 
     # if 'flask_init' in sys.modules:
     #     from flask_init import soct
-    soct.send("eleventh-msg")
+    soct.send("eleventh_msg")
     print("are we getting soct? ", soct)
     old_df_vectorized_features = []
     old_df_vectorized_vocab = []
@@ -38,16 +38,17 @@ def machine_learning(old_df,sents,soct):
     tfidf = TfidfVectorizer(stop_words="english")
     df_abstracts_tfidf = tfidf.fit_transform(text_df)    
     print("DF ABSTRACTS TFIDF SCIKIT", df_abstracts_tfidf)
-
-    for idx, s in enumerate(sents):
+    entities = old_df["entities"]
+    for idx, s in enumerate(sents[0:10]):
         ### vectorize features in array of sentences
         vectorizer = CountVectorizer()
-        features = vectorizer.fit_transform(sents).todense() 
+        features = vectorizer.fit_transform(sents[0:10]).todense() 
         #features2 = vectorizer.fit_transform(list("This is test sentence")).todense()
-        if idx == len(sents) - 1:
+        if idx == len(sents[0:10]) - 1:
             print(f"VECTORIZED VOCAB: {vectorizer.vocabulary_}")
             print(f"FEATURES!@ COUNT VECTORIZER {features}")
-        
+            # soct.send("explain_vectorized_vocab")
+            # soct.send(vectorizer.vocabulary_)
         old_df_vectorized_features.append(features)
         old_df_vectorized_vocab.append(vectorizer.vocabulary_)
 
@@ -58,7 +59,9 @@ def machine_learning(old_df,sents,soct):
             tfidf.get_feature_names()
             df_feat = pd.DataFrame(y.toarray(), columns = tfidf.get_feature_names()).to_json()
             print(f"df feat TFIDF!!!! {type(df_feat)}")
-
+            soct.send('explain_tfidf')
+            for tfidf in df_feat.values():
+                soct.send(str({tfidf.keys()[0]:tfidf.values()[0]}))
             old_df_vectorized_tfidf.append(df_feat)
 
             # soct.send("twelfth_msg") 
@@ -68,11 +71,18 @@ def machine_learning(old_df,sents,soct):
             # soct.send('twelfth_msg')
         # y.toarray()
        
-
+        soct.send("explain_euclidean_distance")
         ## WE'll want to bring this back!!!
         for i, f in enumerate(features):
+            # print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
+            # old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
+            
+            # soct.send(euclidean_distances(f, features[i-1])[0][0])
+            print("TYPEOF EUCLIDEAN DISTANCE's F: ", type(f))
             print(f"EUCLIDEAN DIST: {euclidean_distances(f, features[i-1])}")
             old_df_euclidean_distance_since_last_self.append(euclidean_distances(f,features[i-1]))
+            
+            soct.send(euclidean_distances(f, features[i-1])[0][0])
     # soct.send("eleventh_msg")         
     # soct.send("twelfth_msg")
     df = pd.DataFrame({"id": [i for i in old_df['sentence_id']], "temperature": [f for f in old_df['sentence_sentiment_neg']], "pressure": [g for g in old_df['sentence_sentiment_pos']]})
@@ -152,6 +162,7 @@ def machine_learning(old_df,sents,soct):
         high_score = 0
         for feature in feature_list:
             kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+            soct.send(f"KMEANS_{kmeans}")
             data_ = df[feature]
             labels = kmeans.fit_predict(data_.to_frame())
             score_ = silhouette_score(data_.to_frame(), labels)
@@ -190,8 +201,10 @@ def machine_learning(old_df,sents,soct):
     for (columnName, columnData) in text_df.iteritems():
         
         print(text_df.head(5))
-        print(f"AWESOME BUT WTF IS THIS? {text_df['sentence_id']}")
+        # print(f"AWESOME BUT WTF IS THIS? {text_df['temperature']}")
         print(f"sanity sake: {type(text_df[columnName].iloc[0])}")
+
+        soct.send("explain_progressive_feature_selection")
         
         try:
             # if soct is not None:
@@ -208,14 +221,15 @@ def machine_learning(old_df,sents,soct):
                     print("SELECTED FEATURES: ", selected_features)
                     df_standardized_sliced = df_text_standardized[selected_features]
                     DNP_text_standardized = scaler.fit_transform(df_standardized_sliced.reshape(-1,1),df_standardized_sliced.reshape(-1,1))
-                
- 
+                    print("DNP text standardized", DNP_text_standardized )
+                except ValueError:
+                    print('Value Error #1!')
                
                     
                     # elbowPlot(range(1,11), df_standardized_sliced)
                     # silhouettePlot(range(3,9), df_standardized_sliced)
                     # df_standardized_sliced = df_text_standardized[selected_features]
-                    
+                try:    
                     kmeans = KMeans(n_clusters=5, random_state=42)
                     cluster_labels = kmeans.fit_predict(df_standardized_sliced)
                     df_standardized_sliced["clusters"] = cluster_labels
@@ -239,7 +253,10 @@ def machine_learning(old_df,sents,soct):
                 ## MAKE THIS AN ERROR HANDLER
                 # soct.send("fourteenth_msg")        
                 # # initial_text = old_df
+                except ValueError:
+                    print('Value Error 2!')
                 
+                try:
                     print(df_texts_standardized_pca.info())
 
                     # show first 5 rows
@@ -247,10 +264,11 @@ def machine_learning(old_df,sents,soct):
 
                     # display some statistics
                     print(df_texts_standardized_pca.describe())
-            
+                except ValueError:
+                    print('Value Error 3!')
                     
 
-
+                try:
                     print(f"WHAT IS DAAATTTAAAFFFRRRAAAAMMMMEEE????? {df_text_standardized.head(5)} {df_text_standardized.describe()}")
                     selected_features = progressiveFeatureSelection(df_text_standardized, max_features=3, n_clusters=3)
                     optimal_features = optimal_features(df_text_standardized)
@@ -264,7 +282,10 @@ def machine_learning(old_df,sents,soct):
 
                     # display some statistics
                     print( df_standardized_sliced.describe())
-                    
+                except ValueError:
+                    print('Value Error 4!')
+
+                try:   
                     # elbowPlot(range(1,11), df_standardized_sliced)
                     # silhouettePlot(range(3,9), df_standardized_sliced)
                     # if soct is not None:
@@ -272,7 +293,7 @@ def machine_learning(old_df,sents,soct):
                     kmeans = KMeans(n_clusters=5, random_state=42)
                     cluster_labels = kmeans.fit_predict(df_standardized_sliced)
                     df_standardized_sliced["clusters"] = cluster_labels
-
+                    print("SLICED CLUSTERS: ", df_standardized_sliced["clusters"])
                     # using PCA to reduce the dimensionality
                     pca = PCA(n_components=2, whiten=False, random_state=42)
                     authors_standardized_pca = pca.fit_transform(df_standardized_sliced)

@@ -21,277 +21,10 @@ export default {
   name: "ResponsiveLineChart",
   props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","axesFramingLast"],
   emits:["selected"],
-  watch: { 
-    xMax:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 1");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    yMax:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 2");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    xMin:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 3");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    yMin:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 4");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    xMaxLabel:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    yMaxLabel:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    selectedRow:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 5");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    currentLinesCount:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 6");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    }, 
-    resetXNeeded:{
-      handler: function(newVal, oldVal){
-        console.log("fuck shit testchart 7");
-        console.log("RESET NEEDED ", resetXNeeded.value);
 
-      }
-    },
-    resetYNeeded:{
-      handler: function(newVal, oldVal){
-        console.log("fuck shit testchart 8");
-        console.log("RESET NEEDED ", resetYNeeded.value);
-
-      }
-    },
-    axisColorMatchBool:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("newCOLORMATCH BOOL: ",JSON.parse(JSON.stringify(newVal)));
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },     
-    color0:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 9");
-          console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    color1: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
-          // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    color2: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
-        //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    color3: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    colorX: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
-              let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
-              console.log("here's keybuilder div");
-              if(keyBuilder){
-                console.log("NEW COLOR>>X AXIS? ", newVal);
-                keyBuilder.style.borderColor = newVal.value;
-              }
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    colorY: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    valueX: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 10");
-          console.log("new x value", JSON.parse(JSON.stringify(newVal)));
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-          //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
-          // xAxisLabel.value = JSON.parse(JSON.stringify(newVal));
-          
-        }
-    },
-    valueY: {
-        deep: true,
-        handler: function(newVal, oldVal){
-
-          console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
-          
-          // yAxisLabel.value = JSON.parse(JSON.stringify(newVal));
-    
-        }
-    },
-    numberXMin: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("in new xmin!")
-        }
-    },
-    numberXMax: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("in new xmax!")
-          console.log("fuck shit testchart 12");
-          // console.log("new x MAX number", Math.max(...Object.values(JSON.parse(JSON.stringify(newVal)))));
-          // if(JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number").length > 0){
-          //   numberXMax.value = Math.min(...JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number"))
-          // } else {
-          //   numberXMax.value = 0;
-          // }
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    numberYMin: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("in new ymin!")
-          console.log("new y number", JSON.parse(JSON.stringify(newVal)));
-          console.log("fuck shit testchart 13");
-            // if(JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number").length > 0){
-            //   this.numberYMin = Math.min(...JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number"))
-            //this.numberYMin = JSON.parse(JSON.stringify(newVal));
-            // } 
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    numberYMax: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          // console.log("in new ymax!")
-          console.log("in new y max: ", JSON.parse(JSON.stringify(newVal)));
-   
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    selectedXAxisRef: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("********* new x number", JSON.parse(JSON.stringify(newVal)));
-          console.log("new x axis ref in test", Math.max(...JSON.parse(JSON.stringify(newVal))));
-          console.log("fuck shit testchart 15");
-          this.selectedXAxisRef = JSON.parse(JSON.stringify(newVal))
-        }
-    },
-    selectedYAxisRef: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("********* new y number", JSON.parse(JSON.stringify(newVal)));
-          this.selectedYAxisRef = JSON.parse(JSON.stringify(newVal));
-        }
-    },
-    yAxisFramingLast: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 6");
-            if(newVal){
-              console.log("AXES FRAMING CHANGHED IN TEST FILE! ",JSON.parse(JSON.stringify(newVal)));
-            } 
-        }
-    },
-    graphstate: {
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 17");
-            console.log("graphstate changed in area! ", newVal)
-            if(newVal > 0){
-                
-                // console.log("parse method: ", JSON.parse(JSON.stringify(this.graphstate)));
-
-                // console.log("THIS WAY??? ", JSON.parse(JSON.stringify(this)).graphstate)
-              
-                // console.log("what about number XMAX? ", this.data.numberXMax)
-                // JSON.parse(JSON.stringify(props)).graphstate = newVal
-                // // alert("we are now comparing");
-                // return this.data.graphstate;
-            }
-        }
-    },
-    tooltipmsg: {
-      deep: true,
-      handler: function(newVal, oldVal){
-        console.log("fuck shit testchart 18");
-        console.log('Prop changed: ', JSON.parse(JSON.stringify(newVal)), ' | was: ', oldVal)
-        // updateTooltip(newVal);
-          // let tooltip = document.getElementById("tooltipInner");
-          // console.log("tooltip inner: ", tooltip);
-
-          // console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
-          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-          //   console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-          // if(tooltip){
-          //   tooltip.innerHTML = `
-          //   <div id="sentimentDisplay">
-          
-          //     <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
-          //     <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
-          //     <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
-          //     <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
-          //   </div>
-        
-          //   <div id="topicListWrapper">
-          //     ${entityArr.value.toString()}
-          //   </div> 
-          //   `
-          // }
-          // let topicWrapper = document.getElementById("topicListWrapper");
-        
-          // console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
-          // if(newVal){
-          //   console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
-          //   JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
-          // }
-      }
-    }
-  },
   data(){
     return {
-      show: false,
+  
       clientX: 0,
       clientY: 0,
       closestPoint: null,
@@ -338,9 +71,59 @@ export default {
 
     const lineLabelsArr = ref([]);
 
+    function resetShow(){
+      try{
+        let t = document.document.querySelector(".createdEntityWrapper");
+        if(t){
+          t.parentNode.removeChild(t);
+        }
+      } catch {
+
+      }
+      show.value = false;
+    }
+
+    // function updateTooltip(newVal){
+    //   console.log("fuck shit testchart 20 ", JSON.parse(JSON.stringify(newVal)));
+    //   newVal = tooltipmsg.value;
+    //   console.log("the fuck is newval?", JSON.parse(JSON.stringify(newVal)));
+    //   show.value = true;
+    //    let tooltip = document.getElementById("tooltipInner");
+    //       console.log("tooltip inner: ", tooltip);
+
+    //       console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
+    //       // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
+    //       // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
+    //       if(tooltip){
+    //         tooltip.innerHTML = `
+    //         <div id="sentimentDisplay">
+    //           <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>
+    //           <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h4>
+    //           <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h4>
+    //           <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h4>
+    //         </div>
+        
+    //         <div id="topicListWrapper">
+    //           ${entityArr.value.toString()}
+    //         </div> 
+    //         `
+    //       }
+    //       let topicWrapper = document.getElementById("topicListWrapper");
+        
+    //       console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
+    //       if(newVal){
+    //         console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
+    //         JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+    //       }
+    // }
+
     function mouseMove(event) {
+
       const { clientX, clientY } = event;
       show.value = true;
+      // if(show.value === true){
+      //   updateTooltip(tooltipmsg.value)
+      // }
       console.log("this show: ", show.value);
       console.log("this client x: ", event.clientX);
       console.log("this client y: ", event.clientY);
@@ -350,37 +133,9 @@ export default {
 
     let tooltip = document.getElementById("tooltipInner");
 
-    function updateTooltip(newVal){
-      console.log("fuck shit testchart 20");
-      newVal = tooltipmsg.value
-       let tooltip = document.getElementById("tooltipInner");
-          console.log("tooltip inner: ", tooltip);
 
-          console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
-          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-          // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-          if(tooltip){
-            tooltip.innerHTML = `
-            <div id="sentimentDisplay">
-              <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
-              <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
-              <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
-              <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
-            </div>
-        
-            <div id="topicListWrapper">
-              ${entityArr.value.toString()}
-            </div> 
-            `
-          }
-          let topicWrapper = document.getElementById("topicListWrapper");
-        
-          console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
-          if(newVal){
-            console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
-            JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
-          }
-    }
+
+
 
     //this.data = newData;
     // this creates another ref to observe resizing, 
@@ -389,7 +144,7 @@ export default {
     const { resizeRef, resizeState } = useResizeObserver();
 
     onMounted((event) => {
-      // pass ref with DOM element to D3, when mounted (DOM available)
+      // pass ref with DOM element to D3, when mounted (DOM available)      
       const svg = select(svgRef.value);
       console.log("fuck shit testchart 21");
       let tempSVGs=[]
@@ -769,8 +524,8 @@ export default {
               if(dataHolder1.value.length < 1){
                 dataHolder1.value.push(dataIn);
               }
-              console.log("DATA IN in in create line: ", dataIn)
-              strokeWidth = 4;
+              // console.log("DATA IN in in create line: ", dataIn)
+              strokeWidth = 2;
               svg
                 .selectAll(".line") // get all "existing" lines in svg
                 .data([dataIn]) // sync them with our data
@@ -1035,26 +790,29 @@ export default {
                 }
               }
             })
-
+            points.value = [];
             for(let i = 0; i < JSON.parse(JSON.stringify(props)).data.length - 1; i++){
+            
               points.value.push({
                 x: i,
                 y: props.data[i],
                 max: height
               })
             }
-            console.log("!!##POINTS: ", JSON.parse(JSON.stringify(points.value)));
+            // console.log("!!##POINTS: ", JSON.parse(JSON.stringify(points.value)));
           });
         });
         console.log("RESIZEREF ", resizeRef);
 
     // return refs to make them available in template
-    return { svgRef, resizeRef };
+    return { svgRef, resizeRef, mouseMove,tooltipmsg, show,resetShow};
   },
   methods: {
     tryAppendTopics(newVal){
+      console.log("CAN WEE APPEND TOPICS>???")
       let topicListWrapper = document.getElementById("topicListWrapper");
-      if(topicListWrapper && tooltipInner.value){
+      let tooltipInner = document.getElementById("tooltipInner")
+      if(topicListWrapper && tooltipInner){
         JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach((entArr)=>{
           try{
             if(entityArr.indexOf(entArr[0]) === -1){
@@ -1077,6 +835,323 @@ export default {
     //   this.clientX = event.clientX;
     //   this.clientY = event.clientY;
     // }
+  },
+  watch: { 
+    xMax:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 1");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    yMax:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 2");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    xMin:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 3");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    yMin:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 4");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    xMaxLabel:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    yMaxLabel:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    selectedRow:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 5");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    currentLinesCount:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 6");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    }, 
+    resetXNeeded:{
+      handler: function(newVal, oldVal){
+        console.log("fuck shit testchart 7");
+        console.log("RESET NEEDED ", resetXNeeded.value);
+
+      }
+    },
+    resetYNeeded:{
+      handler: function(newVal, oldVal){
+        console.log("fuck shit testchart 8");
+        console.log("RESET NEEDED ", resetYNeeded.value);
+
+      }
+    },
+    axisColorMatchBool:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("newCOLORMATCH BOOL: ",JSON.parse(JSON.stringify(newVal)));
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },     
+    color0:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 9");
+          console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color1: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color2: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+        //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    color3: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    colorX: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+              let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
+              console.log("here's keybuilder div");
+              if(keyBuilder){
+                console.log("NEW COLOR>>X AXIS? ", newVal);
+                keyBuilder.style.borderColor = newVal.value;
+              }
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    colorY: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log(JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    valueX: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 10");
+          console.log("new x value", JSON.parse(JSON.stringify(newVal)));
+          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+          //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
+          // xAxisLabel.value = JSON.parse(JSON.stringify(newVal));
+          
+        }
+    },
+    valueY: {
+        deep: true,
+        handler: function(newVal, oldVal){
+
+          console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
+          
+          // yAxisLabel.value = JSON.parse(JSON.stringify(newVal));
+    
+        }
+    },
+    numberXMin: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("in new xmin!")
+        }
+    },
+    numberXMax: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("in new xmax!")
+          console.log("fuck shit testchart 12");
+          // console.log("new x MAX number", Math.max(...Object.values(JSON.parse(JSON.stringify(newVal)))));
+          // if(JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number").length > 0){
+          //   numberXMax.value = Math.min(...JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number"))
+          // } else {
+          //   numberXMax.value = 0;
+          // }
+            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    numberYMin: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("in new ymin!")
+          console.log("new y number", JSON.parse(JSON.stringify(newVal)));
+          console.log("fuck shit testchart 13");
+            // if(JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number").length > 0){
+            //   this.numberYMin = Math.min(...JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number"))
+            //this.numberYMin = JSON.parse(JSON.stringify(newVal));
+            // } 
+            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    numberYMax: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          // console.log("in new ymax!")
+          console.log("in new y max: ", JSON.parse(JSON.stringify(newVal)));
+   
+            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    selectedXAxisRef: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("********* new x number", JSON.parse(JSON.stringify(newVal)));
+          console.log("new x axis ref in test", Math.max(...JSON.parse(JSON.stringify(newVal))));
+          console.log("fuck shit testchart 15");
+          this.selectedXAxisRef = JSON.parse(JSON.stringify(newVal))
+        }
+    },
+    selectedYAxisRef: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("********* new y number", JSON.parse(JSON.stringify(newVal)));
+          this.selectedYAxisRef = JSON.parse(JSON.stringify(newVal));
+        }
+    },
+    yAxisFramingLast: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 6");
+            if(newVal){
+              console.log("AXES FRAMING CHANGHED IN TEST FILE! ",JSON.parse(JSON.stringify(newVal)));
+            } 
+        }
+    },
+    show: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("SHOW VALUE! ", newVal);
+        }
+    },
+    graphstate: {
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 17");
+            console.log("graphstate changed in area! ", newVal)
+            // if(newVal){
+                
+                // console.log("parse method: ", JSON.parse(JSON.stringify(this.graphstate)));
+
+                // console.log("THIS WAY??? ", JSON.parse(JSON.stringify(this)).graphstate)
+              
+                // console.log("what about number XMAX? ", this.data.numberXMax)
+                // JSON.parse(JSON.stringify(props)).graphstate = newVal
+                // // alert("we are now comparing");
+                // return this.data.graphstate;
+            // }
+        }
+    },
+    tooltipmsg: {
+      deep: true,
+      handler: async function(newVal, oldVal){
+        console.log("fuck shit testchart 18");
+        console.log('Prop changed: ', JSON.parse(JSON.stringify(newVal)), ' | was: ', oldVal)
+        
+
+////////////////
+//**************
+
+function updateTooltip(newVal){
+      console.log("fuck shit testchart 20 ", JSON.parse(JSON.stringify(newVal)));
+      // newVal = tooltipmsg.value;
+      console.log("the fuck is newval?", JSON.parse(JSON.stringify(newVal)));
+      show.value = true;
+       let tooltip = document.getElementById("tooltipInner");
+          console.log("tooltip inner: ", tooltip);
+
+          console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
+          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
+          // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
+          if(tooltip){
+            tooltip.innerHTML = `
+            <div id="sentimentDisplay">
+              <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>
+              <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h4>
+              <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h4>
+              <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h4>
+            </div>
+        
+            <div id="topicListWrapper">
+              ${entityArr.value.toString()}
+            </div> 
+            `
+          }
+          let topicWrapper = document.getElementById("topicListWrapper");
+        
+          console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
+          if(newVal){
+            console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
+            JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+          }
+    }
+    updateTooltip(newVal)
+//**************
+////////////////
+
+
+          // let tooltip = await document.getElementById("tooltipInner");
+          // console.log("tooltip inner: ", tooltip);
+
+          // console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
+          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
+          //   console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
+          //   console.log("WHAT IS TOOLTOIP?? ", tooltip);
+          // if(tooltip){
+          //   tooltip.innerHTML = `
+          //   <div id="sentimentDisplay">
+          
+          //     <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
+          //     <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
+          //     <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
+          //     <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
+          //   </div>
+        
+          //   <div id="topicListWrapper">
+          //     ${entityArr.value.toString()}
+          //   </div> 
+          //   `
+          // }
+          // let topicWrapper = document.getElementById("topicListWrapper");
+        
+          // console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
+          // if(newVal){
+          //   console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
+          //   JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+          // }
+      }
+    }
   }
 };
 </script>
@@ -1084,13 +1159,14 @@ export default {
 <template>
   <div id="barChartWrapper" ref="resizeRef">
     <!-- :style="{ top: `${clientY}px`, left: `${clientX}px` }" -->
-    <div
-        id="tooltip"
+    <!-- v-if="show" -->
+    <div id="tooltip"
           :style="{ top: `${0}px`, left: `${0}px`, width: `${60}vw`,position:`absolute` }"
-          v-if="show"
-          @mouseout="show.value = false"
+      
+          @mouseout="resetShow"
       >
         <div id="tooltipInner" ref="tooltipInner">
+
         </div>
     </div>
     <!-- <span v-if="this.xAxisLabel" id="yAxisLabel">{{this.xAxisLabel}}</span> -->

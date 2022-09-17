@@ -37,7 +37,7 @@ EXPOSE 5000
 # RUN pip install -r /requirements.txt
 
 # ENTRYPOINT . /opt/venv/bin/activate && ["bash", "/bin/run.sh"]
-CMD . /opt/venv/bin/activate && gunicorn --config ./gunicorn.conf.py --bind 0.0.0.0:5000 --timeout 120 --worker-class gevent --log-level debug wsgi:app
+CMD . /opt/venv/bin/activate && gunicorn --config ./gunicorn.conf.py --bind 0.0.0.0:5000 --timeout 2000 --worker-class gevent --log-level debug wsgi:app
 
 # this one 'works'=>
 # ENTRYPOINT ["bash", "/bin/run.sh"]

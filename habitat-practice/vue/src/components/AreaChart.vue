@@ -219,8 +219,8 @@ export default {
         id="tooltip"
      
           :style="{ top: `${0}px`, left: `${0}px`, width: `${60}vw`,position:`absolute` }"
-        v-if="this.show"
-        @mouseout="this.show = false"
+        v-if="show"
+        @mouseout="show = false"
       >
     
         <div id="tooltipInner" ref="tooltipInner">

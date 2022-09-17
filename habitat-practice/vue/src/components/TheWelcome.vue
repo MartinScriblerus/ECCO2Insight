@@ -31,18 +31,19 @@ if(props.items){
   console.log("fuck shit welcome 2");
   // emit("getImages", props.items)
   console.log("hitting this/////// ")
-  watch(props.items, (currentValue, oldValue) => {
-    // console.log(currentValue);
-    // console.log(oldValue);
-    // console.log("OUTSIDE");
-    // if(props.items){
-    //   console.log("INSIDE: ", props.items);
-    //   console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
+  // watch(
+  //   props.items, (currentValue, oldValue) => {
+  //   console.log(currentValue);
+  //   console.log(oldValue);
+  //   console.log("OUTSIDE");
+  //   if(props.items){
+  //     console.log("INSIDE: ", props.items);
+  //     console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
       
-    //   // emit("getWikiUrl", props.items)
-    // }
-    return;
-  });
+  //     // emit("getWikiUrl", props.items)
+  //   }
+  //   return;
+  // });
 }
 
 const emit = defineEmits(["getWikiURL", "getImages", "in_toc_now"])
@@ -63,6 +64,7 @@ async function show_TOC(url:String, title:String, author:String){
   if(main){
     main.style.top = "0px";
   }
+  
   
   let searchForms = document.getElementById("headerDiv");
   if(searchForms){
@@ -167,12 +169,13 @@ async function doCloseModal(){
   open.value = false;
 
   // we don't want this here but can use to test->
-  // openFull.value = true; 
+  openFull.value = false; 
 }
 
 async function doCloseFullModal(){
   console.log("fuck shit welcome 10");
     openFull.value = false;
+   
     openGraph.value = true;
         
     ready.value = JSON.parse(JSON.stringify(openFull.value));
@@ -186,6 +189,10 @@ async function doOpenFullModal(){
   // openFull.value = true;
 };
 
+async function gotLocalStorageText(){
+  openFull.value = true;
+}
+
 async function doOpenAwaitScrape(){
   console.log("fuck shit welcome 12");
   let searchFields = document.getElementById("searchFields");
@@ -194,7 +201,7 @@ async function doOpenAwaitScrape(){
   }
   console.log("fuck shit welcome 13");
   console.log("in do open await scrape");
-  // openFull.value = true;
+  openFull.value = true;
   console.log("fuck shit welcome 14");
 };
 
@@ -218,7 +225,7 @@ function scrapeAnotherUrl(url : String){
   @openedfull="doOpenFullModal" 
   @closedfull="doCloseFullModal" 
   @closedmodal="doCloseModal" 
-
+  @closemodalgotlocal="gotLocalStorageText"
   :tocdata="tocData" 
   :rawtextdata="rawTextData" 
   :selectedTitle="selectedTitle" 

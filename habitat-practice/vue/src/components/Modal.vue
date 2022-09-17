@@ -15,7 +15,7 @@ import Multiselect from '@vueform/multiselect'
 // Define Props, Emits & Key Variables
 // ----------------------------------------------------
 
-const emit = defineEmits(['closedmodal','openedfullawaitscrape','openedfull','closedfull'])
+const emit = defineEmits(["closemodalgotlocal","closedmodal","openedfullawaitscrape","openedfull","closedfull"]);
 
 const props = defineProps({
   open: Boolean,
@@ -24,6 +24,7 @@ const props = defineProps({
   rawtextdata: String,
   selectedTitle: String,
   selectedAuthor: String,
+  inGraphsParent:Boolean
   // graphstate: String
 });
 
@@ -38,13 +39,11 @@ const yAxisFramingLast = ref(false);
 const inGraphs = ref(false);
 const secondTextRef = ref();
 secondTextRef.value = false;
-
+const displayedSummary = ref('');
+const displayedRhymes = ref([])
 const graphstateRef = ref(0);
 const axisColorMatchBool = ref(false);
-
-
-
-
+const noLateUpdateAfterNLTK = ref(false);
 const initialHumanReadableTextRef = ref({
   title: String,
   author: String,
@@ -157,6 +156,12 @@ socket.onopen = function (event) {
 }
 socket.onclose = function(event) {
     console.log("AHHHHHHH ", event);
+    // need more thorough handling here to 
+    // account for UI changes / DOM clashes
+    // setTimeout(()=>{
+    //   startSocket();
+    // },2000);
+    clearTimeout();
 }
 
 window.onbeforeunload = function() {
@@ -172,11 +177,16 @@ window.onbeforeunload = function() {
 // const mySteps = ['Text', 'Lines', 'Sentences', "Training"]
 // let stepMessage = '';
 
+const getCommonWordsExplanation = ref(false)
+
 socket.onmessage = event => {
-  console.log("fuck shit 5");
-    console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
+
+    // console.log("do we GET SOCKET MSGS!!@!!??? ", event.data);
     if(event.data === 'third_msg'){
       console.log("got third socket msg");
+      if(document.getElementById("modalFull") && document.getElementById("modalFull").style.display === "none"){
+        document.getElementById("modalFull").style.display = "flex"
+      }
       currentStepRef.value = 0;
       stepMessage = "Gathering text and preprocessing data"
       if(document.getElementById("progressMsg")){
@@ -209,6 +219,7 @@ socket.onmessage = event => {
       currentStepRef.value = 3;
       console.log("HIT FIFTEENTH!");
       inGraphs.value = true;
+      
       stepMessage = "Feature Extraction"
       if(document.getElementById("progressMsg")){
         document.getElementById("progressMsg").innerText = stepMessage;
@@ -222,6 +233,9 @@ socket.onmessage = event => {
         // results[0].style.visibility = "visible";
         // inGraphs.value = true;
         try{
+          if(document.getElementById('modal-textAnalysis-title')){
+            document.getElementById('modal-textAnalysis-title').style.display = "none";
+          }
           if(document.getElementById('progressCircles')){
             document.getElementById('progressCircles').style.display = "none";
           } else {
@@ -256,7 +270,7 @@ socket.onmessage = event => {
           document.getElementById('compareButton').style.visibility = "visible";
           document.getElementById("textRowAuthor").style.display = "none";
           document.getElementById("textRowTitle").style.display = "none";
-          document.getElementById("searchTextWrapper").style.display = "none";
+          document.getElementById("searchTextWrender").style.display = "none";
           document.getElementById('headerDiv').style.display = 'none';
           document.getElementById('headerDiv').style.visibility = 'hidden';
           document.getElementById('mainText').style.display = "none";
@@ -269,17 +283,92 @@ socket.onmessage = event => {
           console.log("err_modal1 ", e);
         }
       }
-    } else {
+    }  
+    else if(event.data === "explain_tokens_and_lemmas"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Tokenization splits the text into a list of individual words";
+      }
+    } 
+    else if(event.data === "explain_common_words"){
       
-        // // if(typeof event.data === String ){
-        //   let JSON_Obj = JSON.parse(event.data);
-        //   let currentTask = JSON_Obj.currentTask;
-        //   let currentMsg = JSON_Obj.currentMsg;
-          // console.log()
-          if(document.getElementById("progressMsgExplanationText")){
-            document.getElementById("progressMsgExplanationText").innerText = event.data;
-          }
-        // }
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "What to say about common words? Pretty self-explanatory!";
+      }
+    } 
+    else if(event.data === "explain_poetry_intro"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "This section of the analysis is looking for poetry...";
+      }
+    } 
+    else if(event.data === "explain_last_words_per_line"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Analyzing the last word in each line to find rhymes";
+      }
+    } 
+    else if(event.data === "explain_internal_rhymes"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Checking internal rhymes here";
+      }
+    }
+    else if(event.data === "explain_entity_analysis"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Explain how entity analysis works here...";
+      }
+    } 
+    else if(event.data === "explain_sentiment_analysis"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Explain how sentiment analysis works here...";
+      }
+    } 
+    else if(event.data === "explain_sentence_summary"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Here we should explain how summaries work...";
+      }
+    }
+    else if(event.data === "explain_vectorized_vocab"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Here we should explain vectorized vocabulary!";
+      }
+    }
+    else if(event.data === "explain_tfidf"){
+      getCommonWordsExplanation.value = true;
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Here we should explain TFIDF analysis!";
+      }
+    }
+    else if(event.data === "explain_euclidean_distance"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Here we should explain EUCLIDEAN DISTANCE!";
+      }
+    }
+    else if(event.data === "explain_progressive_feature_selection"){
+      if(document.getElementById("progressMsgExplanationText")){
+        document.getElementById("progressMsgExplanationText").innerText = "Here we should explain PROGRESSSIVE FEATURE SELECTION!";
+      }
+    }
+    else if(event.data.indexOf("SUMMARY_") !== -1){
+      let holder = event.data
+    
+      let slicedHolder = (holder.split("_").slice(1)).toString();
+      console.log("GOT THIS SUMMARY!", holder)
+      displayedSummary.value = slicedHolder;
+      if(document.getElementById("progressMsgDataSummaryPreview")){
+        document.getElementById("progressMsgDataSummaryPreview").innerHTML = slicedHolder;
+      } 
+    }
+    else if(event.data.indexOf("RHYME_") !== -1){
+      let holder = event.data;
+      console.log("RHYME HOLDER!!! ", holder);
+      let holderIndex = holder.indexOf("RHYME_");
+      let slicedHolder = holder.slice("RHYME_");
+      singleRhymeArr = slicedHolder.split["_"]
+
+
+    }
+    else {
+        if(document.getElementById("progressMsgDataPreview")){
+          document.getElementById("progressMsgDataPreview").innerText = event.data;
+        }
       }
     } 
 
@@ -407,7 +496,7 @@ additionalTexts.value = [
 
 async function trySetReady(){
   console.log("SOURCE OF PROBLEM ", JSON.parse(JSON.stringify(props.openFull)))
-  
+
   let test = await modalFull.value;
   console.log("TESTING!!!! ", test);
   
@@ -419,10 +508,10 @@ async function trySetReady(){
      
       let test = await modalFull.value;
       inGraphs.value = false;
-      ready.value = JSON.parse(JSON.stringify(props.openFull));
-      if(test){
-        trySetReady();
-      }
+      // ready.value = JSON.parse(JSON.stringify(props.openFull));
+      // if(!test){
+      //   trySetReady();
+      // }
     }
 }
 
@@ -449,8 +538,12 @@ currentTextData,
 axisColorMatchBool,
 selectedXAxisRef,
 selectedYAxisRef,
+props.inGraphsParent,
 props.openFull,
 yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+  if(JSON.parse(JSON.stringify(props.inGraphsParent)) === true && inGraphs.value === false){
+    inGraphs.value = true;
+  }
   console.log("fuck shit 7");
     if(selectedXAxisRef.value){
       console.log("selected x axis ref: ", selectedXAxisRef.value);
@@ -485,9 +578,14 @@ yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
 // Begin process for adding a new text...
 // ----------------------------------------------------
 function tryAddNewText(){
-  console.log("CHECK!!!");
-  doCloseFullModalChild();
+  console.log("CHECK CHUCK MODAL!!!");
+  if(document.getElementById("modalFull")){
+    document.getElementById("modalFull").style.display = "none"
+  }
+  inGraphs.value = false;
   secondTextRef.value = true;
+  doCloseFullModalChild();
+  
   
   console.log("second text is ... ", secondTextRef.value);
 
@@ -608,6 +706,18 @@ async function tryGetFullModal(url){
     console.log("innnnn try get full modal... ");
       let fullModal = await modalFull.value !== null;
       let mainPage = document.getElementById("main");
+      if(inGraphs.value === true){
+        inGraphs.value = false;
+        trySetReady();
+      }
+      // while(!fullModal || !fullModal.classList){
+      //   setTimeout(()=>{
+      //     trySetReady()
+      //   }, 1000)
+      //   if(fullModal && fullModal.classList || inGraphs.value === true){
+      //     return;
+      //   }
+      // }
       if(fullModal && fullModal.classList){
         console.log("fuck shit 12");
         fullModal.classList.add("awaiting");
@@ -737,7 +847,8 @@ async function tryGetFullModal(url){
                 "sentenceIndex":JSON.parse(JSON.stringify(wordGram))['sentence_index'],
                 "tokenTag":JSON.parse(JSON.stringify(wordGram))['token_tag'],
                 "tokenPos":JSON.parse(JSON.stringify(wordGram))['token_pos'],
-                "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text']
+                "tokenText":JSON.parse(JSON.stringify(wordGram))['token_text'],
+                "idx_in_sent":JSON.parse(JSON.stringify(wordGram))['index_in_sent']
               })    
             });
             temp.value.spacy_entities.forEach(entity=>{
@@ -834,13 +945,14 @@ async function scrape_text(url){
     console.log("fuck shit 21");
  
     let localStorageDataAvailable = localStorage.getItem(url);
-    if(localStorageDataAvailable !== null){
+    if(localStorageDataAvailable !== null && noLateUpdateAfterNLTK.value === false){
       console.log("fuck shit 22");
+      inGraphs.value = true;
         initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
 
           emit('closedmodal');
           emit('openedfull');
-          // inGraphs.value = true;
+          emit('closemodalgotlocal')
           let fullModal = await modalFull.value;
           if(fullModal && fullModal.classList){
             console.log("fuck shit 23"); // HITTING THIS INITIAL
@@ -889,6 +1001,11 @@ async function scrape_text(url){
           } else {
             console.log("fuck shit 32");
             console.log("no progress circles");
+          }
+          if(document.getElementById('modal-textAnalysis-title')){
+            document.getElementById('modal-textAnalysis-title').style.display = "none";
+          } else {
+            console.log("no title");
           }
           if(document.getElementById('progressMsg')){
             console.log("fuck shit 33");
@@ -958,7 +1075,9 @@ async function scrape_text(url){
           }  
         }
         return;
-    } 
+    } else {
+      noLateUpdateAfterNLTK.value = true
+    }
     ready.value = true;
     inGraphs.value = false;
       emit('closedmodal');
@@ -1560,60 +1679,61 @@ function clickedLineRow(row){
           </div>
         </slot>
       </section>
-      <section class="modal-body">
+
+      <section v-if="!inGraphs" class="modal-body">
 
         <slot name="body">   
-          <!-- <self-building-square-spinner
-            v-if="!props.rawtextdata" 
-            id="squareBuilderAnim"
-            :animation-duration="6000"
-            :size="48"
-            color="rgba(255,255,255,1)"
-          /> -->
-        <!-- </slot> -->
-          <section class="modal-textAnalysis-title">
-            <slot name="titleDiv">
-              <span id="textRowTitle">
-                Title: {{props.selectedTitle}}
-              </span>
-              <span id="textRowAuthor">
-                Author: {{props.selectedAuthor}}
-              </span>
-            </slot>
-          </section>
-          <section class="progress-circle-section" id="progressCircles">
-            <slot name="progressCircles">
-              <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)" :line-thickness="1"> </step-progress>
-            </slot>
-          </section>
 
           <section id="progressMsg" class="progress-msg">
             <slot name="progressMsg">
               <!-- {{stepMessage}} -->
             </slot>
           </section>
+          <section id="modal-textAnalysis-title">
+            <slot name="titleDiv">
+              
+              <span id="textRowAuthor">
+                {{props.selectedAuthor}}
+              </span>
+              
+              <span id="textRowTitle">
+                {{props.selectedTitle}}
+              </span>
 
+            </slot>
+          </section> 
           <section id="progressMsgExplanation" class="progress-msg-explanation">
             <slot name="progressMsgExplanation">
             <!-- <h4>Progress Msg Explanation</h4> -->
-            <p id="progressMsgExplanationText">Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
-              <!-- {{stepMessage}} -->
+            <div id="progressMsgExplanationText">
+            <p >Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+            </div>
+            <div id="dataPreviewWrapper">
+              <p id="progressMsgDataPreview"></p>
+            </div> 
+
+            <!-- {{stepMessage}} -->
+            </slot>
+            <br/>
+
+          </section>
+
+          <section class="progress-circle-section" id="progressCircles">
+            <slot name="progressCircles">
+              <step-progress icon-class="fa fa-square-check" :steps="mySteps" :current-step="currentStepRef" active-color="hsla(160, 100%, 37%, 0.7)" :line-thickness="1"> </step-progress>
             </slot>
           </section>
 
+          <div id="summaryPreviewWrapper">
+            <p id="progressMsgDataSummaryPreview"></p>
+          </div>
           <section class="modal-single-text-results">
             <slot name="textAnalysis-results">
+          
+              <!-- <div id="summaryPreviewWrapper">
+                <p id="progressMsgDataSummaryPreview">Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+              </div> -->
 
-                <!-- <div id="fullTextGraphWrapper" class="results-col">
-                  Yo full text
-
-                </div>
-                <div class="results-col">
-                  Yo sentences
-                </div>
-                <div class="results-col">
-                  Yo Lines
-                </div> -->
             </slot>
           </section>
         </slot>
@@ -1621,36 +1741,20 @@ function clickedLineRow(row){
 
       <footer class="modal-footer">
         <slot name="footer">
-          <!-- <button
-            type="button"
-            id="compareButton"
-            class="btn-green"
-            @click="openKeyPopup"
-          >
-          Extend
-        </button> -->
-          <!-- <button
-            type="button"
-            id="additiveButton"
-            class="btn-green"
-            @click="additiveMode"
-          >
-          Additive
-        </button> -->
+
         </slot>
 
       </footer>
     </div>
   </div>
   <div v-if="open" ref="modal" class="modal" :class="open ? 'searching' : 'not-searching'">
-    <button id="closeBtn" @click="$emit('closedmodal')"
-    >Close</button>
+    <button id="closeBtn" @click="$emit('closedmodal')">Close</button>
     <h1 id="tocHeader">Table of Contents</h1>
     <span id="tocSubtitle">Click any link below to load the text</span>
     <div id="tocDataWrapper">
         <div id="tocData" v-for="item in props.tocdata">
             <i icon-class="fa-solid fa-ellipsis" />
-            <!-- <h3 @click="scrape_text(item.link_href)">{{ -->
+ 
             <h3 @click="scrape_text(item.link_href)">{{
                 item.link_text
             }}</h3>
@@ -1658,12 +1762,10 @@ function clickedLineRow(row){
         </div>
     </div>
 
-    <!-- can we remove this??? -->
-    <!-- <div id="textData">
-    {{rawtextfromtoc ? rawtextfromtoc.value : null}}
-    </div> -->
 
   </div>
+
+
 </Teleport>
 
 </template>
@@ -1731,6 +1833,19 @@ body.modal-open {
     backdrop-filter: blur(8px);
     overflow-y: scroll;
 }
+
+#summaryWrapper {
+  display:flex;
+  flex-direction:column;
+  overflow-wrap: break-word;
+  font-size:12px;
+  font-weight:100;
+  width:70%;
+  text-align:center;
+  min-block-size: 200px;
+  border: solid 1px yellow;
+}
+
   #squareBuilderAnim {
     transform: rotateX(3.142rad);
     top: 80px;   
@@ -1841,9 +1956,7 @@ body.modal-open {
     display: flex;
   }
 
-  .modal-footer {
-    padding: 16px;
-  }
+
 
   .modal-header {
     width: 100%;
@@ -1883,18 +1996,29 @@ body.modal-open {
     text-align: center;
     /* background: rgba(0,0,0,0.4); */
     justify-content: center;
-    left: 16%;
-    right: 16%;
-    width: 68%;
-    height: 16%;
+    left: 0px;
+    right: 0px;
+    width: 100%;
+    /* height: 100%; */
     border-radius: 8px;
-    top: 112px;
-    position: absolute;
+ 
+    position: relative;
     flex-direction: column;
     display: flex;
-    padding: 4%;
+    padding: 0%;
     line-height: 1.5;
     font-size: 18px;
+    flex-direction: row;
+  }
+  #progressMsgExplanationText {
+    width: 50%;
+    height: 80px;
+    top: 0px;
+    border: dotted 0.5px orange;
+    left: 0px;
+    position: absolute;
+    overflow-y:scroll;
+    padding-top:24px;
   }
   .btn-close {
     position: absolute;
@@ -1924,6 +2048,21 @@ body.modal-open {
     background: 36px;
   }
 
+  #dataPreviewWrapper {
+    position: absolute;
+    left: 0px;
+    border: solid 1px teal;
+    height: 80px;
+    top: 0px;
+    width: 50%;
+    left:50%;
+    /* overflow-y: scroll; */
+    font-weight: 700;
+    font-size: 18px;
+    overflow-y: hidden;
+    padding-top:24px;
+  }
+
   .hideFullModal {
     display:none;
   }
@@ -1944,24 +2083,40 @@ body.modal-open {
   }
   #textRowTitle, #textRowAuthor{
     width: 100%;
-    display:none;
+    display:flex;
+    overflow-y:scroll;
+  }
+  #textRowAuthor {
+    font-size:18px;
+    font-weight:500;
+  }
+  #textRowTitle {
+    font-size:14px;
+    font-weight:300;
+    text-overflow: ellipsis;
   }
 
-  .modal-textAnalysis-title {
+  #modal-textAnalysis-title {
     /* this is the overarching modal */
     padding-left: 8%;
     padding-right: 8%;
-    position: absolute;
+    position: relative;
     background: var(--color-background);
-    height: calc(100% - 164px);
-    display:none;
+    height: 100px;
+    overflow-y: scroll;
+    border-top: solid 1px var(--color-heading);
+    border-bottom: solid 1px var(--color-text);
   }
   .modal-single-text-results {
     width: 100%;
     display: flex;
     text-align: center;
-    top: 36px;
+    bottom: 32px;
     visibility: hidden;
+    height: 120px;
+    position: absolute;
+    flex-direction: row;
+    pointer-events: none;
   }
   .results-col {
     width:33vw;
@@ -1989,13 +2144,17 @@ body.modal-open {
     left: 0%;
   }
   #progressMsg {
-    position: relative;
     z-index: 1;
     bottom: 0px;
     font-size: 28px;
     text-align: center;
-    top: 52px;
-    position: absolute;
+    top: 0px;
+    position: relative;
+    width: 100%;
+    height:80px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+    line-height:2;
   }
   .step-progress__wrapper {
     width: 90vw;
@@ -2013,7 +2172,29 @@ body.modal-open {
     
     z-index: 10;
   }
-
+  #summaryPreviewWrapper{
+    display: flex;
+    flex-direction: row;
+    object-fit: contain;
+    width: 100%;
+    height: 180px;
+    border: solid 1px magenta;
+    bottom: 0px;
+    position: absolute;
+    overflow-y: scroll;
+    transition: all 1s;
+    padding: 8px;
+  }
+  #progressMsgDataSummaryPreview {
+    overflow-y: scroll;
+    width: 100%;
+    display: flex;
+    text-align: center;
+    visibility: visible;
+    height: 120px;
+    position: absolute;
+    flex-direction:column;
+  }
 
 .new-font {
   font-family: untitled-font-1;
@@ -2026,8 +2207,7 @@ body.modal-open {
 
 .progress-circle-section {
   width:100%;
-  top: 45%;
-  
+  top: 80px;
 }
 .progress-msg {
   width:100%;
@@ -2047,9 +2227,10 @@ body.modal-open {
 }
 
 #graphs {
-
   width: 100%;
-  height: auto;
+    height: 100%;
+    top: 0px;
+    bottom: 0px;
 }
 #newTextPopup {
   display:none;

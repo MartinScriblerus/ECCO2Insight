@@ -276,8 +276,8 @@ export default {
         for(let i = 0; i < rawAuthorName.length; i++){
           if(in_toc.value === true){
             console.log("ENDING LOOP!");
-
-            return;
+            
+            return {state, props};
           }
           let published = new Date(); 
           let first = '';
@@ -566,7 +566,7 @@ export default {
       let authors : Array<String> = [];
       console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
       console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
-      if(this.props && this.props.titleSearch && this.props.authorSearch.length < 3){
+      if(this.props && this.props.titleSearch){
         titles = await this.searchBasicTitle();
         textsToReturn.value.push(titles);
       } 

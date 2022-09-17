@@ -6,7 +6,7 @@ bind = "0.0.0.0:5000"
 # workers = 4
 worker_class = 'gevent'
 
-timeout = 120
+timeout = 2000
 db_name = os.getenv('DB_NAME', 1)
 
 DATABASES = {

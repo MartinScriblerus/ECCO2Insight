@@ -38,6 +38,7 @@
   
   const emit = defineEmits(['numberXMin','numberXMax','numberYMin','numberYMax','dataname_y', 'dataname_x','closeUpdatePopup']); 
   
+  const inGraphsParent = ref(false)
   // const valueX = ref('');
   // const valueY = ref('');
   const numberXMax = ref([]);
@@ -57,6 +58,10 @@
   const data = ref([]);
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
+
+  const grammarArr = ref([]);
+  const entitiesArr = ref([]);
+
   function hideUpdateButtons(){
     console.log("fuck shit graph 1");
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
@@ -178,6 +183,7 @@
     function updateVizDataSentiment(compound,negative,neutral,positive){
       console.log("fuck shit graph 12");
       hideUpdateButtons();
+      inGraphsParent.value = true;
       console.log("fuck shit graph 13");
       let sentenceVizSentimentPlaceholder1 = [];
 
@@ -416,40 +422,132 @@
     function resetY(){
       resetYRef.value = true;
     }
+  
+  function updateTooltipGrammarText(g){
+    var innerGrammarDisplayEntities = document.getElementById("grammarDisplayWrapper");
+    let t = document.getElementsByClassName("displayed-grammar");
+    let s = document.querySelector(".createdGrammarWrapper");
+    if(t && t.length > 0){
+      for(let i=0;i<t.length;i++){
+        t[i].remove();
+      }
+    }
+
+    var c = document.createDocumentFragment();
+    c.className = "createdGrammarWrapper";  
     
-  function updateTooltip(selected) {
+    let e = document.createElement("span");
+    e.className = "displayed-grammar";
+    let text = " " + g['tokenText'];
+    e.append(text);
+
+    console.log("tag: ", g['tokenTag'])
+    switch(g['tokenTag']){
+      case "NNP":
+        e.style.backgroundColor = "red"
+        break;
+      case "VBN":
+        e.style.backgroundColor = "yellow";
+        break;
+      default:
+        break;
+
+    }
+
+    c.append(e);
+    setTimeout(()=>{
+    if(innerGrammarDisplayEntities){
+      innerGrammarDisplayEntities.append(c);
+    }
+  },1000);
+  }  
+
+  async function updateTooltipText(h){
+    var innerTooltipEntities = await document.getElementById("tooltipEntityDisplay");
+            
+      let t = document.getElementsByClassName("displayed-entity");
+      let s = document.querySelector(".createdEntityWrapper");
+      if(t && t.length > 0){
+        for(let i=0;i<t.length;i++){
+          t[i].remove();
+        }
+      }
+      // if(s && s.length < 1){
+        var c = document.createDocumentFragment();
+        c.className = "createdEntityWrapper";  
+      // }    
+      let e = document.createElement("div");
+      e.className = "displayed-entity";
+      e.innerText=h.text;
+
+      c.append(e);
+      innerTooltipEntities.append(c);
+
+    }
+
+  async function updateTooltip(selected) {
     console.log("fuck shit graph 36");
       console.log("IN UPDATE TOOLTIP!!! ", selected);
-      let grammarArr = [];
-      let entitiesArr = [];
+      // let grammarArr = [];
+      // let entitiesArr = [];
 
         console.log("selected ", selected)
+       
       if(Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]){
+        grammarArr.value = [];
         Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceGrammarArray'].forEach((g)=>{
-          console.log("STILL PUSHING GRAMMAR FINE!")
-          grammarArr.push({'tokenTag':g.tokenTag,'tokenPos':g.tokenPos,'tokenText':g.tokenText})
-        });
-        Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSpacyEntities'].forEach((h)=>{
-          console.log("STILL PUSHING ENTITIES FINE!", h)
-          if(entitiesArr.indexOf(h.id) === -1 || entitiesArr.indexOf(h.text) === -1){
-            entitiesArr.push([h.text,h.type,h.id])
+          // console.log("STILL PUSHING GRAMMAR FINE! ", g);
+          // console.log("BIG MONEY!!! ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]);
+          if(grammarArr.value.indexOf(g['tokenText']) === -1){
+            grammarArr.value.push(g['tokenText'],g['sentenceIndex'],g['idx_in_sents'])
+          } else {
+            return
           }
+       
+          updateTooltipGrammarText(g);
+ 
+          grammarArr.value.push({'tokenTag':g.tokenTag,'tokenPos':g.tokenPos,'tokenText':g.tokenText})
         });
-        console.log("fuck shit graph 37");
-        tooltipMsg.value = {
-          grammarArrays : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceGrammarArray'],
-          sentimentCompound : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentCompound']['compound'],
-          sentimentNegative : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentNegative']['neg'],
-          sentimentNeutral : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentNeutral']['neu'],
-          sentimentPositive : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentPositive']['pos'],
-          entityArrays : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSpacyEntities']
+        
+        let existingEntities = document.getElementsByClassName("displayed-entity");
+        if(existingEntities && existingEntities.children && existingEntities.children.length){
+          for(let j=0;j<existingEntities.children.length;j++){
+            existingEntities[j] = null;
+          }
         }
-        console.log("$$$ ", JSON.parse(JSON.stringify(tooltipMsg.value)));
+        entitiesArr.value = [];
+        Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSpacyEntities'].forEach((h)=>{
+          // console.log("STILL PUSHING ENTITIES FINE!", h)
+          if(entitiesArr.value.indexOf(h.id) === -1){
+            entitiesArr.value.push(h.id)
+          } else {
+            return
+          }
+          updateTooltipText(h);
+        });
+        // console.log("fuck shit graph 37");
+        // tooltipMsg.value = {
+        //   grammarArrays : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceGrammarArray'],
+        //   sentimentCompound : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentCompound']['compound'],
+        //   sentimentNegative : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentNegative']['neg'],
+        //   sentimentNeutral : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentNeutral']['neu'],
+        //   sentimentPositive : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSentimentPositive']['pos'],
+        //   entityArrays : Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceSpacyEntities']
+        // }
+        // console.log("$$$ ", JSON.parse(JSON.stringify(tooltipMsg.value)));
+
+        updateTooltipData();
       } else {
         console.log("fuck shit graph 38");
         console.log("tooltip failure: ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
       }
   }
+
+  function updateTooltipData(){
+    console.log("CHECK CHECK! ", tooltipMsg.value);
+
+  }
+
   function tryToggleComparative(){
     props.graphstate = props.graphstate + 1;
   }
@@ -656,6 +754,10 @@
 
 
 <template >
+  <div  id="tooltipEntityDisplay">
+
+  </div>
+  <div id="grammarDisplayWrapper"></div>
   <div id="graphDiv">
 
     <h1 id="graphTitle">TODO: Add Graph Title Here</h1>
@@ -670,6 +772,7 @@
         :tooltipmsg="tooltipMsg" 
         :selectedRow="props.selectedRow"
         :mode="mode"
+        :inGraphsParent="inGraphsParent"
         :yAxisFramingLast="yAxisFramingLast"
         @selected="updateTooltip"
         :currentLinesCount="props.currentLinesCount"
@@ -856,6 +959,30 @@ svg {
     bottom: 0%;
     pointer-events:none;
 }
+#grammarDisplayWrapper {
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    bottom: 48px;
+    position: absolute;
+    margin-right: 12px;
+    left: 188px;
+    bottom: 80px;
+    background: teal;
+    z-index: 100;
+    width: calc(100% - 30%);
+}
+#tooltipEntityDisplay {
+  z-index: 9999;
+  position: absolute;
+  background: blue;
+  max-width: 100%;
+  left: 64px;
+  bottom: 80px;
+  pointer-events: none;
+  top: 80px;
+  width: 112px;
+}
 #buttonsInnerWrapper {
   padding-top: 24px;
   padding-bottom: 24px;
@@ -907,5 +1034,20 @@ button.green-btn.bottom-btn {
 .animate-close {
   opacity: 0;
   transition: opacity 2s;
+}
+.displayed-entity {
+  font-size:16px;
+  width:25%;
+  min-height: 32px;
+}
+.displayed-grammar {
+  font-size:16px;
+  min-height: 32px;
+
+  flex-direction:row;
+  pointer-events:none;
+
+  overflow-y: scroll;
+
 }
 </style>
