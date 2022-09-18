@@ -20,7 +20,7 @@ import useResizeObserver from "@/libs/ResizeObserver.js";
 export default {
   name: "ResponsiveLineChart",
   props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","axesFramingLast"],
-  emits:["selected"],
+  emits:["selected","clientX","clientY"],
 
   data(){
     return {
@@ -129,6 +129,9 @@ export default {
       console.log("this client y: ", event.clientY);
       this.clientX = event.clientX;
       this.clientY = event.clientY;
+      emit("clientX",event.clientX);
+      emit("clientY",event.clientY);
+
     }
 
     let tooltip = document.getElementById("tooltipInner");
@@ -427,7 +430,8 @@ export default {
 
               if(JSON.parse(JSON.stringify(props)).graphstate === 1){
                 // This will be line #2
-                dataRef2.value = JSON.parse(JSON.stringify(props.data)); 
+                dataRef2.value = props.data; 
+                console.log("WHAT IS DATAREF2? WHAT IS DATAHOLDER?? // PICK UP EDITS HERE!")
                 let toDel = svg.selectAll(`.line#line_1`);
                 if(toDel.length > 0){
                   for(let i = 0;i<toDel.length - 1;i++){

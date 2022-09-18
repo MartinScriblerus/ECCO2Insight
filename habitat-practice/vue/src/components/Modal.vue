@@ -272,7 +272,9 @@ socket.onmessage = event => {
             }
             document.getElementById("textRowAuthor").style.display = "none";
             document.getElementById("textRowTitle").style.display = "none";
-            document.getElementsByClassName("searchTextWrapper").style.display = "none";
+
+            // document.getElementsByClassName("searchTextWrapper").style.display = "none";
+            
             document.getElementById('headerDiv').style.display = 'none';
             document.getElementById('headerDiv').style.visibility = 'hidden';
             document.getElementById('mainText').style.display = "none";
@@ -504,12 +506,38 @@ async function trySetReady(){
   
   if(test && JSON.parse(JSON.stringify(props.openFull)) ){
       inGraphs.value = false;
-      ready.value = JSON.parse(JSON.stringify(props.openFull));
+      secondTextRef.value = true;
+      ready.value = true;
+      if(JSON.parse(JSON.stringify(props.openFull))){
+        document.getElementById("modalFull").style.display = "flex";
+      }
+      //ready.value = JSON.parse(JSON.stringify(props.openFull));
       console.log("what is props openfull? ", JSON.parse(JSON.stringify(props.openFull)));
     } else {
-     
+      console.log("AHA! are we reaching here???????????");
       let test = await modalFull.value;
       inGraphs.value = false;
+      try {
+        let searchFields = document.getElementById("searchFields");
+        if(searchFields && secondTextRef.value !== true){
+          searchFields.style.visibility = "hidden";
+          //searchFields.style.display = "flex";
+        } else if(searchFields && secondTextRef.value === true){
+          secondTextRef.value = false;
+        } else {
+          console.log("why can't we get searchfields?");
+        }
+        let headerDiv = document.getElementById("headerDiv");
+        if(headerDiv){
+          headerDiv.style.visibility = "visible";
+        }
+        if(document.getElementById("modalFull")){
+          //document.getElementById("modalFull").style.display = "none"
+        }
+      } catch(e){
+        console.log("WHAT ISS ERROR? ", e);
+      }
+
       // ready.value = JSON.parse(JSON.stringify(props.openFull));
       // if(!test){
       //   trySetReady();
@@ -542,7 +570,11 @@ selectedXAxisRef,
 selectedYAxisRef,
 props.inGraphsParent,
 props.openFull,
-yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
+yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) => {
+  if(inGraphs){
+    console.log("TEST NON REF: ", inGraphs);
+    console.log("TEST REF ", inGraphs.value);
+  }
   if(JSON.parse(JSON.stringify(props.inGraphsParent)) === true && inGraphs.value === false){
     inGraphs.value = true;
   }
@@ -581,6 +613,16 @@ yAxisFramingLast],(tocdata,rawtextdata,selectedTitle,selectedAuthor) => {
 // ----------------------------------------------------
 function tryAddNewText(){
   console.log("CHECK CHUCK MODAL!!!");
+  inGraphs.value = false;
+  let searchArea = document.getElementById("searchFields");
+  if(searchArea){
+    searchArea.style.visibility="visible";
+    searchFields.style.display = "flex";
+  }
+  let headerDiv = document.getElementById("headerDiv");
+  if(headerDiv){
+    headerDiv.style.visibility = "visible";
+  }
   if(document.getElementById("modalFull")){
     document.getElementById("modalFull").style.display = "none"
   }
@@ -623,7 +665,7 @@ function closeKeyModal () {
 async function resetRows(){
   console.log("fuck shit 9");
   console.log("resetting rows");
-  document.getElementById("newTextPopup").style.display = "none";
+  document.getElementById("newTextPopup").style.display = "flex";
   // const open = await openUpdatePopup()
 
 
@@ -688,7 +730,7 @@ function setLineCount(){
     // document.getElementById("addLineButton").disabled = false;
     let popup = document.getElementById("newTextPopup");
     if(popup){
-      popup.style.top = 0 - ((currentLinesCount.value) * 4) + "%";
+      popup.style.top = 0 - ((currentLinesCount.value) * 2) + "%";
     }
     currentLinesCount.value = currentLinesCount.value + 1;
 
@@ -802,6 +844,8 @@ async function tryGetFullModal(url){
                     }
                   }
                 } catch {
+                  console.log("ARE WEE IN GRAPHS? ", inGraphs.value)
+                  console.log("IS FULL MODAL OUT? ", modalFull.value)
                 }
               })
               temp.value.internal_rhyme_most_recent.forEach(ry=>{
@@ -925,175 +969,205 @@ async function scrape_text(url){
     if(!url){
       return;
     }  
+    
     console.log("fuck shit 20");
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle =  document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
-    if(wrapperTitle){
-      wrapperTitle.style.display = "inline-block";
-    } else {
-      console.log("wrapper title missing");
-    }
-    if(wrapperSubtitle){
-      wrapperSubtitle.style.display = "inline-block";
-    } else {
-      console.log("wrapper subtitle missing");
-    }
-    if(wrapperBtns){
-      wrapperBtns.style.display = "inline-block";
-    } else {
-      console.log("wrapper btns missing");
-    }  
-    console.log("fuck shit 21");
+    // if(wrapperTitle){
+    //   wrapperTitle.style.display = "inline-block";
+    // } else {
+    //   console.log("wrapper title missing");
+    // }
+    // if(wrapperSubtitle){
+    //   wrapperSubtitle.style.display = "inline-block";
+    // } else {
+    //   console.log("wrapper subtitle missing");
+    // }
+    // if(wrapperBtns){
+    //   wrapperBtns.style.display = "inline-block";
+    // } else {
+    //   console.log("wrapper btns missing");
+    // }  
+    // console.log("fuck shit 21");
  
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable !== null && noLateUpdateAfterNLTK.value === false){
       console.log("fuck shit 22");
-      
+      emit('closedmodal');
+        emit('openedfull');
+        emit('closemodalgotlocal',url)
+        inGraphs.value = true;
+        ready.value = true;
       /////////
       // will this fix broken local storage?
-      inGraphs.value = true;
+
       let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
       console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
       console.log("fuck shit 56");
+
       if(updatePopup){
         console.log("ADD A CHECK HERE FOR IN GRAPHS")
         console.log("fuck shit 57");
         updatePopup.classList.remove("animate-close");
       }
+      let addTextButton = document.getElementById("addTextButton");
+      if(addTextButton){
+        console.log("fuck shit 58AddTextBtn");
+        addTextButton.classList.remove("animate-close");
+      }
+      let compareButton = document.getElementById("compareButton");
+      if(compareButton){
+        console.log("fuck shit 58CompareBtn");
+        compareButton.classList.remove("animate-close");
+      }
       /////////
 
-        initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-
-          emit('closedmodal');
-          emit('openedfull');
-          emit('closemodalgotlocal')
-          let fullModal = await modalFull.value;
-          if(fullModal && fullModal.classList){
-            console.log("fuck shit 23"); // HITTING THIS INITIAL
-            fullModal.classList.remove("awaiting");
-            fullModal.classList.add("receivedSingleTextData");
-     
-            let main = document.getElementById("main");
-            if(main){
-              console.log("fuck shit 24");
-              main.visibility = "visible";
-            }
-          } else {
-            console.log("in else for fullmodal: ", fullModal);
-            console.log("fuck shit 25");
+      initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
+      console.log("JUST CHECKING: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
+        // emit('closedmodal');
+        // emit('openedfull');
+        // emit('closemodalgotlocal')
+        let fullModal = await modalFull.value;
+        if(fullModal && fullModal.classList){
+          console.log("fuck shit 23 ", initialHumanReadableTextRef.value); // HITTING THIS INITIAL
+          fullModal.classList.remove("awaiting");
+          fullModal.classList.add("receivedSingleTextData");
+          fullModal.style.display = "visible"
+          let main = document.getElementById("main");
+          if(main){
+            console.log("fuck shit 24");
+            main.visibility = "visible";
           }
-
-        let graphs = document.getElementById('graphs')
-        let results = document.getElementsByClassName('modal-single-text-results')
-        
-        
-
-        if(results){
-          console.log("fuck shit 26");
-          if(graphs){
-            console.log("fuck shit 27");
-            graphs.style.display = "flex";
-            console.log("FLEXING GRAPHS NOW!");
-          } else {
-            console.log("fuck shit 28");
-            console.log("NO GRAPHS NOW!");
-            console.log("not any graphs");
+        } else {
+          console.log("in else for fullmodal: ", fullModal);
+          console.log("fuck shit 25");
+          inGraphs.value = true;
+          if(main){
+            console.log("fuck shit 24");
+            main.visibility = "hidden";
           }
-          if(document.getElementById('main')){
-            console.log("fuck shit 29");
-            console.log("HIDE MAIN NOW!")
-            document.getElementById('main').style.display = "none";
-          } else {
-            console.log("fuck shit 30");
-            console.log("no main to hide!");
-            console.log("not any main");
-          }
-          if(document.getElementById('progressCircles')){
-            console.log("fuck shit 31");
-            console.log("HIDE PROG CIRCLES NOW!")
-            document.getElementById('progressCircles').style.display = "none";
-          } else {
-            console.log("fuck shit 32");
-            console.log("no progress circles");
-          }
-          if(document.getElementById('modal-textAnalysis-title')){
-            document.getElementById('modal-textAnalysis-title').style.display = "none";
-          } else {
-            console.log("no title");
-          }
-          if(document.getElementById('progressMsg')){
-            console.log("fuck shit 33");
-            console.log("HIDE PROG CIRCLES NOW!");
-            document.getElementById('progressMsg').style.display = "none";
-          } else {
-            console.log("fuck shit 34");
-            console.log("no progress msg");
-          }
-          if(document.getElementById('progressMsgExplanation')){
-            console.log("fuck shit 35");
-            document.getElementById('progressMsgExplanation').style.display = "none";
-          } else {
-            console.log("no progress msg explanation");
-          }
-          
-          
-          if(document.getElementById('compareButton')){
-            console.log("fuck shit 36");
-          document.getElementById('compareButton').style.visibility = "visible";
-          } else {
-            console.log("fuck shit 37");
-            console.log("no compare button");
-          }
-          if(document.getElementById("textRowAuthor")){
-            console.log("fuck shit 38");
-            document.getElementById("textRowAuthor").style.display = "none";
-          } else {
-            console.log("fuck shit 39");
-            console.log("no text row author")
-          }
-          if(document.getElementById("textRowTitle")){
-            document.getElementById("textRowTitle").style.display = "none";
-          } else {
-            console.log("no textRowTitle");
-          }
-          let bookWrappers = document.getElementsByClassName("searchTextWrapper")
-          if(bookWrappers){
-            for(let i = 0; i < bookWrappers.length;i++){
-              bookWrappers[i].style.display = "none";
-            } 
-              
-          } else {
-            console.log("no search text wrapper");
-          }
-          if(document.getElementById("searchFields")){
-            document.getElementById("searchFields").style.display = "none";
-          } else {
-            console.log("no search text wrapper");
-          }
-
-          if(document.getElementById('headerDiv')){
-            console.log("fuck shit 40");
-            document.getElementById('headerDiv').style.visibility = 'hidden';
-          } else {
-            console.log("no header div");
-          }
-          if(document.getElementById('mainText')){
-            console.log("fuck shit 41");
-            console.log("HIDE MAIN TEXT NOW");
-            // inGraphs.value=true;
-            document.getElementById('mainText').style.display = "none";
-          } else {
-            console.log("no main text");
-          }
-          if(document.getElementById('mainTextSubheader')){
-            console.log("fuck shit 42");
-            document.getElementById('mainTextSubheader').style.display = "none";
-          } else {
-            console.log("no mainTextSubheader");
-          }  
         }
-        return;
+
+      let graphs = document.getElementById('graphs')
+      console.log("WHAT ARE GRAPHS? ", graphs);
+      let results = document.getElementsByClassName('modal-single-text-results')
+      
+      
+      if(results){
+        console.log("fuck shit 26");
+        if(graphs){
+          console.log("fuck shit 27");
+          graphs.style.display = "flex";
+          console.log("FLEXING GRAPHS NOW!");
+        } else {
+          console.log("fuck shit 28");
+          console.log("NO GRAPHS NOW!");
+          console.log("not any graphs");
+        }
+        if(document.getElementById('main')){
+          console.log("fuck shit 29");
+          console.log("HIDE MAIN NOW!")
+          document.getElementById('main').style.display = "none";
+        } else {
+          console.log("fuck shit 30");
+          console.log("no main to hide!");
+          console.log("not any main");
+        }
+        if(document.getElementById('searchFields')){
+          console.log("fuck shit 31");
+          console.log("HIDE SEARCH FIELD!")
+          document.getElementById('searchFields').style.display = "none";
+        } else {
+          console.log("fuck shit 32");
+          console.log("no progress circles");
+        } 
+
+        // if(document.getElementById('progressCircles')){
+        //   console.log("fuck shit 31");
+        //   console.log("HIDE PROG CIRCLES NOW!")
+        //   document.getElementById('progressCircles').style.display = "none";
+        // } else {
+        //   console.log("fuck shit 32");
+        //   console.log("no progress circles");
+        // }
+        // if(document.getElementById('modal-textAnalysis-title')){
+        //   document.getElementById('modal-textAnalysis-title').style.display = "none";
+        // } else {
+        //   console.log("no title");
+        // }
+        // if(document.getElementById('progressMsg')){
+        //   console.log("fuck shit 33");
+        //   console.log("HIDE PROG CIRCLES NOW!");
+        //   document.getElementById('progressMsg').style.display = "none";
+        // } else {
+        //   console.log("fuck shit 34");
+        //   console.log("no progress msg");
+        // }
+        // if(document.getElementById('progressMsgExplanation')){
+        //   console.log("fuck shit 35");
+        //   document.getElementById('progressMsgExplanation').style.display = "none";
+        // } else {
+        //   console.log("no progress msg explanation");
+        // }
+        
+        
+        // if(document.getElementById('compareButton')){
+        //   console.log("fuck shit 36");
+        // document.getElementById('compareButton').style.visibility = "visible";
+        // } else {
+        //   console.log("fuck shit 37");
+        //   console.log("no compare button");
+        // }
+        // if(document.getElementById("textRowAuthor")){
+        //   console.log("fuck shit 38");
+        //   document.getElementById("textRowAuthor").style.display = "none";
+        // } else {
+        //   console.log("fuck shit 39");
+        //   console.log("no text row author")
+        // }
+        // if(document.getElementById("textRowTitle")){
+        //   document.getElementById("textRowTitle").style.display = "none";
+        // } else {
+        //   console.log("no textRowTitle");
+        // }
+        // // let bookWrappers = document.getElementsByClassName("searchTextWrapper")
+        // // if(bookWrappers){
+        // //   for(let i = 0; i < bookWrappers.length;i++){
+        // //     bookWrappers[i].style.display = "none";
+        // //   } 
+            
+        // // } else {
+        // //   console.log("no search text wrapper");
+        // // }
+        // if(document.getElementById("searchFields")){
+        //   document.getElementById("searchFields").style.display = "none";
+        // } else {
+        //   console.log("no search text wrapper");
+        // }
+
+        // if(document.getElementById('headerDiv')){
+        //   console.log("fuck shit 40");
+        //   document.getElementById('headerDiv').style.visibility = 'hidden';
+        // } else {
+        //   console.log("no header div");
+        // }
+        // if(document.getElementById('mainText')){
+        //   console.log("fuck shit 41");
+        //   console.log("HIDE MAIN TEXT NOW");
+        //   // inGraphs.value=true;
+        //   document.getElementById('mainText').style.display = "none";
+        // } else {
+        //   console.log("no main text");
+        // }
+        // if(document.getElementById('mainTextSubheader')){
+        //   console.log("fuck shit 42");
+        //   document.getElementById('mainTextSubheader').style.display = "none";
+        // } else {
+        //   console.log("no mainTextSubheader");
+        // }  
+      }
+      return;
     } else {
       noLateUpdateAfterNLTK.value = true
     }
@@ -1120,7 +1194,7 @@ async function scrape_text(url){
       tryGetFullModal(url);
       console.log("fuck shit 47");
 };
-console.log("fuck shit 23");
+console.log("fuck shit 23 B ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)));
 function selected(e){
   console.log("received SELECTED emit in the modal parent: ", e);
 };
@@ -1302,6 +1376,17 @@ function openUpdatePopup(){
     console.log("fuck shit 58");
     updateDataBtn.classList.add("animate-close");
   }
+  let addTextButton = document.getElementById("addTextButton");
+  if(addTextButton){
+    console.log("fuck shit 58AddTextBtn");
+    addTextButton.classList.add("animate-close");
+  }
+  let compareButton = document.getElementById("compareButton");
+  if(compareButton){
+    console.log("fuck shit 58CompareBtn");
+    compareButton.classList.add("animate-close");
+  }
+  
 }
 
 function closeUpdatePopup(){
@@ -1309,21 +1394,21 @@ function closeUpdatePopup(){
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
-  if(wrapperTitle){
-    wrapperTitle.style.display = "none";
-  } else {
-    console.log("wrapper title missing");
-  }
-  if(wrapperSubtitle){
-    wrapperSubtitle.style.display = "none";
-  } else {
-    console.log("wrapper subtitle missing");
-  }
-  if(wrapperBtns){
-    wrapperBtns.style.display = "none";
-  } else {
-    console.log("wrapper btns missing");
-  }
+  // if(wrapperTitle){
+  //   wrapperTitle.style.display = "none";
+  // } else {
+  //   console.log("wrapper title missing");
+  // }
+  // if(wrapperSubtitle){
+  //   wrapperSubtitle.style.display = "none";
+  // } else {
+  //   console.log("wrapper subtitle missing");
+  // }
+  // if(wrapperBtns){
+  //   wrapperBtns.style.display = "none";
+  // } else {
+  //   console.log("wrapper btns missing");
+  // }
     let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
     console.log("WEE SHOULD BE HITTING THIS!!!! CLOSE UPDATE POPUP", updatePopup);
     console.log("fuck shit 60");
@@ -1334,6 +1419,16 @@ function closeUpdatePopup(){
     if(updateDataBtn){
       updateDataBtn.classList.remove("animate-close");
     }
+
+    let addTextButton = document.getElementById("addTextButton");
+    if(addTextButton){
+      addTextButton.classList.remove("animate-close");
+    }
+    let compareButton = document.getElementById("compareButton");
+    if(compareButton){
+      compareButton.classList.remove("animate-close");
+    }
+
 }
 
 function frameLast(){
@@ -1409,49 +1504,54 @@ function clickedLineRow(row){
 
   </Head>
 <Teleport to="body">
+
   <div v-if="ready" class="full-screen-modal modal-backdrop">
     <div id="modalFull" ref="modalFull">
-      <header v-if="inGraphs" id="modalHead" class="modal-header">
-        <slot name="header">
-          <!-- Single Text Analysis -->
-        </slot>
-          <button
-            type="button"
-            id="updatePopupButton"
-            class="btn-green animate-close"
-            @click="openUpdatePopup"
-          >
-            Update
-          </button>
-          <button
-            type="button"
-            id="addTextButton"
-            class="btn-green"
-            @click="tryAddNewText"
-          >
-            Return
-          </button>
-          <button
-            type="button"
-            id="compareButton"
-            class="btn-green"
-            @click="openKeyPopup"
-          >
-            Key
-          </button>
      
-        <button
-          type="button"
-          class="btn-close"
-          @click="doCloseFullModalChild"
-        >
-          x
-        </button>
-      </header>
 
       <section v-if="inGraphs" id="graphs">
         <slot  name="graphs">
  
+
+          <header v-if="inGraphs" id="modalHead" class="modal-header">
+            <slot name="header">
+              <!-- Single Text Analysis -->
+            </slot>
+              <button
+                type="button"
+                id="updatePopupButton"
+                class="btn-green animate-close"
+                @click="openUpdatePopup"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                id="addTextButton"
+                class="btn-green animate-close"
+                @click="tryAddNewText"
+              >
+                Return
+              </button>
+              <button
+                type="button"
+                id="compareButton"
+                class="btn-green animate-close"
+                @click="openKeyPopup"
+              >
+                Key
+              </button>
+         
+            <button
+              type="button"
+              class="btn-close"
+              @click="doCloseFullModalChild"
+            >
+              x
+            </button>
+          </header>
+
+
           <GraphModal v-if="inGraphs" 
             :graphstate="graphstateRef" 
             :dataObj="initialHumanReadableTextRef" 
@@ -1472,10 +1572,7 @@ function clickedLineRow(row){
             @numberXMax="trySetDataCountXLengthMax"
             @numberYMin="trySetDataCountYLengthMin"
             @numberYMax="trySetDataCountYLengthMax"
-            @resetXMaxReadOnly="updateReadOnlyXMax"
-            @resetYMaxReadOnly="updateReadOnlyYMax"
-            @resetXMinReadOnly="updateReadOnlyXMin"
-            @resetYMinReadOnly="updateReadOnlyYMin"
+
             @dataname_x="trySetDataNameX"
             @dataname_y="trySetDataNameY"
 
@@ -2044,18 +2141,18 @@ body.modal-open {
     display: flex;
     padding: 0%;
     line-height: 1.5;
-    font-size: 18px;
+    font-size: 20px;
     flex-direction: row;
   }
   #progressMsgExplanationText {
     width: 50%;
-    height: 100px;
+    height: 80px;
     top: 0px;
     border: dotted 0.5px orange;
     left: 0px;
     position: absolute;
     overflow-y:scroll;
-    padding-top:24px;
+
   }
   .btn-close {
     position: absolute;
@@ -2083,21 +2180,22 @@ body.modal-open {
     margin-left: 4px;
     position: absolute;
     background: 36px;
+    z-index:9999;
   }
 
   #dataPreviewWrapper {
     position: absolute;
     left: 0px;
     border: solid 1px teal;
-    height: 100px;
+    height: 80px;
     top: 0px;
     width: 50%;
     left:50%;
     /* overflow-y: scroll; */
     font-weight: 700;
-    font-size: 18px;
+    font-size: 20px;
     overflow-y: hidden;
-    padding-top:24px;
+
   }
 
   .hideFullModal {
@@ -2232,6 +2330,7 @@ body.modal-open {
     height: 120px;
     position: absolute;
     flex-direction:column;
+    padding:4%;
   }
 
 .new-font {
@@ -2256,10 +2355,7 @@ body.modal-open {
 #topBtns {
   visibility: hidden;
 }
-#compareButton {
-  right: 224px;
-  
-}
+
 #addTextButton {
   right: 116px;
 }
@@ -2274,13 +2370,18 @@ body.modal-open {
     z-index:9999;
 }
 #newTextPopup {
-  display:none;
+  display: none;
   flex-direction: column;
-  left: 0%;
-  bottom: 0%;
-  top: 0%;
+  top: 4%;
   padding: 105px;
-  background: rgba(0,0,0,.9);
+  padding: 8;
+  padding: 4%;
+  left: 8%;
+  right: 8%;
+  width: 84%;
+  bottom: 4%;
+  height: 92%;
+  border-radius: 8px;
 }
 .rangeDisplay {
   width:28%;
@@ -2478,6 +2579,8 @@ button.green-btn {
 .selectedLine {
   border: solid 2px hsla(160, 100%, 37%, 1);
 }
-
+#compareButton {
+  right: 225px;
+}
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>

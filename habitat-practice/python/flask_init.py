@@ -741,19 +741,21 @@ def res_toc():
     r = request.get_json()
 
     browser = mechanicalsoup.StatefulBrowser()
+    ## IF TOC IS ISSUE, move browser open into try block
     browser.open(r['titleUrl'])
+
     try:
         all_toc = browser.page.find("div", id="toclist")
         all_toc_list = []
         obj = {}
     except:
-        browser.close()
-    while all_toc is None:
-        all_toc = browser.page.find("div", id="toclist")
-        all_toc_list = []
-        obj = {}
-        if all_toc is not None:
-            break
+        while all_toc is None:
+            all_toc = browser.page.find("div", id="toclist")
+            all_toc_list = []
+            obj = {}
+            if all_toc is not None:
+                browser.close()
+                break
     for each in all_toc:
         link_text = each.find("a")
         if type(link_text) is not int:
@@ -796,7 +798,7 @@ def res_text():
             # soct.send("fifteenth_msg")
             # initial_text_obj = old_df
             # soct.send("second_msg")
-
+            print("WHAT THE FUCK ARE SENTS? ", sents);
             return old_df 
 
 

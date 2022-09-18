@@ -189,8 +189,17 @@ async function doOpenFullModal(){
   // openFull.value = true;
 };
 
-async function gotLocalStorageText(){
-  openFull.value = true;
+async function gotLocalStorageText(url){
+  let searchFields = document.getElementById("searchFields");
+  if(searchFields){
+    searchFields.style.display = "none";
+  }
+  // openFull.value = true;
+  // console.log("IN GOT LOCAL STORAGE WELCOME: ", openGraphs.value)
+  
+  openGraph.value = true;
+  setTimeout(()=>{return ready.value = true},1000)
+  
 }
 
 async function doOpenAwaitScrape(){

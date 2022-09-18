@@ -458,7 +458,7 @@ def nltk_analysis(r, text_in_html):
                         print(f"WHAT in world IS APPENDAGE INDEX? {appendage['index']}")
                         print(f"WHAT in world IS OLD DF POETIC FORM: {old_df_poetic_form}")
                     # isPoetic = True
-                    
+                old_df['poetic_form'] = old_df_poetic_form
 
                 last_rhyme_to_check = pronouncing.rhymes(old_df_last_word_per_line[index - 1])
 
@@ -833,6 +833,7 @@ def nltk_analysis(r, text_in_html):
         # soct.send("tenth_msg")
         # if soct is not None:
         # soct.send('fifteenth_msg')
+        print("WHAT ARE SENTS??? ", sents)
         machine_learning(old_df,sents,soct)
         return old_df,sents
 

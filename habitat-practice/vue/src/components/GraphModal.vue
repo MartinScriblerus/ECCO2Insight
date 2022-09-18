@@ -465,24 +465,26 @@
     e.className = "displayed-grammar";
     let text = g['tokenText'];
     e.append(text);
-    e.style.fontSize = "16px";
-    e.style.paddingRight = "4px";
-    e.style.paddingLeft = "4px";
-    e.style.paddingTop = "1px";
-    e.style.paddingBottom = "1px";
+    e.style.fontSize = "20px";
+    e.style.paddingRight = "8px";
+    e.style.paddingLeft = "8px";
+    e.style.paddingTop = "2px";
+    e.style.paddingBottom = "2px";
     console.log("tag: ", g['tokenTag'])
     switch(g['tokenTag']){
       case "CC":
         // coordinating conjunction
-        e.style.backgroundColor = "#00CC88";
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "CD":
         // numeral cardinal
-        e.style.backgroundColor = "#0A98BF";
+        e.style.backgroundColor = "yellow";
         break;
       case "DT":
         // determiner
-        e.style.backgroundColor = "#1C8A65";
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "EX":
         // existential there
@@ -490,26 +492,28 @@
         break;
       case "JJ":
         // adjective or ordinal numeral
-        e.style.backgroundColor = "#6D33FF";
+        e.style.backgroundColor = "#0996BD";
         e.style.color = "#e6e4d6";
         break;
       case "JJR":
         // comparative adjective
-        e.style.backgroundColor = "#0884A6";
-        eee.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#0996BD";
+        e.style.color = "#e6e4d6";
         break;
       case "JJS":
         // superlative adjective
-        e.style.backgroundColor = "#26D0FF";
+        e.style.backgroundColor = "#0996BD";
         e.style.color = "#e6e4d6";
         break;
       case "LS":
         // list item marker
-        e.style.backgroundColor = "#0A98BF";
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "MD":
         // modal auxiliary
-        e.style.backgroundColor = "#0097BF";
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "NN":
         // noun, common, singular or mass
@@ -531,113 +535,124 @@
         break;
       case "PRP$":
         // possessive pronoun
-        e.style.backgroundColor = "#BECCE6";
+        e.style.backgroundColor = "#c1dbd7";
         e.style.color = "rgba(0,0,0,1)";
         e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "RB":
         // adverb
-        e.style.backgroundColor = "#A90ACC";
+        e.style.backgroundColor = "#75158A";
         e.style.color = "#e6e4d6";
         break;
       case "RBR":
         // comparative adverb
-        e.style.backgroundColor = "#7F0899";
+        e.style.backgroundColor = "#75158A";
         e.style.color = "#e6e4d6";
         break;
       case "RBS":
         // superlative adverb
-        e.style.backgroundColor = "#74078C"
+        e.style.backgroundColor = "#75158A";
+        e.style.color = "#e6e4d6";
         break;
       case "PRP":
         // personal pronoun
-        e.style.backgroundColor = "#BECCE6";
-        e.style.color = "rgba(0,0,0,1)";
+        e.style.backgroundColor = "#000000";
+        e.style.color = "#e6e4d6";
         e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "RP":
         // particle
-        e.style.backgroundColor = "#241A40";
+        e.style.backgroundColor = "var(--color-background)";
         e.style.color = "#e6e4d6";
         break;
       case "TO":
         //  "to" as preposition or infinitive marker
-        e.style.backgroundColor = "#170640"
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       case "UH":
         // interjection
-        e.style.backgroundColor = "#7351CA"
+        e.style.backgroundColor = "red";
+        e.style.color = "#e6e4d6";
         break;
       case "VB":
         // verb base form
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#FF3377";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
+        // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "VBD":
         // past tense
-        e.style.backgroundColor = "#FF3377";
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       case "VBG":
         // present participle / gerund
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#FF3377";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       case "VBN":
         // past participle
-        e.style.backgroundColor = "#FF4D88"
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       case "VBP":
         // present tense verb (not 3rd person singular)
-        e.style.backgroundColor = "#FF3377"
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       case "VBZ":
         // present tense verb 3rd person singular
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#FF3377";
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "WDT":
         // WH determiner (that what whatever which)
-        e.style.backgroundColor = "#00402A"
+        e.style.backgroundColor = "#c1dbd7";
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "WP":
         // WH pronoun (that what whatever whatsoever which who whom whosoever)
-        e.style.backgroundColor = "#DBBEE6"
+        e.style.backgroundColor = "#c1dbd7"
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "WRB":
         // WH Adverb (how however whence whenever where whereby whereever wherein whereof why)
-        e.style.backgroundColor = "#99707D";
+        e.style.backgroundColor = "#75158A";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "POS":
         // genitive marker
-        e.style.backgroundColor = "#1B93B3";
+        e.style.backgroundColor = "#c1dbd7"
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "PUNCT":
-      e.style.backgroundColor = "red";
+      e.style.backgroundColor = "teal";
+      e.style.color = "#e6e4d6";
         break;
       case "PDT":
-        // predeterminer
-        e.style.backgroundColor = "#334546";
-        e.style.color = "#e6e4d6";
+        // p#bd6613eterminer
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "IN":
         // preposition / subordinating conjunction 
-        e.style.backgroundColor = "#00B311"
+        e.style.backgroundColor = "#c1dbd7"
+        e.style.color = "rgba(0,0,0,1)";
         break;
       case "VBN":
         // past participle verb
-        e.style.backgroundColor = "#FF4D88";
+        e.style.backgroundColor = "#bd6613";
+        e.style.color = "#e6e4d6";
         break;
       default:
         e.style.color = "#e6e4d6";
@@ -938,7 +953,8 @@
         // numberYMinData: [],
         valueX: 'initX',
         valueY: 'initY',
-
+        clientX:null,
+        clientY:null
       };
     },
     // mounted() {
@@ -953,10 +969,17 @@
         bottom: 10,
       }),
     },
+
     methods: {
       setup(props,{emit}){
      
-    }
+      },
+      locateClientX(x){
+        this.clientX=x;
+      },
+      locateClientY(y){
+        this.clientY=y;
+      }
     }
   };
   
@@ -969,7 +992,7 @@
   <div  id="tooltipEntityDisplay">
 
   </div>
-  <div id="grammarDisplayWrapper"></div>
+  <div id="grammarDisplayWrapper" :style="{ top: `${this.clientY - 72}px`, left: `${this.clientX}px` }"></div>
   <div id="graphDiv">
 
     <h1 id="graphTitle">TODO: Add Graph Title Here</h1>
@@ -1000,7 +1023,8 @@
         :colorY="props.colorY"
         :valueX="valueX"
         :valueY="valueY"
-
+        @clientX="locateClientX"
+        @clientY="locateClientY"
         :axisColorMatchBool="axisColorMatchBool"
         :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 
@@ -1180,22 +1204,22 @@ svg {
 #grammarDisplayWrapper {
   align-items: center;
   justify-content: center;
-  height: 92%;
+  height: 32%;
   bottom: 48px;
   position: absolute;
   margin-right: 12px;
-  left: 60px;
+  margin-left: -60px;
   border: solid 1px #0097BF;
   border-radius: 8px;
   z-index: 100;
-  width: calc(100% - 16%);
+  width: calc(100% - 60%);
   top: 64px;
   flex-direction: row;
   object-fit: contain;
   display: inline-block;
   overflow-y: scroll;
-  pointer-events: none;
-  color:#000000;
+  /* pointer-events: none; */
+  color: #000000;
 }
 #tooltipEntityDisplay {
   z-index: 9999;
