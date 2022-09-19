@@ -59,7 +59,7 @@
   const data = ref([]);
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
-
+  // const dataHolder1Parent = ref([]);
   const grammarArr = ref([]);
   const entitiesArr = ref([]);
 
@@ -188,9 +188,15 @@
       console.log("fuck shit graph 11");
       data.value = syllablesPerLinePlaceholder;
     }
+    
     function updateVizDataSentiment(compound,negative,neutral,positive){
       console.log("fuck shit graph 12");
       hideUpdateButtons();
+      // if(!dataHolder1Parent.value){
+      //   dataHolder1Parent.value = Object.values(JSON.parse(JSON.stringify(props)).dataObj)
+      // } else {
+      //   console.log("NOT GETTING GRAPHSTATE");
+      // }
       inGraphsParent.value = true;
       console.log("fuck shit graph 13");
       let sentenceVizSentimentPlaceholder1 = [];
@@ -323,26 +329,27 @@
       numberYMax.value = numberYMax.value.filter(c=>typeof c === "number");
       numberYMin.value = numberYMin.value.filter(d=>typeof d === "number");
       
+      //why is ymin not coming through?
       console.log(`check on ... ${numberXMax.value} / ${numberXMin.value} / ${numberYMax.value} / ${numberYMin.value}`);
       console.log("fuck shit graph 23");
     }
       
     watch([props,
-    props.dataObj, 
+    // dataObj, 
     tooltipMsg, 
-    props.secondTextRef, 
+    // secondTextRef, 
     valueX,
     valueY,
-    props.currentLinesCount,
-    props.colorX,
-    props.axisColorMatchBool,
+    // currentLinesCount,
+    // colorX,
+    // axisColorMatchBool,
     numberXMax,
     numberXMin,
     numberYMax,
     numberYMin,
-    props.selectedXAxisRef,
-    props.selectedYAxisRef,
-    props.selectedRow,
+    // selectedXAxisRef,
+    // selectedYAxisRef,
+    // selectedRow,
     resetXRef, 
     resetYRef], ([currentXLabel,currentYLabel], [oldXLabel,oldYLabel]) => {
       console.log("fuck shit 100");
@@ -411,11 +418,11 @@
         keyBuilder.style.borderColor = props.colorX;
       }
       if(valueX.value){
-        console.log("fuck shit 110");
+        console.log("fuck shit 110: ", valueX.value);
         emit('dataname_x',valueX.value)
       } 
       if(valueY.value){
-        console.log("fuck shit 111");
+        console.log("fuck shit 111 ", valueY.value);
         emit('dataname_y',valueY.value)
 
       }
@@ -466,8 +473,8 @@
     let text = g['tokenText'];
     e.append(text);
     e.style.fontSize = "20px";
-    e.style.paddingRight = "8px";
-    e.style.paddingLeft = "8px";
+    e.style.paddingRight = "6px";
+    e.style.paddingLeft = "6px";
     e.style.paddingTop = "2px";
     e.style.paddingBottom = "2px";
     console.log("tag: ", g['tokenTag'])
@@ -479,7 +486,7 @@
         break;
       case "CD":
         // numeral cardinal
-        e.style.backgroundColor = "yellow";
+        e.style.backgroundColor = "#949FB3";
         break;
       case "DT":
         // determiner
@@ -488,22 +495,22 @@
         break;
       case "EX":
         // existential there
-        e.style.backgroundColor = "#004D33";
+        e.style.backgroundColor = "#94B3A5";
         break;
       case "JJ":
         // adjective or ordinal numeral
-        e.style.backgroundColor = "#0996BD";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#E6CECA";
+        e.style.color = "#000000";
         break;
       case "JJR":
         // comparative adjective
-        e.style.backgroundColor = "#0996BD";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#E6CECA";
+        e.style.color = "#000000";
         break;
       case "JJS":
         // superlative adjective
-        e.style.backgroundColor = "#0996BD";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#E6CECA";
+        e.style.color = "#000000";
         break;
       case "LS":
         // list item marker
@@ -527,6 +534,12 @@
         e.style.color = "rgba(0,0,0,1)";
         e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
+      case "NNPS":
+        // noun, proper, plural
+        e.style.backgroundColor = "#e6e4d6";
+        e.style.color = "rgba(0,0,0,1)";
+        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        break;
       case "NNS":
         // noun, common, plural
         e.style.backgroundColor = "#e6e4d6";
@@ -541,24 +554,24 @@
         break;
       case "RB":
         // adverb
-        e.style.backgroundColor = "#75158A";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#EAE093";
+        e.style.color = "#000000";
         break;
       case "RBR":
         // comparative adverb
-        e.style.backgroundColor = "#75158A";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#EAE093";
+        e.style.color = "#000000";
         break;
       case "RBS":
         // superlative adverb
-        e.style.backgroundColor = "#75158A";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#EAE093";
+        e.style.color = "#000000";
         break;
       case "PRP":
         // personal pronoun
-        e.style.backgroundColor = "#000000";
-        e.style.color = "#e6e4d6";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+        e.style.backgroundColor = "#c1dbd7";
+        e.style.color = "#000000";
+        // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "RP":
         // particle
@@ -567,8 +580,8 @@
         break;
       case "TO":
         //  "to" as preposition or infinitive marker
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#c1dbd7";
+        e.style.color = "#000000";
         break;
       case "UH":
         // interjection
@@ -579,38 +592,38 @@
         // verb base form
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "VBD":
         // past tense
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         break;
       case "VBG":
         // present participle / gerund
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         break;
       case "VBN":
         // past participle
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         break;
       case "VBP":
         // present tense verb (not 3rd person singular)
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         break;
       case "VBZ":
         // present tense verb 3rd person singular
         // e.style.color = "#e6e4d6";
         // e.style.backgroundColor = "rgba(0,0,0,1)";
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "WDT":
@@ -626,7 +639,7 @@
         break;
       case "WRB":
         // WH Adverb (how however whence whenever where whereby whereever wherein whereof why)
-        e.style.backgroundColor = "#75158A";
+        e.style.backgroundColor = "#EAE093";
         e.style.color = "rgba(0,0,0,1)";
         // e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
@@ -637,10 +650,10 @@
         break;
       case "PUNCT":
       e.style.backgroundColor = "teal";
-      e.style.color = "#e6e4d6";
+      e.style.color = "#000000";
         break;
       case "PDT":
-        // p#bd6613eterminer
+        // p#9ea5e9eterminer
         e.style.backgroundColor = "#c1dbd7"
         e.style.color = "rgba(0,0,0,1)";
         break;
@@ -651,8 +664,8 @@
         break;
       case "VBN":
         // past participle verb
-        e.style.backgroundColor = "#bd6613";
-        e.style.color = "#e6e4d6";
+        e.style.backgroundColor = "#9ea5e9";
+        e.style.color = "#000000";
         break;
       default:
         e.style.color = "#e6e4d6";
@@ -781,9 +794,12 @@
   
   function emitterClose(command){
     console.log("fuck shit graph 39");
-    console.log("emitting");
+    console.log("emitting ", command);
     emit(command);
   }
+
+
+
   </script>
  
   
@@ -801,6 +817,7 @@
     emits : ['dataname_y','dataname_x','dataCountX', 'dataCountY','closeUpdatePopup','numberXMax','numberXMin','numberYMax','numberYMin'],
     watch: 
     {
+
       dataname_x:{
         deep: true,
         handler: function(newVal, oldVal){
@@ -936,6 +953,7 @@
         data:[],
         currentXName: "X_",
         currentYName: "Y_",
+        dataHolder1Parent: [],
         // mode:[1],
         points: [],
         // popupOpen: false,
@@ -972,17 +990,45 @@
 
     methods: {
       setup(props,{emit}){
-     
+       
       },
+
       locateClientX(x){
-        this.clientX=x;
+        if ((window.innerWidth - x) > 100){
+          this.clientX=x;
+        } else {
+          this.clientX=x-200;
+        }
       },
       locateClientY(y){
-        this.clientY=y;
+        console.log("AH WTF IS Y?? ", y);
+        if(y > 150){
+          this.clientY=y;
+          console.log("regylar")
+        } else {
+          // if(y < 150 ){
+          //   this.clientY=y + 100;
+          //   console.log("MOVIBG")
+          // } 
+          // if(y > 75 && 75 > Math.abs(window.innerHeight - y)){
+          //   this.clientY=y - 75;
+          // }
+        }
+        
       }
     }
   };
-  
+  const dataHolder1Parent = ref([]);
+  function dataholderemit1(newData1Holder){
+    console.log("AGHHHHHHHHH ", newData1Holder);
+    
+    dataHolder1Parent.value = newData1Holder;
+    return dataHolder1Parent;
+    // dataHolder1Parent = newData1Holder;
+    // console.log("FUCCCCCC ", dataHolder1Parent);
+
+    console.log("AAAAAAAAAAAAAfdddsfsAAA ", this);
+  }
   </script>
 
 
@@ -1001,6 +1047,7 @@
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
       <TestChart 
         :data="data"
+        :dataHolder1Parent="dataHolder1Parent"
         :selectedXAxisRef="props.selectedXAxisRef"
         :selectedYAxisRef="props.selectedYAxisRef"
         :secondTextRef="props.secondTextRef" 
@@ -1010,6 +1057,7 @@
         :inGraphsParent="inGraphsParent"
         :yAxisFramingLast="yAxisFramingLast"
         @selected="updateTooltip"
+        @dataholderemit1="dataholderemit1"
         :currentLinesCount="props.currentLinesCount"
         :color0="props.color0"
         :color1="props.color1"
@@ -1025,6 +1073,7 @@
         :valueY="valueY"
         @clientX="locateClientX"
         @clientY="locateClientY"
+  
         :axisColorMatchBool="axisColorMatchBool"
         :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 

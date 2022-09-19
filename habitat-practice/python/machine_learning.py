@@ -163,7 +163,7 @@ def machine_learning(old_df,sents,soct):
             #     return selected_features
 
 
-  
+            soct.send("explain_progressive_feature_selection")
             for (columnName, columnData) in df.iteritems():
         
                 print(df.head(5))
@@ -171,7 +171,7 @@ def machine_learning(old_df,sents,soct):
                 # print(f"sanity sake: {type(df[columnName])}")
                 # if type(df[columnName][0]) != "float":
                 #     return
-                soct.send("explain_progressive_feature_selection")
+                
         
         # # try:
         #     # if soct is not None:

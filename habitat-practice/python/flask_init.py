@@ -742,28 +742,33 @@ def res_toc():
 
     browser = mechanicalsoup.StatefulBrowser()
     ## IF TOC IS ISSUE, move browser open into try block
-    browser.open(r['titleUrl'])
+    if browser is not None and r['titleUrl'] is not None:
+        try:
+            browser.open(r['titleUrl'])
+            try:
+                all_toc = browser.page.find("div", id="toclist")
+                all_toc_list = []
+                obj = {}
+            except:
+                while all_toc is None:
+                    all_toc = browser.page.find("div", id="toclist")
+                    all_toc_list = []
+                    obj = {}
+                    if all_toc is not None:
+                        browser.close()
+                        break
+            for each in all_toc:
+                link_text = each.find("a")
+                if type(link_text) is not int:
+                    link_full = link_text.text
+                    link_href = link_text["href"]
+                    all_toc_list.append({"link_text": link_full, "link_href": link_href})
+            browser.close()
+            return json.dumps(all_toc_list)
+        except Exception:
+            print("exception raised")
+            raise
 
-    try:
-        all_toc = browser.page.find("div", id="toclist")
-        all_toc_list = []
-        obj = {}
-    except:
-        while all_toc is None:
-            all_toc = browser.page.find("div", id="toclist")
-            all_toc_list = []
-            obj = {}
-            if all_toc is not None:
-                browser.close()
-                break
-    for each in all_toc:
-        link_text = each.find("a")
-        if type(link_text) is not int:
-            link_full = link_text.text
-            link_href = link_text["href"]
-            all_toc_list.append({"link_text": link_full, "link_href": link_href})
-    browser.close()
-    return json.dumps(all_toc_list)
 
 
 

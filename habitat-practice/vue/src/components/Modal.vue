@@ -30,8 +30,8 @@ const props = defineProps({
 
 const currentTextData = ref([]);
 const selectedRow = ref(0);
-const selectedXAxisRef = ref();
-const selectedYAxisRef = ref();
+const selectedXAxisRef = ref(0);
+const selectedYAxisRef = ref(0);
 const xIsIndexAxis = ref(true);
 const yIsIndexAxis = ref(false);
 const yAxisFramingLast = ref(false);
@@ -613,6 +613,7 @@ yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) =>
 // ----------------------------------------------------
 function tryAddNewText(){
   console.log("CHECK CHUCK MODAL!!!");
+  
   inGraphs.value = false;
   let searchArea = document.getElementById("searchFields");
   if(searchArea){
@@ -624,10 +625,12 @@ function tryAddNewText(){
     headerDiv.style.visibility = "visible";
   }
   if(document.getElementById("modalFull")){
+    document.getElementById("modalFull").classList.remove("receivedSingleTextData");
     document.getElementById("modalFull").style.display = "none"
   }
   inGraphs.value = false;
   secondTextRef.value = true;
+ 
   doCloseFullModalChild();
   
   
@@ -721,6 +724,10 @@ function removeLine(){
 // ----------------------------------------------------
 function setLineCount(){
   frameLast();
+  inGraphs.value = false;
+  // // colorInputMountedHandler();
+  // document.getElementById("addTextButton").click();
+  tryAddNewText();
   // TODO=> rename or rework this variable to accomodate new flow
   graphstateRef.value = graphstateRef.value + 1;
   console.log("??? ", currentLinesCount.value);
@@ -1082,6 +1089,9 @@ async function scrape_text(url){
           console.log("fuck shit 32");
           console.log("no progress circles");
         } 
+        if(document.getElementById("modalFull")){
+          document.getElementById("modalFull").style.display = "flex";
+        }
 
         // if(document.getElementById('progressCircles')){
         //   console.log("fuck shit 31");
@@ -1206,7 +1216,7 @@ function colorInputMountedHandler(){
   if(!rawtextfromtoc.value){
     return;
   }
-  console.log("additional texts val[0]: ", additionalTexts.value[0])
+  console.log("additional texts val[0]: ", JSON.parse(JSON.stringify(additionalTexts.value))[0])
   if(currentLinesCount.value === 1){
     console.log("fuck shit 51");
     console.log("LINE COUNT IS ONE")
@@ -1221,7 +1231,7 @@ function colorInputMountedHandler(){
     console.log("how did this happen to current lines count? ", (currentLinesCount.value === 1));
   }
   // Update Graph Keys
-  if(additionalTexts.value[0].title === ''){
+  if(JSON.parse(JSON.stringify(additionalTexts.value))[0].title === ''){
     additionalTexts.value[0].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
     additionalTexts.value[0].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
     additionalTexts.value[0].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
@@ -1249,7 +1259,7 @@ console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-  console.log("fuck shit 52");
+  console.log("fuck shit 53 hit try set data count xmax");
   num = Math.max.apply(Math, num);
   console.log("in MAX X! ", num);
   console.log("why are we here??")
@@ -1266,7 +1276,7 @@ function trySetDataCountXLengthMax(num){
 
 }
 function trySetDataCountXLengthMin(num){
-  console.log("fuck shit 53");
+  console.log("fuck shit 53 hit try set data count xmin ", num);
   num = num.filter(w=>w || w === 0)[0]
 
   if(numberXMin.value && numberXMin.value.length > 0 && numberXMin.value[currentLinesCount.value - 1] && num <= numberXMin.value[currentLinesCount.value - 1]){    
@@ -1279,6 +1289,7 @@ function trySetDataCountXLengthMin(num){
 }
 
 function trySetDataCountYLengthMax(num){
+  console.log("fuck shit 53 hit try set data count ymax ", num);
   if(Math.max.apply(Math, num) > num){
     num = Math.max.apply(Math,num);
   }
@@ -1289,6 +1300,7 @@ function trySetDataCountYLengthMax(num){
   }
 }
 function trySetDataCountYLengthMin(num){
+  console.log("fuck shit 53 hit try set data count ymin: ", num);
   num = Math.min.apply(Math,num)
   if(!numberYMin.value[currentLinesCount.value - 1]){
     return;
@@ -1443,6 +1455,7 @@ function selectXAxis(){
   let keyPopupDisplay = document.querySelector('#newRow_X > .rangeDisplay');
 
   if(keyPopupDisplay){
+    console.log("WHAT IS SELECTED X AXIS??? ", selectedXAxisRef.value)
     keyPopupDisplay.innerText = JSON.parse(JSON.stringify(selectedXAxisRef.value)).label;
     xIsIndexAxis.value = JSON.parse(JSON.stringify(selectedXAxisRef.value)).isIndex;
     if(xIsIndexAxis.value){
@@ -1823,7 +1836,7 @@ function clickedLineRow(row){
             <slot name="progressMsgExplanation">
             <!-- <h4>Progress Msg Explanation</h4> -->
             <div id="progressMsgExplanationText">
-            <p >Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+            <p >Progress Updates</p>
             </div>
             <div id="dataPreviewWrapper">
               <p id="progressMsgDataPreview"></p>

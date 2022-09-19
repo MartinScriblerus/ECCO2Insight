@@ -19,15 +19,15 @@ import useResizeObserver from "@/libs/ResizeObserver.js";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","axesFramingLast"],
-  emits:["selected","clientX","clientY"],
+  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","axesFramingLast","dataHolder1Parent"],
+  emits:["selected","clientX","clientY", "dataholderemit1"],
 
   data(){
     return {
-  
       clientX: 0,
       clientY: 0,
       closestPoint: null,
+      dataH1: ['']
       // entityArr:[],
       // graphstate: 0,
       // xAxisLabel: '',
@@ -42,19 +42,26 @@ export default {
     const yAxisLabel = ref('');
     const xAxisLabel = ref('');
 
-    const entityArr = ref([])
 
+  
+    const entityArr = ref([])
+    console.log("PROPS CHECK KILL ME ", props);
     const show = ref(false);
     points.value = [];
     const scaled = ref();
     const graphMode = ref();
     graphMode.value = 0;
-
+    const DH1_Done = ref(false);
+    const dataHolder1 = ref([]);
+    dataHolder1.value = [];
+    const dataHolder2 = ref([]);
+    const dataHolder3 = ref([]);
+    
     scaled.value = {
       x: null,
       y: null
     };      
-
+    let regVarData1 = [];
     const tooltipmsg = ref({
       grammarArrays: [],
       sentenceSentimentCompound: 0,
@@ -83,47 +90,11 @@ export default {
       show.value = false;
     }
 
-    // function updateTooltip(newVal){
-    //   console.log("fuck shit testchart 20 ", JSON.parse(JSON.stringify(newVal)));
-    //   newVal = tooltipmsg.value;
-    //   console.log("the fuck is newval?", JSON.parse(JSON.stringify(newVal)));
-    //   show.value = true;
-    //    let tooltip = document.getElementById("tooltipInner");
-    //       console.log("tooltip inner: ", tooltip);
-
-    //       console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
-    //       // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-    //       // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-    //       if(tooltip){
-    //         tooltip.innerHTML = `
-    //         <div id="sentimentDisplay">
-    //           <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>
-    //           <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h4>
-    //           <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h4>
-    //           <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h4>
-    //         </div>
-        
-    //         <div id="topicListWrapper">
-    //           ${entityArr.value.toString()}
-    //         </div> 
-    //         `
-    //       }
-    //       let topicWrapper = document.getElementById("topicListWrapper");
-        
-    //       console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
-    //       if(newVal){
-    //         console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
-    //         JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
-    //       }
-    // }
-
     function mouseMove(event) {
 
       const { clientX, clientY } = event;
       show.value = true;
-      // if(show.value === true){
-      //   updateTooltip(tooltipmsg.value)
-      // }
+
       console.log("this show: ", show.value);
       console.log("this client x: ", event.clientX);
       console.log("this client y: ", event.clientY);
@@ -147,11 +118,12 @@ export default {
     const { resizeRef, resizeState } = useResizeObserver();
 
     onMounted((event) => {
+      
       // pass ref with DOM element to D3, when mounted (DOM available)      
       const svg = select(svgRef.value);
       console.log("fuck shit testchart 21");
       let tempSVGs=[]
-
+      console.log
       const created_svgs = ref([]);
 
       const tooltipInner = ref(null)
@@ -169,12 +141,22 @@ export default {
       const xMaxLabel = ref('');
       const yMaxLabel = ref('');
 
-      const dataHolder1 = ref([]);
-      const dataHolder2 = ref([]);
-      const dataHolder3 = ref([]);
 
+      function updateDataHolder1(newData){
+      dataHolder1.value = newData;
+   
+      console.log("so done w this: ", dataHolder1.value )
+    }
+
+      
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
+        console.log("Props ZData in testvhart? ", JSON.parse(JSON.stringify(props.data)));
+        console.log("THIS FUCKING SUCKS: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
+        console.log("DATA HOLDER 1 VAL: ", dataHolder1.value)
+        // if(!JSON.parse(JSON.stringify(dataHolder1.value))){
+        //   dataHolder1.value=JSON.parse(JSON.stringify(props.data))
+        // }
         if(JSON.parse(JSON.stringify(props.data)).length < 1){
           console.log("fuck shit testchart 22");
           return;
@@ -246,7 +228,7 @@ export default {
             yMin.value = 0;
             // yMax.value = max(props.data);
             console.log("CHECK PROPS: ", JSON.parse(JSON.stringify(props)))
-            
+
             let yMinTemp = JSON.parse(JSON.stringify(props)).numberYMin.filter(i=>i);
             let yMaxTemp = JSON.parse(JSON.stringify(props)).numberYMax.filter(i=>i);
             let xMinTemp = JSON.parse(JSON.stringify(props)).numberXMin.filter(i=>i);
@@ -320,14 +302,27 @@ export default {
               yMax:yMin.value,
               yMin:yMin.value
             }
+            console.log("WTF ARE CURRENT LINES? ", JSON.parse(JSON.stringify(props)).currentLinesCount);
 
-            if(JSON.parse(JSON.stringify(props)).currentLines < 2){
-              xMin.value = Math.min(...props.data);
-              yMax.value = Math.max(...props.data);
-              console.log("Current Lines Check0", JSON.parse(JSON.stringify(props)).currentLines)
+            if(JSON.parse(JSON.stringify(props)).currentLinesCount < 2){
+              xMin.value = Math.min(...JSON.parse(JSON.stringify(props)).data);
+              yMax.value = Math.max(...JSON.parse(JSON.stringify(props)).data);
+
+              // dataHolder1.value = JSON.parse(JSON.stringify(props)).data;
+              // if(dataHolder1.value.length < 1){
+              //   dataHolder1.value.push(props.data);
+              // }
+
+              console.log("DATAHOLDERE 1 is.... ", JSON.parse(JSON.stringify(dataHolder1.value)));
+              console.log("Current Lines Check0", JSON.parse(JSON.stringify(props)).currentLinesCount)
               console.log("Graphstate Check0", JSON.parse(JSON.stringify(props)).graphstate)
-            } else if(JSON.parse(JSON.stringify(props)).currentLines === 2){
-              console.log("Current Lines Check1", JSON.parse(JSON.stringify(props)).currentLines)
+              //dataHolder1.value = JSON.parse(JSON.stringify(props.data));
+            } else if(props.currentLinesCount === 2){
+              console.log("WILL THIS BE ANY USE: ", dataHolder1.value);
+              // try{
+              //   console.log("DATAH1: ", dataH1);
+              // } catch (e){console.log("err")}
+              console.log("Current Lines Check1", JSON.parse(JSON.stringify(props)).currentLinesCount)
               console.log("Graphstate Check1", JSON.parse(JSON.stringify(props)).graphstate)
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
                 yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
@@ -336,8 +331,8 @@ export default {
                 yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
             
-            } else if(JSON.parse(JSON.stringify(props)).currentLines === 3){
-              console.log("Current Lines Check2", JSON.parse(JSON.stringify(props)).currentLines)
+            } else if(JSON.parse(JSON.stringify(props)).currentLinesCount === 3){
+              console.log("Current Lines Check2", JSON.parse(JSON.stringify(props)).currentLinesCount)
               console.log("Graphstate Check2", JSON.parse(JSON.stringify(props)).graphstate)
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
                 yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
@@ -386,7 +381,7 @@ export default {
             // even if a val is no longer in play!!!!!  
       
             const yScale = scaleLinear()
-              .domain([Math.min(...props.data),Math.max(...props.data)])
+              .domain([Math.min(...JSON.parse(JSON.stringify(props)).data),Math.max(...JSON.parse(JSON.stringify(props)).data)])
               //.domain([min(props.data), max(props.data)]) // input values...
               .range([height, 0]); // ... output values
 
@@ -399,22 +394,31 @@ export default {
           
             /////////////////////// error catching (TODOs)
             // removed undefined values that throw errors
-            Object.values(props.data).forEach((t,ind)=>{
+            Object.values(JSON.parse(JSON.stringify(props)).data).forEach((t,ind)=>{
               if(typeof t=== undefined){
                 console.log("removing t: ", t);
-                props.data=JSON.parse(JSON.stringify(props.data)).slice(ind)
+                props.data=JSON.parse(JSON.stringify(props)).data.slice(ind)
               }
             })
             //////////////////////////////////////////////
-
+           
             if(props.length < 1){
               return;
             } else {
               console.log("D3 NAMESPACES=> ", d3.namespaces);
               console.log("WTF IS GRAPHSTATE ", JSON.parse(JSON.stringify(props)).graphstate);
-              if(JSON.parse(JSON.stringify(props)).graphstate === 0){
               
-                dataRef1.value = props.data; 
+              
+              if(JSON.parse(JSON.stringify(props)).graphstate === 0){
+                if(!dataRef1.value && JSON.parse(JSON.stringify(props)).data.length > 0){
+                  dataRef1.value = props.data; 
+                  alert("fuck this... ");
+                  let data1Ready = JSON.parse(JSON.stringify(props)).data;
+                  if(data1Ready !== []){
+                    emit("dataholderemit1", data1Ready)
+                  }
+console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
+                }
                 let vals = Object.values(JSON.parse(JSON.stringify(dataRef1.value)));
                 for(let v = 0;v<vals.length-1;v++){
                 
@@ -424,13 +428,31 @@ export default {
                     console.log("what type is this? ", typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v]);
                   }
                 }
-  
-                createLine([JSON.parse(JSON.stringify(dataRef1.value))],props.color0,1.5,"line_0");
+                //console.log("JUST CHERCKING: ", JSON.parse(JSON.stringify(dataRef1.value)));
+                console.log("WHAT IS DATAREF1 VALUE? ", dataRef1.value);
+                // dataHolder1.value = dataRef1.value;
+                
+                console.log("dataholder1: ", dataHolder1.value )
+                if(DH1_Done.value !== true && JSON.parse(JSON.stringify(dataRef1.value)).length){
+                  alert("Fuck Marriage");
+                  console.log("I HATE LIFE ", dataRef1.value)
+                  DH1_Done.value = true;
+                  //dataH1.push(dataRef1.value);
+     
+                  console.log("dataholder I am going insane: ", dataHolder1.value);
+                }
+                createLine([dataRef1.value],props.color0,1.5,"line_0");
+                
               }
-
+           
               if(JSON.parse(JSON.stringify(props)).graphstate === 1){
                 // This will be line #2
+                console.log("IS THIS OF ANY USE? in 1!!!", dataHolder1.value)
+               // createLine([dataHolder1.value],props.color0,1.5,"line_0");
+               
+                console.log("WTF IS DATAholder1??? ", Object.values(dataHolder1.value));
                 dataRef2.value = props.data; 
+                console.log("DATAREEF2: ", JSON.parse(JSON.stringify(dataRef2.value)));
                 console.log("WHAT IS DATAREF2? WHAT IS DATAHOLDER?? // PICK UP EDITS HERE!")
                 let toDel = svg.selectAll(`.line#line_1`);
                 if(toDel.length > 0){
@@ -439,19 +461,21 @@ export default {
                     toDel[i].remove();
                   }
                 }
-                if(dataRef2.value.length > 0){
+                if(JSON.parse(JSON.stringify(dataRef2.value)).length > 0){
                   if(Math.max(JSON.parse(JSON.stringify(dataRef2.value))) > yMax.value){
                     yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef2.value)))
                   } else {
-                    console.log("hit else for max in line 2");
+                    console.log("hit else for max in line 2 ", JSON.parse(JSON.stringify(dataRef2.value)));
                   }
                   if(Math.min(JSON.parse(JSON.stringify(dataRef2.value))) > yMin.value ){
                     yMin.value = Math.min(...JSON.parse(JSON.stringify(dataRef2.value)))
                   } else {
                     console.log("hit else for min in line 2");
                   }
-                  console.log("WTF IS DATAholder1??? ", dataHolder1.value);
-                  createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
+                  console.log("WHAT THE FUCK: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
+
+                  
+                  createNewLine1([Object.values(dataRef2.value)],props.color1,1.75,"line_1");
                 }
               }
 
@@ -519,17 +543,23 @@ export default {
               }
               // dataIn = dataIn.filter(i=>i)
               console.log("WHAT IS DATA IN???? ", dataIn);
-              let dataInTemp = JSON.parse(JSON.stringify(dataIn))[0].filter(i=>typeof i === "number");
-              // let dataInTypeCheck = dataIn.filter(i => typeof i === "number").length;
 
+              let dataInTemp = JSON.parse(JSON.stringify(dataIn))[0].filter(i=>typeof i === "number");
+              if(dataInTemp.length < 1){
+                return;
+              }
+              // let dataInTypeCheck = dataIn.filter(i => typeof i === "number").length;
+              console.log("WHAT IS DATA IN FOR FUCK's SAKE: ", dataInTemp);
               dataIn = dataInTemp;       
               
               dataIn.filter(i=>typeof i === "number");
-              if(dataHolder1.value.length < 1){
-                dataHolder1.value.push(dataIn);
-              }
+              console.log("JESUS CHRIST: ", dataHolder1.value);
+              // if(dataHolder1.value.length > 1 && dataIn !== []){
+              //   console.log("do we hit this???");
+              //   dataHolder1.value.push(dataIn)
+              // }
               // console.log("DATA IN in in create line: ", dataIn)
-              strokeWidth = 2;
+              strokeWidth = 1;
               svg
                 .selectAll(".line") // get all "existing" lines in svg
                 .data([dataIn]) // sync them with our data
@@ -550,6 +580,7 @@ export default {
             // // function to render new path element with D3's General Update Pattern
             // // --------------------------------------------------------------------
             function createNewLine1(dataIn1,strokeColor,strokeWidth,chosenClassName){ 
+              document.getElementById("modalFull").classList.remove("receivedSingleTextData")
               try{
                 svg.selectAll(`#line_1`).remove();
               } catch(e){
@@ -561,7 +592,10 @@ export default {
               dataIn1 = dataInTemp;   
               //recreate original line
               svg.selectAll(`#line_0`).remove();
-              createLine(JSON.parse(JSON.stringify(dataHolder1.value)),props.color0,1.5,"line_0");
+             
+              console.log("WHAT IS DATAHOLDER1 VALUE? ", dataHolder1.value);
+              createLine([props.dataHolder1Parent],"pink",1.5,"line_0");
+              // createLine([dataHolder1.value],props.color0,1.5,"line_0");
               dataIn1.filter(i=>typeof i === "number");
               console.log("DATA IN in create new line 1: ", dataIn1)
               svg
@@ -617,6 +651,7 @@ export default {
                 svg.selectAll(`#line_0`).remove();
                 svg.selectAll(`#line_1`).remove();
                 svg.selectAll(`#line_2`).remove();
+                
                 createLine([dataRef1.value],props.color0,1.5,"line_0");
                 createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
                 createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2.00,"line_2");
@@ -809,7 +844,7 @@ export default {
         console.log("RESIZEREF ", resizeRef);
 
     // return refs to make them available in template
-    return { svgRef, resizeRef, mouseMove,tooltipmsg, show,resetShow};
+    return { svgRef, resizeRef, mouseMove,tooltipmsg, show,resetShow,dataHolder1};
   },
   methods: {
     tryAppendTopics(newVal){
@@ -841,6 +876,37 @@ export default {
     // }
   },
   watch: { 
+    dataHolder1:{
+        // deep: true,
+        handler: function(newVal, oldVal){
+          alert("ok!")
+          console.log("fuck shit testchart 1 old ", oldVal);
+          console.log("fuck shit testchart 1 new ", newVal);
+          
+          if(oldVal !== newVal){
+            console.log("MISMATCH! old: ", oldVal);
+            console.log("MISMATCH! new: ", newVal);
+            // dataH1 = newVal;
+            
+            // dataHolder1.value = 
+          }
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    dataHolder2:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 1");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
+    dataHolder3:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          console.log("fuck shit testchart 1");
+          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+        }
+    },
     xMax:{
         deep: true,
         handler: function(newVal, oldVal){
@@ -892,27 +958,37 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("fuck shit testchart 6");
+          console.log("GREAT CHECK!! ",newVal)
+          if(dataRef1.value && dataHolder1.value === []){
+            console.log("this sucks");
+            dataHolder1.value.push(dataRef1.value);
+          }
+          if(newVal === 1){
+            if(oldVal.length > 0){
+                    dataHolder1.value = oldVal;
+                  }
+          }
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     }, 
     resetXNeeded:{
       handler: function(newVal, oldVal){
         console.log("fuck shit testchart 7");
-        console.log("RESET NEEDED ", resetXNeeded.value);
+        console.log("RESET NEEDED ", newVal);
 
       }
     },
     resetYNeeded:{
       handler: function(newVal, oldVal){
         console.log("fuck shit testchart 8");
-        console.log("RESET NEEDED ", resetYNeeded.value);
+        console.log("RESET NEEDED ", newVal);
 
       }
     },
     axisColorMatchBool:{
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("newCOLORMATCH BOOL: ",JSON.parse(JSON.stringify(newVal)));
+          console.log("newCOLORMATCH BOOL: ",newVal);
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },     
@@ -920,37 +996,38 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("fuck shit testchart 9");
-          console.log("newCOL: ",JSON.parse(JSON.stringify(newVal)));
+          console.log("newCOL: ",newVal);
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     color1: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
+          console.log(newVal);
           // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     color2: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
+          console.log(newVal);
         //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     color3: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
+          console.log(newVal);
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     colorX: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
+          console.log(newVal);
+          console.log("here's keybuilder div");
               let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
-              console.log("here's keybuilder div");
+              
               if(keyBuilder){
                 console.log("NEW COLOR>>X AXIS? ", newVal);
                 keyBuilder.style.borderColor = newVal.value;
@@ -961,7 +1038,7 @@ export default {
     colorY: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log(JSON.parse(JSON.stringify(newVal)));
+          console.log(newVal);
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
@@ -969,7 +1046,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("fuck shit testchart 10");
-          console.log("new x value", JSON.parse(JSON.stringify(newVal)));
+          console.log("new x value", newVal);
           // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
           //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
           // xAxisLabel.value = JSON.parse(JSON.stringify(newVal));
@@ -980,7 +1057,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
 
-          console.log("new yyy value", JSON.parse(JSON.stringify(newVal)));
+          console.log("new yyy value", newVal);
           
           // yAxisLabel.value = JSON.parse(JSON.stringify(newVal));
     
@@ -1010,7 +1087,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("in new ymin!")
-          console.log("new y number", JSON.parse(JSON.stringify(newVal)));
+          console.log("new y number", newVal);
           console.log("fuck shit testchart 13");
             // if(JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number").length > 0){
             //   this.numberYMin = Math.min(...JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number"))
@@ -1023,7 +1100,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           // console.log("in new ymax!")
-          console.log("in new y max: ", JSON.parse(JSON.stringify(newVal)));
+          console.log("in new y max: ", newVal);
    
             // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
@@ -1031,17 +1108,17 @@ export default {
     selectedXAxisRef: {
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("********* new x number", JSON.parse(JSON.stringify(newVal)));
-          console.log("new x axis ref in test", Math.max(...JSON.parse(JSON.stringify(newVal))));
+          console.log("********* new x number", newVal);
+          console.log("new x axis ref in test", Math.max(...newVal));
           console.log("fuck shit testchart 15");
-          this.selectedXAxisRef = JSON.parse(JSON.stringify(newVal))
+          // this.selectedXAxisRef = newVal;
         }
     },
     selectedYAxisRef: {
         deep: true,
         handler: function(newVal, oldVal){
           console.log("********* new y number", JSON.parse(JSON.stringify(newVal)));
-          this.selectedYAxisRef = JSON.parse(JSON.stringify(newVal));
+          // this.selectedYAxisRef = newVal;
         }
     },
     yAxisFramingLast: {
@@ -1049,7 +1126,7 @@ export default {
         handler: function(newVal, oldVal){
           console.log("fuck shit testchart 6");
             if(newVal){
-              console.log("AXES FRAMING CHANGHED IN TEST FILE! ",JSON.parse(JSON.stringify(newVal)));
+              console.log("AXES FRAMING CHANGHED IN TEST FILE! ",newVal);
             } 
         }
     },
@@ -1081,7 +1158,7 @@ export default {
       deep: true,
       handler: async function(newVal, oldVal){
         console.log("fuck shit testchart 18");
-        console.log('Prop changed: ', JSON.parse(JSON.stringify(newVal)), ' | was: ', oldVal)
+        console.log('Prop changed: ', newVal, ' | was: ', oldVal)
         
 
 ////////////////
