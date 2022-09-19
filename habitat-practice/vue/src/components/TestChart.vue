@@ -54,8 +54,8 @@ export default {
     const DH1_Done = ref(false);
     const dataHolder1 = ref([]);
     dataHolder1.value = [];
-    const dataHolder2 = ref([]);
-    const dataHolder3 = ref([]);
+    // const dataHolder2 = ref([]);
+    // const dataHolder3 = ref([]);
     
     scaled.value = {
       x: null,
@@ -151,9 +151,9 @@ export default {
       
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
-        console.log("Props ZData in testvhart? ", JSON.parse(JSON.stringify(props.data)));
-        console.log("THIS FUCKING SUCKS: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
-        console.log("DATA HOLDER 1 VAL: ", dataHolder1.value)
+        // console.log("Props ZData in testvhart? ", JSON.parse(JSON.stringify(props.data)));
+        // console.log("THIS FUCKING SUCKS: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
+        // console.log("DATA HOLDER 1 VAL: ", dataHolder1.value)
         // if(!JSON.parse(JSON.stringify(dataHolder1.value))){
         //   dataHolder1.value=JSON.parse(JSON.stringify(props.data))
         // }
@@ -340,12 +340,12 @@ export default {
               if(Math.max(...JSON.parse(JSON.stringify(dataHolder1.value))) > finalAxes.yMax){
                 yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
-              if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
-              }
-              if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
-              }
+              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
+              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
+              // }
+              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
+              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
+              // }
             } else if(JSON.parse(JSON.stringify(props)).currentLines === 4){
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
                 yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
@@ -353,18 +353,18 @@ export default {
               if(Math.max(...JSON.parse(JSON.stringify(dataHolder1.value))) > finalAxes.yMax){
                 yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
-              if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
-              }
-              if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
-              }
-              if(Math.min(...JSON.parse(JSON.stringify(dataHolder3.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder3.value)))
-              }
-              if(Math.max(...JSON.parse(JSON.stringify(dataHolder3.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder3.value)));
-              }
+              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
+              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
+              // }
+              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
+              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
+              // }
+              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder3.value))) < finalAxes.yMin){
+              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder3.value)))
+              // }
+              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder3.value))) > finalAxes.yMax){
+              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder3.value)));
+              // }
             } else {
               // finalAxes.yMax = yMin.value;
               // finalAxes.xMax = yMax.value; 
@@ -412,12 +412,12 @@ export default {
               if(JSON.parse(JSON.stringify(props)).graphstate === 0){
                 if(!dataRef1.value && JSON.parse(JSON.stringify(props)).data.length > 0){
                   dataRef1.value = props.data; 
-                  alert("fuck this... ");
+           
                   let data1Ready = JSON.parse(JSON.stringify(props)).data;
                   if(data1Ready !== []){
                     emit("dataholderemit1", data1Ready)
                   }
-console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
+
                 }
                 let vals = Object.values(JSON.parse(JSON.stringify(dataRef1.value)));
                 for(let v = 0;v<vals.length-1;v++){
@@ -434,8 +434,7 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
                 
                 console.log("dataholder1: ", dataHolder1.value )
                 if(DH1_Done.value !== true && JSON.parse(JSON.stringify(dataRef1.value)).length){
-                  alert("Fuck Marriage");
-                  console.log("I HATE LIFE ", dataRef1.value)
+
                   DH1_Done.value = true;
                   //dataH1.push(dataRef1.value);
      
@@ -447,13 +446,16 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
            
               if(JSON.parse(JSON.stringify(props)).graphstate === 1){
                 // This will be line #2
-                console.log("IS THIS OF ANY USE? in 1!!!", dataHolder1.value)
-               // createLine([dataHolder1.value],props.color0,1.5,"line_0");
-               
-                console.log("WTF IS DATAholder1??? ", Object.values(dataHolder1.value));
+
                 dataRef2.value = props.data; 
-                console.log("DATAREEF2: ", JSON.parse(JSON.stringify(dataRef2.value)));
-                console.log("WHAT IS DATAREF2? WHAT IS DATAHOLDER?? // PICK UP EDITS HERE!")
+
+                // let data2Ready = JSON.parse(JSON.stringify(props)).data;
+                // if(data2Ready !== []){
+                //   emit("dataholderemit2", data2Ready)
+                // }
+
+                // console.log("DATAREEF2: ", JSON.parse(JSON.stringify(dataRef2.value)));
+                // console.log("WHAT IS DATAREF2? WHAT IS DATAHOLDER?? // PICK UP EDITS HERE!")
                 let toDel = svg.selectAll(`.line#line_1`);
                 if(toDel.length > 0){
                   for(let i = 0;i<toDel.length - 1;i++){
@@ -472,44 +474,51 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
                   } else {
                     console.log("hit else for min in line 2");
                   }
-                  console.log("WHAT THE FUCK: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
+                  // console.log("WHAT THE FUCK: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
 
                   
                   createNewLine1([Object.values(dataRef2.value)],props.color1,1.75,"line_1");
                 }
               }
 
-              if(JSON.parse(JSON.stringify(props)).graphstate === 2){
-                // this will be for line #3
-                dataRef3.value = JSON.parse(JSON.stringify(props.data)); 
-                let toDel = svg.selectAll(".line#line_2")
-                if(toDel.length > 0){
-                  for(let i = 0;i<toDel.length - 1;i++){
-                    toDel[i].remove();
-                  }
-                }
-                if(dataRef3.value.length > 0){
-                  if(Math.max(JSON.parse(JSON.stringify(dataRef3.value)))> yMax.value){
-                    yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef3.value)))
-                  }
-                  createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2,"line_2");
-                }
-              }
-              if(JSON.parse(JSON.stringify(props)).graphstate === 3){
-                dataRef4.value = JSON.parse(JSON.stringify(props.data));
-                let toDel = svg.selectAll(".line#line_3")
-                if(toDel.length > 0){
-                  for(let i = 0;i<toDel.length - 1;i++){
-                    toDel[i].remove();
-                  }
-                }
-                if(dataRef4.value.length > 0){
-                  if(Math.max(JSON.parse(JSON.stringify(dataRef4.value)))> yMax.value){
-                    yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef4.value)))
-                  }
-                  createNewLine3([JSON.parse(JSON.stringify(dataRef4.value))],props.color3,2.25,"line_3");
-                }
-              }
+              // SAVE GROUPS 3 AND 4 UNTIL POST-MVP
+              // if(JSON.parse(JSON.stringify(props)).graphstate === 2){
+              //   // this will be for line #3
+              //   dataRef3.value = props.data; 
+
+              //   let data3Ready = JSON.parse(JSON.stringify(props)).data;
+              //   if(data3Ready !== []){
+              //     emit("dataholderemit3", data3Ready)
+              //   }
+
+              //   let toDel = svg.selectAll(".line#line_2")
+              //   if(toDel.length > 0){
+              //     for(let i = 0;i<toDel.length - 1;i++){
+              //       toDel[i].remove();
+              //     }
+              //   }
+              //   if(JSON.parse(JSON.stringify(dataRef3.value)).length > 0){
+              //     if(Math.max(JSON.parse(JSON.stringify(dataRef3.value)))> yMax.value){
+              //       yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef3.value)))
+              //     }
+              //     createNewLine2([Object.values(dataRef3.value)],props.color2,2,"line_2");
+              //   }
+              // }
+              // if(JSON.parse(JSON.stringify(props)).graphstate === 3){
+              //   dataRef4.value = JSON.parse(JSON.stringify(props.data));
+              //   let toDel = svg.selectAll(".line#line_3")
+              //   if(toDel.length > 0){
+              //     for(let i = 0;i<toDel.length - 1;i++){
+              //       toDel[i].remove();
+              //     }
+              //   }
+              //   if(dataRef4.value.length > 0){
+              //     if(Math.max(JSON.parse(JSON.stringify(dataRef4.value)))> yMax.value){
+              //       yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef4.value)))
+              //     }
+              //     createNewLine3([JSON.parse(JSON.stringify(dataRef4.value))],props.color3,2.25,"line_3");
+              //   }
+              // }
               
               let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_xvar`);
             
@@ -580,7 +589,7 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
             // // function to render new path element with D3's General Update Pattern
             // // --------------------------------------------------------------------
             function createNewLine1(dataIn1,strokeColor,strokeWidth,chosenClassName){ 
-              document.getElementById("modalFull").classList.remove("receivedSingleTextData")
+              document.getElementById("modalFull").classList.remove("receivedSingleTextData");
               try{
                 svg.selectAll(`#line_1`).remove();
               } catch(e){
@@ -594,7 +603,7 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
               svg.selectAll(`#line_0`).remove();
              
               console.log("WHAT IS DATAHOLDER1 VALUE? ", dataHolder1.value);
-              createLine([props.dataHolder1Parent],"pink",1.5,"line_0");
+              createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
               // createLine([dataHolder1.value],props.color0,1.5,"line_0");
               dataIn1.filter(i=>typeof i === "number");
               console.log("DATA IN in create new line 1: ", dataIn1)
@@ -612,60 +621,73 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
               return svg; 
             }
 
-            // function to render new path element with D3's General Update Pattern
-            function createNewLine2(dataIn,strokeColor,strokeWidth,chosenClassName){ 
-              JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
-                if(typeof t === "undefined" || typeof t === "null"){
-                  console.log("removed undefined point ", dataIn[ind]);
-                  dataIn=dataIn.slice(ind)
-                }
-              })
-              //recreate original line
-              svg.selectAll(`#line_0`).remove();
-              svg.selectAll(`#line_1`).remove();
-              createLine([dataRef1.value],props.color0,1.5,"line_0");
-              createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
-              svg
-                  .selectAll(`#line_2`)
-                  .data(dataIn) // sync them with our data
-                  .join(`path`) // create a new "path" for new pieces of data (if needed)
-                  .attr("stroke", strokeColor)
-                  .attr("id", "line_2")
-                  .attr("stroke-width", strokeWidth)
-                  .attr("d", lineGen); // shape and form of our line!          
-              const xAxis = axisBottom(xScale);
+
+            // SAVE GROUP 3 AND 4 UNTIL POST-MVP
+            // // function to render new path element with D3's General Update Pattern
+            // function createNewLine2(dataIn,strokeColor,strokeWidth,chosenClassName){ 
+            //   document.getElementById("modalFull").classList.remove("receivedSingleTextData");
+            //   console.log("WTF IS DATA IN IN CREATE LINE 2? ", dataIn);
+            //   JSON.parse(JSON.stringify(dataIn))[0].forEach((t,ind)=>{
+            //     if(typeof t === "undefined" || typeof t === "null"){
+            //       console.log("removed undefined point ", dataIn[ind]);
+            //       dataIn=dataIn.slice(ind)
+            //     }
+            //   })
+            //   //recreate original line
+            //   svg.selectAll(`#line_0`).remove();
+            //   svg.selectAll(`#line_1`).remove();
+            //   try{
+            //     svg.selectAll(`#line_2`).remove();
+            //   } catch(e){
+            //     console.log("err in createline: ",e)
+            //   }
+            //   createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
+            //   // createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
+            //   createNewLine1([props.dataHolder2Parent],props.color1,1.75,"line_1");
+            //   svg
+            //       .selectAll(`#line_2`)
+            //       .data(dataIn) // sync them with our data
+            //       .join(`path`) // create a new "path" for new pieces of data (if needed)
+            //       .attr("stroke", strokeColor)
+            //       .attr("id", "line_2")
+            //       .attr("stroke-width", strokeWidth)
+            //       .attr("d", lineGen); // shape and form of our line!          
+            //   const xAxis = axisBottom(xScale);
                       
-              return svg; 
-            }
+            //   return svg; 
+            // }
             
-        
-                // function to render new path element with D3's General Update Pattern
-            function createNewLine3(dataIn,strokeColor,strokeWidth,chosenClassName){  
-              JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
-                  if(typeof t === "undefined" || typeof t === "null"){
-                    console.log("removed undefined point ", dataIn[ind]);
-                    dataIn=dataIn.slice(ind)
-                  }
-                })
-                //recreate original line
-                svg.selectAll(`#line_0`).remove();
-                svg.selectAll(`#line_1`).remove();
-                svg.selectAll(`#line_2`).remove();
+            // // function to render new path element with D3's General Update Pattern
+            // function createNewLine3(dataIn,strokeColor,strokeWidth,chosenClassName){  
+            //   JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
+            //       if(typeof t === "undefined" || typeof t === "null"){
+            //         console.log("removed undefined point ", dataIn[ind]);
+            //         dataIn=dataIn.slice(ind)
+            //       }
+            //     })
+            //     //recreate original line
+            //     svg.selectAll(`#line_0`).remove();
+            //     svg.selectAll(`#line_1`).remove();
+            //     svg.selectAll(`#line_2`).remove();
                 
-                createLine([dataRef1.value],props.color0,1.5,"line_0");
-                createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
-                createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2.00,"line_2");
-                svg
-                    .selectAll(`#line_3`)
-                    .data(JSON.parse(JSON.stringify(dataIn))) // sync them with our data
-                    .join(`path`) // create a new "path" for new pieces of data (if needed)
-                    .attr("stroke", strokeColor)
-                    .attr("id", "line_3")
-                    .attr("stroke-width", strokeWidth)
-                    .attr("d", lineGen); // shape and form of our line!          
-                const xAxis = axisBottom(xScale);        
-                return svg; 
-            }
+            //     // createLine([dataRef1.value],props.color0,1.5,"line_0");
+            //     // createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
+            //     // createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2.00,"line_2");
+            //     createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
+            //     createNewLine1([props.dataHolder2Parent],props.color1,1.75,"line_1");
+            //     createNewLine2([props.dataHolder3Parent],props.color2,2.00,"line_2");
+                
+            //     svg
+            //         .selectAll(`#line_3`)
+            //         .data(JSON.parse(JSON.stringify(dataIn))) // sync them with our data
+            //         .join(`path`) // create a new "path" for new pieces of data (if needed)
+            //         .attr("stroke", strokeColor)
+            //         .attr("id", "line_3")
+            //         .attr("stroke-width", strokeWidth)
+            //         .attr("d", lineGen); // shape and form of our line!          
+            //     const xAxis = axisBottom(xScale);        
+            //     return svg; 
+            // }
             
             
 
@@ -879,7 +901,7 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
     dataHolder1:{
         // deep: true,
         handler: function(newVal, oldVal){
-          alert("ok!")
+  
           console.log("fuck shit testchart 1 old ", oldVal);
           console.log("fuck shit testchart 1 new ", newVal);
           
@@ -893,20 +915,20 @@ console.log("no more vue please: ", JSON.parse(JSON.stringify(props)))
           // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
-    dataHolder2:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 1");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
-    dataHolder3:{
-        deep: true,
-        handler: function(newVal, oldVal){
-          console.log("fuck shit testchart 1");
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
-        }
-    },
+    // dataHolder2:{
+    //     deep: true,
+    //     handler: function(newVal, oldVal){
+    //       console.log("fuck shit testchart 1");
+    //       // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+    //     }
+    // },
+    // dataHolder3:{
+    //     deep: true,
+    //     handler: function(newVal, oldVal){
+    //       console.log("fuck shit testchart 1");
+    //       // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+    //     }
+    // },
     xMax:{
         deep: true,
         handler: function(newVal, oldVal){

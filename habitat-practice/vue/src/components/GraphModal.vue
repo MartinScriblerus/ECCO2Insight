@@ -1019,16 +1019,21 @@
     }
   };
   const dataHolder1Parent = ref([]);
-  function dataholderemit1(newData1Holder){
-    console.log("AGHHHHHHHHH ", newData1Holder);
-    
+  // const dataHolder2Parent = ref([]);
+  // const dataHolder3Parent = ref([]);
+  function dataholderemit1(newData1Holder){    
     dataHolder1Parent.value = newData1Holder;
     return dataHolder1Parent;
-    // dataHolder1Parent = newData1Holder;
-    // console.log("FUCCCCCC ", dataHolder1Parent);
-
-    console.log("AAAAAAAAAAAAAfdddsfsAAA ", this);
   }
+  // function dataholderemit2(newData2Holder){    
+  //   dataHolder2Parent.value = newData2Holder;
+  //   return dataHolder2Parent;
+  // }
+  // function dataholderemit3(newData3Holder){    
+  //   dataHolder3Parent.value = newData3Holder;
+  //   return dataHolder3Parent;
+  // }
+
   </script>
 
 
@@ -1058,6 +1063,7 @@
         :yAxisFramingLast="yAxisFramingLast"
         @selected="updateTooltip"
         @dataholderemit1="dataholderemit1"
+ 
         :currentLinesCount="props.currentLinesCount"
         :color0="props.color0"
         :color1="props.color1"

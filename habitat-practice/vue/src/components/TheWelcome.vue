@@ -15,7 +15,7 @@ const props = defineProps({
   loaded: Boolean,
 });
 
-console.log("fuck shit welcome 1");
+
 const selectedTitle : any = ref('');
 const selectedAuthor : any = ref('')
 const tocData : any = ref({});
@@ -27,35 +27,18 @@ const ready : any = ref(false);
 // const modalFull : any = ref(null);
 // const modal : any = ref(Modal);
 
-if(props.items){
-  console.log("fuck shit welcome 2");
-  // emit("getImages", props.items)
-  console.log("hitting this/////// ")
-  // watch(
-  //   props.items, (currentValue, oldValue) => {
-  //   console.log(currentValue);
-  //   console.log(oldValue);
-  //   console.log("OUTSIDE");
-  //   if(props.items){
-  //     console.log("INSIDE: ", props.items);
-  //     console.log("emitting this... ", JSON.parse(JSON.stringify(props.items)))
-      
-  //     // emit("getWikiUrl", props.items)
-  //   }
-  //   return;
-  // });
-}
+// if(props.items){
+
+
+// }
 
 const emit = defineEmits(["getWikiURL", "getImages", "in_toc_now"])
 
 async function show_TOC(url:String, title:String, author:String){
-  console.log("fuck shit welcome 3");
   emit("in_toc_now");
   selectedTitle.value = title;
   selectedAuthor.value = author;
-  // console.log("selected title in welcome: ", selectedTitle.value);
-  // console.log("selected author in welcome: ", selectedAuthor.value);
-  console.log("fuck shit welcome 4");
+
   let jumbotron = document.getElementById("jumbotron");
   if(jumbotron){
     jumbotron.style.display = "none";
@@ -79,7 +62,7 @@ async function show_TOC(url:String, title:String, author:String){
     method: "POST",
     body: JSON.stringify({title: title, author: author, titleUrl: url})
   }).then((x:any)=>{
-    console.log("fuck shit welcome 5");
+
     if(openFull.value === true){
 
       return Promise.all([])
@@ -87,7 +70,6 @@ async function show_TOC(url:String, title:String, author:String){
       return x;
     }
   }).then(response => response.json()).then(result => {
-    console.log("fuck shit RESULT IS ", result)
 
     if(result.length){
       tocData.value = result;
@@ -104,7 +86,7 @@ async function show_TOC(url:String, title:String, author:String){
 };
 
 async function scrape_text(url:String){ 
-  console.log("fuck shit welcome 6");
+
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -132,7 +114,7 @@ async function scrape_text(url:String){
     if(main){
       main.style.top = "0px"; 
     }
-    console.log("fuck shit welcome 7");
+    
     rawTextData.value = await fetch('http://localhost:5000/scraper_get_text', {
       headers: {
         'Accept': 'application/json',
@@ -141,7 +123,7 @@ async function scrape_text(url:String){
       method: "POST",
       body: JSON.stringify({titleUrl: url})
     }).then(response => response.json()).then(result => {
-      console.log("fuck shit welcome 8");
+
             if(result.length){
               rawTextData.value = result;
               console.log("here's the text: ", ...rawTextData.value);
@@ -156,7 +138,7 @@ async function scrape_text(url:String){
 };
 
 async function doCloseModal(){
-  console.log("fuck shit welcome 9");
+
   // document.getElementById("jumbotron").style.display = "flex";
   let main = document.getElementById("main");
   let headerDiv = document.getElementById("headerDiv");
@@ -173,7 +155,7 @@ async function doCloseModal(){
 }
 
 async function doCloseFullModal(){
-  console.log("fuck shit welcome 10");
+
     openFull.value = false;
    
     openGraph.value = true;
@@ -184,7 +166,7 @@ async function doCloseFullModal(){
 };
 
 async function doOpenFullModal(){
-  console.log("fuck shit welcome 11");
+
   console.log("hit 2")
   // openFull.value = true;
 };
@@ -203,15 +185,11 @@ async function gotLocalStorageText(url){
 }
 
 async function doOpenAwaitScrape(){
-  console.log("fuck shit welcome 12");
   let searchFields = document.getElementById("searchFields");
   if(searchFields){
     searchFields.style.display = "none";
   }
-  console.log("fuck shit welcome 13");
-  console.log("in do open await scrape");
   openFull.value = true;
-  console.log("fuck shit welcome 14");
 };
 
 function scrapeAnotherUrl(url : String){
