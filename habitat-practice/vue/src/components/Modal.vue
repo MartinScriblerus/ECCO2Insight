@@ -137,7 +137,6 @@ onMounted(()=>{
   `
 })
 
-console.log("fuck shit 1"); // HITTING THIS INITIAL
 const connectedSocket = ref(false)
 connectedSocket.value = false;
 // // Initial soocket implementation 
@@ -155,7 +154,7 @@ socket.onopen = function (event) {
   console.log('still going after opening salvo');
 }
 socket.onclose = function(event) {
-    console.log("AHHHHHHH ", event);
+    console.log("AHHHHHHH socket close", event);
     // need more thorough handling here to 
     // account for UI changes / DOM clashes
     // setTimeout(()=>{
@@ -165,8 +164,7 @@ socket.onclose = function(event) {
 }
 
 window.onbeforeunload = function() {
-  console.log("fuck shit 3");
-    console.log('are we closing the socket now???');
+    console.log('are we closing the socket before exiting???');
     socket.onclose = function () {}; // disable onclose handler first
     socket.close();
 };
@@ -239,22 +237,22 @@ socket.onmessage = event => {
           if(document.getElementById('progressCircles')){
             document.getElementById('progressCircles').style.display = "none";
           } else {
-            console.log("no prog circs");
+            // console.log("no prog circs");
           }
           if(document.getElementById('progressMsg')){
             document.getElementById('progressMsg').style.display = "none";
           } else {
-            console.log("no progress msgs");
+            // console.log("no progress msgs");
           }
           if(document.getElementById('progressMsgExplanation')){
             document.getElementById('progressMsgExplanation').style.display = "none";
           } else {
-            console.log("no prog explanations");
+            // console.log("no prog explanations");
           }
           if(document.getElementById('main')){
             document.getElementById('main').style.display = "none";
           } else {
-            console.log("no main");
+            // console.log("no main");
           } 
           
           if(document.getElementById('graphs')){
@@ -377,12 +375,10 @@ socket.onmessage = event => {
     } 
 
 }
-// if(!connectedSocket.value){
+
 startSocket();
-// }
 
 
-console.log("fuck shit 6");
 
 // these are options for the keybuilder dropdown
 // ----------------------------------------------------
@@ -499,10 +495,9 @@ additionalTexts.value = [
 ]
 
 async function trySetReady(){
-  console.log("SOURCE OF PROBLEM ", JSON.parse(JSON.stringify(props.openFull)))
-
+  
   let test = await modalFull.value;
-  console.log("TESTING!!!! ", test);
+  console.log("TEST!!! ", test);
   
   if(test && JSON.parse(JSON.stringify(props.openFull)) ){
       inGraphs.value = false;
@@ -525,7 +520,7 @@ async function trySetReady(){
         } else if(searchFields && secondTextRef.value === true){
           secondTextRef.value = false;
         } else {
-          console.log("why can't we get searchfields?");
+
         }
         let headerDiv = document.getElementById("headerDiv");
         if(headerDiv){
@@ -535,7 +530,7 @@ async function trySetReady(){
           //document.getElementById("modalFull").style.display = "none"
         }
       } catch(e){
-        console.log("WHAT ISS ERROR? ", e);
+
       }
 
       // ready.value = JSON.parse(JSON.stringify(props.openFull));
@@ -573,22 +568,21 @@ props.openFull,
 yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) => {
   if(inGraphs){
     console.log("TEST NON REF: ", inGraphs);
-    console.log("TEST REF ", inGraphs.value);
   }
   if(JSON.parse(JSON.stringify(props.inGraphsParent)) === true && inGraphs.value === false){
     inGraphs.value = true;
   }
-  console.log("fuck shit 7");
-    if(selectedXAxisRef.value){
-      console.log("selected x axis ref: ", selectedXAxisRef.value);
-      console.log("TRY THIS XREF!!! ", JSON.parse(JSON.stringify(selectedXAxisRef.value)));
-    }
-    if(props.selected){
-      console.log("Props selected: ", JSON.parse(JSON.stringify(props.selected)))
-    }
-    if(numberXMin.value && Object.values(JSON.parse(JSON.stringify(numberXMin.value))).filter(i=>typeof i === "number").length > 0){
-      console.log("WTF IS XMIN VAL? ", Math.max(...Object.values(JSON.parse(JSON.stringify(numberXMin.value)))));
-    }
+
+    // if(selectedXAxisRef.value){
+    //   // console.log("selected x axis ref: ", selectedXAxisRef.value);
+
+    // }
+    // if(props.selected){
+    //   // console.log("Props selected: ", JSON.parse(JSON.stringify(props.selected)))
+    // }
+    // if(numberXMin.value && Object.values(JSON.parse(JSON.stringify(numberXMin.value))).filter(i=>typeof i === "number").length > 0){
+    //   console.log("WTF IS XMIN VAL? ", Math.max(...Object.values(JSON.parse(JSON.stringify(numberXMin.value)))));
+    // }
     trySetReady();
     if(JSON.parse(JSON.stringify(props.openFull)) !== true){
       return;
@@ -605,14 +599,13 @@ yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) =>
       } else if (currentLinesCount.value === 4){
         showFour.value = true;
       } else {
-        console.log("how did we arrive in current count else? ", currentLinesCount.value);
+        // console.log("how did we arrive in current count else? ", currentLinesCount.value);
       } 
     });
 
 // Begin process for adding a new text...
 // ----------------------------------------------------
 function tryAddNewText(){
-  console.log("CHECK CHUCK MODAL!!!");
   
   inGraphs.value = false;
   let searchArea = document.getElementById("searchFields");
@@ -641,11 +634,9 @@ function tryAddNewText(){
 // Opens Keybuilder Popup
 // ----------------------------------------------------
 function openKeyPopup(){
-  console.log("fuck shit 8");
   let newTextPopup = document.getElementById("newTextPopup")
   
   if(newTextPopup ){
-    console.log("fuck shit fuck shit fuck shit")
     newTextPopup.style.display = "flex";
     resetRows();
   }
@@ -655,7 +646,6 @@ function openKeyPopup(){
 // Closes Keybuilder Popup
 // ----------------------------------------------------
 function closeKeyModal () {
-  console.log("fuck shit are we here????")
   let popup = document.getElementById("newTextPopup");
   if(popup){
     console.log("closed the key modal");
@@ -666,8 +656,6 @@ function closeKeyModal () {
 // Reset row count if # of lines changes 
 // ----------------------------------------------------
 async function resetRows(){
-  console.log("fuck shit 9");
-  console.log("resetting rows");
   document.getElementById("newTextPopup").style.display = "flex";
   // const open = await openUpdatePopup()
 
@@ -680,7 +668,7 @@ async function resetRows(){
       row4.style.display = "flex";
     } else {
       row4.style.display = "none";
-      console.log("what is row 4 ", document.getElementById("newRow_3"));
+      // console.log("what is row 4 ", document.getElementById("newRow_3"));
     }
     
   }
@@ -690,7 +678,7 @@ async function resetRows(){
       row3.style.display = "flex";
     } else {
       row3.style.display = "none";
-      console.log("what is row 3 ", document.getElementById("newRow_2"));
+      // console.log("what is row 3 ", document.getElementById("newRow_2"));
     }
   }
   if(currentLinesCount.value >= 2){
@@ -699,7 +687,7 @@ async function resetRows(){
       row2.style.display = "flex";
     } else {
       row2.style.display = "none";
-      console.log("what is row 2 ", document.getElementById("newRow_1"));
+      // console.log("what is row 2 ", document.getElementById("newRow_1"));
     }
   }
 }
@@ -708,7 +696,6 @@ async function resetRows(){
 // TODO=> carry implementation down into actual graph
 // ----------------------------------------------------
 function removeLine(){
-  console.log('better not be hitting this');
   if(currentLinesCount.value > 1){
     currentLinesCount.value = currentLinesCount.value - 1;
     resetRows();
@@ -730,7 +717,7 @@ function setLineCount(){
   tryAddNewText();
   // TODO=> rename or rework this variable to accomodate new flow
   graphstateRef.value = graphstateRef.value + 1;
-  console.log("??? ", currentLinesCount.value);
+  
 
   if(currentLinesCount.value < 5){
     console.log("adding a keybuilder row / graph line here: ", currentLinesCount.value);
@@ -753,31 +740,18 @@ function setLineCount(){
 
 
 async function tryGetFullModal(url){
-  console.log("fuck shit 10");
-    console.log("innnnn try get full modal... ");
       let fullModal = await modalFull.value !== null;
       let mainPage = document.getElementById("main");
       if(inGraphs.value === true){
         inGraphs.value = false;
         trySetReady();
       }
-      // while(!fullModal || !fullModal.classList){
-      //   setTimeout(()=>{
-      //     trySetReady()
-      //   }, 1000)
-      //   if(fullModal && fullModal.classList || inGraphs.value === true){
-      //     return;
-      //   }
-      // }
+
       if(fullModal && fullModal.classList){
-        console.log("fuck shit 12");
         fullModal.classList.add("awaiting");
         
-        console.log("MAIN STYLE VISIBILITY: ", main.style.visibility);
       } else {
-        console.log("hit the else");
-        console.log("fuck shit 13");
-       // console.log("what is the else for full modal? ", fullModal);
+        // console.log("hit the else");
       }
       setTimeout(()=>{
         if(mainPage){
@@ -786,10 +760,6 @@ async function tryGetFullModal(url){
         }
       },10)
       clearTimeout();
-      // emit('closedmodal')
-      // emit('closedmodal')      console.log("FULL MODAL? ", fullModal);
-      console.log("fuck shit 11");
-      console.log("FULL MODAL? ", fullModal);
      
       console.log("URL IS! ", url);
 
@@ -802,13 +772,11 @@ async function tryGetFullModal(url){
         body: JSON.stringify({titleUrl: url})
       }).then(response => response.json()).then(result => {
           if(result){
-            console.log("fuck shit 48");
-            console.log("hey, got a response from server!");
+            // console.log("hey, got a response from server!");
             let modalHeader = document.getElementById("modalHead");
             if(modalHeader){
               modalHeader.style.display = "flex";
             }
-            console.log("fuck shit 49");
             rawtextfromtoc.value = result;
             console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
             // document.getElementById("modalFull").classList.add("awaiting")
@@ -850,9 +818,9 @@ async function tryGetFullModal(url){
                       "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
                     }
                   }
-                } catch {
-                  console.log("ARE WEE IN GRAPHS? ", inGraphs.value)
-                  console.log("IS FULL MODAL OUT? ", modalFull.value)
+                } catch(e){
+                  // console.log("ARE WEE IN GRAPHS? ", inGraphs.value)
+                  // console.log("IS FULL MODAL OUT? ", modalFull.value)
                 }
               })
               temp.value.internal_rhyme_most_recent.forEach(ry=>{
@@ -868,7 +836,7 @@ async function tryGetFullModal(url){
                     }
                   }
                 } catch(e){
-                console.log("error: ", e);
+                // console.log("error: ", e);
                 } finally {
                 }  
                 try {
@@ -941,7 +909,6 @@ async function tryGetFullModal(url){
 // Close full modal & return to initial search setup...
 // ----------------------------------------------------
 function doCloseFullModalChild(){
-  console.log("fuck shit 14");
   console.log('in close modal child');
   emit('closedfull')
   
@@ -953,31 +920,27 @@ function doCloseFullModalChild(){
   // show the text search again
 
   if(main){
-    console.log("fuck shit 15");
     main.style.visibility = "visible";
     main.style.opacity = 1;
     main.style.display = "flex";
   }
   let headerDiv = document.getElementById("headerDiv");
-  console.log("fuck shit 16");
+
   if (headerDiv && headerDiv.classList){
     headerDiv.classList.remove("noDisplay");
     headerDiv.style.visibility = "visible";
-    console.log("fuck shit 17");
+
   } else {
     console.log("in the else for headerdiv classlist");
-    console.log("fuck shit 18");
   }
 }
 
 // TODO: componentize and DRY this function (see TheWelcome)
 async function scrape_text(url){
-    console.log("fuck shit 19");
     if(!url){
       return;
     }  
     
-    console.log("fuck shit 20");
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle =  document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -996,11 +959,11 @@ async function scrape_text(url){
     // } else {
     //   console.log("wrapper btns missing");
     // }  
-    // console.log("fuck shit 21");
+
  
     let localStorageDataAvailable = localStorage.getItem(url);
     if(localStorageDataAvailable !== null && noLateUpdateAfterNLTK.value === false){
-      console.log("fuck shit 22");
+
       emit('closedmodal');
         emit('openedfull');
         emit('closemodalgotlocal',url)
@@ -1010,48 +973,41 @@ async function scrape_text(url){
       // will this fix broken local storage?
 
       let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
-      console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
-      console.log("fuck shit 56");
+      // console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
+
 
       if(updatePopup){
-        console.log("ADD A CHECK HERE FOR IN GRAPHS")
-        console.log("fuck shit 57");
+        console.log("ADD A CHECK HERE FOR IN GRAPHS");
         updatePopup.classList.remove("animate-close");
       }
       let addTextButton = document.getElementById("addTextButton");
       if(addTextButton){
-        console.log("fuck shit 58AddTextBtn");
         addTextButton.classList.remove("animate-close");
       }
       let compareButton = document.getElementById("compareButton");
       if(compareButton){
-        console.log("fuck shit 58CompareBtn");
         compareButton.classList.remove("animate-close");
       }
       /////////
 
       initialHumanReadableTextRef.value = JSON.parse(localStorageDataAvailable);
-      console.log("JUST CHECKING: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
+      // console.log("JUST CHECKING: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
         // emit('closedmodal');
         // emit('openedfull');
         // emit('closemodalgotlocal')
         let fullModal = await modalFull.value;
         if(fullModal && fullModal.classList){
-          console.log("fuck shit 23 ", initialHumanReadableTextRef.value); // HITTING THIS INITIAL
           fullModal.classList.remove("awaiting");
           fullModal.classList.add("receivedSingleTextData");
           fullModal.style.display = "visible"
           let main = document.getElementById("main");
           if(main){
-            console.log("fuck shit 24");
             main.visibility = "visible";
           }
         } else {
           console.log("in else for fullmodal: ", fullModal);
-          console.log("fuck shit 25");
           inGraphs.value = true;
           if(main){
-            console.log("fuck shit 24");
             main.visibility = "hidden";
           }
         }
@@ -1062,120 +1018,28 @@ async function scrape_text(url){
       
       
       if(results){
-        console.log("fuck shit 26");
+
         if(graphs){
-          console.log("fuck shit 27");
           graphs.style.display = "flex";
-          console.log("FLEXING GRAPHS NOW!");
         } else {
-          console.log("fuck shit 28");
-          console.log("NO GRAPHS NOW!");
           console.log("not any graphs");
         }
         if(document.getElementById('main')){
-          console.log("fuck shit 29");
-          console.log("HIDE MAIN NOW!")
           document.getElementById('main').style.display = "none";
         } else {
-          console.log("fuck shit 30");
-          console.log("no main to hide!");
           console.log("not any main");
         }
         if(document.getElementById('searchFields')){
-          console.log("fuck shit 31");
           console.log("HIDE SEARCH FIELD!")
           document.getElementById('searchFields').style.display = "none";
         } else {
-          console.log("fuck shit 32");
           console.log("no progress circles");
         } 
         if(document.getElementById("modalFull")){
           document.getElementById("modalFull").style.display = "flex";
         }
 
-        // if(document.getElementById('progressCircles')){
-        //   console.log("fuck shit 31");
-        //   console.log("HIDE PROG CIRCLES NOW!")
-        //   document.getElementById('progressCircles').style.display = "none";
-        // } else {
-        //   console.log("fuck shit 32");
-        //   console.log("no progress circles");
-        // }
-        // if(document.getElementById('modal-textAnalysis-title')){
-        //   document.getElementById('modal-textAnalysis-title').style.display = "none";
-        // } else {
-        //   console.log("no title");
-        // }
-        // if(document.getElementById('progressMsg')){
-        //   console.log("fuck shit 33");
-        //   console.log("HIDE PROG CIRCLES NOW!");
-        //   document.getElementById('progressMsg').style.display = "none";
-        // } else {
-        //   console.log("fuck shit 34");
-        //   console.log("no progress msg");
-        // }
-        // if(document.getElementById('progressMsgExplanation')){
-        //   console.log("fuck shit 35");
-        //   document.getElementById('progressMsgExplanation').style.display = "none";
-        // } else {
-        //   console.log("no progress msg explanation");
-        // }
-        
-        
-        // if(document.getElementById('compareButton')){
-        //   console.log("fuck shit 36");
-        // document.getElementById('compareButton').style.visibility = "visible";
-        // } else {
-        //   console.log("fuck shit 37");
-        //   console.log("no compare button");
-        // }
-        // if(document.getElementById("textRowAuthor")){
-        //   console.log("fuck shit 38");
-        //   document.getElementById("textRowAuthor").style.display = "none";
-        // } else {
-        //   console.log("fuck shit 39");
-        //   console.log("no text row author")
-        // }
-        // if(document.getElementById("textRowTitle")){
-        //   document.getElementById("textRowTitle").style.display = "none";
-        // } else {
-        //   console.log("no textRowTitle");
-        // }
-        // // let bookWrappers = document.getElementsByClassName("searchTextWrapper")
-        // // if(bookWrappers){
-        // //   for(let i = 0; i < bookWrappers.length;i++){
-        // //     bookWrappers[i].style.display = "none";
-        // //   } 
-            
-        // // } else {
-        // //   console.log("no search text wrapper");
-        // // }
-        // if(document.getElementById("searchFields")){
-        //   document.getElementById("searchFields").style.display = "none";
-        // } else {
-        //   console.log("no search text wrapper");
-        // }
 
-        // if(document.getElementById('headerDiv')){
-        //   console.log("fuck shit 40");
-        //   document.getElementById('headerDiv').style.visibility = 'hidden';
-        // } else {
-        //   console.log("no header div");
-        // }
-        // if(document.getElementById('mainText')){
-        //   console.log("fuck shit 41");
-        //   console.log("HIDE MAIN TEXT NOW");
-        //   // inGraphs.value=true;
-        //   document.getElementById('mainText').style.display = "none";
-        // } else {
-        //   console.log("no main text");
-        // }
-        // if(document.getElementById('mainTextSubheader')){
-        //   console.log("fuck shit 42");
-        //   document.getElementById('mainTextSubheader').style.display = "none";
-        // } else {
-        //   console.log("no mainTextSubheader");
-        // }  
       }
       return;
     } else {
@@ -1185,26 +1049,18 @@ async function scrape_text(url){
     inGraphs.value = false;
       emit('closedmodal');
 
-      console.log("fuck shit 43");
-
       emit('openedfullawaitscrape');
  
-      console.log("fuck shit 44");
       document.body.style.overflowY = "hidden";
 
       // close();
-      console.log("fuck shit 45");
       
       console.log("READY IS NOW TRUE");
      
       let fullModal = await modalFull.value;
-
-      console.log("fuck shit 46", fullModal);
       
       tryGetFullModal(url);
-      console.log("fuck shit 47");
 };
-console.log("fuck shit 23 B ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)));
 function selected(e){
   console.log("received SELECTED emit in the modal parent: ", e);
 };
@@ -1212,17 +1068,14 @@ function selected(e){
 const lineThickness = 3;
 
 function colorInputMountedHandler(){
-  console.log("fuck shit 50");
   if(!rawtextfromtoc.value){
     return;
   }
   console.log("additional texts val[0]: ", JSON.parse(JSON.stringify(additionalTexts.value))[0])
   if(currentLinesCount.value === 1){
-    console.log("fuck shit 51");
     console.log("LINE COUNT IS ONE")
   } else if(currentLinesCount.value === 2){
     console.log("LINE COUNT IS TWO")
-    
   } else if(currentLinesCount.value === 3){
     console.log("LINE COUNT IS THREE")
   } else if((currentLinesCount.value === 4)){
@@ -1259,7 +1112,6 @@ console.log("additional texts : ", additionalTexts.value)
 
 // THESE COUNTS WILL BE USED TO INFORM KEYBUILDER & SHAPE GRAPH
 function trySetDataCountXLengthMax(num){
-  console.log("fuck shit 53 hit try set data count xmax");
   num = Math.max.apply(Math, num);
   console.log("in MAX X! ", num);
   console.log("why are we here??")
@@ -1276,7 +1128,6 @@ function trySetDataCountXLengthMax(num){
 
 }
 function trySetDataCountXLengthMin(num){
-  console.log("fuck shit 53 hit try set data count xmin ", num);
   num = num.filter(w=>w || w === 0)[0]
 
   if(numberXMin.value && numberXMin.value.length > 0 && numberXMin.value[currentLinesCount.value - 1] && num <= numberXMin.value[currentLinesCount.value - 1]){    
@@ -1289,7 +1140,6 @@ function trySetDataCountXLengthMin(num){
 }
 
 function trySetDataCountYLengthMax(num){
-  console.log("fuck shit 53 hit try set data count ymax ", num);
   if(Math.max.apply(Math, num) > num){
     num = Math.max.apply(Math,num);
   }
@@ -1300,7 +1150,6 @@ function trySetDataCountYLengthMax(num){
   }
 }
 function trySetDataCountYLengthMin(num){
-  console.log("fuck shit 53 hit try set data count ymin: ", num);
   num = Math.min.apply(Math,num)
   if(!numberYMin.value[currentLinesCount.value - 1]){
     return;
@@ -1355,7 +1204,6 @@ function toggleMonochrome(){
 }
 
 function openUpdatePopup(){
-  console.log("fuck shit 54");
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1374,35 +1222,28 @@ function openUpdatePopup(){
   } else {
     console.log("wrapper btns missing");
   }
-  console.log("fuck shit 55");
   let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
   console.log("WEE SHOULD BE HITTING THIS!!!! OPEN UPDATE POPUP", updatePopup);
-  console.log("fuck shit 56");
   if(updatePopup){
-    console.log("ADD A CHECK HERE FOR IN GRAPHS")
-    console.log("fuck shit 57");
+    console.log("ADD A CHECK HERE FOR IN GRAPHS");
     updatePopup.classList.remove("animate-close");
   }
   let updateDataBtn = document.getElementById("updatePopupButton");
   if(updateDataBtn){
-    console.log("fuck shit 58");
     updateDataBtn.classList.add("animate-close");
   }
   let addTextButton = document.getElementById("addTextButton");
   if(addTextButton){
-    console.log("fuck shit 58AddTextBtn");
     addTextButton.classList.add("animate-close");
   }
   let compareButton = document.getElementById("compareButton");
   if(compareButton){
-    console.log("fuck shit 58CompareBtn");
     compareButton.classList.add("animate-close");
   }
   
 }
 
 function closeUpdatePopup(){
-  console.log("fuck shit 59");
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1423,7 +1264,6 @@ function closeUpdatePopup(){
   // }
     let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
     console.log("WEE SHOULD BE HITTING THIS!!!! CLOSE UPDATE POPUP", updatePopup);
-    console.log("fuck shit 60");
     if(updatePopup){
       updatePopup.classList.add("animate-close");
     }

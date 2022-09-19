@@ -104,9 +104,9 @@ export default {
     const authorPortraits:any = ref([]);
     // authorPortraits.value = [];
     props = state; 
-    console.log("jesus fucking christ");
+  
     function tryWikiExtension1(wikiString,firstName,lastName, title, published, bookId){
-      console.log("motherfucker")
+
   
       wikiString = wikiString + "_(writer)";
       tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId)
@@ -123,12 +123,10 @@ export default {
     }
 
     async function tryGetWikiImage(wikiString,firstName,lastName, title, published, bookId){
-      console.log("trying to get wiki img")
       if(in_toc.value === true){
         return;
       }
 
-      console.log("here now!");
       if(wikiString === "https://en.wikipedia.org/wiki/Robert_Herrick"){
         wikiString = "https://en.wikipedia.org/wiki/Robert_Herrick_(poet)";
       } 
@@ -174,12 +172,8 @@ export default {
         method: "POST",
         body: JSON.stringify({"wikiString": wikiString, 'first_name': firstName, 'last_name': lastName, 'title':title, 'published':published, 'book_id': bookId})
       }).then(response => response.json()).then(result => {
-        console.log("hearing back from server!")
         if(in_toc.value === true){
-          console.log("IN OPENFULL ", result);
           return Promise.all([]);
-  
-          return Promise.all([])
         }
         
         let relevantImgEl = document.getElementById(`authorImage_${result['book_id']}`);
@@ -197,21 +191,19 @@ export default {
               tryWikiExtension3(wikiString, firstName,lastName, title, published, bookId);
               triedWikiExtension3.value = true;
             }
-            // console.log("PROBLEM TEXT 2 ", result);
             console.log("what was the problematic wiki string? ", wikiString);
           } 
           if(relevantImgEl && result && result['img_possible']){
             relevantImgEl['src'] = result['img_possible'][0];
           }
         if(result.length){
-          // console.log("WHAT IS THE RESULT??? ");
 
           return result;
         } else {
           return null;
         }
         }).catch(error => {
-          console.log('Error:', error);
+        
         });   
     }
     
@@ -244,7 +236,7 @@ export default {
 
       state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
-      console.log("state data: ", state.data);
+      // console.log("state data: ", state.data);
    
       let rawAuthorName = JSON.parse(JSON.stringify(state.data));
       
@@ -276,12 +268,10 @@ export default {
     });
 
     async function tryGetWikiURL(rawAuthorName:any){
-      console.log("RAW_AUTHOR_NAME: ", rawAuthorName);
       // rawAuthorName.forEach((i)=>{ 
         for(let i = 0; i < rawAuthorName.length; i++){
           if(in_toc.value === true){
-            console.log("ENDING LOOP!");
-            // throw new Error("err!")
+            // console.log("ENDING LOOP!");
             return;
           }
           let published = new Date(); 
@@ -302,7 +292,7 @@ export default {
               if(s>2){
                 splitSpaces.slice(s,2);
               }
-              // console.log("???? ", splitSpaces[s]);
+
               if(splitSpaces[s].indexOf(',') !== -1){
                 let cutIndex = splitSpaces[s].indexOf(',');
                 first = splitSpaces[s].slice(0,cutIndex) 
@@ -315,7 +305,6 @@ export default {
                   getFirst = false;
                   first = splitSpaces[1]
                 } else {
-                  // console.log("PROBLEM TEXT: ", splitSpaces[s]);
                 }
               }
             }
@@ -330,7 +319,6 @@ export default {
             if(last === ''){
               sub_url = first;
             } else if(last === 'Ibn') {
-              console.log("HIT THIS!!! ", last);
               sub_url = last + '_' + first;
             } else {
               sub_url = first + '_' + last;
@@ -345,16 +333,9 @@ export default {
           bookId = rawAuthorName[i]['id']
 
           let wikiString = 'https://en.wikipedia.org/wiki/' + sub_url;
-          console.log("IN TOC?> CHECK SYNTAX: ", in_toc.value);
-          // if(in_toc.value === false){
-            console.log("here!")
+
             let images = await tryGetWikiImage(wikiString, first, last, title, published, bookId);
-            console.log("images: ", images)
- 
-          // } else {
-          //   console.log("stopped sending try get wiki img");
-          // }
-        // });
+
         }
     }
 
@@ -380,8 +361,7 @@ export default {
       console.log("BASIC_DAT!A: ", scrape.basicData);
     },
     handleKeyUpAuthor: async function (this: any) {
-      this.state.data = {}
-      console.log("here is author search query: ", this.props.authorSearch);
+      this.state.data = {};
       if(this.props && this.props.authorSearch && this.props.authorSearch.length < 2){
         return null;
       }
@@ -407,20 +387,17 @@ export default {
           return null;
         }
         }).catch(error => {
-          console.log('Error:', error);
+          // console.log('Error:', error);
         }); 
         this.state.data = scrape.basicData
 
         return this.state;
     },
     in_toc_now: function(this:any) {
-      console.log("IN TOC NOW!");
       in_toc.value = true;
-      console.log("fuck shit APP 1");
     },
     handleKeyUpTitle: async function (this:any) {
-      this.state.data = {}
-      console.log("here is author search query: ", this.props.titleSearch);
+      this.state.data = {};
       if(this.props.titleSearch.length < 2){
         return null;
       }
@@ -435,8 +412,6 @@ export default {
               if(result.length){
                 let arr : Array<Object> = [];
                 for(let i = 0; i < result.length; i++){
-                  
-                  // console.log("efd ois i ", result[i]);
                   arr.push(JSON.parse(result[i]));
                 }
 
@@ -449,20 +424,20 @@ export default {
               }
 
              }).catch(error => {
-              console.log('Error:', error);
+              // console.log('Error:', error);
              }); 
         this.state.data = scrape.basicData
         return this.state;
     },
     handleKeyUpYear: async function (this:any) {
-      console.log("here is year search begin query: ", this.props.yearSearchBegin);
-      console.log("here is year search end query: ", this.props.yearSearchEnd);
+      // console.log("here is year search begin query: ", this.props.yearSearchBegin);
+      // console.log("here is year search end query: ", this.props.yearSearchEnd);
 
       this.state.data = {}
   
       let yearBegin = this.props.yearSearchBegin;
       let yearEnd = this.props.yearSearchEnd;
-      console.log(`begin ${yearBegin} // end ${yearEnd}`)
+      // console.log(`begin ${yearBegin} // end ${yearEnd}`)
       if(yearBegin && yearEnd){
       scrape.basicData = await fetch('http://localhost:5000/scraper_year_filter', {
         headers: {
@@ -472,7 +447,7 @@ export default {
         method: "POST",
         body: JSON.stringify({yearBegin: yearBegin, yearEnd: yearEnd})
       }).then(response => response.json()).then(result => {
-              console.log("RESULT ", result);
+              // console.log("RESULT ", result);
               let arr : Array<Object> = [];
               for(let i = 0; i < result.length; i++){
                 
@@ -484,7 +459,7 @@ export default {
               return scrape.basicData;
 
              }).catch(error => {
-              console.log('Error:', error);
+              // console.log('Error:', error);
              }); 
         this.state.data = scrape.basicData
         return this.state;
@@ -493,7 +468,6 @@ export default {
       }
     },
     letterFilterDisplay: function(){
-      console.log('hit it!');
       let getLetterFilter = document.getElementById("letter-wrapper");
       if(getLetterFilter && getLetterFilter.style.display !== "flex"){
         getLetterFilter.style.display = "flex";
@@ -504,8 +478,7 @@ export default {
       } 
     },
     fullTextSearchDisplay: async function(this:any,fullTextSearchInput:String){
-      this.state.data = {}
-      console.log("the letter is... ", fullTextSearchInput);
+      this.state.data = {};
       this.props.fullTextSearchInput = fullTextSearchInput;
       scrape.basicData = await fetch('http://localhost:5000/scraper_fulltext_search_new', {
         headers: {
@@ -515,7 +488,7 @@ export default {
         method: "POST",
         body: JSON.stringify({fullTextSearchInput: "monkeys", filter_mode: this.currentState})
       }).then(response => response.json()).then(result => {
-              console.log("RESULT OF FULLTEXT SEARCH IS... ", result)
+              console.log("RESULT OF FULLTEXT SEARCH IS... ", result);
               let arr : Array<Object> = [];
               for(let i = 0; i < result.length; i++){
                 
@@ -524,11 +497,11 @@ export default {
               }
 
               scrape.basicData = arr;
-              console.log("FULL SEARCH RESULTS: ", arr);
+              // console.log("FULL SEARCH RESULTS: ", arr);
               return scrape.basicData;
 
              }).catch(error => {
-              console.log('Error:', error);
+              // console.log('Error:', error);
              }); 
         this.state.data = scrape.basicData
         return this.state;
@@ -536,7 +509,7 @@ export default {
     },
     handleKeyUpLetter: async function(this:any,letter:String) {
       this.state.data = {}
-      console.log("the letter is... ", letter);
+      // console.log("the letter is... ", letter);
       this.props.letterFilter = letter;
       scrape.basicData = await fetch('http://localhost:5000/scraper_letter_filter', {
         headers: {
@@ -558,7 +531,7 @@ export default {
               return scrape.basicData;
 
              }).catch(error => {
-              console.log('Error:', error);
+              // console.log('Error:', error);
              }); 
         this.state.data = scrape.basicData
         return this.state;
@@ -569,8 +542,8 @@ export default {
       // let titles = this.searchBasicTitle();
       let titles : Array<String> = [];
       let authors : Array<String> = [];
-      console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
-      console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
+      // console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
+      // console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
       if(this.props && this.props.titleSearch){
         titles = await this.searchBasicTitle();
         textsToReturn.value.push(titles);
@@ -580,16 +553,16 @@ export default {
         textsToReturn.value.push(authors);
       } 
 
-      console.log("Texts to return ", textsToReturn.value); 
+      // console.log("Texts to return ", textsToReturn.value); 
       return textsToReturn.value;
     },
     searchBasicTitle: async function(this:any){
       this.state.data = {}
-      console.log("here is title search query: ", this.props.titleSearch);
+      // console.log("here is title search query: ", this.props.titleSearch);
       if(this.props && this.props.titleSearch && this.props.titleSearch.length < 2){
         return null;
       }
-      console.log("ABOUT TO SEARCH FOR THIS TITLE: ", this.props.titleSearch);
+      // console.log("ABOUT TO SEARCH FOR THIS TITLE: ", this.props.titleSearch);
       scrape.basicData = await fetch('http://localhost:5000/scraper_title_filter', {
         headers: {
           'Accept': 'application/json',
@@ -603,11 +576,10 @@ export default {
                 let arr : Array<Object> = [];
                 for(let i = 0; i < result.length; i++){
                   if(this.props.yearSearchEnd){
-                    console.log("we've got to check year search end: ", this.props.yearSearchEnd)
+                    // console.log("we've got to check year search end: ", this.props.yearSearchEnd)
                     if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
-                      console.log("this result happened before search end: ", JSON.parse(result[i]))
+                      // console.log("this result happened before search end: ", JSON.parse(result[i]))
                       if(arr.indexOf(JSON.parse(result[i])) !== -1){
-                        console.log("result is not in ARR... pushing it!")
                         arr.push(JSON.parse(result[i]));
                       }
                     } 
@@ -630,16 +602,16 @@ export default {
               }
 
              }).catch(error => {
-              console.log('Error:', error);
+              // console.log('Error:', error);
              }); 
         this.state.data = scrape.basicData
         return this.state;
     },
     searchBasicAuthor: async function(this:any){
       this.state.data = {}
-      console.log("here is author search query: ", this.props.authorSearch);
+      // console.log("here is author search query: ", this.props.authorSearch);
       if(this.props && this.props.authorSearch && (this.props.authorSearch.length < 2 )){
-        console.log("author search length too short --> returning")
+        // console.log("author search length too short --> returning")
         return null;
       }
 
@@ -715,7 +687,7 @@ export default {
           return null;
         }
         }).catch(error => {
-          console.log('Error:', error);
+          // console.log('Error:', error);
         }); 
         this.state.data = scrape.basicData
 

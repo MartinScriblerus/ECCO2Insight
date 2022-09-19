@@ -53,7 +53,6 @@ async function show_TOC(url:String, title:String, author:String){
   if(searchForms){
     searchForms.style.visibility = "hidden";
   }
-  console.log("REACHING THIS")
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
     headers: {
       'Accept': 'application/json',
@@ -78,7 +77,7 @@ async function show_TOC(url:String, title:String, author:String){
       return null;
     }
     }).catch(error => {
-      console.log('Error:', error);
+      // console.log('Error:', error);
     }); 
     console.log("here's the table of contents: ", tocData.value);
     
@@ -132,7 +131,7 @@ async function scrape_text(url:String){
               return null;
             }
             }).catch(error => {
-            console.log('Error:', error);
+            // console.log('Error:', error);
             }); 
       return rawTextData.value;
 };
@@ -162,12 +161,11 @@ async function doCloseFullModal(){
         
     ready.value = JSON.parse(JSON.stringify(openFull.value));
     return ready.value;
-    // console.log("what is props openfull? ", JSON.parse(JSON.stringify(props.openFull)));
 };
 
 async function doOpenFullModal(){
 
-  console.log("hit 2")
+  console.log("hit open full modal")
   // openFull.value = true;
 };
 
@@ -176,8 +174,6 @@ async function gotLocalStorageText(url){
   if(searchFields){
     searchFields.style.display = "none";
   }
-  // openFull.value = true;
-  // console.log("IN GOT LOCAL STORAGE WELCOME: ", openGraphs.value)
   
   openGraph.value = true;
   setTimeout(()=>{return ready.value = true},1000)
@@ -193,7 +189,6 @@ async function doOpenAwaitScrape(){
 };
 
 function scrapeAnotherUrl(url : String){
-  console.log("hit scrape another url...")
   return scrape_text(url);
 };
 
