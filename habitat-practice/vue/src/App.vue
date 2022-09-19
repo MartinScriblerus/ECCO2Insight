@@ -786,7 +786,7 @@ export default {
         <div id="yearsBetweenInputWrapper">
           <div id="letterSearchBtnColumnWrap">
             <button class="green header" v-on:click="letterFilterDisplay">Letter Search</button>
-            <button class="green header" v-on:click="fullTextSearchDisplay">Full Text Search</button>
+            <button class="green header" disabled id="disableFullText" v-on:click="fullTextSearchDisplay">Full Text Search</button>
             <div id="yearsBetweenRowWrapper">
               <span class="label-wrap">
                 <input id="yearSearch1" placeholder="1660" v-model='props.yearSearchBegin'/>
@@ -1069,7 +1069,9 @@ input[type="checkbox"] {
   height: 100%;
   justify-content: center;
 }
-
+#disableFullText {
+  opacity:0.5;
+}
 #yearsBetweenInputWrapper {
   display: flex;
   flex-direction: column;

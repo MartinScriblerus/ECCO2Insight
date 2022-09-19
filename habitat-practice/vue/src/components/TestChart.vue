@@ -151,11 +151,9 @@ export default {
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
         // console.log("Props ZData in testvhart? ", JSON.parse(JSON.stringify(props.data)));
-        // console.log("THIS FUCKING SUCKS: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
+       
         // console.log("DATA HOLDER 1 VAL: ", dataHolder1.value)
-        // if(!JSON.parse(JSON.stringify(dataHolder1.value))){
-        //   dataHolder1.value=JSON.parse(JSON.stringify(props.data))
-        // }
+
         if(JSON.parse(JSON.stringify(props.data)).length < 1){
           return;
         }
@@ -461,51 +459,9 @@ export default {
                   } else {
                     console.log("hit else for min in line 2");
                   }
-                  // console.log("WHAT THE FUCK: ", JSON.parse(JSON.stringify(props)).dataHolder1Parent);
-
-                  
                   createNewLine1([Object.values(dataRef2.value)],props.color1,1.75,"line_1");
                 }
               }
-
-              // SAVE GROUPS 3 AND 4 UNTIL POST-MVP
-              // if(JSON.parse(JSON.stringify(props)).graphstate === 2){
-              //   // this will be for line #3
-              //   dataRef3.value = props.data; 
-
-              //   let data3Ready = JSON.parse(JSON.stringify(props)).data;
-              //   if(data3Ready !== []){
-              //     emit("dataholderemit3", data3Ready)
-              //   }
-
-              //   let toDel = svg.selectAll(".line#line_2")
-              //   if(toDel.length > 0){
-              //     for(let i = 0;i<toDel.length - 1;i++){
-              //       toDel[i].remove();
-              //     }
-              //   }
-              //   if(JSON.parse(JSON.stringify(dataRef3.value)).length > 0){
-              //     if(Math.max(JSON.parse(JSON.stringify(dataRef3.value)))> yMax.value){
-              //       yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef3.value)))
-              //     }
-              //     createNewLine2([Object.values(dataRef3.value)],props.color2,2,"line_2");
-              //   }
-              // }
-              // if(JSON.parse(JSON.stringify(props)).graphstate === 3){
-              //   dataRef4.value = JSON.parse(JSON.stringify(props.data));
-              //   let toDel = svg.selectAll(".line#line_3")
-              //   if(toDel.length > 0){
-              //     for(let i = 0;i<toDel.length - 1;i++){
-              //       toDel[i].remove();
-              //     }
-              //   }
-              //   if(dataRef4.value.length > 0){
-              //     if(Math.max(JSON.parse(JSON.stringify(dataRef4.value)))> yMax.value){
-              //       yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef4.value)))
-              //     }
-              //     createNewLine3([JSON.parse(JSON.stringify(dataRef4.value))],props.color3,2.25,"line_3");
-              //   }
-              // }
               
               let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_xvar`);
             
@@ -543,8 +499,7 @@ export default {
               if(dataInTemp.length < 1){
                 return;
               }
-              // let dataInTypeCheck = dataIn.filter(i => typeof i === "number").length;
-              console.log("WHAT IS DATA IN FOR FUCK's SAKE: ", dataInTemp);
+
               dataIn = dataInTemp;       
               
               dataIn.filter(i=>typeof i === "number");
@@ -601,76 +556,7 @@ export default {
                       
               return svg; 
             }
-
-
-            // SAVE GROUP 3 AND 4 UNTIL POST-MVP
-            // // function to render new path element with D3's General Update Pattern
-            // function createNewLine2(dataIn,strokeColor,strokeWidth,chosenClassName){ 
-            //   document.getElementById("modalFull").classList.remove("receivedSingleTextData");
-            //   console.log("WTF IS DATA IN IN CREATE LINE 2? ", dataIn);
-            //   JSON.parse(JSON.stringify(dataIn))[0].forEach((t,ind)=>{
-            //     if(typeof t === "undefined" || typeof t === "null"){
-            //       console.log("removed undefined point ", dataIn[ind]);
-            //       dataIn=dataIn.slice(ind)
-            //     }
-            //   })
-            //   //recreate original line
-            //   svg.selectAll(`#line_0`).remove();
-            //   svg.selectAll(`#line_1`).remove();
-            //   try{
-            //     svg.selectAll(`#line_2`).remove();
-            //   } catch(e){
-            //     console.log("err in createline: ",e)
-            //   }
-            //   createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
-            //   // createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
-            //   createNewLine1([props.dataHolder2Parent],props.color1,1.75,"line_1");
-            //   svg
-            //       .selectAll(`#line_2`)
-            //       .data(dataIn) // sync them with our data
-            //       .join(`path`) // create a new "path" for new pieces of data (if needed)
-            //       .attr("stroke", strokeColor)
-            //       .attr("id", "line_2")
-            //       .attr("stroke-width", strokeWidth)
-            //       .attr("d", lineGen); // shape and form of our line!          
-            //   const xAxis = axisBottom(xScale);
-                      
-            //   return svg; 
-            // }
-            
-            // // function to render new path element with D3's General Update Pattern
-            // function createNewLine3(dataIn,strokeColor,strokeWidth,chosenClassName){  
-            //   JSON.parse(JSON.stringify(dataIn)).forEach((t,ind)=>{
-            //       if(typeof t === "undefined" || typeof t === "null"){
-            //         console.log("removed undefined point ", dataIn[ind]);
-            //         dataIn=dataIn.slice(ind)
-            //       }
-            //     })
-            //     //recreate original line
-            //     svg.selectAll(`#line_0`).remove();
-            //     svg.selectAll(`#line_1`).remove();
-            //     svg.selectAll(`#line_2`).remove();
-                
-            //     // createLine([dataRef1.value],props.color0,1.5,"line_0");
-            //     // createNewLine1([JSON.parse(JSON.stringify(dataRef2.value))],props.color1,1.75,"line_1");
-            //     // createNewLine2([JSON.parse(JSON.stringify(dataRef3.value))],props.color2,2.00,"line_2");
-            //     createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
-            //     createNewLine1([props.dataHolder2Parent],props.color1,1.75,"line_1");
-            //     createNewLine2([props.dataHolder3Parent],props.color2,2.00,"line_2");
-                
-            //     svg
-            //         .selectAll(`#line_3`)
-            //         .data(JSON.parse(JSON.stringify(dataIn))) // sync them with our data
-            //         .join(`path`) // create a new "path" for new pieces of data (if needed)
-            //         .attr("stroke", strokeColor)
-            //         .attr("id", "line_3")
-            //         .attr("stroke-width", strokeWidth)
-            //         .attr("d", lineGen); // shape and form of our line!          
-            //     const xAxis = axisBottom(xScale);        
-            //     return svg; 
-            // }
-            
-            
+  
 
             // create axes
             // -----------------------------------------------------------------------
@@ -687,9 +573,6 @@ export default {
               if(oldXLabel){
                 oldXLabel.remove();
               }
-              // console.log("height check in: ", height);
-              // console.log("WHAT IS CURRENT GRAPHSTATE: ", JSON.parse(JSON.stringify(props)).graphstate);
-              // console.log("check resizeState in d3-heavy chunk for axes: ", JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(resizeState)))));
 
               svg
                 .select(".x-axis")
@@ -862,20 +745,10 @@ export default {
           } catch {
             // console.log("ERROR!!!! ------------ ",entArr)
           }
-          // console.log("ENTITY ARR: ", entityArr);
+
         })
       }
     },
-
-    // mouseMove(event) {
-    //   const { clientX, clientY } = event;
-    //   show.value = true;
-    //   console.log("this show: ", show.value);
-    //   console.log("this client x: ", event.clientX);
-    //   console.log("this client y: ", event.clientY);
-    //   this.clientX = event.clientX;
-    //   this.clientY = event.clientY;
-    // }
   },
   watch: { 
     dataHolder1:{
@@ -886,49 +759,48 @@ export default {
             console.log("MISMATCH! old: ", oldVal);
             console.log("MISMATCH! new: ", newVal);
           }
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     xMax:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     yMax:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     xMin:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     yMin:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     xMaxLabel:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     yMaxLabel:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     selectedRow:{
         deep: true,
         handler: function(newVal, oldVal){
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     currentLinesCount:{
@@ -941,10 +813,9 @@ export default {
           }
           if(newVal === 1){
             if(oldVal.length > 0){
-                    dataHolder1.value = oldVal;
-                  }
+              dataHolder1.value = oldVal;
+            }
           }
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     }, 
     resetXNeeded:{
@@ -962,36 +833,31 @@ export default {
     axisColorMatchBool:{
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("newCOLORMATCH BOOL: ",newVal);
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },     
     color0:{
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("newCOL: ",newVal);
-          // alert('color0 changed: ', JSON.parse(JSON.stringify(newVal)))
+          
         }
     },
     color1: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log(newVal);
-          // alert('color1 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     color2: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log(newVal);
-        //  alert('color2 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     color3: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log(newVal);
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     colorX: {
@@ -1005,23 +871,17 @@ export default {
                 console.log("NEW COLOR>>X AXIS? ", newVal);
                 keyBuilder.style.borderColor = newVal.value;
               }
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
         }
     },
     colorY: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log(newVal);
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     valueX: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("new x value", newVal);
-          // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
-          //WE'LL NEED TO SET THIS FOR OTHER BLOCKS THAN JUST 1!!
-          // xAxisLabel.value = JSON.parse(JSON.stringify(newVal));
           
         }
     },
@@ -1029,10 +889,6 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
 
-          // console.log("new yyy value", newVal);
-          
-          // yAxisLabel.value = JSON.parse(JSON.stringify(newVal));
-    
         }
     },
     numberXMin: {
@@ -1044,152 +900,89 @@ export default {
     numberXMax: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("in new xmax!");
-          // console.log("new x MAX number", Math.max(...Object.values(JSON.parse(JSON.stringify(newVal)))));
-          // if(JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number").length > 0){
-          //   numberXMax.value = Math.min(...JSON.parse(JSON.stringify(props)).numberXMax.value.filter(i=>typeof i === "number"))
-          // } else {
-          //   numberXMax.value = 0;
-          // }
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     numberYMin: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("in new ymin!")
-          // console.log("new y number", newVal);
-            // if(JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number").length > 0){
-            //   this.numberYMin = Math.min(...JSON.parse(JSON.stringify(newVal.value)).filter(i=>typeof i === "number"))
-            //this.numberYMin = JSON.parse(JSON.stringify(newVal));
-            // } 
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     numberYMax: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("in new ymax!")
-          // console.log("in new y max: ", newVal);
-   
-            // alert('color3 changed: ', JSON.parse(JSON.stringify(newVal)))
+
         }
     },
     selectedXAxisRef: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("********* new x number", newVal);
-          // console.log("new x axis ref in test", Math.max(...newVal));
-          // this.selectedXAxisRef = newVal;
+
         }
     },
     selectedYAxisRef: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("********* new y number", JSON.parse(JSON.stringify(newVal)));
-          // this.selectedYAxisRef = newVal;
+
         }
     },
     yAxisFramingLast: {
         deep: true,
         handler: function(newVal, oldVal){
-            // if(newVal){
-            //   console.log("AXES FRAMING CHANGHED IN TEST FILE! ",newVal);
-            // } 
+
         }
     },
     show: {
         deep: true,
         handler: function(newVal, oldVal){
-          // console.log("SHOW VALUE! ", newVal);
+
         }
     },
     graphstate: {
         deep: true,
         handler: function(newVal, oldVal){
-            // console.log("graphstate changed in area! ", newVal)
-            // if(newVal){
-                
-                // console.log("parse method: ", JSON.parse(JSON.stringify(this.graphstate)));
 
-                // console.log("THIS WAY??? ", JSON.parse(JSON.stringify(this)).graphstate)
-              
-                // console.log("what about number XMAX? ", this.data.numberXMax)
-                // JSON.parse(JSON.stringify(props)).graphstate = newVal
-                // // alert("we are now comparing");
-                // return this.data.graphstate;
-            // }
         }
     },
     tooltipmsg: {
       deep: true,
       handler: async function(newVal, oldVal){
-        // console.log('Prop changed: ', newVal, ' | was: ', oldVal)
-        
 
+        
 ////////////////
 //**************
 
-function updateTooltip(newVal){
-      show.value = true;
-       let tooltip = document.getElementById("tooltipInner");
+        function updateTooltip(newVal){
+              show.value = true;
+              let tooltip = document.getElementById("tooltipInner");
 
-          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-          // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-          if(tooltip){
-            tooltip.innerHTML = `
-            <div id="sentimentDisplay">
-              <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>
-              <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h4>
-              <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h4>
-              <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h4>
-            </div>
-        
-            <div id="topicListWrapper">
-              ${entityArr.value.toString()}
-            </div> 
-            `
-          }
-          let topicWrapper = document.getElementById("topicListWrapper");
-        
-          if(newVal){
-            JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
-          }
-    }
-    updateTooltip(newVal)
+                  // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
+                  // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
+                  if(tooltip){
+                    tooltip.innerHTML = `
+                    <div id="sentimentDisplay">
+                      <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>
+                      <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h4>
+                      <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h4>
+                      <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h4>
+                    </div>
+                
+                    <div id="topicListWrapper">
+                      ${entityArr.value.toString()}
+                    </div> 
+                    `
+                  }
+                  let topicWrapper = document.getElementById("topicListWrapper");
+                
+                  if(newVal){
+                    JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
+                  }
+            }
+        updateTooltip(newVal)
 //**************
 ////////////////
 
-
-          // let tooltip = await document.getElementById("tooltipInner");
-          // console.log("tooltip inner: ", tooltip);
-
-          // console.log("NEW TOOLTIP-READY VALS!!! UI GOLDMINE!!!! ", JSON.parse(JSON.stringify(newVal)))
-          // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-          //   console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-          //   console.log("WHAT IS TOOLTOIP?? ", tooltip);
-          // if(tooltip){
-          //   tooltip.innerHTML = `
-          //   <div id="sentimentDisplay">
-          
-          //     <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h1>
-          //     <h4 class="HUD-Test-half-div">Neg: ${JSON.parse(JSON.stringify(newVal)).sentimentNegative}</h1>
-          //     <h4 class="HUD-Test-half-div">Neu: ${JSON.parse(JSON.stringify(newVal)).sentimentNeutral}</h1>
-          //     <h4 class="HUD-Test-half-div">Pos: ${JSON.parse(JSON.stringify(newVal)).sentimentPositive}</h1>
-          //   </div>
-        
-          //   <div id="topicListWrapper">
-          //     ${entityArr.value.toString()}
-          //   </div> 
-          //   `
-          // }
-          // let topicWrapper = document.getElementById("topicListWrapper");
-        
-          // console.log("what the heck is this?: ", JSON.parse(JSON.stringify(newVal)).entityArrays);
-          // if(newVal){
-          //   console.log('what in the world is this? ', JSON.parse(JSON.stringify(newVal)).entityArrays);
-          //   JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(newVal)).entityArrays)).forEach(i=>topicWrapper.append(`${i[0]}\n`))
-          // }
       }
     }
   }

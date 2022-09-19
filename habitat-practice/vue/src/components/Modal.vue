@@ -1903,8 +1903,6 @@ body.modal-open {
     pointer-events:all;
     min-height:100vh;
     align-items: left;
-
-    border: solid 1px pink;
 }
 
 #modalFull.awaiting {
@@ -2001,7 +1999,7 @@ body.modal-open {
     width: 50%;
     height: 80px;
     top: 0px;
-    border: dotted 0.5px orange;
+
     left: 0px;
     position: absolute;
     overflow-y:scroll;
@@ -2105,7 +2103,7 @@ body.modal-open {
     position: absolute;
     flex-direction: row;
     pointer-events: none;
-    background:orange;
+    background:transparent;
   }
   .results-col {
     width:33vw;
@@ -2210,7 +2208,7 @@ body.modal-open {
 }
 
 #addTextButton {
-  right: 116px;
+  display: none;
 }
 
 #graphs {
@@ -2218,8 +2216,6 @@ body.modal-open {
     height: 100%;
     top: 0px;
     bottom: 0px;
-
-    border: solid 5px orange;
     z-index:9999;
 }
 #newTextPopup {
@@ -2433,7 +2429,7 @@ button.green-btn {
   border: solid 2px hsla(160, 100%, 37%, 1);
 }
 #compareButton {
-  right: 225px;
+  right: 116px;
 }
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>
