@@ -215,63 +215,60 @@ export default {
                 .select(".x-axis")
                 .selectAll(`text`)['_groups'][0].length - 1]
 
-              if(xMaxRescale && xMaxRescale.childNodes.length > 0){
-                xMaxLabel.value = xMaxRescale.childNodes[0].data;
+                if(xMaxRescale && xMaxRescale.childNodes.length > 0){
+                  xMaxLabel.value = xMaxRescale.childNodes[0].data;
+                }
               }
-            }
-            // SETTING XMIN-MAX AND YMIN-MAX
-            xMin.value = 0;
-            yMin.value = 0;
-            // yMax.value = max(props.data);
-            console.log("CHECK PROPS: ", JSON.parse(JSON.stringify(props)))
+              // SETTING XMIN-MAX AND YMIN-MAX
+              xMin.value = 0;
+              yMin.value = 0;
+              // yMax.value = max(props.data);
+              console.log("CHECK PROPS: ", JSON.parse(JSON.stringify(props)))
 
-            let yMinTemp = JSON.parse(JSON.stringify(props)).numberYMin.filter(i=>i);
-            let yMaxTemp = JSON.parse(JSON.stringify(props)).numberYMax.filter(i=>i);
-            let xMinTemp = JSON.parse(JSON.stringify(props)).numberXMin.filter(i=>i);
-            let xMaxTemp = JSON.parse(JSON.stringify(props)).numberXMax.filter(i=>i);
+              let yMinTemp = JSON.parse(JSON.stringify(props)).numberYMin.filter(i=>i);
+              let yMaxTemp = JSON.parse(JSON.stringify(props)).numberYMax.filter(i=>i);
+              let xMinTemp = JSON.parse(JSON.stringify(props)).numberXMin.filter(i=>i);
+              let xMaxTemp = JSON.parse(JSON.stringify(props)).numberXMax.filter(i=>i);
 
-            //if((Math.min(...yMinTemp) && JSON.parse(JSON.stringify(props.currentLinesCount)) === yMinTemp.length) || yMinTemp && Math.min(...yMinTemp) <= yMin.value){
-                //yMin.value = Math.min(...yMinTemp) 
-                yMin.value = [yMinTemp[yMinTemp.length - 1]]; 
-            // }
-            if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1 && yMinTemp.length >= 1){
-              console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
-              yMin.value = yMinTemp[yMinTemp.length -1];
-            }
-            if(JSON.parse(JSON.stringify(props)).currentLinesCount === 2 && yMinTemp.length >= 2){
-              console.log("INNER CHECK MATH MAX FOR ERROR: ", Math.max(...yMaxTemp));
-              // yMax.value = Math.max(...yMaxTemp)
-              yMin.value = yMinTemp[yMinTemp.length -1];
-            }
-            // if(xMinTemp && Math.min(...xMinTemp) <= xMin.value){
-            //   console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
-            //   xMin.value = Math.min(...xMinTemp)
-            // }
-            if(xMaxTemp && Math.max(...xMaxTemp) >= xMax.value){
-              console.log("INNER CHECK MATH MAX X FOR ERROR: ", Math.max(...xMaxTemp));
-              xMax.value = Math.max(...xMaxTemp)
-            }
+              //if((Math.min(...yMinTemp) && JSON.parse(JSON.stringify(props.currentLinesCount)) === yMinTemp.length) || yMinTemp && Math.min(...yMinTemp) <= yMin.value){
+                  //yMin.value = Math.min(...yMinTemp) 
+                  yMin.value = [yMinTemp[yMinTemp.length - 1]]; 
+              // }
+              if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1 && yMinTemp.length >= 1){
+                console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
+                yMin.value = yMinTemp[yMinTemp.length -1];
+              }
+              if(JSON.parse(JSON.stringify(props)).currentLinesCount === 2 && yMinTemp.length >= 2){
+                console.log("INNER CHECK MATH MAX FOR ERROR: ", Math.max(...yMaxTemp));
+                // yMax.value = Math.max(...yMaxTemp)
+                yMin.value = yMinTemp[yMinTemp.length -1];
+              }
+              // if(xMinTemp && Math.min(...xMinTemp) <= xMin.value){
+              //   console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
+              //   xMin.value = Math.min(...xMinTemp)
+              // }
+              if(xMaxTemp && Math.max(...xMaxTemp) >= xMax.value){
+                console.log("INNER CHECK MATH MAX X FOR ERROR: ", Math.max(...xMaxTemp));
+                xMax.value = Math.max(...xMaxTemp)
+              }
 
-          } else {
-            xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));;
-              // console.log("last2");
-            if(resetXNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
-              resetXNeeded.value = false;
-              // console.log("last marker here... ");
-              xMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
-              // console.log("last1");
-            }
-            // xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-            if(resetYNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberYMax))) > yMax.value){
-              resetYNeeded.value = false;
-              // console.log("last marker here... 2");
-              yMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberYMax)));
-              // console.log("YMAX VAL in hot update: ", yMax.value)
-              //xMin.value = Math.min.apply(...JSON.parse(JSON.stringify(props.numberXMin)));
-            }
-            // xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-            // console.log("last markerrr... ");
-            //   console.log("GET VALUE BEFORE ARRAYS ", JSON.parse(JSON.stringify(props.selectedXAxisRef))['value']);
+            } else {
+              xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));;
+                // console.log("last2");
+              if(resetXNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
+                resetXNeeded.value = false;
+                // console.log("last marker here... ");
+                xMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
+                // console.log("last1");
+              }
+              // xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
+              if(resetYNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberYMax))) > yMax.value){
+                resetYNeeded.value = false;
+                // console.log("last marker here... 2");
+                yMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberYMax)));
+                // console.log("YMAX VAL in hot update: ", yMax.value)
+                //xMin.value = Math.min.apply(...JSON.parse(JSON.stringify(props.numberXMin)));
+              }
 
               if(resetXNeeded.value === true || xMax.value < JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0]){
                 resetXNeeded.value = false;
@@ -303,17 +300,14 @@ export default {
               xMin.value = Math.min(...JSON.parse(JSON.stringify(props)).data);
               yMax.value = Math.max(...JSON.parse(JSON.stringify(props)).data);
 
-              // dataHolder1.value = JSON.parse(JSON.stringify(props)).data;
-              // if(dataHolder1.value.length < 1){
-              //   dataHolder1.value.push(props.data);
-              // }
-              console.log("Current Lines Check0", JSON.parse(JSON.stringify(props)).currentLinesCount)
-              console.log("Graphstate Check0", JSON.parse(JSON.stringify(props)).graphstate)
+
+              // console.log("Current Lines Check0", JSON.parse(JSON.stringify(props)).currentLinesCount)
+              // console.log("Graphstate Check0", JSON.parse(JSON.stringify(props)).graphstate)
               //dataHolder1.value = JSON.parse(JSON.stringify(props.data));
             } else if(props.currentLinesCount === 2){
 
-              console.log("Current Lines Check1", JSON.parse(JSON.stringify(props)).currentLinesCount)
-              console.log("Graphstate Check1", JSON.parse(JSON.stringify(props)).graphstate)
+              // console.log("Current Lines Check1", JSON.parse(JSON.stringify(props)).currentLinesCount)
+              // console.log("Graphstate Check1", JSON.parse(JSON.stringify(props)).graphstate)
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
                 yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
               }
@@ -600,6 +594,8 @@ export default {
                 let tryGetKeyXMin = document.getElementById("xRangeDisplayXMin_0");
                 let tryGetKeyYMax = document.getElementById("xRangeDisplayYMax_0");
                 let tryGetKeyYMin = document.getElementById("xRangeDisplayYMin_0");
+              
+                console.log(`XMAX ${xMax.value} / XMIN ${xMin.value} / YMAX ${yMax.value} / YMIN ${yMin.value}`);
                 // if(tryGetKeyXMax){
                 //   tryGetKeyXMax.innerText = xMax.value
                 // } else {
@@ -680,8 +676,10 @@ export default {
 
               if(JSON.parse(JSON.stringify(props)).graphstate < 1){
                 console.log("RESETTING Y ", JSON.parse(JSON.stringify(props)).numberYMax);
-                yMax.value = JSON.parse(JSON.stringify(props)).numberYMax[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
-                yMin.value = JSON.parse(JSON.stringify(props)).numberYMin[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
+                // yMax.value = JSON.parse(JSON.stringify(props)).numberYMax[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
+                // yMin.value = JSON.parse(JSON.stringify(props)).numberYMin[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
+                yMax.value = JSON.parse(JSON.stringify(props)).numberYMax;
+                yMin.value = JSON.parse(JSON.stringify(props)).numberYMin;
                 console.log("Y MIN VAL IS NOW... ", yMin.value);
                 console.log("Y MAX VAL IS NOW... ", yMin.value);
 
@@ -953,13 +951,10 @@ export default {
 ////////////////
 //**************
 
-        function updateTooltip(newVal){
-              show.value = true;
-              let tooltip = document.getElementById("tooltipInner");
-
-                  // console.log("YOYOYOYO ENTITY ARR", JSON.parse(JSON.stringify(newVal)).sentenceGrammarArray);
-                  // console.log("YOYOYOYO GRAMMAR ARR ", JSON.parse(JSON.stringify(newVal)).sentenceEntityArray);
-                  if(tooltip){
+function updateTooltip(newVal){
+  show.value = true;
+  let tooltip = document.getElementById("tooltipInner");
+    if(tooltip){
                     tooltip.innerHTML = `
                     <div id="sentimentDisplay">
                       <h4 class="HUD-Test-half-div">Comp: ${JSON.parse(JSON.stringify(newVal)).sentimentCompound}</h4>

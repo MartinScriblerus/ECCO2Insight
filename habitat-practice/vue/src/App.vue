@@ -834,11 +834,11 @@ export default {
   left:0px;
   max-width: 100vw;
 
-  -webkit-animation: fadein 8s; /* Safari, Chrome and Opera > 12.1 */
-  -moz-animation: fadein 8s; /* Firefox < 16 */
-   -ms-animation: fadein 8s; /* Internet Explorer */
-    -o-animation: fadein 8s; /* Opera < 12.1 */
-       animation: fadein 8s;
+  -webkit-animation: fadein 4s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 4s; /* Firefox < 16 */
+   -ms-animation: fadein 4s; /* Internet Explorer */
+    -o-animation: fadein 4s; /* Opera < 12.1 */
+       animation: fadein 4s;
 }
 
 @keyframes fadein {
@@ -898,6 +898,7 @@ a,
   transition: 0.4s;
   text-align: center;
   font-weight: 300;
+  font-size:16px; 
 
   padding-left: 10%;
   padding-right: 10%;
@@ -987,7 +988,7 @@ input {
   border-bottom: solid 1px #9ea5e9;
   top:0px;
 
-  transition: all 12s;
+  transition: all 6s;
 }
 
 #headerDiv {
@@ -1042,7 +1043,7 @@ input {
     border-radius:6px;
     width:40px;
     background: hsla(160, 100%, 37%, 1);
-    box-shadow: inset 0 0 1px hsla(160, 100%, 37%, 1);
+    box-shadow: inset 0 0 1px #9ea5e9;
     position:relative;
     margin-left: 10px;
     transition: all .25s;
@@ -1189,11 +1190,11 @@ width: 100%;
   transition: height 1s ease-in;
   pointer-events: none;
 
-  -webkit-animation: fadein 12s; /* Safari, Chrome and Opera > 12.1 */
-  -moz-animation: fadein 12s; /* Firefox < 16 */
-   -ms-animation: fadein 12s; /* Internet Explorer */
-    -o-animation: fadein 12s; /* Opera < 12.1 */
-       animation: fadein 12s;
+  -webkit-animation: fadein 4s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 4s; /* Firefox < 16 */
+   -ms-animation: fadein 4s; /* Internet Explorer */
+    -o-animation: fadein 4s; /* Opera < 12.1 */
+       animation: fadein 4s;
 }
 
 @keyframes fadein {
@@ -1487,7 +1488,7 @@ input:checked + .slider:before {
     position: relative;
   }
   #headerDiv, #wrapper-outer {
-    width: 60%;
+    width: 76%;
     height:100%;
   }
   .book-item {

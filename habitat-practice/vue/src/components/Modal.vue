@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { SelfBuildingSquareSpinner  } from 'epic-spinners'
+import { SelfBuildingSquareSpinner } from 'epic-spinners'
 import StepProgress from 'vue-step-progress';
 import './untitled-font-1.svg'
 
@@ -471,27 +471,14 @@ additionalTexts.value = [
     variableX: "varX",
     variableY: "varY"
   },
-  {
-    title:"1",
-    author:"1",
-    titleUrl: "1",
-    variableX: "X",
-    variableY: "Y"
-  },
-  {
-    title:"2",
-    author:"2",
-    titleUrl: "2",
-    variableX: "X",
-    variableY: "Y"
-  },
-  {
-    title:"3",
-    author:"3",
-    titleUrl: "3",
-    variableX: "X",
-    variableY: "Y"
-  },
+  // {
+  //   title:"1",
+  //   author:"1",
+  //   titleUrl: "1",
+  //   variableX: "X",
+  //   variableY: "Y"
+  // },
+  
 ]
 
 async function trySetReady(){
@@ -590,7 +577,12 @@ yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) =>
     console.log("ARE WE IN GRAPHS??? ", inGraphs.value);
       if(currentLinesCount.value === 1 && inGraphs.value === true){
         showOne.value = true;
+        additionalTexts[0].author = props.selectedAuthor;
+        additionalTexts[0].title = props.selectedTitle;
+        console.log("SELEECTED X AXIS REF: ", selectedXAxisRef.value);
       } else if (currentLinesCount.value === 2){
+        additionalTexts[1].author = props.selectedAuthor;
+        additionalTexts[1].title = props.selectedTitle;
         showTwo.value = true;
         showThree.value = false;
       } else if (currentLinesCount.value === 3){
@@ -691,6 +683,7 @@ async function resetRows(){
   }
   if(currentLinesCount.value >= 2){
     let row2 = document.getElementById("newRow_1");
+    // console.log("blahblahblah: ", props.selectedAuthor)
     if(row2){
       row2.style.display = "flex";
     } else {
@@ -1010,7 +1003,8 @@ async function scrape_text(url){
           fullModal.style.display = "visible"
           let main = document.getElementById("main");
           if(main){
-            main.visibility = "visible";
+            main.style.visibility = "visible";
+            main.style.opacity = 1;
           }
         } else {
           console.log("in else for fullmodal: ", fullModal);
@@ -1083,6 +1077,8 @@ function colorInputMountedHandler(){
   if(currentLinesCount.value === 1){
     console.log("LINE COUNT IS ONE")
   } else if(currentLinesCount.value === 2){
+    additionalTexts.value[1].author = props.selectedAuthor;
+    additionalTexts.value[1].title = props.selectedTitle;
     console.log("LINE COUNT IS TWO")
   } else if(currentLinesCount.value === 3){
     console.log("LINE COUNT IS THREE")
@@ -1100,6 +1096,9 @@ function colorInputMountedHandler(){
   } else {
     //ADD OPTIONS FOR NEWLY SCRAPED TEXTS HERE
     console.log("LINE COUNT: ", currentLinesCount.value);
+    if(!JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).length){
+      return;
+    }
     additionalTexts.value[currentLinesCount.value].title = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).title;
     additionalTexts.value[currentLinesCount.value].author = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).author;
     additionalTexts.value[currentLinesCount.value].titleUrl = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)).titleUrl;
@@ -1174,8 +1173,12 @@ function trySetDataCountYLengthMin(num){
 
 function trySetDataNameX(name){
   valueX.value=name;
-  let labels = JSON.parse(JSON.stringify(optionsX.value)).map(x=>x.label);
-
+  document.getElementById("xAxisRangeDisplay").innerText = name;
+  // let labels = JSON.parse(JSON.stringify(optionsX.value)).map(x=>x.label);
+  if(!additionalTexts.length){
+    return;
+  }
+  let labels = additionalTexts.map(i=>i.author)
   if(labels.indexOf(valueX.value) === -1){
       let tagX = {
         label: valueX.value,
@@ -1190,6 +1193,7 @@ function trySetDataNameX(name){
 
 function trySetDataNameY(name){
   valueY.value = name;
+  document.getElementById("yAxisRangeDisplay").innerText = name;
   let labels = optionsY.value.map(x=>x.label);
   if(labels.indexOf(valueY.value) === -1){
       let tagY = {
@@ -1212,6 +1216,7 @@ function toggleMonochrome(){
 }
 
 function openUpdatePopup(){
+  document.getElementById("grammarDisplayWrapper").style.display = "none";
   let wrapperTitle = document.getElementById("buttonsWrapperTitle");
   let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
   let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1472,16 +1477,16 @@ function clickedLineRow(row){
               </tr>
           
               <tr id="newVariable_0" class="new-text-viz-variable">
-                <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
-                <!-- <span>{{JSON.parse(JSON.stringify(axisColorMatchBool)).value}}</span> -->
-                <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span>
+                GONE GONE
+                <!-- <span id="newVariable_0_xvar">{{additionalTexts[0].variableX}}</span>
+                <span id="newVariable_0_yvar">{{additionalTexts[0].variableY}}</span> -->
               </tr>
               <tr class="color-wrapper">
                 <color-input id="colorInput_0" class="color-input" v-model="color0" position="left" ref="colorInput_0" changed="colorChanged()" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
               </tr>
             </td> 
 
-            <td @click="clickedLineRow(1)" id="newRow_1" class="new-text-popup-row">
+            <td  v-if="additionalTexts[1]" @click="clickedLineRow(1)" id="newRow_1" class="new-text-popup-row">
               <tr id="newText_1" class="new-text-text">
                 <span id="newAuthor_1" class="new-text-author">
                 {{additionalTexts[1].author}}
@@ -1501,8 +1506,9 @@ function clickedLineRow(row){
                 </span> -->
               </tr>
               <tr id="newVariable_1" class="new-text-viz-variable">
-                <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
-                <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span>
+                GONE GONE
+                <!-- <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
+                <span id="newVariable_1_yvar">{{additionalTexts[1].variableY}}</span> -->
               </tr>
               <tr class="color-wrapper">
                 <color-input id="colorInput_1" class="color-input" v-model="color1" position="left" ref="colorInput_1" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
@@ -1511,58 +1517,7 @@ function clickedLineRow(row){
 
             <!-- we should not get these until postMVP -->
             <!-- ----------------------------------------------- -->
-            <td @click="clickedLineRow(2)" id="newRow_2" class="new-text-popup-row">
-              <tr id="newText_2" class="new-text-text">
-                <span id="newAuthor_2" class="new-text-author">
-                {{additionalTexts[2].author}}
-                </span>
-                <span id="newTitle_2" class="new-text-title">
-                  {{additionalTexts[2].title}}
-                </span>
-              </tr>
-              <tr class="rangeDisplay">
-                <span class="rangeDisplayRow">
-                  X-Range: <span id="xRangeDisplayXMin_2"></span> - <span id="xRangeDisplayXMax_2"></span>
-                </span>
-                <span class="rangeDisplayRow">
-                  Y-Range: <span id="yRangeDisplayYMin_2"></span> - <span id="yRangeDisplayYMax_2"></span> 
-                </span>
-              </tr>
-              <tr id="newVariable_2" class="new-text-viz-variable">
-                  <span id="newVariable_2_xvar">{{additionalTexts[2].variableX}}</span>
-                  <span id="newVariable_2_yvar">{{additionalTexts[2].variableY}}</span>
-              </tr>
-              <tr class="color-wrapper">
-                <color-input id="colorInput_2" class="color-input" v-model="color2" position="left" ref="colorInput_2" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-              </tr>
-            </td> 
-
-            <td @click="clickedLineRow(3)" id="newRow_3" class="new-text-popup-row">
-              <tr id="newText_3" class="new-text-text">
-                <span id="newAuthor_3" class="new-text-author">
-                {{additionalTexts[3].author}}
-              <!-- {{item.author}} -->
-                </span>
-                <span id="newTitle_3" class="new-text-title">
-                  {{additionalTexts[3].title}}
-                </span>
-              </tr>
-              <tr class="rangeDisplay">
-                <span class="rangeDisplayRow">
-                  X-Range: <span id="xRangeDisplayXMin_3"></span> - <span id="xRangeDisplayXMax_3"></span>
-                </span>
-                <span class="rangeDisplayRow">
-                  Y-Range: <span id="yRangeDisplayYMin_3"></span> - <span id="yRangeDisplayYMax_3"></span> 
-                </span>
-              </tr>
-              <tr id="newVariable_3" class="new-text-viz-variable">
-                  <span id="newVariable_3_xvar">{{additionalTexts[3].variableX}}</span>
-                  <span id="newVariable_3_yvar">{{additionalTexts[3].variableY}}</span>
-              </tr>
-              <tr class="color-wrapper">
-                <color-input id="colorInput_3" class="color-input" v-model="color3" position="left" ref="colorInput_3" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
-              </tr>
-            </td> 
+           
               <!-- ----------------------------------------------- -->
               
               
@@ -1571,12 +1526,12 @@ function clickedLineRow(row){
               Create X-Axis
               </tr>
               <tr class="rangeDisplay">
-                <span>GONZO X</span>
-                <!-- X-Range: 
+
+     
                 <span class="rangeDisplayRow">
-                  <span id="xAxisRangeDisplayMax"></span>
-                  <span id="xAxisRangeDisplayMin"></span>
-                </span> -->
+                  <span id="xAxisRangeDisplay"></span>
+                  <!-- <span id="xAxisRangeDisplayMin"></span> -->
+                </span>
               </tr>
               <tr id="newVariable_X" class="new-text-viz-variable">
                   <span id="newAxis_X" >
@@ -1610,12 +1565,12 @@ function clickedLineRow(row){
                 </button>
               </tr>
               <tr class="rangeDisplay">
-                <span>GONZO Y</span>
-                <!-- Y-Range: 
+        
+
                 <span class="rangeDisplayRow">
-                  <span id="yAxisRangeDisplayMax"></span>
-                  <span id="yAxisRangeDisplayMin"></span>
-                </span> -->
+                  <span id="yAxisRangeDisplay"></span>
+                  <!-- <span id="yAxisRangeDisplayMin"></span> -->
+                </span> 
               </tr>
               <tr id="newVariable_Y" class="new-text-viz-variable">
                   <span id="newAxis_Y" >
@@ -1692,7 +1647,7 @@ function clickedLineRow(row){
             <slot name="progressMsgExplanation">
             <!-- <h4>Progress Msg Explanation</h4> -->
             <div id="progressMsgExplanationText">
-            <p >Progress Updates</p>
+            <!-- <p ></p> -->
             </div>
             <div id="dataPreviewWrapper">
               <p id="progressMsgDataPreview"></p>
@@ -1740,6 +1695,7 @@ function clickedLineRow(row){
     <h4 id="tocTitle">{{props.selectedTitle}}</h4>
     <span id="tocSubtitle">Click any link below to load the text</span>
     <div id="tocDataWrapper">
+      <SelfBuildingSquareSpinner v-if="!JSON.parse(JSON.stringify(props.tocdata))[0]" class="self-building-square-spinner"/>
         <div id="tocData" v-for="item in props.tocdata">
             <i icon-class="fa-solid fa-ellipsis" />
  
@@ -1807,27 +1763,23 @@ body.modal-open {
   height: 100vh;
 }
 .modal {
-    position: fixed;
-    z-index: 999;
-
-
-    align-items: center;
-    left: 0%;
-    grid-template-columns: 1fr;
-
-    animation: animate-text-scrape 1s linear;
-    background: var(--color-background);
-    backdrop-filter: blur(8px);
-    overflow-y: scroll;
-
-    width: 100vw;
-    margin-left: 12%;
-    margin-right: 12%;
-    width: 76%;
-    top: 4%;
-    bottom: 4%;
-    height: 92%;
-    border-radius: 12px;
+  position: fixed;
+  z-index: 999;
+  align-items: center;
+  left: 0%;
+  grid-template-columns: 1fr;
+  animation: animate-text-scrape 1s linear;
+  background: var(--color-background);
+  backdrop-filter: blur(8px);
+  overflow-y: scroll;
+  width: 100vw;
+  margin-left: 12%;
+  margin-right: 12%;
+  width: 76%;
+  top: 4%;
+  bottom: 4%;
+  height: 92%;
+  border-radius: 12px;
 }
 
 #summaryWrapper {
@@ -1839,28 +1791,28 @@ body.modal-open {
   width:70%;
   text-align:center;
   min-block-size: 200px;
-
 }
 
-  #squareBuilderAnim {
-    transform: rotateX(3.142rad);
-    top: 80px;   
-    margin-left: 48%;
-  }
+#squareBuilderAnim {
+  transform: rotateX(3.142rad);
+  top: 80px;   
+  margin-left: 48%;
+}
+
 #closeBtn {
-    right: 12px;
-    position: absolute;
-    color: rgba(255,255,255,0.9);
-    z-index: 1001;
-    top: 8px;
-    position: fixed;
-    width: 16px; 
+  right: 12px;
+  position: absolute;
+  color: rgba(255,255,255,0.9);
+  z-index: 1001;
+  top: 8px;
+  position: fixed;
+  width: 16px; 
 }
 #tocHeader {
     width: 100%;
     text-align: center;
     font-weight: 500;
-    border-bottom: solid 1px hsla(160, 100%, 37%, 0.7);
+    border-bottom: solid 1px #9ea5e9;
     padding-left: 48px;
     padding-right: 48px;
     color: rgba(255,255,255,1);
@@ -1875,7 +1827,6 @@ body.modal-open {
     color: rgba(255,255,255,1);
     font-size: 16px;
     font-family: 'Inter' sans-serif;
-
     margin-bottom: 0.1rem;
     font-weight: 100;
     cursor: pointer;
@@ -1929,12 +1880,8 @@ body.modal-open {
   display:flex;
 }
 
-
-
 .modal.not-searching {
-  background: teal;
   overflow-y: hidden;
-
   z-index:9999;
 }
 
@@ -1943,28 +1890,26 @@ body.modal-open {
   pointer-events: none;
 }
 
-  .modal-header,
-  .modal-footer {
-    width: 100vw;
-  /*  padding: 15px; */
-    display: flex;
-  }
+.modal-header,
+.modal-footer {
+  width: 100vw;
+/*  padding: 15px; */
+  display: flex;
+}
 
-
-
-  .modal-header {
-    width: 100%;
-    position: relative;
-    z-index: 40;
-    height: 0px;
-    font-size: 48px;
-    font-weight: 100;
-    top: 8px;
-    left: 0px;
-    background: rgba(255, 255, 255, 0.078);
-    transition: height 1s ease-in;
-    position: absolute;
-  }
+.modal-header {
+  width: 100%;
+  position: relative;
+  z-index: 40;
+  height: 0px;
+  font-size: 48px;
+  font-weight: 100;
+  top: 8px;
+  left: 0px;
+  background: rgba(255, 255, 255, 0.078);
+  transition: height 1s ease-in;
+  position: absolute;
+}
   .modal-header:hover {
     background: hsla(193, 82%, 49%, 0.7);
   }
@@ -1988,14 +1933,11 @@ body.modal-open {
   }
   #progressMsgExplanation {
     text-align: center;
-    /* background: rgba(0,0,0,0.4); */
     justify-content: center;
     left: 0px;
     right: 0px;
     width: 100%;
-    /* height: 100%; */
     border-radius: 8px;
- 
     position: relative;
     flex-direction: column;
     display: flex;
@@ -2030,8 +1972,8 @@ body.modal-open {
 
   .btn-green {
     color: white;
-    background: hsla(193, 82%, 49%, 0.7);
-    border: 1px solid hsla(160, 100%, 37%, 0.7);
+    background: #9ea5e9;
+    border: 1px solid #9ea5e9;
     border-radius: 2px;
     width: 40px;
     height: 40px;
@@ -2042,7 +1984,7 @@ body.modal-open {
     background: 36px;
     z-index:9999;
   }
-
+  
   #dataPreviewWrapper {
     position: absolute;
     left: 0px;
@@ -2071,9 +2013,12 @@ body.modal-open {
     color: blue;
   }
   .self-building-square-spinner {
-    top: -60px !important;
+    justify-content: center;
     position: absolute;
-    left:50%;
+    text-align: center;
+    align-items: center;
+    left: calc(50% - 20px);
+    margin-top: 6%;
   }
   #textRowTitle, #textRowAuthor{
     width: 100%;
@@ -2088,6 +2033,7 @@ body.modal-open {
     font-size:14px;
     font-weight:300;
     text-overflow: ellipsis;
+    max-height: 48px;
   }
 
   #tocAuthor, #tocTitle, #tocSubtitle {
@@ -2126,6 +2072,8 @@ body.modal-open {
     /* this is the overarching modal */
     padding-left: 8%;
     padding-right: 8%;
+    padding-top:8px;
+    padding-bottom: 12px;
     position: relative;
     background: var(--color-background);
     height: 100px;
@@ -2209,18 +2157,19 @@ body.modal-open {
     position: absolute;
     overflow-y: scroll;
     transition: all 1s;
-    padding: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   #progressMsgDataSummaryPreview {
     overflow-y: scroll;
-    width: 100%;
+    width: 99%;
     display: flex;
     text-align: center;
     visibility: visible;
     height: 140px;
     position: absolute;
     flex-direction:column;
-    padding:1%;
+    padding-right:1%;
     transition: all 2s;
   }
 
@@ -2250,7 +2199,6 @@ body.modal-open {
 #addTextButton {
   display: none;
 }
-
 #graphs {
   width: 100%;
     height: 100%;
@@ -2301,16 +2249,16 @@ body.modal-open {
   border-right: solid 1px #ffffff;
   border-bottom: solid 1px #ffffff;
 } 
-
 .linePickerPopup {
   background-color:var(--color-background);
   background:var(--color-background);
   color: #ffffff;
-
   border:solid 6px lightblue;
   z-index:  9999;
 }
-
+#toggleMonochromeBtn {
+  min-width:120px;
+}
 .saturation-area {
   background-color:var(--color-background) !important;
   background:var(--color-background) !important;

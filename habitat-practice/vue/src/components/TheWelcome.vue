@@ -36,6 +36,12 @@ const emit = defineEmits(["getWikiURL", "getImages", "in_toc_now"])
 
 async function show_TOC(url:String, title:String, author:String){
   emit("in_toc_now");
+
+//spinner
+  let mainDiv : any = document.getElementById("main")
+  if(mainDiv){
+    mainDiv.style.opacity = 0.2;
+  }
   selectedTitle.value = title;
   selectedAuthor.value = author;
 
@@ -139,11 +145,11 @@ async function scrape_text(url:String){
 async function doCloseModal(){
 
   // document.getElementById("jumbotron").style.display = "flex";
-  let main = document.getElementById("main");
-  let headerDiv = document.getElementById("headerDiv");
-  // if(main){
-  //   main.style.top = "72px";
-  // }
+  let main : any = document.getElementById("main");
+  let headerDiv : any = document.getElementById("headerDiv");
+  if(main){
+    main.style.opacity = 1;
+  }
   if(headerDiv){
     headerDiv.style.visibility = "visible";
   }
@@ -308,8 +314,8 @@ function scrapeAnotherUrl(url : String){
   flex-direction: column;
   /* top: 10%; */
   margin: 0;
-  font-weight: 100;
-  font-size: 14px;
+  font-weight: 300;
+  font-size: 16px;
   min-width: 100px;
   align-items: center;
   border: black;

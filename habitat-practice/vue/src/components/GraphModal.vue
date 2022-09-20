@@ -251,7 +251,7 @@
         tempData = sentenceVizSentimentPlaceholder2.map((i)=>i[0])
         valueY.value = "Sentiment (Compound)";
         valueX.value = "Sentence Count";
-      
+        
         numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
         numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
         if( Math.max(...tempData) > Math.max(numberYMax.value)){
@@ -462,11 +462,11 @@
     e.className = "displayed-grammar";
     let text = g['tokenText'];
     e.append(text);
-    e.style.fontSize = "20px";
-    e.style.paddingRight = "6px";
-    e.style.paddingLeft = "6px";
-    e.style.paddingTop = "2px";
-    e.style.paddingBottom = "2px";
+    e.style.fontSize = "18px";
+    e.style.paddingRight = "4px";
+    e.style.paddingLeft = "4px";
+    e.style.paddingTop = "1px";
+    e.style.paddingBottom = "1px";
     // console.log("tag: ", g['tokenTag'])
     switch(g['tokenTag']){
       case "CC":
