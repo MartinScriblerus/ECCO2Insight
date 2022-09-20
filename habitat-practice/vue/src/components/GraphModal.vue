@@ -70,6 +70,35 @@
     // }
     console.log("RITA!!! ", words);
 
+
+    async function locateClientX(x){
+      let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
+
+        if (popupTextWindow && (window.innerWidth - x) > 100){
+          popupTextWindow.style.left = `${x}px` 
+        } else {
+          // clientX.value=x-200;
+          popupTextWindow.style.left = `${x-200}px` 
+        }
+      }
+      async function locateClientY(y){
+        let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
+
+        if(!y){
+          return;
+        }
+        if( popupTextWindow && y > 250 && y < window.innerHeight - 150){
+          let ok = (parseInt(y) - 72);
+          // console.log("ok? ", ok);
+          popupTextWindow.style.top= `${y}px`;
+          // popupTextWindow.style.background = "yellow"
+        } 
+      }
+
+
+
+
+
   function hideUpdateButtons(){
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
@@ -180,6 +209,15 @@
     
     function updateVizDataSentiment(compound,negative,neutral,positive){
       hideUpdateButtons();
+      let moveableGrammarWrapper = document.getElementById("grammarDisplayWrapper");
+      if(moveableGrammarWrapper){
+        moveableGrammarWrapper.style.display = 'inline-block';
+      }
+      let modalHead = document.getElementById("modalHead");
+      if(modalHead){
+        modalHead.style.display = 'flex';
+      }
+      
       inGraphsParent.value = true;
       let sentenceVizSentimentPlaceholder1 = [];
 
@@ -537,7 +575,7 @@
         break;
       case "UH":
         // interjection
-        e.style.backgroundColor = "red";
+        e.style.backgroundColor = "#E6CECA";
         e.style.color = "#e6e4d6";
         break;
       case "VB":
@@ -905,8 +943,8 @@
         // numberYMinData: [],
         valueX: 'initX',
         valueY: 'initY',
-        clientX:null,
-        clientY:null
+        // clientX:null,
+        // clientY:null
       };
     },
     // mounted() {
@@ -924,32 +962,13 @@
 
     methods: {
       setup(props,{emit}){
-       
+      
       },
 
-      locateClientX(x){
-        if ((window.innerWidth - x) > 100){
-          this.clientX=x;
-        } else {
-          this.clientX=x-200;
-        }
-      },
-      locateClientY(y){
-        console.log("AH what is Y? ", y);
-        if(y > 150){
-          this.clientY=y;
-        } else {
-          // if(y < 150 ){
-          //   this.clientY=y + 100;
-          // } 
-          // if(y > 75 && 75 > Math.abs(window.innerHeight - y)){
-          //   this.clientY=y - 75;
-          // }
-        }
+ 
         
       }
-    }
-  };
+    };
   const dataHolder1Parent = ref([]);
   // const dataHolder2Parent = ref([]);
   // const dataHolder3Parent = ref([]);
@@ -975,7 +994,7 @@
   <div  id="tooltipEntityDisplay">
 
   </div>
-  <div id="grammarDisplayWrapper" :style="{ top: `${this.clientY - 72}px`, left: `${this.clientX}px` }"></div>
+  <div id="grammarDisplayWrapper" ></div>
   <div id="graphDiv">
 
     <h1 id="graphTitle">TODO: Add Graph Title Here</h1>
@@ -1033,12 +1052,16 @@
             <div id="sentimentBtns">
               <span class="label-wrapper">
                 <span class="buttons-row">
+                  <span>
                   <button class="green-btn" @click="updateVizDataSentiment(false,false,false,true); emitterClose('closeUpdatePopup')">Pos</button>
-                  <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Comp</button>
                   <button class="green-btn" @click="updateVizDataSentiment(false,true,false,false); emitterClose('closeUpdatePopup')">Neg</button>
+                </span>
+                <span>
+                  <button class="green-btn" @click="updateVizDataSentiment(true,false,false,false); emitterClose('closeUpdatePopup')">Comp</button>
                   <button class="green-btn" @click="updateVizDataSentiment(false,false,true,false); emitterClose('closeUpdatePopup')">Neu</button>
                 </span>
-                <span>Sentiment Scores</span>
+                </span>
+                <span id="sentimentTitle">Sentiment Scores</span>
                 <br/>
               </span>
             </div>
@@ -1166,27 +1189,30 @@ svg {
 }
 
 #d3UpdateButtonsWrapper {
-    position: fixed;
-    justify-content: center;
-    width: 84%;
-    top: 0%;
-    z-index: 100;
-    background-color: rgba(0, 0, 0, 0.88);
-    left: 8%;
-    right: 8%;
-    color: white;
-    padding: 4%;
-    /* border: 1px solid white; */
-    border-radius: 8px;
-    bottom: 0%;
-    pointer-events: none;
-    border: solid 4.5px brown;
-    top: 8%;
-    bottom: 16%;
-    min-height: 400px;
+  position: fixed;
+  justify-content: center;
+  width: 100%;
+  top: 0%;
+  z-index: 100;
+  top: 16%;
+  /* left: 8%; */
+  /* right: 8%; */
+  color: white;
+  padding: 16%;
+  /* border: 1px solid white; */
+  border-radius: 8px;
+  bottom: 0%;
+  pointer-events: none;
+  top: 8%;
+  bottom: 0px;
+  min-height: 400px;
+  height: 100%;
+  z-index: 99;
+  background: var(--color-background);
+  padding-top: 8%;
 
 
-    border: solid 4.5px brown;
+   
 }
 #grammarDisplayWrapper {
   align-items: center;
@@ -1199,14 +1225,16 @@ svg {
   border: solid 1px #0097BF;
   border-radius: 8px;
   z-index: 100;
-  width: calc(100% - 60%);
+  width: calc(100% - 64%);
   top: 64px;
+  left:0;
   flex-direction: row;
   object-fit: contain;
   display: inline-block;
   overflow-y: scroll;
   /* pointer-events: none; */
   color: #000000;
+  display:none;
 }
 #tooltipEntityDisplay {
   z-index: 9999;
@@ -1287,5 +1315,9 @@ button.green-btn.bottom-btn {
 
   overflow-y: scroll;
 
+}
+#sentimentTitle {
+  font-size: 24px;
+  padding-top: 12px;
 }
 </style>

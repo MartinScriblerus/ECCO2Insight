@@ -49,10 +49,10 @@ async function show_TOC(url:String, title:String, author:String){
   }
   
   
-  let searchForms = document.getElementById("headerDiv");
-  if(searchForms){
-    searchForms.style.visibility = "hidden";
-  }
+  // let searchForms = document.getElementById("headerDiv");
+  // if(searchForms){
+  //   searchForms.style.visibility = "hidden";
+  // }
   tocData.value = await fetch('http://localhost:5000/scraper_get_toc', {
     headers: {
       'Accept': 'application/json',
@@ -236,7 +236,7 @@ function scrapeAnotherUrl(url : String){
  
       <div id="bookSearchMainButtonsWrapper">
         <button v-on:click="open = true,show_TOC(item.title_url, item.title, item.author)" class="book-item button">Contents</button>
-        <button v-on:click="open = true,scrape_text(item.title_url)" class="book-item button">Full Text</button>
+        <button disabled id="fulltextSearch" v-on:click="open = true,scrape_text(item.title_url)" class="book-item button">Full Text</button>
       </div>
     </div>
     
@@ -267,10 +267,11 @@ function scrapeAnotherUrl(url : String){
   overflow-y:scroll;
   padding:2%;
   padding-left: 2%;
-  padding-top: 1%;
+  padding-top: 2%;
+  padding-right: 8%;
 }
 .book-author {
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 300;
   margin-bottom: 0.1rem;
   color: var(--color-text);
@@ -284,21 +285,24 @@ function scrapeAnotherUrl(url : String){
 .book-items {
   font-size: 0.8rem;
   font-weight: 100;
-  color: hsla(160, 100%, 37%, 1);
+  color: #E6CECA;
   display: flex;
   flex-direction: row;
 
 }
 .book-item {
-  width: 50%;
+  width: 34%;
   color: rgba(255,255,255,0.94);
-  line-height:1.8;
+  line-height: 1.8;
+  font-size: 18px;
+  font-weight: 100;
+  top: 1px;
 }
 .book-item.button {
   display: flex;
   justify-content: center;
   width: 100%;
-  color: hsla(160, 100%, 37%, 1);
+  color: #e6e4d6;
   background-color: var(--color-background-mute);
   min-height: 40px;
   flex-direction: column;
@@ -311,6 +315,11 @@ function scrapeAnotherUrl(url : String){
   border: black;
   margin: 4px;
   border-radius: 8px;
+}
+
+#fulltextSearch {
+  pointer-events: none;
+  opacity:0.5;
 }
 
 .bookSearchMainWrapper {

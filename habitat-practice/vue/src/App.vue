@@ -780,7 +780,7 @@ export default {
               <input id="authorSearch" placeholder="ex. Shakespeare, William" v-model='props.authorSearch' :maxlength="30"/>
               <label class="green" for="authorSearch">Author</label>
             </span>
-            <button class="green header" v-on:click="searchBasicOrchestrate">Search</button>
+            <button id="searchBtnMain" class="green header" v-on:click="searchBasicOrchestrate">Search</button>
         </div>
 
         <div id="yearsBetweenInputWrapper">
@@ -833,6 +833,41 @@ export default {
   top:0px;
   left:0px;
   max-width: 100vw;
+
+  -webkit-animation: fadein 8s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 8s; /* Firefox < 16 */
+   -ms-animation: fadein 8s; /* Internet Explorer */
+    -o-animation: fadein 8s; /* Opera < 12.1 */
+       animation: fadein 8s;
+}
+
+@keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -858,10 +893,16 @@ header {
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: #e6e4d6;
+  justify-content: center;
   transition: 0.4s;
-  text-align:center;
-  font-weight:100;
+  text-align: center;
+  font-weight: 300;
+
+  padding-left: 10%;
+  padding-right: 10%;
+  line-height: 1.7;
+
 }
 
 .letterClick {
@@ -873,7 +914,7 @@ a,
 }
 
 .letterClick:hover {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: #333;
   color: #f6f6f6;
 }
 
@@ -896,14 +937,24 @@ button {
 }
 
 button:hover, .button:hover {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: #9ea5e9;
   color: #181818;
 }
 
 button.green-btn {
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color: var(--color-background-mute);
   color: #181818;
-  height:48px;
+  height: 56px;
+  width: 180px;
+  margin: 4px;
+  font-size: 20px;
+  color: #e6e4d6;
+  margin-bottom: 8px;
+}
+
+button.green-btn:hover {
+  background: #9ea5e9;
+  color: #181818;
 }
 
 button.green-btn.bottom-btn {
@@ -914,26 +965,29 @@ button.green-btn.bottom-btn {
 
 input {
   margin-top: 8px;
-  background: rgba(255,255,255,0.94);
+  background: #333;
   height: 32px;
   border-radius: 4px;
-  width:88%;
+  border: none;
+  padding: 8px;
 }
 
 #main {
   max-height: 100vh;
   overflow-y: scroll;
+  
   visibility: hidden;
   display: flex;
   flex-direction: column;
   padding-bottom:400px;
   transition: all 1s;
-
-  border: solid 2px #FF3377; 
 }
 
 #searchFields {
-  border: solid 1px limegreen;
+  border-bottom: solid 1px #9ea5e9;
+  top:0px;
+
+  transition: all 12s;
 }
 
 #headerDiv {
@@ -946,19 +1000,23 @@ input {
   padding-top: 4px;
   line-height: 1.5;
   text-align: left;
-  padding-bottom: 4px;
+
   font-size: 16px;
 
   padding-left: 4%;
   padding-right: 0%;
-  padding-top:1%;
-  padding-bottom:1%;
+
   width: 100%;
 }
 
 #mainTextSubheader {
   font-size: 24px;
   padding-left: 4%;
+}
+
+#searchBtnMain {
+  margin-left:6%;
+  max-width: 88%;
 }
 
 .toggle__button {
@@ -1039,6 +1097,7 @@ input[type="checkbox"] {
 #letterSearchBtnColWrap {
   display: flex;
   flex-direction: column;
+  bottom:12px;
 }
 
 #yearsBetweenRowWrapper {
@@ -1071,6 +1130,7 @@ input[type="checkbox"] {
 }
 #disableFullText {
   opacity:0.5;
+  pointer-events: none;
 }
 #yearsBetweenInputWrapper {
   display: flex;
@@ -1129,8 +1189,41 @@ width: 100%;
   transition: height 1s ease-in;
   pointer-events: none;
 
-  border: solid 1px magenta;
-} 
+  -webkit-animation: fadein 12s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 12s; /* Firefox < 16 */
+   -ms-animation: fadein 12s; /* Internet Explorer */
+    -o-animation: fadein 12s; /* Opera < 12.1 */
+       animation: fadein 12s;
+}
+
+@keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+from { opacity: 0; }
+to   { opacity: 1; }
+}
 
 .intro-cover {
   height: 100vh;
@@ -1170,7 +1263,7 @@ width: 100%;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: hsla(160, 100%, 37%, 1);
+  background-color:#9ea5e9;
   -webkit-transition: 0.4s;
   transition: 0.4s;
 }
@@ -1248,6 +1341,10 @@ input:checked + .slider:before {
 
 @media (max-width: 900px) {
 
+  #headerWrapper {
+    padding-left: 2%;
+  }
+
   #headerDiv.noDisplay {
     display: none;
   }
@@ -1266,7 +1363,7 @@ input:checked + .slider:before {
   }
   .inputsRowWrapper{
     margin-top:8px;
-    margin-bottom:16px;
+    margin-bottom:8px;
     padding-left:2%;
     padding-right:4%;
     display: flex;
@@ -1299,7 +1396,7 @@ input:checked + .slider:before {
     bottom: 4%;
     height: 92%;
     border-radius: 12px;
-    border: solid 3px peru;
+    border: solid 1px #e6e4d6;
   }
 }
 
@@ -1362,14 +1459,17 @@ input:checked + .slider:before {
   .outer-row {
     flex-direction: column;
   }
+  .author-image {
+    min-width: 64px;
+  }
+
+
   
   #headerDiv, #wrapper-outer {
     width: 100%;
     height: 100%;
     padding-right: 4%;
     padding-left: 0%;
-    padding-top: 1%;
-    padding-bottom: 1%;
   }
   #letter-wrapper {
     min-height:100px;
@@ -1393,6 +1493,14 @@ input:checked + .slider:before {
   .book-item {
     display:flex;
   }
+  .author-image {
+    min-width: 164px;
+    transition: all 1s;
+  }
 }
+
+
+
+
 
 </style>

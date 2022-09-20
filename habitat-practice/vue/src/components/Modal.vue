@@ -425,10 +425,10 @@ optionsY.value = []
 
 //Initial colors for lines and axes
 const color0 = ref("");
-color0.value = "#00bd7e";
+color0.value = "#e6e4d6";
 
 const color1 = ref("");
-color1.value = "#00bd7e";
+color1.value = "#9ea5e9";
 
 const color2 = ref("");
 color2.value = "#00bd7e";
@@ -606,7 +606,14 @@ yAxisFramingLast],(tocdata,inGraphs,rawtextdata,selectedTitle,selectedAuthor) =>
 // Begin process for adding a new text...
 // ----------------------------------------------------
 function tryAddNewText(){
-  
+  let moveableGrammarWrapper = document.getElementById("grammarDisplayWrapper");
+      if(moveableGrammarWrapper){
+        moveableGrammarWrapper.style.display = 'none';
+      }
+  let modalHead = document.getElementById("modalHead");
+      if(modalHead){
+        modalHead.style.display = 'none';
+      }
   inGraphs.value = false;
   let searchArea = document.getElementById("searchFields");
   if(searchArea){
@@ -617,6 +624,7 @@ function tryAddNewText(){
   if(headerDiv){
     headerDiv.style.visibility = "visible";
   }
+
   if(document.getElementById("modalFull")){
     document.getElementById("modalFull").classList.remove("receivedSingleTextData");
     document.getElementById("modalFull").style.display = "none"
@@ -1454,12 +1462,13 @@ function clickedLineRow(row){
                 </span>
               </tr>
               <tr class="rangeDisplay">
-                <span class="rangeDisplayRow">
+                <span>GONZOlast</span>
+                <!-- <span class="rangeDisplayRow">
                   X-Range: <span id="xRangeDisplayXMin_0"></span> - <span id="xRangeDisplayXMax_0"></span> 
                 </span>
                 <span class="rangeDisplayRow">
                   Y-Range: <span id="yRangeDisplayYMin_0"></span> - <span id="yRangeDisplayYMax_0"></span>
-                </span>              
+                </span>               -->
               </tr>
           
               <tr id="newVariable_0" class="new-text-viz-variable">
@@ -1483,12 +1492,13 @@ function clickedLineRow(row){
                 </span>
               </tr>
               <tr class="rangeDisplay">
-                <span class="rangeDisplayRow">
+                <span>GONZO AGAIN!</span>
+                <!-- <span class="rangeDisplayRow">
                   X-Range: <span id="xRangeDisplayXMin_1"></span> - <span id="xRangeDisplayXMax_1"></span>
                 </span>
                 <span class="rangeDisplayRow">
                   Y-Range: <span id="yRangeDisplayYMin_1"></span> - <span id="yRangeDisplayYMax_1"></span> 
-                </span>
+                </span> -->
               </tr>
               <tr id="newVariable_1" class="new-text-viz-variable">
                 <span id="newVariable_1_xvar">{{additionalTexts[1].variableX}}</span>
@@ -1499,6 +1509,8 @@ function clickedLineRow(row){
               </tr>
             </td> 
 
+            <!-- we should not get these until postMVP -->
+            <!-- ----------------------------------------------- -->
             <td @click="clickedLineRow(2)" id="newRow_2" class="new-text-popup-row">
               <tr id="newText_2" class="new-text-text">
                 <span id="newAuthor_2" class="new-text-author">
@@ -1551,17 +1563,20 @@ function clickedLineRow(row){
                 <color-input id="colorInput_3" class="color-input" v-model="color3" position="left" ref="colorInput_3" changed="colorChanged" @mounted="colorInputMountedHandler" @pickStart="colorPickerShowHandler"/>
               </tr>
             </td> 
+              <!-- ----------------------------------------------- -->
+              
               
             <td id="newRow_X" class="new-text-popup-row">
               <tr id="newText_X" class="new-text-text">
               Create X-Axis
               </tr>
               <tr class="rangeDisplay">
-                X-Range: 
+                <span>GONZO X</span>
+                <!-- X-Range: 
                 <span class="rangeDisplayRow">
                   <span id="xAxisRangeDisplayMax"></span>
                   <span id="xAxisRangeDisplayMin"></span>
-                </span>
+                </span> -->
               </tr>
               <tr id="newVariable_X" class="new-text-viz-variable">
                   <span id="newAxis_X" >
@@ -1595,11 +1610,12 @@ function clickedLineRow(row){
                 </button>
               </tr>
               <tr class="rangeDisplay">
-                Y-Range: 
+                <span>GONZO Y</span>
+                <!-- Y-Range: 
                 <span class="rangeDisplayRow">
                   <span id="yAxisRangeDisplayMax"></span>
                   <span id="yAxisRangeDisplayMin"></span>
-                </span>
+                </span> -->
               </tr>
               <tr id="newVariable_Y" class="new-text-viz-variable">
                   <span id="newAxis_Y" >
@@ -1720,6 +1736,8 @@ function clickedLineRow(row){
   <div v-if="open" ref="modal" class="modal" :class="open ? 'searching' : 'not-searching'">
     <button id="closeBtn" @click="$emit('closedmodal')">Close</button>
     <h1 id="tocHeader">Table of Contents</h1>
+    <h3 id="tocAuthor">{{props.selectedAuthor}}</h3>
+    <h4 id="tocTitle">{{props.selectedTitle}}</h4>
     <span id="tocSubtitle">Click any link below to load the text</span>
     <div id="tocDataWrapper">
         <div id="tocData" v-for="item in props.tocdata">
@@ -1810,7 +1828,6 @@ body.modal-open {
     bottom: 4%;
     height: 92%;
     border-radius: 12px;
-    border: solid 3px peru;
 }
 
 #summaryWrapper {
@@ -1822,7 +1839,7 @@ body.modal-open {
   width:70%;
   text-align:center;
   min-block-size: 200px;
-  border: solid 1px yellow;
+
 }
 
   #squareBuilderAnim {
@@ -1848,12 +1865,9 @@ body.modal-open {
     padding-right: 48px;
     color: rgba(255,255,255,1);
     padding:8px;
+    color:#f6f6f6;
 }
-#tocSubtitle {
-    padding-left: 4px;
-    padding-right: 4px;
 
-}
 
 #tocData {
     margin-top: 8px;
@@ -1882,7 +1896,6 @@ body.modal-open {
   background: var(--color-background-mute);
   margin-right: 6%;
   margin-left: 6%;
-  margin-top: 48px;
   margin-bottom: 100px;
 }
 
@@ -1909,8 +1922,6 @@ body.modal-open {
     background: transparent;
     pointer-events:all;
     align-items: left;
-
-    border: solid 4px teal;
 }
 
 .rangeDisplayRow {
@@ -1930,8 +1941,6 @@ body.modal-open {
 #modalFull.receivedSingleTextData {
   background:transparent;
   pointer-events: none;
-
-  border: solid 4px yellow;
 }
 
   .modal-header,
@@ -1999,7 +2008,7 @@ body.modal-open {
     width: 50%;
     height: 80px;
     top: 0px;
-
+    padding-top:24px;
     left: 0px;
     position: absolute;
     overflow-y:scroll;
@@ -2037,7 +2046,6 @@ body.modal-open {
   #dataPreviewWrapper {
     position: absolute;
     left: 0px;
-    border: solid 1px teal;
     height: 80px;
     top: 0px;
     width: 50%;
@@ -2046,7 +2054,7 @@ body.modal-open {
     font-weight: 700;
     font-size: 20px;
     overflow-y: hidden;
-
+    padding-top:24px;
   }
 
   .hideFullModal {
@@ -2080,6 +2088,38 @@ body.modal-open {
     font-size:14px;
     font-weight:300;
     text-overflow: ellipsis;
+  }
+
+  #tocAuthor, #tocTitle, #tocSubtitle {
+    position: relative;
+    display: inherit;
+    text-align: center;
+    width: 100%;
+    min-height: 32px;
+    padding: 4px;
+    flex-direction: row;
+    font-weight: 500;
+    font-family: monospace;
+    padding-left: 12%;
+    padding-right: 12%;
+
+  }
+
+  #tocSubtitle {
+    background: rgba(158,165,233,.7);
+    color:#000000;
+    margin-bottom:12px;
+    left: 12%;
+    right: 12%;
+    width: 76%;
+  }
+
+  #tocAuthor {
+    font-size:18px;
+  }
+
+  #tocTitle {
+    font-size:13px;
   }
 
   #modal-textAnalysis-title {
@@ -2164,8 +2204,7 @@ body.modal-open {
     flex-direction: row;
     object-fit: contain;
     width: 100%;
-    height: 180px;
-    border: solid 1px magenta;
+    height: 200px;
     bottom: 0px;
     position: absolute;
     overflow-y: scroll;
@@ -2178,10 +2217,11 @@ body.modal-open {
     display: flex;
     text-align: center;
     visibility: visible;
-    height: 120px;
+    height: 140px;
     position: absolute;
     flex-direction:column;
-    padding:4%;
+    padding:1%;
+    transition: all 2s;
   }
 
 .new-font {
@@ -2386,11 +2426,16 @@ body.modal-open {
   background: rgba(255,255,255,0.078);
 }
 .key-popup {
-  width: 50%;
-  background-color: hsla(160, 100%, 37%, 1);
-  color: #181818;
+  width: 100%;
+  background-color: rgba(0,0,0,0.88);
+  color: #e6e4d6;
   height: 48px;
   margin: 16px;
+  
+}
+.key-popup:hover {
+  background: #9ea5e9;
+  color: #181818;
 }
 #newRow_1, #newRow_2, #newRow_3 {
   display:none;
@@ -2406,7 +2451,7 @@ body.modal-open {
 }
 button.green-btn {
   min-width: 160px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 100;
   max-height: 30px;
 }
@@ -2423,10 +2468,10 @@ button.green-btn {
 }
 .is-index-axis {
 
-  background: hsla(160, 100%, 37%, 1);
+  background: #c1dbd7;
 }
 .selectedLine {
-  border: solid 2px hsla(160, 100%, 37%, 1);
+  border: solid 2px #E6CECA;
 }
 #compareButton {
   right: 116px;

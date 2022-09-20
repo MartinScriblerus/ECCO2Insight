@@ -173,16 +173,16 @@ export default {
             for(let i = 0; i < props.currentLinesCount; i++){
               let tryGetKeyYMax = document.getElementById(`yRangeDisplayYMax_${i}`);
               let tryGetKeyYMin = document.getElementById(`yRangeDisplayYMin_${i}`);
-              if(tryGetKeyYMax){
-                tryGetKeyYMax.innerText = yMax.value;
-              } else {
-                console.log("CAN'T GET KEY Y MAX!!!!!!!")
-              }
-              if(tryGetKeyYMin){
-                tryGetKeyYMin.innerText = yMin.value;
-              } else {
-                console.log("CAN'T GET KEY Y MIN!!!!!!!")
-              }
+              // if(tryGetKeyYMax){
+              //   tryGetKeyYMax.innerText = yMax.value;
+              // } else {
+              //   console.log("CAN'T GET KEY Y MAX!!!!!!!")
+              // }
+              // if(tryGetKeyYMin){
+              //   tryGetKeyYMin.innerText = yMin.value;
+              // } else {
+              //   console.log("CAN'T GET KEY Y MIN!!!!!!!")
+              // }
             }      
             if(Object.keys(svg).length < 1){
               return;
@@ -600,46 +600,46 @@ export default {
                 let tryGetKeyXMin = document.getElementById("xRangeDisplayXMin_0");
                 let tryGetKeyYMax = document.getElementById("xRangeDisplayYMax_0");
                 let tryGetKeyYMin = document.getElementById("xRangeDisplayYMin_0");
-                if(tryGetKeyXMax){
-                  tryGetKeyXMax.innerText = xMax.value
-                } else {
-                  console.log("CAN'T GET KEY XMIN!!!!!!!")
-                }
-                if(tryGetKeyXMin){
-                  tryGetKeyXMin.innerText = xMin.value
-                } else {
-                  console.log("CAN'T GET KEY XMAX!!!!!!!")
-                }
-                if(tryGetKeyYMax){
-                  tryGetKeyYMax.innerText = yMax.value
-                } else {
-                  console.log("CAN'T GET KEY YMAX!!!!!!!")
-                }
-                if(tryGetKeyYMin){
-                  tryGetKeyYMin.innerText = yMin.value
-                } else {
-                  console.log("CAN'T GET KEY YMIN!!!!!!!")
-                }
-                if(tryGetKeyAxisXMax){
-                  tryGetKeyAxisXMax.innerText = xMax.value
-                } else {
-                  console.log("CAN'T GET KEY AXIS XMIN!!!!!!!")
-                }
-                if(tryGetKeyAxisXMin){
-                  tryGetKeyAxisXMin.innerText = xMin.value
-                } else {
-                  console.log("CAN'T GET KEY AXIS XMAX!!!!!!!")
-                }
-                if(tryGetKeyAxisYMax){
-                  tryGetKeyAxisYMax.innerText = yMax.value
-                } else {
-                  console.log("CAN'T GET KEY AXIS YMAX!!!!!!!")
-                }
-                if(tryGetKeyAxisYMin){
-                  tryGetKeyAxisYMin.innerText = yMin.value
-                } else {
-                  console.log("CAN'T GET KEY AXIS YMIN!!!!!!!")
-                }
+                // if(tryGetKeyXMax){
+                //   tryGetKeyXMax.innerText = xMax.value
+                // } else {
+                //   console.log("CAN'T GET KEY XMIN!!!!!!!")
+                // }
+                // if(tryGetKeyXMin){
+                //   tryGetKeyXMin.innerText = xMin.value
+                // } else {
+                //   console.log("CAN'T GET KEY XMAX!!!!!!!")
+                // }
+                // if(tryGetKeyYMax){
+                //   tryGetKeyYMax.innerText = yMax.value
+                // } else {
+                //   console.log("CAN'T GET KEY YMAX!!!!!!!")
+                // }
+                // if(tryGetKeyYMin){
+                //   tryGetKeyYMin.innerText = yMin.value
+                // } else {
+                //   console.log("CAN'T GET KEY YMIN!!!!!!!")
+                // }
+                // if(tryGetKeyAxisXMax){
+                //   tryGetKeyAxisXMax.innerText = xMax.value
+                // } else {
+                //   console.log("CAN'T GET KEY AXIS XMIN!!!!!!!")
+                // }
+                // if(tryGetKeyAxisXMin){
+                //   tryGetKeyAxisXMin.innerText = xMin.value
+                // } else {
+                //   console.log("CAN'T GET KEY AXIS XMAX!!!!!!!")
+                // }
+                // if(tryGetKeyAxisYMax){
+                //   tryGetKeyAxisYMax.innerText = yMax.value
+                // } else {
+                //   console.log("CAN'T GET KEY AXIS YMAX!!!!!!!")
+                // }
+                // if(tryGetKeyAxisYMin){
+                //   tryGetKeyAxisYMin.innerText = yMin.value
+                // } else {
+                //   console.log("CAN'T GET KEY AXIS YMIN!!!!!!!")
+                // }
               
                 resetXNeeded.value = true;
               }
