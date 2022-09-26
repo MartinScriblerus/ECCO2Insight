@@ -27,10 +27,10 @@ const props = {
   margin: {
     type: Object,
     default: () => ({
-      left: 0,
-      right: 0,
-      top: 10,
-      bottom: 10,
+      left: "0px",
+      right: "0px",
+      top: "0px",
+      bottom: "0px",
     }),
   },
   ceil: {

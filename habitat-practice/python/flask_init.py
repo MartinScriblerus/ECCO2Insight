@@ -118,18 +118,18 @@ def hello():
         or_(
             Book.title.contains("Poems: vvritten by Wil. Shake-speare. Gent"),
             Book.title.contains("The Dunciad: With notes variorum, and the prolegomena of Scriblerus. Written in the year, 1727."),
-            Book.title.contains("Letters of the late Rev. Mr. Laurence Sterne, to his most intimate friends. With a fragment in the manner of Rabelais. To which are prefix'd, memoirs of his life and family. Written by himself. And published by his daughter, Mrs. Medalle. In three volumes."),
+            Book.title.contains("Letters of the late Rev. Mr. Laurence Sterne, to his most intimate friends. With a fragment in the manner of Rabelais. To which are prefix'd, memoirs of his life and family. Written by himself. And published by his daughter, Mrs. Medalle. In three volumes.: [pt.1"),
             Book.title.contains("The interesting narrative of the life of Olaudah Equiano: or Gustavus Vassa, the African. Written by himself. [pt.1]"),
             Book.title.contains("Poems on several occasions: By Christopher Smart"),
             Book.title.contains("Poems upon several occasions: By Mrs. Leapor"),
             Book.title.contains("A tragedy. As it is acted at the Theatre-Royal in Drury-Lane, by Her Majesty's servants. By Mr. Addison."),
             Book.title.contains("The Rambler.: [pt.1"),
             Book.title.contains("The beggar's opera: As it is acted at the Theatre-Royal in Lincolns-Inn-Fields. Written by Mr. Gay."),
-            Book.title.contains("The mysteries of Udolpho: a romance; interspersed with some pieces of poetry. By Ann Radcliffe"),
+            Book.title.contains("The mysteries of Udolpho: a romance; interspersed with some pieces of poetry. By Ann Radcliffe, ... In four volumes. ... [pt.1"),
             Book.title.contains("A wife well manag'd: A farce"),
             Book.title.contains("An elegiac poem, on the death of that celebrated divine, and eminent servant of Jesus Christ, the late Reverend, and pious George Whitefield"),
             Book.title.contains("A proposal for promoting useful knowledge among the British plantations in America."),
-            Book.title.contains("Little flocks guarded against grievous wolves. An address unto those parts of New-England which are most exposed unto assaults, from the modern teachers of the misled Quakers. : In a letter, which impartially discovers the manifold haeresies and blasphemies, and the strong delusions of even the most refined Quakerism; and thereupon demonstrates the truth of those principles and assertions, which are most opposite thereunto. : With just reflections upon the extream ignorance and wickedness, of George Keith, who is the seducer that now most ravines upon the churches in this wilderness."),
+            #Book.title.contains("Little flocks guarded against grievous wolves. An address unto those parts of New-England which are most exposed unto assaults, from the modern teachers of the misled Quakers. : In a letter, which impartially discovers the manifold haeresies and blasphemies, and the strong delusions of even the most refined Quakerism; and thereupon demonstrates the truth of those principles and assertions, which are most opposite thereunto. : With just reflections upon the extream ignorance and wickedness, of George Keith, who is the seducer that now most ravines upon the churches in this wilderness."),
             Book.title.contains("Dissertations on government, the affairs of the bank, and paper-money. By the author of Common sense."),
             Book.title.contains("Paradise lost a poem written in ten books"),
             Book.title.contains("The temple Sacred poems and private ejaculations. By Mr. George Herbert."),
@@ -141,7 +141,7 @@ def hello():
             Book.title.contains("Paracelsus his Aurora, & treasure of the philosophers· As also the water-stone of the wise men; describing the matter of, and manner how to attain the universal tincture."),
             Book.title.contains("The tragedie of Dido Queene of Carthage played by the Children of her Maiesties Chappell"),
             Book.title.contains("The life and strange surprizing adventures of Robinson Crusoe: of York, mariner: who lived eight and twenty years, all alone in an un-inhabited island on the coast of America, near the mouth of the great river of Oroonoque"),
-            Book.title.contains("Sketches of the history of man: In four volumes."),
+            # Book.title.contains("Sketches of the history of man: In four volumes."),
             Book.title.contains("The castle of Otranto: a story. Translated by William Marshal, Gent."),
             Book.title.contains("The botanic garden: a poem, in two parts. Part I. Containing the economy of vegetation. Part II. The loves of the plants. With philosophical notes."),
             Book.title.contains("Miscellanies in prose and verse: by Thomas Chatterton, the supposed author of the poems published under the names of Rowley, Canning, &c."),
@@ -171,7 +171,7 @@ def hello():
             Book.title.contains("The displaying of supposed witchcraft wherein is affirmed that there are many sorts of deceivers and impostors and divers persons under a passive delusion of melancholy and fancy, but that there is a corporeal league made betwixt the Devil and the witch ... is utterly denied and disproved : wherein also is handled, the existence of angels and spirits, the truth of apparitions, the nature of astral and sydereal spirits, the force of charms, and philters, with other abstruse matters"),
             Book.title.contains("The anatomy of melancholy vvhat it is. VVith all the kindes, causes, symptomes, prognostickes, and seuerall cures of it. In three maine partitions with their seuerall sections, members, and subsections. Philosophically, medicinally, historically, opened and cut vp. By Democritus Iunior. With a satyricall preface, conducing to the following discourse."),
             Book.title.contains("An account of the Oriental philosophy shewing the wisdom of some renowned men of the East and particularly the profound wisdom of Hai Ebn Yokdan, both in natural and divine things, which he attained without all converse with men, (while he lived in an island a solitary life, remote from all men from his infancy, till he arrived at such perfection)"),
-            Book.title.contains("Poems on several occasions: By N. Rowe, Esq;."),
+            #Book.title.contains("Poems on several occasions: By N. Rowe, Esq;."),
             Book.title.contains("A defence of free-thinking in mathematics: In answer to a pamphlet of Philalethes Cantabrigiensis, intituled, Geometry no friend to infidelity, or a defence of Sir Isaac Newton, and the British mathematicians. Also an appendix concerning Mr. Walton's Vindication of the principles of fluxions ... By the author of The minute philosopher."),
             Book.title.contains("Lectures on rhetoric and belles lettres: By Hugh Blair, ... In three volumes. ... [pt.1]"),
             Book.title.contains("The prophecy of famine. A Scots pastoral: By C. Churchill. Inscribed to John Wilkes, Esq;."),
@@ -179,24 +179,24 @@ def hello():
             Book.title.contains("Hesperides, or, The works both humane & divine of Robert Herrick, Esq."),
             Book.title.contains("A letter to the Reverend Mr. Dean Swift, occasion'd by a satire said to be written by him, entitled, A dedication to a great man, ... By a sparkish pamphleteer of Button's Coffee-house:"),
             Book.title.contains("An essay on man: In epistles to a friend."),
-            Book.title.contains("Sketches of the history of America. By James Thomson Callender. ; (Entered according to law.)"),
+            #Book.title.contains("Sketches of the history of America. By James Thomson Callender. ; (Entered according to law.)"),
             Book.title.contains("Wieland; or The transformation. An American tale. : [Four lines of verse] : Copy-right secured."),
             Book.title.contains("An address to the Negroes in the state of New-York, by Jupiter Hammon, servant of John Lloyd, Jun, Esq; of the manor of Queen's Village, Long-Island. ; [Four lines from Acts]"),
 
             Book.title.contains("An address to Protestant dissenters of all denominations, on the approaching election of members of Parliament, with respect to the state of public liberty in general, and of American affairs in particular."),
             Book.title.contains("The tragicall historie of Hamlet Prince of Denmarke by William Shake-speare. As it hath beene diuerse times acted by his Highnesse seruants in the cittie of London: as also in the two vniuersities of Cambridge and Oxford, and else-where"),
             Book.title.contains("Maria: or, The wrongs of woman. A posthumous fragment. / By Mary Wollstonecraft Godwin. Author of A vindication of the rights of woman."),
-            Book.title.contains("What think ye of Christ? A sermon / preached by the Rev. George Whitefield, on Kennington-Common, after he was refused the use of all the churches."),
+            #Book.title.contains("What think ye of Christ? A sermon / preached by the Rev. George Whitefield, on Kennington-Common, after he was refused the use of all the churches."),
             
             Book.title.contains("The vision of Columbus; a poem in nine books. / By Joel Barlow, Esquire."),
             Book.title.contains("Memoirs of the author of A vindication of the rights of woman: By William Godwin."),
             Book.title.contains("A voyage to Boston. A poem. : [Five lines from Shakespeare]"),
-            Book.title.contains("The adventures of Colonel Daniel Boon, one of the first settlers at Kentucke: containing the wars with the Indians on the Ohio, from 1769 to 1783, and the first establishment and progress of the settlement on that river. / Written by the colonel himself. ; To which are added, a narrative of the captivity and extraordinary escape of Mrs. Francis [sic] Scott, an inhabitant of Washington-County Virginia"),
+            #Book.title.contains("The adventures of Colonel Daniel Boon, one of the first settlers at Kentucke: containing the wars with the Indians on the Ohio, from 1769 to 1783, and the first establishment and progress of the settlement on that river. / Written by the colonel himself. ; To which are added, a narrative of the captivity and extraordinary escape of Mrs. Francis [sic] Scott, an inhabitant of Washington-County Virginia"),
             Book.title.contains("Several poems compiled with great variety of wit and learning, full of delight, wherein especially is contained a compleat discourse, and description of the four elements constitutions, ages of man, seasons of the year. : Together with an exact epitome of the three first monarchyes viz. the Assyrian, Persian, Grecian. And beginning of the Romane Common-Wealth to the end of their last king: : with diverse other pleasant & serious poems, / by a gentlewoman in New-England."),
             Book.title.contains("The last official address, of His Excellency General Washington, to the legislatures of the United States. To which is annexed, a collection of papers relative to half-pay, and commutation of half-pay, granted by Congress to the officers of the army."),
             Book.title.contains("The Federalist: a collection of essays, written in favour of the new Constitution, as agreed upon by the Federal Convention, September 17, 1787. : In two volumes"),
             Book.title.contains("Thoughts on government: applicable to the present state of the American colonies. : In a letter from a gentleman to his friend."),
-            Book.title.contains("An oration, pronounced July 4th, 1793, at the request of the inhabitants of the town of Boston, in commemoration of the anniversary of American independence. / By John Quincy Adams. ; [Five lines of quotations]"),
+            ##Book.title.contains("An oration, pronounced July 4th, 1793, at the request of the inhabitants of the town of Boston, in commemoration of the anniversary of American independence. / By John Quincy Adams. ; [Five lines of quotations]"),
             Book.title.contains("An address to the inhabitants of the British settlements, on the slavery of the Negroes in America. To which is added, A vindication of the address, in answer to a pamphlet entitled, 'Slavery not forbidden in Scripture; or, A defence of the West India planters.' / By a Pennsylvanian. ; [Fifteen lines of verse, signed Proteus]")
         )
     ).all()
@@ -254,7 +254,7 @@ def try_wiki_img():
     last_name = resp['last_name']
     title = resp['title']
     book_id = resp['book_id']
-    print(last_name)
+    # print(last_name)
     publication_year = resp['published'] 
     browser = mechanicalsoup.StatefulBrowser()
     # print('is there a browser? ', browser)
@@ -318,7 +318,7 @@ def scraper():
         s.add(book1)
         s.add(book2)
         s.commit()
-        print('committed initial books')
+        # print('committed initial books')
 
 
     def get_EAI_basic_data(url):
@@ -440,7 +440,7 @@ def scraper():
         if url is not None and browser is not None:
             try:
                 browser.open(url)
-                print("opened browser")
+                # print("opened browser")
             except Exception:
                 print("exception raised")
                 raise
@@ -621,7 +621,6 @@ def scraper():
 @app.route('/scraper_fulltext_search_new', methods = ['POST'])
 def f_t_search():
     fulltext_search_input = request.get_json()['fullTextSearchInput']
-    print('WORKS!! ', fulltext_search_input)
     browser = mechanicalsoup.StatefulBrowser()
     
     urls = ['https://quod.lib.umich.edu/cgi/t/text/text-idx?page=simple;g=eebogroup']
@@ -739,35 +738,37 @@ def resp_2():
 @app.route('/scraper_get_toc', methods = ['POST'])
 def res_toc():  
     r = request.get_json()
-
+    print('here r ', r)
     browser = mechanicalsoup.StatefulBrowser()
     ## IF TOC IS ISSUE, move browser open into try block
+    print('title: ', r['titleUrl'])
     if browser is not None and r['titleUrl'] is not None:
+        
+        browser.open(r['titleUrl'])
+        # try:
+        all_toc = browser.page.find("div", id="toclist")
         try:
-            browser.open(r['titleUrl'])
-            try:
+            all_toc_list = []
+            obj = {}
+        except:
+            while all_toc is None:
                 all_toc = browser.page.find("div", id="toclist")
                 all_toc_list = []
                 obj = {}
-            except:
-                while all_toc is None:
-                    all_toc = browser.page.find("div", id="toclist")
-                    all_toc_list = []
-                    obj = {}
-                    if all_toc is not None:
-                        browser.close()
-                        break
-            for each in all_toc:
-                link_text = each.find("a")
-                if type(link_text) is not int:
-                    link_full = link_text.text
-                    link_href = link_text["href"]
-                    all_toc_list.append({"link_text": link_full, "link_href": link_href})
-            browser.close()
-            return json.dumps(all_toc_list)
-        except Exception:
-            print("exception raised")
-            raise
+                if all_toc is not None:
+                    browser.close()
+                    break
+        for each in all_toc:
+            link_text = each.find("a")
+            if type(link_text) is not int:
+                link_full = link_text.text
+                link_href = link_text["href"]
+                all_toc_list.append({"link_text": link_full, "link_href": link_href})
+        browser.close()
+        return json.dumps(all_toc_list)
+        # except Exception:
+        #     print("exception raised")
+        #     raise
 
 
 
@@ -796,14 +797,6 @@ def res_text():
         
             old_df, sents = nltk_analysis(r, text_in_html)
             
-            # mach_learning = machine_learning(old_df,sents)
-            #could move this (& whole socket) to nltk file...
-            # soct.send('fifteenth_msg')
-            # print(f"WHAT OH WHAT IS MACH LEARNING??? {mach_learning}")
-            # soct.send("fifteenth_msg")
-            # initial_text_obj = old_df
-            # soct.send("second_msg")
-            print("WHAT THE FUCK ARE SENTS? ", sents);
             return old_df 
 
 
@@ -813,13 +806,6 @@ def res_t():
     ## -------------------------- THIS WILL BE MOVED FURTHER DOWN INTO A MACH LEARNING STEP (but staying here for now)
     initial_df_training_data = pd.DataFrame.from_dict(initial_text_obj, orient='index')
     initial_df_training_data = initial_df_training_data.transpose()
-    # print( "df of initial text", text_df_test.info())
-    # # show first 5 rows
-    # print( "show 5 rows", text_df_test.head(5))
-    # # display some statistics
-    # print( "display stats", text_df_test.describe())
-    ## -------------------------- 
-    
     
     return {'keys':"hi"}
 

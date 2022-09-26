@@ -18,10 +18,10 @@ const props = {
   margin: {
     type: Object,
     default: () => ({
-      left: 0,
-      right: 0,
-      top: 10,
-      bottom: 10,
+      left: "0px",
+      right: "0px",
+      top: "0px",
+      bottom: "0px",
     }),
   },
   ceil: {
@@ -35,7 +35,7 @@ export default {
   name: 'LineChart',
   props,
   data() {
-    console.log("inner what is this: ", this);
+    //console.log("inner what is this: ", this);
     return {
       data: [99, 71, 78, 25, 36, 92],
       line: '',
@@ -63,7 +63,7 @@ export default {
         
       const width = this.width - this.margin.left - this.margin.right;
       const height = this.height - this.margin.top - this.margin.bottom;
-      console.log(`width: ${width} / height ${height}`);
+      //console.log(`width: ${width} / height ${height}`);
       return { width, height };
     },
   },

@@ -23,6 +23,7 @@
   "include": ["vue/src/env.d.ts", "src/**/*", "src/**/*.vue","src/use/ResizeObserver.js","src/libs/ResizeObserver.js"],
   "compilerOptions": {
     "baseUrl": ".",
+    "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -34,5 +35,7 @@
     {
       "path": "./tsconfig.config.json"
     }
-  ]
+  ],
+  "exclude":["./dist/**/*"]
+  
 }

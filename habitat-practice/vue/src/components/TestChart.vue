@@ -1,5 +1,5 @@
 <script>
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, watch, watchEffect } from "vue";
 import * as d3 from 'd3';
 // import { ColorPicker } from 'vue-accessible-color-picker';
 import {
@@ -19,15 +19,16 @@ import useResizeObserver from "@/libs/ResizeObserver.js";
 
 export default {
   name: "ResponsiveLineChart",
-  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","axesFramingLast","dataHolder1Parent"],
-  emits:["selected","clientX","clientY", "dataholderemit1"],
+  props: ["data","newData","mode","tooltipmsg","graphstate", "color0", "color1", "color2", "color3","colorX","colorY","valueX","numberXMax","numberXMin","numberYMax","numberYMin","valueY","numberY", "currentLinesCount","secondTextRef","axisColorMatchBool","selectedXAxisRef","selectedYAxisRef","selectedRow","inGraphsParent","savedLineOneDataObj","dataHolder1"],
+  emits:["selected","clientX","clientY", "dataholderemit1","resetX","resetY"],
 
   data(){
     return {
       clientX: 0,
       clientY: 0,
       closestPoint: null,
-      dataH1: ['']
+      dataH1: [],
+      
       // entityArr:[],
       // graphstate: 0,
       // xAxisLabel: '',
@@ -41,22 +42,24 @@ export default {
     const points = ref();
     const yAxisLabel = ref('');
     const xAxisLabel = ref('');
-
-
-  
+    const setDH_1 = ref()
+    const dataHolder1 = ref([]);
+    dataHolder1.value= [];
+     // emit("dataholderemit1", dataRef1.value)
+    const vueIsGarbageSavedLineOne = ref({})
     const entityArr = ref([])
-    console.log("PROPS CHECK KILL ME ", props);
+    const noDupes = ref()
+    noDupes.value = false;
     const show = ref(false);
     points.value = [];
     const scaled = ref();
     const graphMode = ref();
     graphMode.value = 0;
-    const DH1_Done = ref(false);
-    const dataHolder1 = ref([]);
-    dataHolder1.value = [];
+    // const DH1_Done = ref(false);
+   
     // const dataHolder2 = ref([]);
     // const dataHolder3 = ref([]);
-    
+    const passedDataRef1 = ref();
     scaled.value = {
       x: null,
       y: null
@@ -70,12 +73,12 @@ export default {
       sentenceSentimentPositive: 0,
       entityArrays: [],
     });
-    
+   
     // create ref to pass to D3 for DOM manipulation
     const svgRef = ref(null);
     const resetXNeeded = ref(false);
     const resetYNeeded = ref(false);
-
+    
     const lineLabelsArr = ref([]);
 
     function resetShow(){
@@ -95,9 +98,9 @@ export default {
       const { clientX, clientY } = event;
       show.value = true;
 
-      console.log("this show: ", show.value);
-      console.log("this client x: ", event.clientX);
-      console.log("this client y: ", event.clientY);
+      // console.log("this show: ", show.value);
+      // console.log("this client x: ", event.clientX);
+      // console.log("this client y: ", event.clientY);
       this.clientX = event.clientX;
       this.clientY = event.clientY;
       emit("clientX",event.clientX);
@@ -122,72 +125,94 @@ export default {
       // pass ref with DOM element to D3, when mounted (DOM available)      
       const svg = select(svgRef.value);
       let tempSVGs=[]
-      console.log
+      // console.log
       const created_svgs = ref([]);
 
       const tooltipInner = ref(null)
 
-      const xMax = ref(0);
-      const xMin = ref(0);
-      const yMax = ref(0);
-      const yMin = ref(0);
+      const xMaxRef = ref(0);
+      const xMinRef = ref(0);
+      const yMaxRef = ref(0);
+      const yMinRef = ref(0);
       
-      const dataRef1 = ref();
-      const dataRef2 = ref();
-      const dataRef3 = ref();
-      const dataRef4 = ref(); 
+      const dataRef1 = ref([]);
+      const dataRef2 = ref([]);
+      // const dataRef3 = ref();
+      // const dataRef4 = ref(); 
       const createdLine1 = ref(false);
       const xMaxLabel = ref('');
       const yMaxLabel = ref('');
 
 
-      function updateDataHolder1(newData){
-      dataHolder1.value = newData;
+    //   function updateDataHolder1(newData){
+    //   dataHolder1.value = newData;
    
-      console.log("so done w this: ", dataHolder1.value )
-    }
-
+    // }
       
+      const storedRef = ref(false);
+   
+
+
+   
+     
+      function updateOldData(oldData){
+
+    }
       // whenever any dependencies (like data, resizeState) change, call this!
       watchEffect(() => {
-        // console.log("Props ZData in testvhart? ", JSON.parse(JSON.stringify(props.data)));
-       
-        // console.log("DATA HOLDER 1 VAL: ", dataHolder1.value)
 
         if(JSON.parse(JSON.stringify(props.data)).length < 1){
           return;
         }
-
-        const { width, height } = JSON.parse(JSON.stringify(resizeState)).dimensions;
-          console.log("WIDTH: ", width);
-          console.log("HEIGHT: ", height);
-          console.log("D3=> ", d3);
         
+        const { width, height } = JSON.parse(JSON.stringify(resizeState)).dimensions;
+          // console.log("WIDTH: ", width);
+          // console.log("HEIGHT: ", height);
+          // console.log("D3=> ", d3);
+
           // CURRENTLY TESTING THIS...
-          //if(Math.min.apply(Math,JSON.parse(JSON.stringify(props.data))) < yMin.value){
-          yMin.value = Math.min.apply(Math,JSON.parse(JSON.stringify(props.data)));
+          // if(!JSON.parse(JSON.stringify(props.numberYMax))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1] || !JSON.parse(JSON.stringify(props.numberYMin))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]){
+          //   console.log("RETURNING HERE!!!");
+          //   return;
           // }
-          if(Math.max.apply(Math,JSON.parse(JSON.stringify(props.data))) > yMax.value){
-            yMax.value = Math.max.apply(Math,JSON.parse(JSON.stringify(props.data)));
+
+          yMinRef.value = JSON.parse(JSON.stringify(props.numberYMin))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1];
+          yMaxRef.value = JSON.parse(JSON.stringify(props.numberYMax))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]
+          // if(!Math.min.apply(Math,JSON.parse(JSON.stringify(props.data))) || !Math.max.apply(Math,JSON.parse(JSON.stringify(props.data)))){
+          //   return;
+          // }
+          if(JSON.parse(JSON.stringify(Math.min.apply(Math,JSON.parse(JSON.stringify(props.data))))) < yMinRef.value){
+            resetYNeeded.value = true;
+            // console.log("Y RESET NEEDED");
+            yMinRef.value = JSON.parse(JSON.stringify(Math.min.apply(Math,JSON.parse(JSON.stringify(props.data)))));
+          } else {
+            //yMinRef.value = JSON.parse(JSON.stringify(yMinRef.value))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1];
+          }
+          // console.log("is this already a proxy? ", JSON.parse(JSON.stringify(yMinRef.value))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1])
+          // console.log("check curr lines count: ", JSON.parse(JSON.stringify(props)).currentLinesCount -1)
+
+          if(JSON.parse(JSON.stringify(Math.max.apply(Math,JSON.parse(JSON.stringify(props.data))))) > yMaxRef.value){
+            //console.log("RESETTING Y MAX");
+            yMaxRef.value = JSON.parse(JSON.stringify(Math.max.apply(Math,JSON.parse(JSON.stringify(props.data)))));
 
             for(let i = 0; i < props.currentLinesCount; i++){
               let tryGetKeyYMax = document.getElementById(`yRangeDisplayYMax_${i}`);
               let tryGetKeyYMin = document.getElementById(`yRangeDisplayYMin_${i}`);
-              // if(tryGetKeyYMax){
-              //   tryGetKeyYMax.innerText = yMax.value;
-              // } else {
-              //   console.log("CAN'T GET KEY Y MAX!!!!!!!")
-              // }
-              // if(tryGetKeyYMin){
-              //   tryGetKeyYMin.innerText = yMin.value;
-              // } else {
-              //   console.log("CAN'T GET KEY Y MIN!!!!!!!")
-              // }
-            }      
+              if(tryGetKeyYMax){
+                tryGetKeyYMax.innerText = yMaxRef.value;
+              } else {
+                // console.log("CAN'T GET KEY Y MAX!!!!!!!")
+              }
+              if(tryGetKeyYMin){
+                tryGetKeyYMin.innerText = yMinRef.value;
+              } else {
+                // console.log("CAN'T GET KEY Y MIN!!!!!!!")
+              }
+            }     
             if(Object.keys(svg).length < 1){
               return;
             } else {
-              console.log("SVG IS: ", svg.select(".y-axis"));
+              //console.log("SVG IS: ", svg.select(".y-axis"));
             }
             let yMaxRescale = svg
               .select(".y-axis")['_groups'][0][svg
@@ -198,18 +223,27 @@ export default {
 
             if(yMaxRescale ){
               // yMaxLabel.value = yMaxRescale.childNodes[0].data;
-              let textDivY = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_yvar`);
+              let textDivY = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}`);
               if(textDivY){
                 yMaxLabel.value = textDivY;
               } 
             }
           }
-
+          // if(props.data.length){
           if(!props.selectedXAxisRef || !props.selectedYAxisRef){
             console.log("incoming! ", JSON.parse(JSON.stringify(props.data)).length - 1);
-            if((JSON.parse(JSON.stringify(props.data)).length - 1) > xMax.value){
-              xMax.value = JSON.parse(JSON.stringify(props.data)).length - 1;
-              console.log("what is XMAX VAL??? ", xMax.value);
+            
+
+            // if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1){
+              
+              dataRef1.value = JSON.parse(JSON.stringify(props.data));
+            // } else {
+            //   console.log("looooook: ", JSON.parse(JSON.stringify(dataRef1.value)))
+            //   console.log("not reassigning dataRef1 -> curr lines is not 1");
+            // }
+            if((JSON.parse(JSON.stringify(props.data)).length - 1) > xMaxRef.value){
+              xMaxRef.value = JSON.parse(JSON.stringify(props.data)).length - 1;
+              //console.log("what is XMAX VAL??? ", xMaxRef.value);
               let xMaxRescale = svg.select(".x-axis")
                 .selectAll(`text`)['_groups'][0][svg
                 .select(".x-axis")
@@ -220,144 +254,115 @@ export default {
                 }
               }
               // SETTING XMIN-MAX AND YMIN-MAX
-              xMin.value = 0;
-              yMin.value = 0;
-              // yMax.value = max(props.data);
-              console.log("CHECK PROPS: ", JSON.parse(JSON.stringify(props)))
+              xMinRef.value = 0;
+              yMinRef.value = 0;
 
               let yMinTemp = JSON.parse(JSON.stringify(props)).numberYMin.filter(i=>i);
               let yMaxTemp = JSON.parse(JSON.stringify(props)).numberYMax.filter(i=>i);
               let xMinTemp = JSON.parse(JSON.stringify(props)).numberXMin.filter(i=>i);
               let xMaxTemp = JSON.parse(JSON.stringify(props)).numberXMax.filter(i=>i);
 
-              //if((Math.min(...yMinTemp) && JSON.parse(JSON.stringify(props.currentLinesCount)) === yMinTemp.length) || yMinTemp && Math.min(...yMinTemp) <= yMin.value){
-                  //yMin.value = Math.min(...yMinTemp) 
-                  yMin.value = [yMinTemp[yMinTemp.length - 1]]; 
+
+              //if((Math.min(...yMinTemp) && JSON.parse(JSON.stringify(props.currentLinesCount)) === yMinTemp.length) || yMinTemp && Math.min(...yMinTemp) <= yMinRef.value){
+                  //yMinRef.value = Math.min(...yMinTemp) 
+                  yMinRef.value = [yMinTemp[yMinTemp.length - 1]]; 
               // }
               if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1 && yMinTemp.length >= 1){
-                console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
-                yMin.value = yMinTemp[yMinTemp.length -1];
+                //console.log("INNER CHECK MATH MIN FOR ERROR: ", yMinTemp[yMinTemp.length -1]);
+                yMinRef.value = yMinTemp[yMinTemp.length -1];
               }
               if(JSON.parse(JSON.stringify(props)).currentLinesCount === 2 && yMinTemp.length >= 2){
-                console.log("INNER CHECK MATH MAX FOR ERROR: ", Math.max(...yMaxTemp));
-                // yMax.value = Math.max(...yMaxTemp)
-                yMin.value = yMinTemp[yMinTemp.length -1];
+                yMinRef.value = yMinTemp[yMinTemp.length -1];
               }
-              // if(xMinTemp && Math.min(...xMinTemp) <= xMin.value){
-              //   console.log("INNER CHECK MATH MIN FOR ERROR: ", Math.min(...xMinTemp));
-              //   xMin.value = Math.min(...xMinTemp)
-              // }
-              if(xMaxTemp && Math.max(...xMaxTemp) >= xMax.value){
-                console.log("INNER CHECK MATH MAX X FOR ERROR: ", Math.max(...xMaxTemp));
-                xMax.value = Math.max(...xMaxTemp)
+              if(xMaxTemp && Math.max(...xMaxTemp) >= xMaxRef.value){
+                xMaxRef.value = Math.max(...xMaxTemp)
               }
 
             } else {
-              xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));;
+              xMinRef.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));;
                 // console.log("last2");
-              if(resetXNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMax.value){
+              if(resetXNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberXMax))) > xMaxRef.value){
                 resetXNeeded.value = false;
                 // console.log("last marker here... ");
-                xMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
+                xMaxRef.value = Math.max(...JSON.parse(JSON.stringify(props.numberXMax)));
                 // console.log("last1");
               }
-              // xMin.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
-              if(resetYNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberYMax))) > yMax.value){
+              // xMinRef.value = Math.min(JSON.parse(...JSON.stringify(props.numberXMin)));
+              if(resetYNeeded.value === true || Math.max(...JSON.parse(JSON.stringify(props.numberYMax))) > yMaxRef.value){
                 resetYNeeded.value = false;
                 // console.log("last marker here... 2");
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(props.numberYMax)));
-                // console.log("YMAX VAL in hot update: ", yMax.value)
-                //xMin.value = Math.min.apply(...JSON.parse(JSON.stringify(props.numberXMin)));
+                yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(props.numberYMax)));
+                //console.log("YMAX VAL in hot update: ", yMaxRef.value)
+
               }
 
-              if(resetXNeeded.value === true || xMax.value < JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0]){
+              if(resetXNeeded.value === true || xMaxRef.value < JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0]){
                 resetXNeeded.value = false;
-                xMax.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0];
+                xMaxRef.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][1][0];
               }
 
-              if(resetXNeeded.value === true || xMin.value > JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0]){
-                xMin.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0];
+              if(resetXNeeded.value === true || xMinRef.value > JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0]){
+                xMinRef.value = JSON.parse(JSON.stringify(props.selectedXAxisRef))['value'][0][0];
               }
-              if(resetYNeeded.value === true || yMax.value < JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0]){
+              if(resetYNeeded.value === true || yMaxRef.value < JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0]){
                 resetYNeeded.value = false;
-                yMax.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0];
+                yMaxRef.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][1][0];
               }
-              if(resetYNeeded.value === true || yMin.value > JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0]){
-                yMin.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0];
+              if(resetYNeeded.value === true || yMinRef.value > JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0]){
+                yMinRef.value = JSON.parse(JSON.stringify(props.selectedYAxisRef))['value'][0][0];
               }
-              console.log(`xmin: ${xMin.value} / xmax: ${xMax.value} / ymin ${yMax.value} / ymax ${yMin.value}`)
+              //console.log(`xmin: ${xMinRef.value} / xmax: ${xMaxRef.value} / ymin ${yMaxRef.value} / ymax ${yMinRef.value}`)
             }
 
             // *** ________________________________________________________
             let finalAxes = {
-              xMax:xMax.value,
-              xMin:xMin.value,
-              yMax:yMin.value,
-              yMin:yMin.value
+              xMax:xMaxRef.value,
+              xMin:xMinRef.value,
+              yMax:yMinRef.value,
+              yMin:yMinRef.value
             }
-
+          
             if(JSON.parse(JSON.stringify(props)).currentLinesCount < 2){
-              xMin.value = Math.min(...JSON.parse(JSON.stringify(props)).data);
-              yMax.value = Math.max(...JSON.parse(JSON.stringify(props)).data);
-
-
-              // console.log("Current Lines Check0", JSON.parse(JSON.stringify(props)).currentLinesCount)
-              // console.log("Graphstate Check0", JSON.parse(JSON.stringify(props)).graphstate)
-              //dataHolder1.value = JSON.parse(JSON.stringify(props.data));
+              yMinRef.value = Math.min(...JSON.parse(JSON.stringify(props)).data);
+              yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(props)).data);
             } else if(props.currentLinesCount === 2){
 
               // console.log("Current Lines Check1", JSON.parse(JSON.stringify(props)).currentLinesCount)
               // console.log("Graphstate Check1", JSON.parse(JSON.stringify(props)).graphstate)
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
+                yMinRef.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
               }
               if(Math.max(...JSON.parse(JSON.stringify(dataHolder1.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
+                yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
             
             } else if(JSON.parse(JSON.stringify(props)).currentLinesCount === 3){
-              console.log("Current Lines Check2", JSON.parse(JSON.stringify(props)).currentLinesCount)
-              console.log("Graphstate Check2", JSON.parse(JSON.stringify(props)).graphstate)
+              //console.log("Current Lines Check2", JSON.parse(JSON.stringify(props)).currentLinesCount)
+              //console.log("Graphstate Check2", JSON.parse(JSON.stringify(props)).graphstate)
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
+                yMinRef.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
               }
               if(Math.max(...JSON.parse(JSON.stringify(dataHolder1.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
+                yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
-              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
-              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
-              // }
-              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
-              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
-              // }
+  
             } else if(JSON.parse(JSON.stringify(props)).currentLines === 4){
               if(Math.min(...JSON.parse(JSON.stringify(dataHolder1.value))) < finalAxes.yMin){
-                yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
+                yMinRef.value = Math.min(...JSON.parse(JSON.stringify(dataHolder1.value)))
               }
               if(Math.max(...JSON.parse(JSON.stringify(dataHolder1.value))) > finalAxes.yMax){
-                yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
+                yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(dataHolder1.value)));
               }
-              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder2.value))) < finalAxes.yMin){
-              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder2.value)))
-              // }
-              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder2.value))) > finalAxes.yMax){
-              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder2.value)));
-              // }
-              // if(Math.min(...JSON.parse(JSON.stringify(dataHolder3.value))) < finalAxes.yMin){
-              //   yMin.value = Math.min(...JSON.parse(JSON.stringify(dataHolder3.value)))
-              // }
-              // if(Math.max(...JSON.parse(JSON.stringify(dataHolder3.value))) > finalAxes.yMax){
-              //   yMax.value = Math.max(...JSON.parse(JSON.stringify(dataHolder3.value)));
-              // }
-            } else {
-              // finalAxes.yMax = yMin.value;
-              // finalAxes.xMax = yMax.value; 
-            }  
 
+            } else {
+              // finalAxes.yMax = yMinRef.value;
+              // finalAxes.xMax = yMaxRef.value; 
+            }  
+            console.log()
             // THIS IS A PLACE TO IMPROVE... 
             // scales: map index / data values to pixel values on x-axis / y-axis
             const xScale = scaleLinear()
-              .domain([xMin.value,xMax.value])
+              .domain([xMinRef.value,xMaxRef.value])
               //.domain([0, props.data.length - 1]) // input values...
               .range([0, width]); // ... output values
 
@@ -386,55 +391,46 @@ export default {
             })
             //////////////////////////////////////////////
            
-            if(props.length < 1){
+            if(JSON.parse(JSON.stringify(props)).length < 1){
               return;
             } else {
-              console.log("D3 NAMESPACES=> ", d3.namespaces);
-              console.log("WTF IS GRAPHSTATE ", JSON.parse(JSON.stringify(props)).graphstate);
-              
-              
+              //console.log("D3 NAMESPACES=> ", d3.namespaces);
+
+    
               if(JSON.parse(JSON.stringify(props)).graphstate === 0){
-                if(!dataRef1.value && JSON.parse(JSON.stringify(props)).data.length > 0){
-                  dataRef1.value = props.data; 
+              
+              
+                  console.log("props in test: ", JSON.parse(JSON.stringify(props)));
+                  dataRef1.value = JSON.parse(JSON.stringify(props)).data;
+                  dataHolder1.value = dataRef1.value;
+
+                  if(JSON.parse(JSON.stringify(props)).graphstate === 0 && JSON.parse(JSON.stringify(dataRef1.value)) !== {} && dataRef1.value !== {}){
+                    vueIsGarbageSavedLineOne.value = dataRef1.value; 
+                  }
+
+                  createLine([dataRef1.value],props.color0,1.5,"line_0");
            
-                  let data1Ready = JSON.parse(JSON.stringify(props)).data;
-                  if(data1Ready !== []){
-                    emit("dataholderemit1", data1Ready)
-                  }
-
-                }
-                let vals = Object.values(JSON.parse(JSON.stringify(dataRef1.value)));
-                for(let v = 0;v<vals.length-1;v++){
                 
-                  if(typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v] === "number"){
-
-                  } else {
-                    console.log("what type is this? ", typeof Object.values(JSON.parse(JSON.stringify(dataRef1.value)))[v]);
-                  }
-                }
+ 
                 
-                console.log("dataholder1: ", dataHolder1.value )
-                if(DH1_Done.value !== true && JSON.parse(JSON.stringify(dataRef1.value)).length){
-
-                  DH1_Done.value = true;
-                  
-                }
-                createLine([dataRef1.value],props.color0,1.5,"line_0");
-                
+                // if(storedRef.value !== true){
+                //     storedRef.value = true;
+                   // emit("dataholderemit1", dataRef1.value)
+                    // dataHolder1.value = dataRef1.value
+                    // createLine([dataRef1.value],props.color0,1.5,"line_0");
+                // }
               }
            
               if(JSON.parse(JSON.stringify(props)).graphstate === 1){
                 // This will be line #2
-
-                dataRef2.value = props.data; 
-
+          
                 // let data2Ready = JSON.parse(JSON.stringify(props)).data;
                 // if(data2Ready !== []){
                 //   emit("dataholderemit2", data2Ready)
                 // }
 
                 // console.log("DATAREEF2: ", JSON.parse(JSON.stringify(dataRef2.value)));
-                // console.log("WHAT IS DATAREF2? WHAT IS DATAHOLDER?? // PICK UP EDITS HERE!")
+ 
                 let toDel = svg.selectAll(`.line#line_1`);
                 if(toDel.length > 0){
                   for(let i = 0;i<toDel.length - 1;i++){
@@ -442,22 +438,27 @@ export default {
                     toDel[i].remove();
                   }
                 }
-                if(JSON.parse(JSON.stringify(dataRef2.value)).length > 0){
-                  if(Math.max(JSON.parse(JSON.stringify(dataRef2.value))) > yMax.value){
-                    yMax.value = Math.max(...JSON.parse(JSON.stringify(dataRef2.value)))
+
+                if(JSON.parse(JSON.stringify(props.data)).length > 0){
+                  if(Math.max(JSON.parse(JSON.stringify(props.data))) > yMaxRef.value){
+                    yMaxRef.value = Math.max(...JSON.parse(JSON.stringify(props.data)))
                   } else {
-                    // console.log("hit else for max in line 2 ", JSON.parse(JSON.stringify(dataRef2.value)));
+                    //console.log("hit else for max in line 2 ", JSON.parse(JSON.stringify(dataRef2.value)));
                   }
-                  if(Math.min(JSON.parse(JSON.stringify(dataRef2.value))) > yMin.value ){
-                    yMin.value = Math.min(...JSON.parse(JSON.stringify(dataRef2.value)))
+                  if(Math.min(JSON.parse(JSON.stringify(props.data))) > yMinRef.value ){
+                    yMinRef.value = Math.min(...JSON.parse(JSON.stringify(props.data)))
                   } else {
-                    console.log("hit else for min in line 2");
+                    // console.log("hit else for min in line 2");
                   }
-                  createNewLine1([Object.values(dataRef2.value)],props.color1,1.75,"line_1");
+ 
+
+                  // createLine([Object.values(dataHolder1.value)],props.color0,1.5,"line_0");
+                  console.log("initial line just prior to creating: ", Object.values(props.data))
+                  createNewLine1([Object.values(props.data)],props.color1,1.75,"line_1");
                 }
               }
               
-              let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_xvar`);
+              let textDivX = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}`);
             
               if(textDivX){
                 textDivX.innerText = JSON.parse(JSON.stringify(props)).valueX;
@@ -467,36 +468,52 @@ export default {
                   lineLabelsArr.value.push(textDivX.innerText);
                 }
               }
-              let textDivY = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}_yvar`);
-          
+              let textDivY = document.getElementById(`newVariable_${JSON.parse(JSON.stringify(props.currentLinesCount))-1}`);
+              //console.log("geetting textdiv y: ", textDivY);
               if(textDivY){
                 textDivY.innerText = JSON.parse(JSON.stringify(props)).valueY;
                 yAxisLabel.value = JSON.parse(JSON.stringify(props)).valueY;
+                //console.log("look here: ", yAxisLabel.value)
                 if(lineLabelsArr.value.indexOf(textDivY.innerText) === -1){
+                  //console.log("pushing this val into Y: ", textDivY.innerText);
                   lineLabelsArr.value.push(textDivY.innerText);
                 }
               }
             }
 
-        
+
             // function to render path element with D3's General Update Pattern
             function createLine(dataIn,strokeColor,strokeWidth,chosenClassName){ 
+              // emit("dataholderemit1", dataIn);
               try{
                 svg.selectAll(`#line_0`).remove();
               } catch(e){
               
               }
-              // dataIn = dataIn.filter(i=>i)
-              console.log("WHAT IS DATA IN???? ", dataIn);
-
-              let dataInTemp = JSON.parse(JSON.stringify(dataIn))[0].filter(i=>typeof i === "number");
-              if(dataInTemp.length < 1){
-                return;
-              }
-
-              dataIn = dataInTemp;       
               
-              dataIn.filter(i=>typeof i === "number");
+              let dataInTemp;
+              
+              if(JSON.parse(JSON.stringify(props)).currentLinesCount< 2){
+                dataInTemp = JSON.parse(JSON.stringify(dataIn))[0].filter(i=>typeof i === "number");
+                if(dataInTemp.length < 1){
+                  return;
+                }
+                dataIn = dataInTemp;       
+                console.log("WHAT IS DATA IN???? ", dataIn);
+                if(JSON.parse(JSON.stringify(props)).graphstate === 0){
+                  dataHolder1.value = dataIn;
+                }
+              
+                dataIn.filter(i=>typeof i === "number");
+                // if(JSON.parse(JSON.stringify(props)).graphstate === 0){
+                if(JSON.parse(JSON.stringify(props)).currentLinesCount < 2 && JSON.parse(JSON.stringify(dataIn)).length > 0){
+                  dataHolder1.value = JSON.parse(JSON.stringify(dataIn));
+                  dataHolder1.value = JSON.parse(JSON.stringify(dataIn));
+                }
+              } else {
+
+              }
+              
 
               strokeWidth = 1;
               svg
@@ -516,27 +533,38 @@ export default {
               return svg; 
             }
           
+
             // // function to render new path element with D3's General Update Pattern
             // // --------------------------------------------------------------------
             function createNewLine1(dataIn1,strokeColor,strokeWidth,chosenClassName){ 
-              document.getElementById("modalFull").classList.remove("receivedSingleTextData");
+              
+              if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1){
+                return;
+              }
               try{
                 svg.selectAll(`#line_1`).remove();
               } catch(e){
-                // console.log("err in createline: ",e)
+                console.log("err in createline: ",e)
               }
-              dataIn1.filter(i=>i)
+             
+              if(!dataRef2.value){
+                dataRef2.value = JSON.parse(JSON.stringify(dataIn1))[0];
+              }
               let dataInTemp = JSON.parse(JSON.stringify(dataIn1))[0].filter(i=>typeof i === "number");
               
+              //console.log("WHAT IS TEMP &******** ", JSON.parse(JSON.stringify(props.dataHolder1Parent)));
               dataIn1 = dataInTemp;   
               //recreate original line
               svg.selectAll(`#line_0`).remove();
-             
-              console.log("WHAT IS DATAHOLDER1 VALUE? ", dataHolder1.value);
-              createLine([props.dataHolder1Parent],props.color0,1.5,"line_0");
+                let savedVals = Object.values(JSON.parse(JSON.stringify(props.dataHolder1)))
+                savedVals.map(i=>typeof i === "number");
+
+              createLine(savedVals,props.color0,1.5,"line_0");
+              
               // createLine([dataHolder1.value],props.color0,1.5,"line_0");
               dataIn1.filter(i=>typeof i === "number");
-              console.log("DATA IN in create new line 1: ", dataIn1)
+              //console.log("DATA IN in create new line 1: ", dataIn1);
+              strokeWidth = 1;
               svg
                   .selectAll(`#line_1`)
                   .data([dataIn1]) // sync them with our data
@@ -583,8 +611,7 @@ export default {
                     .text(JSON.parse(JSON.stringify(props)).valueX));
          
               if(JSON.parse(JSON.stringify(props)).graphstate < 1 && oldXLabel !== xMaxLabel.value){
-                //xMax.value = JSON.parse(JSON.stringify(props)).numberXMax[1];
-                // console.log("xMax value: ", xMax.value);
+
                 let tryGetKeyAxisXMax = document.getElementById("xAxisRangeDisplayMax");
                 let tryGetKeyAxisXMin = document.getElementById("xAxisRangeDisplayMin");
                 let tryGetKeyAxisYMax = document.getElementById("yAxisRangeDisplayMax");
@@ -595,48 +622,7 @@ export default {
                 let tryGetKeyYMax = document.getElementById("xRangeDisplayYMax_0");
                 let tryGetKeyYMin = document.getElementById("xRangeDisplayYMin_0");
               
-                console.log(`XMAX ${xMax.value} / XMIN ${xMin.value} / YMAX ${yMax.value} / YMIN ${yMin.value}`);
-                // if(tryGetKeyXMax){
-                //   tryGetKeyXMax.innerText = xMax.value
-                // } else {
-                //   console.log("CAN'T GET KEY XMIN!!!!!!!")
-                // }
-                // if(tryGetKeyXMin){
-                //   tryGetKeyXMin.innerText = xMin.value
-                // } else {
-                //   console.log("CAN'T GET KEY XMAX!!!!!!!")
-                // }
-                // if(tryGetKeyYMax){
-                //   tryGetKeyYMax.innerText = yMax.value
-                // } else {
-                //   console.log("CAN'T GET KEY YMAX!!!!!!!")
-                // }
-                // if(tryGetKeyYMin){
-                //   tryGetKeyYMin.innerText = yMin.value
-                // } else {
-                //   console.log("CAN'T GET KEY YMIN!!!!!!!")
-                // }
-                // if(tryGetKeyAxisXMax){
-                //   tryGetKeyAxisXMax.innerText = xMax.value
-                // } else {
-                //   console.log("CAN'T GET KEY AXIS XMIN!!!!!!!")
-                // }
-                // if(tryGetKeyAxisXMin){
-                //   tryGetKeyAxisXMin.innerText = xMin.value
-                // } else {
-                //   console.log("CAN'T GET KEY AXIS XMAX!!!!!!!")
-                // }
-                // if(tryGetKeyAxisYMax){
-                //   tryGetKeyAxisYMax.innerText = yMax.value
-                // } else {
-                //   console.log("CAN'T GET KEY AXIS YMAX!!!!!!!")
-                // }
-                // if(tryGetKeyAxisYMin){
-                //   tryGetKeyAxisYMin.innerText = yMin.value
-                // } else {
-                //   console.log("CAN'T GET KEY AXIS YMIN!!!!!!!")
-                // }
-              
+
                 resetXNeeded.value = true;
               }
               return svg;
@@ -650,7 +636,7 @@ export default {
               createXAxis(JSON.parse(JSON.stringify(props)).colorX);
 
             function createYAxis(color){
-              console.log("WE ARE CHANGING Y AXIS NOW!!! ");
+              //console.log("WE ARE CHANGING Y AXIS NOW!!! ");
            
               const yAxis = axisLeft(yScale);
               let oldYLabel = svg
@@ -661,7 +647,7 @@ export default {
               if(oldYLabel){
                 oldYLabel.remove();
               }
-              console.log("are we getting color? ", color);
+              //console.log("are we getting color? ", color);
                 svg.select(".y-axis")
                     .style("color", color)
                     .call(yAxis)
@@ -675,26 +661,21 @@ export default {
                     .text(JSON.parse(JSON.stringify(props)).valueY));
 
               if(JSON.parse(JSON.stringify(props)).graphstate < 1){
-                console.log("RESETTING Y ", JSON.parse(JSON.stringify(props)).numberYMax);
-                // yMax.value = JSON.parse(JSON.stringify(props)).numberYMax[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
-                // yMin.value = JSON.parse(JSON.stringify(props)).numberYMin[JSON.parse(JSON.stringify(props)).numberYMax.length - 1];
-                yMax.value = JSON.parse(JSON.stringify(props)).numberYMax;
-                yMin.value = JSON.parse(JSON.stringify(props)).numberYMin;
-                console.log("Y MIN VAL IS NOW... ", yMin.value);
-                console.log("Y MAX VAL IS NOW... ", yMin.value);
+               // console.log("RESETTING Y ", JSON.parse(JSON.stringify(props)).numberYMax);
 
-                // emit("resetY")
+                yMaxRef.value = JSON.parse(JSON.stringify(props)).numberYMax;
+                yMinRef.value = JSON.parse(JSON.stringify(props)).numberYMin;
+               // console.log("Y MIN VAL IS NOW... ", yMinRef.value);
+                // console.log("Y MAX VAL IS NOW... ", yMaxRef.value);
+
+                emit("resetY")
                 resetYNeeded.value = true;
               }
-              console.log("*** SVG y axis *** ", svg);
+              //console.log("*** SVG y axis *** ", svg);
               return svg
             }
 
-
             svg.on('mouseover', function(d) {
-              console.log("what is D??? ", d);
-              console.log("what is props data length> ", JSON.parse(JSON.stringify(props)).data.length);
-              console.log("what is width? ", width);
               let selectedIndexX = Math.floor((d.offsetX/width) * JSON.parse(JSON.stringify(props)).data.length);
             
               if(!selectedIndexX ){
@@ -703,12 +684,12 @@ export default {
                 if(!selectedIndexX){
                   return;
                 }
-                console.log("what is D? ", d);
-                console.log("what is selected X? ", selectedIndexX);
+                //console.log("what is D? ", d);
+                //console.log("what is selected X? ", selectedIndexX);
                 this.selectedIndexX = selectedIndexX;
             
                 if(selectedIndexX > 0){
-                  console.log("emitting the selected x index ", selectedIndexX)
+                  //console.log("emitting the selected x index ", selectedIndexX)
                   emit('selected', selectedIndexX);
                 }
               }
@@ -725,10 +706,10 @@ export default {
             // console.log("!!##POINTS: ", JSON.parse(JSON.stringify(points.value)));
           });
         });
-        console.log("RESIZEREF ", resizeRef);
+        //console.log("RESIZEREF ", resizeRef);
 
     // return refs to make them available in template
-    return { svgRef, resizeRef, mouseMove,tooltipmsg, show,resetShow,dataHolder1};
+    return { svgRef, resizeRef, mouseMove,tooltipmsg, show,resetShow};
   },
   methods: {
     tryAppendTopics(newVal){
@@ -746,38 +727,50 @@ export default {
 
         })
       }
-    },
+    }
   },
+
   watch: { 
-    dataHolder1:{
+    dataRef1:{
         // deep: true,
         handler: function(newVal, oldVal){
             
-          if(oldVal !== newVal){
-            console.log("MISMATCH! old: ", oldVal);
-            console.log("MISMATCH! new: ", newVal);
+        }
+    },
+    dataHolder1:{
+        deep: true,
+        handler: function(newVal, oldVal){
+          if(newVal !== oldVal){
+            console.log("OLD VAL!!! ", oldVal);
           }
+          console.log(newVal)
         }
     },
-    xMax:{
+    xMaxRef:{
         deep: true,
         handler: function(newVal, oldVal){
 
         }
     },
-    yMax:{
+    xMaxRef:{
         deep: true,
         handler: function(newVal, oldVal){
 
         }
     },
-    xMin:{
+    yMaxRef:{
         deep: true,
         handler: function(newVal, oldVal){
 
         }
     },
-    yMin:{
+    xMinRef:{
+        deep: true,
+        handler: function(newVal, oldVal){
+
+        }
+    },
+    yMinRef:{
         deep: true,
         handler: function(newVal, oldVal){
 
@@ -804,27 +797,28 @@ export default {
     currentLinesCount:{
         deep: true,
         handler: function(newVal, oldVal){
-          console.log("GREAT CHECK!! ",newVal)
-          if(dataRef1.value && dataHolder1.value === []){
+          //console.log("GREAT CHECK!! ",newVal)
+          if(dataRef1.value && dataHolder1.value.length && passedDataRef1.value === false){
             
-            dataHolder1.value.push(dataRef1.value);
+            // dataHolder1.value.push(dataRef1.value);
+            passedDataRef1.value = true;
           }
           if(newVal === 1){
-            if(oldVal.length > 0){
-              dataHolder1.value = oldVal;
+            if(oldVal.length && oldVal.length > 0){
+              // dataHolder1.value = oldVal;
             }
           }
         }
     }, 
     resetXNeeded:{
       handler: function(newVal, oldVal){
-        console.log("RESET NEEDED ", newVal);
+        //console.log("RESET NEEDED ", newVal);
 
       }
     },
     resetYNeeded:{
       handler: function(newVal, oldVal){
-        console.log("RESET NEEDED ", newVal);
+        //console.log("RESET NEEDED ", newVal);
 
       }
     },
@@ -862,11 +856,11 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           // console.log(newVal);
-          console.log("here's keybuilder div");
+          //console.log("here's keybuilder div");
               let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
               
               if(keyBuilder){
-                console.log("NEW COLOR>>X AXIS? ", newVal);
+                //console.log("NEW COLOR>>X AXIS? ", newVal);
                 keyBuilder.style.borderColor = newVal.value;
               }
         }
@@ -943,6 +937,12 @@ export default {
 
         }
     },
+    dataHolder1: {
+        deep: true,
+        handler: function(newVal, oldVal){
+
+        }
+    },
     tooltipmsg: {
       deep: true,
       handler: async function(newVal, oldVal){
@@ -1012,14 +1012,13 @@ function updateTooltip(newVal){
   z-index: 10;
   margin-left: 48px;
   margin-right: 48px;
-  top: 4px;
+  top: 8%;
 }
 #svgId {
     background: rgba(0,0,0,0.98);
-    bottom: 16%;
+ 
 }
 #tooltip {
-  border: 1px solid black;
   padding: 5px;
   position: absolute;
   background-color: transparent;
@@ -1027,8 +1026,8 @@ function updateTooltip(newVal){
   font-size: 16px;
   font-weight: 400;
   z-index:9999;
-    margin-left: 36px;
- 
+  margin-left: 36px;
+  pointer-events:none;
 }
 #tooltipInner {
   width: 100%;

@@ -85,7 +85,7 @@ async function show_TOC(url:String, title:String, author:String){
     }).catch(error => {
       // console.log('Error:', error);
     }); 
-    console.log("here's the table of contents: ", tocData.value);
+    //console.log("here's the table of contents: ", tocData.value);
     
     return tocData.value;
 };
@@ -98,17 +98,17 @@ async function scrape_text(url:String){
     if(wrapperTitle){
       wrapperTitle.style.display = "inline-block";
     } else {
-      console.log("wrapper title missing");
+      //console.log("wrapper title missing");
     }
     if(wrapperSubtitle){
       wrapperSubtitle.style.display = "inline-block";
     } else {
-      console.log("wrapper subtitle missing");
+      //console.log("wrapper subtitle missing");
     }
     if(wrapperBtns){
       wrapperBtns.style.display = "inline-block";
     } else {
-      console.log("wrapper btns missing");
+      //console.log("wrapper btns missing");
     }
     let jumbotron = document.getElementById("jumbotron");
     if(jumbotron){
@@ -198,8 +198,8 @@ function scrapeAnotherUrl(url : String){
   return scrape_text(url);
 };
 
-
-
+// let propsItemsTemp :any = props.items || [];
+// let propsItems = propsItemsTemp.map(i=>i) || [];
 </script>
 
 
@@ -220,7 +220,7 @@ function scrapeAnotherUrl(url : String){
   :selectedAuthor="selectedAuthor" 
 />
   <!-- set up a scroll here to show as many as we need -->
-  <div class="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title">
+  <div class="searchTextWrapper" v-if="props.items" v-for="item in (props.items)" :key="item.title" >
     <div class="bookSearchMainWrapper">
 
       <img class="author-image" :id="`authorImage_${item.id}`" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Blank_woman_placeholder.svg"/>
@@ -270,7 +270,7 @@ function scrapeAnotherUrl(url : String){
   color: var(--color-heading);
   padding-top: 8px;
   height:90%;
-  overflow-y:scroll;
+  overflow-y:hidden;
   padding:2%;
   padding-left: 2%;
   padding-top: 2%;
@@ -308,12 +308,12 @@ function scrapeAnotherUrl(url : String){
   display: flex;
   justify-content: center;
   width: 100%;
-  color: #e6e4d6;
+ 
   background-color: var(--color-background-mute);
   min-height: 40px;
   flex-direction: column;
   /* top: 10%; */
-  margin: 0;
+  margin: 0px;
   font-weight: 300;
   font-size: 16px;
   min-width: 100px;
@@ -335,6 +335,7 @@ function scrapeAnotherUrl(url : String){
   font-weight: 100;
   padding-right:2%;
   max-height:260px;
+
 }
 .bookSearchMainInfoWrapper {
   display:flex;

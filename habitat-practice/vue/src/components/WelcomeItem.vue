@@ -42,7 +42,7 @@ h3 {
 
 @media (min-width: 1024px) {
   .item {
-    margin-top: 0;
+    margin-top: 0px;
     padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
   }
 
@@ -61,7 +61,7 @@ h3 {
     content: ' ';
     border-left: 1px solid var(--color-border);
     position: absolute;
-    left: 0;
+    left: 0px;
     bottom: calc(50% + 25px);
     height: calc(50% - 25px);
   }
@@ -70,7 +70,7 @@ h3 {
     content: ' ';
     border-left: 1px solid var(--color-border);
     position: absolute;
-    left: 0;
+    left: 0px;
     top: calc(50% + 25px);
     height: calc(50% - 25px);
   }

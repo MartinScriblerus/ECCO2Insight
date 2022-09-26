@@ -61,7 +61,9 @@ export default {
           .selectAll(".line") // get all "existing" lines in svg
           .data([props.data]) // sync them with our data
           .join("path") // create a new "path" for new pieces of data (if needed)
-
+          .append("defs").append("clipPath")
+          .attr("id", "clip")
+          .append("rect")
           // everything after .join() is applied to every "new" and "existing" element
           .attr("class", "line") // attach class (important for updating)
           .attr("stroke", "green") // styling
@@ -93,5 +95,9 @@ export default {
   display: flex;
   height: 100%;
   z-index: 10;
+}
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
 }
 </style>

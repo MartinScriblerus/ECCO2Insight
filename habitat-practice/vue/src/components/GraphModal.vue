@@ -1,7 +1,7 @@
 <script setup>
   import BarChart from './BarChart.vue';
   import TestChart from './TestChart.vue';
-  import {watch, ref} from 'vue';
+  import {watch, ref,onMounted} from 'vue';
 
   // import AreaChart from './AreaChart.vue';
   // import LineChart from './LineChart.vue';
@@ -20,7 +20,8 @@
     secondTextRef: Boolean,
     currentLinesCount: Number,
     yAxisFramingLast: Boolean,
-  
+    preservedDataLine1: Object,
+    
     // numberX: Number,
     // numberY: Number,
     axisColorMatchBool: Boolean,
@@ -37,7 +38,7 @@
     selectedRow: Number
   });
   
-  const emit = defineEmits(['numberXMin','numberXMax','numberYMin','numberYMax','dataname_y', 'dataname_x','closeUpdatePopup']); 
+  const emit = defineEmits(['numberXMin','numberXMax','numberYMin','numberYMax','dataname_y', 'dataname_x','closeUpdatePopup','dataHolder1Grandparent']); 
   
   const inGraphsParent = ref(false)
   // const valueX = ref('');
@@ -59,47 +60,70 @@
   const data = ref([]);
   const valueX = ref('init_X');
   const valueY = ref('init_Y');
-  // const dataHolder1Parent = ref([]);
+  // const dataHolder1Parent = [];
+ 
   const grammarArr = ref([]);
   const entitiesArr = ref([]);
+  const savedLineOneDataObj = ref({})
 
-//RITA!
+
+  // onMounted(()=>{
+  const dataHolder1Parent = ref({});
+  //dataHolder1Parent.value = JSON.parse(JSON.stringify(props)).preservedDataLine1;
+      //   return dataHolder1Parent;
+      // })
+
+//RITA! --> THIS WORKS!!!
   let words = window.RiTa.stresses("The elephant took a bite!")
     // for (let i=0; i < words.length; i++) {
     //     text(words[i], 50, 50 + i*20);
     // }
-    console.log("RITA!!! ", words);
-
+    // console.log(words);
 
     async function locateClientX(x){
       let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
-
-        if (popupTextWindow && (window.innerWidth - x) > 100){
+        console.log("what is X? ", x);
+        if (popupTextWindow && (window.innerWidth - x) > 150){
           popupTextWindow.style.left = `${x}px` 
         } else {
           // clientX.value=x-200;
-          popupTextWindow.style.left = `${x-200}px` 
+          popupTextWindow.style.left = `${x-100}px` 
         }
       }
       async function locateClientY(y){
         let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
-
-        if(!y){
-          return;
-        }
-        if( popupTextWindow && y > 250 && y < window.innerHeight - 150){
-          let ok = (parseInt(y) - 72);
-          // console.log("ok? ", ok);
+        console.log("Y IS ", y)
+        if(popupTextWindow && y < 80){
+          popupTextWindow.style.top= `${y + 40}px`;
+        } else if(y > window.innerHeight - 200) {
+          popupTextWindow.style.top= `${y - 150}px`;
+        } else {
           popupTextWindow.style.top= `${y}px`;
-          // popupTextWindow.style.background = "yellow"
-        } 
+          popupTextWindow.style.backgroundColor = "transparent";
+        }
+
+
       }
 
 
 
 
 
+      function dataholderemit1(newData1Holder){ 
+ 
+        console.log("DATA HOLDER DATA HOLDERE", JSON.parse(JSON.stringify(newData1Holder))); 
+        //dataHolder1Parent.value = JSON.parse(JSON.stringify(newData1Holder));
+        // return dataHolder1Parent;
+        console.log("DATA HOLDER PAREENT: ", JSON.parse(JSON.stringify(dataHolder1Parent)));
+      }
+
+
+
   function hideUpdateButtons(){
+    let graph = document.getElementById("svgId");
+    // if(graph){
+    //   graph.style.bottom = "16%";
+    // }
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -113,6 +137,7 @@
       wrapperBtns.style.display = "none";
     } 
   }
+
   popupOpen.value = false;
     function setWidth(width){
       // this.width = width;
@@ -136,8 +161,12 @@
         valueY.value = "Occurances";
         valueX.value = "Items";
         // console.log("is thissss the problem? check temp data", tempData)
-        
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
+        if(tempData.length > 0){
+
+        } else {
+          return
+        }
+        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
         numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
         
         if(numberYMax.value && numberYMax.value < Math.max(...tempData)){
@@ -153,7 +182,7 @@
         numberYMin.value = numberYMin.value.filter(p=>typeof p === "number");
         
         if(tempData.length > numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount]){
-          numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
+          numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
         }
         numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
         if(Math.max(...tempData) > numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount]){
@@ -161,7 +190,7 @@
         }
         numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
         numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min.apply(Math,tempData);
-        console.log("common words in GM: ", numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]);
+        //console.log("common words in GM: ", numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]);
         //console.log("common words in GM: ", this.numberXMax[this.props.currentLinesCount - 1]);
     }
     function updateVizDataLineObj(){
@@ -175,12 +204,12 @@
       valueX.value = "Sentence Count";
       //console.log("THIS CURR LINES COUNT: ", this.numberXMax[this.props.currentLinesCount]);
 
-      numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
+      numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
       numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
       if( Math.max(...tempData) > Math.max(numberYMax.value)){
         numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempData)
       }
-      if( Math.min(...tempData) > Math.min(numberYMin.value)){
+      if( Math.min(...tempData) < Math.min(numberYMin.value)){
         numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempData);
       }
       numberXMax.value = numberXMax.value.filter(q=>typeof q === "number");
@@ -189,7 +218,7 @@
       numberYMin.value = numberYMin.value.filter(t=>typeof t === "number");
 
       if(tempData.length > numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount]){
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
+        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length - 1; 
       }
       // make more reusable for later graphs...
       numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
@@ -201,14 +230,22 @@
 
       let lineObjVizPlaceholder1 = [];
       Object.values(JSON.parse(JSON.stringify(props.dataObj))['lineObj']).map(i=>lineObjVizPlaceholder1.push(i));
-      console.log("LINE OBJECT !! ", lineObjVizPlaceholder1);
+      //console.log("LINE OBJECT !! ", lineObjVizPlaceholder1);
       let syllablesPerLinePlaceholder = [];
       Object.values(lineObjVizPlaceholder1).map(j=>{if(j['syllablesInLine']){syllablesPerLinePlaceholder.push(j['syllablesInLine'])}});
       data.value = syllablesPerLinePlaceholder;
     }
     
     function updateVizDataSentiment(compound,negative,neutral,positive){
-      hideUpdateButtons();
+
+      if(JSON.parse(JSON.stringify(props)).graphstate === 0){
+        let preservedValsText1 = Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj)
+        console.log("PRESERVED VALS TEXT 1: ", preservedValsText1);
+        emit('dataHolder1Grandparent', JSON.stringify(preservedValsText1))
+      }
+
+      let graph = document.getElementById("svgId");
+      
       let moveableGrammarWrapper = document.getElementById("grammarDisplayWrapper");
       if(moveableGrammarWrapper){
         moveableGrammarWrapper.style.display = 'inline-block';
@@ -217,69 +254,170 @@
       if(modalHead){
         modalHead.style.display = 'flex';
       }
-      
-      inGraphsParent.value = true;
-      let sentenceVizSentimentPlaceholder1 = [];
+      hideUpdateButtons();
 
+
+   
+      let sentenceVizSentimentPlaceholder1 = [];
+      let sentenceVizSentimentPlaceholder1_Saved = []; 
+
+      //console.log("AHHHHHH! ", JSON.parse(JSON.stringify(numberXMax.value)))
       try{
         console.log("HEY IN BUSINESS!!!! ", JSON.parse(JSON.stringify(this)));
-        numberXMax.value = numberXMax.value.filter(i=>i);
-        numberXMin.value = numberXMin.value.filter(i=>i);
-        numberYMax.value = numberYMax.value.filter(i=>i);
-        numberYMin.value = numberYMin.value.filter(i=>i);
+       
+        // numberXMax.value = Math.max(...data.value.length);
+        numberXMin.value = numberXMin.value.filter(i=>typeof i === "number");
+        numberYMax.value = numberYMax.value.filter(i=>typeof i === "number");
+        numberYMin.value = numberYMin.value.filter(i=>typeof i === "number");
+
       } catch(e){
-        // console.log("e1: ", e);
+        console.log("not in business: ", e);
       }  
       try {
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{
           if(sentenceVizSentimentPlaceholder1.indexOf(Object.values(i)) === -1){
             sentenceVizSentimentPlaceholder1.push(Object.values(i));
-          }
+          } 
         });
       } catch(e){
+      try {
+        Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1.sentenceObj).map((i)=>{
+          if(sentenceVizSentimentPlaceholder1_Saved.indexOf(Object.values(i)) === -1){
+            sentenceVizSentimentPlaceholder1_Saved.push(Object.values(i));
+          } 
+        });
+      } catch {
 
+      }
+      }
+      
+      console.log("!!!!!! ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5])
+      // sessionStorage.setItem("line1Data", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
+      
+      //console.log("WORKS@@ ", testSessionStorage);
+
+
+      if(!sentenceVizSentimentPlaceholder1){
+        return;
       }
 
       sentenceVizSentimentPlaceholder1.pop()
+      if(sentenceVizSentimentPlaceholder1_Saved){
+        sentenceVizSentimentPlaceholder1_Saved.pop();
+      }
       // console.log("SENTIMENT MATRIX: ", sentenceVizSentimentPlaceholder1);
       let sentenceVizSentimentPlaceholder2 = [];
+      let sentenceVizSentimentPlaceholder2_Saved = [];
+
       sentenceVizSentimentPlaceholder1.map((i)=>sentenceVizSentimentPlaceholder2.push(i.map(j=>Object.values(j)[0])))
-      // console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
+      // if(sentenceVizSentimentPlaceholder1_Saved){
+  
+      // }
+
+      // sentenceVizSentimentPlaceholder1_Saved.map((i)=>sentenceVizSentimentPlaceholder2_Saved.push(i.map(j=>Object.values(j)[0])))
+      // if(sentenceVizSentimentPlaceholder1_Saved.length){
+      sentenceVizSentimentPlaceholder1_Saved.map((i)=>sentenceVizSentimentPlaceholder2_Saved.push(i.map(j=>Object.values(j)[0])))
+      // }
+        // console.log("NEW Matrix: ", sentenceVizSentimentPlaceholder2);
       let tempData = [];
+      let tempDataSaved = [];
       Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).filter(i=>i.sentenceSentiment)
+      // if(props.preservedDataLine1){
+        Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1).filter(i=>i.sentenceSentiment);
+
+      // }
+
+////
+if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempDataSaved)).length || !tempDataSaved){
+          numberXMax.value[JSON.parse(JSON.stringify(props.currentLinesCount))] = JSON.parse(JSON.stringify(tempData)).length - 1; 
+        } else {
+          numberXMax.value[JSON.parse(JSON.stringify(props.currentLinesCount))] = JSON.parse(JSON.stringify(tempDataSaved)).length - 1; 
+        }
+        numberXMin.value[JSON.parse(JSON.stringify(props.currentLinesCount))] = 0;
+        if(Math.max(...tempData) > Math.max(...tempDataSaved) || !tempDataSaved){
+          if( Math.max(...tempData) > Math.max(numberYMax.value)){
+            numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempData);
+          }
+        } else {
+          if( Math.max(...tempDataSaved) > Math.max(numberYMax.value)){
+            numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempDataSaved);
+          }
+        }
+        if(Math.min(...tempData) < Math.min(...tempDataSaved) || !tempDataSaved){
+          if( Math.min(...tempData) < Math.min(numberYMin.value)){
+            numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempData);
+          }
+        } else {
+          if( Math.min(...tempData) < Math.min(numberYMin.value)){
+            numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempDataSaved);
+          }
+        }
+        numberXMax.value.filter(a=>typeof a === "number");
+        numberXMin.value.filter(b=>typeof b === "number");
+        numberYMax.value.filter(c=>typeof c === "number");
+        numberYMin.value.filter(d=>typeof d === "number");
+////
+
+
       if(compound){
+
+        let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+        if(updatePopup){
+          // console.log("ADD A CHECK HERE FOR IN GRAPHS");
+          updatePopup.classList.add("animate-close");
+        }
+
+        inGraphsParent.value = true;
+        console.log("in compound ** ", sentenceVizSentimentPlaceholder2);
+        console.log("in compound **saved ", sentenceVizSentimentPlaceholder2_Saved);
         tempData = sentenceVizSentimentPlaceholder2.map((i)=>i[0])
+        tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[1])
+        //console.log("in compound ", tempData);
         valueY.value = "Sentiment (Compound)";
         valueX.value = "Sentence Count";
-        
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length; 
-        numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
-        if( Math.max(...tempData) > Math.max(numberYMax.value)){
-          numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempData);
-        }
-        if( Math.min(...tempData) > Math.min(numberYMin.value)){
-          numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempData);
-        }
+        //console.log("currrrrr lines count: ", JSON.parse(JSON.stringify(props.currentLinesCount)));
+
+
+
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{
           if(i.sentenceSentimentCompound){
+            // call self-building spinner here
+            // console.log("CURR LINES - 1 ", JSON.parse(JSON.stringify(props)).currentLinesCount -1);
             if(tempData.indexOf(Object.values(i.sentenceSentimentCompound)[0]) === -1){
+              console.log("pushing into compound tempdata: ", Object.values(i.sentenceSentimentCompound)[JSON.parse(JSON.stringify(props)).currentLinesCount -1])
               tempData.push(Object.values(i.sentenceSentimentCompound)[0])
             }
           }
         })
+        // if(props.preservedDataLine1){
+          Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1).map((i)=>{
+            if(i.sentenceSentimentCompound){
+              // call self-building spinner here
+              // console.log("CURR LINES - 1 ", JSON.parse(JSON.stringify(props)).currentLinesCount -1);
+              if(tempDataSaved.indexOf(Object.values(i.sentenceSentimentCompound)[0]) === -1){
+                tempDataSaved.push(Object.values(i.sentenceSentimentCompound)[0])
+
+              }
+            }
+          })
+          console.log("TEMP DATA SAVED IS... ", tempDataSaved);
+        // }
       }
       if(negative){
+        let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+        if(updatePopup){
+          // console.log("ADD A CHECK HERE FOR IN GRAPHS");
+          updatePopup.classList.add("animate-close");
+        }
+        inGraphsParent.value = true;
+   
+        console.log("nonsense: ",sentenceVizSentimentPlaceholder2_Saved);
         tempData = sentenceVizSentimentPlaceholder2.map(i=>i[1])
+        tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[1])
+
         valueY.value = "Sentiment (Negative)";
         valueX.value = "Sentence Count";
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length;
-        numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
-        if( Math.max(...tempData) > Math.max(numberYMax.value)){
-          numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max.apply(Math,tempData);
-        }
-        if( Math.min(...tempData) > Math.min(numberYMax.value)){
-          numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min.apply(Math,tempData); 
-        }
+        
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{
           if(i.sentenceSentimentNegative){
             if(tempData.indexOf(Object.values(i.sentenceSentimentNegative)[0]) === -1){
@@ -287,50 +425,93 @@
             }
           }
         })
+
+        if(JSON.parse(JSON.stringify(props)).preservedDataLine1){
+          tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[1])
+          let negat = Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1);
+      
+          negat.map((i)=>{
+            if(Object.values(i)[1]){
+              if(tempDataSaved.indexOf(Object.values(i)[1]) && tempDataSaved.indexOf(Object.values(Object.values(i)[1])) === -1){
+                tempDataSaved.push(Object.values(Object.values(i)[1])[0]);
+              }
+            }
+          })
+        }
       }
       if(neutral){
+        let updatePopup = document.getElementById("d3UpdateButtonsWrapper");
+        if(updatePopup){
+          updatePopup.classList.add("animate-close");
+        }
+        inGraphsParent.value = true;
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[2])
+        tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map(i=>i[2])        
         valueY.value = "Sentiment (Neutral)";
         valueX.value = "Sentence Count";
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length;
-        numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
-        if( Math.max(...tempData) > Math.max(numberYMax.value)){
-          numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempData);
-        } 
-        if( Math.min(...tempData) > Math.min(numberYMin.value)){
-          numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempData); 
-        }
+        
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{
           if(i.sentenceSentimentNeutral){
-            tempData.push(Object.values(i.sentenceSentimentNeutral)[0])
+            if(tempData.indexOf(Object.values(i.sentenceSentimentNeutral)[0]) === -1){
+              tempData.push(Object.values(i.sentenceSentimentNeutral)[0]);
+            }
           }
         })
+        if(JSON.parse(JSON.stringify(props)).preservedDataLine1){
+          tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[2])
+          let neut = Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1);
+      
+          neut.map((i)=>{
+            if(Object.values(i)[2]){
+              if(tempDataSaved.indexOf(Object.values(i)[2]) && tempDataSaved.indexOf(Object.values(Object.values(i)[2])) === -1){
+                tempDataSaved.push(Object.values(Object.values(i)[2])[0]);
+              }
+            }
+          })
+        }
       }
       if(positive){
+        inGraphsParent.value = true;
         Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj).map((i)=>{   
-          if(i.sentenceSentimentPositive){
+          if(i.sentenceSentimentPositive && Object.values(i.sentenceSentimentPositive)[0].length > 0){
             tempData.push(Object.values(i.sentenceSentimentPositive)[0]);
           }
         });
-
         valueY.value = "Sentiment (Positive)";
         valueX.value = "Sentence Count";
 
-        numberXMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = tempData.length;
-        numberXMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = 0;
-        if( Math.max(...tempData) > Math.max(numberYMax.value)){
-          numberYMax.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.max(...tempData);
-        }
-        if( Math.min(...tempData) < Math.min(numberYMin.value)){
-          numberYMin.value[JSON.parse(JSON.stringify(props)).currentLinesCount] = Math.min(...tempData); 
-        }
-
-        numberXMax.value.filter(a=>typeof a === "number");
-        numberXMin.value.filter(b=>typeof b === "number");
-        numberYMax.value.filter(c=>typeof c === "number");
-        numberYMin.value.filter(d=>typeof d === "number");
-
+        tempData = sentenceVizSentimentPlaceholder2.map(i=>i[3])
+        tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[3])
+       
         mode.value[0] = 1;
         mode.value = [4];
+
+
+        if(JSON.parse(JSON.stringify(props)).preservedDataLine1){
+          tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[1])
+          let posArr = Object.values(JSON.parse(JSON.stringify(props)).preservedDataLine1);
+      
+          posArr.map((i)=>{
+            if(Object.values(i)[3]){
+              if(tempDataSaved.indexOf(Object.values(i)[3]) && tempDataSaved.indexOf(Object.values(Object.values(i)[3])) === -1){
+                tempDataSaved.push(Object.values(Object.values(i)[3])[0]);
+              }
+            }
+          })
+        }
+
+      }
+
+      console.log("WHAT IS TEMPDATA??? ", tempData);
+      console.log("WHAT IS TEMPDATA_SAVED??? ", tempDataSaved);
+      dataHolder1Parent.value = tempDataSaved;
+      if(props.graphstate === 0 && tempData.length > 0 && tempData !== undefined && tempData !== null && tempData !== {}){
+        if(!tempData){
+          return;
+        }
+        dataHolder1Parent.value = tempDataSaved;
+      } else {
+        
       }
       data.value = tempData;
       if(!data.value){
@@ -345,9 +526,12 @@
       console.log(`check on ... ${numberXMax.value} / ${numberXMin.value} / ${numberYMax.value} / ${numberYMin.value}`);
     }
       
-    watch([props,
+    watch([
+      props,
     // dataObj, 
+
     tooltipMsg, 
+    // dataHolder1Parent,
     // secondTextRef, 
     valueX,
     valueY,
@@ -365,29 +549,41 @@
     resetYRef], ([currentXLabel,currentYLabel], [oldXLabel,oldYLabel]) => {
       if(Object.values(JSON.parse(JSON.stringify(props.dataObj))).length < 1){
         return;
+      } else {
+
       }
-      if(numberXMax.value && resetXRef.value === true){
+
+      // if(inGraphsParent.value !== true){
+      //   return
+      // }
+      //console.log("RESET REF: ", resetXRef.value)
+
+      if(JSON.parse(JSON.stringify(numberXMax.value)) && resetXRef.value === true){
         let index = numberXMax.value.indexOf(Math.max(...numberXMax.value));
         numberXMax.value.slice(index);
         resetXRef.value = false;
+        // console.log("WHAT AM I EMITTING??? YMAX", numberYMax.value.filter(z=>typeof z === "number"));
         emit('numberYMax', numberYMax.value.filter(z=>typeof z === "number"));
       }
-      if(numberXMin.value && resetXRef === true){
+      if(JSON.parse(JSON.stringify(numberXMin.value)) && resetXRef.value === true){
         let index = numberXMin.value.indexOf(Math.min(...numberXMin.value));
         numberXMin.value.slice(index);
         resetXRef.value = false;
+        //console.log("WHAT AM I EMITTING??? XMAX", numberXMax.value.filter(z=>typeof z === "number"));
         emit('numberXMin', numberXMin.value.filter(g=>typeof g === "number"));
       }
-      if(numberYMax.value && resetYRef === true){
+      if(JSON.parse(JSON.stringify(numberYMax.value)) && resetYRef.value === true){
         let index = numberYMax.value.indexOf(Math.max(...numberYMax.value));
         numberYMax.value.slice(index);
         resetYRef.value = false;
+        //console.log("WHAT AM I EMITTING??? YMAX", numberYMax.value.filter(z=>typeof z === "number"));
         emit('numberYMax', numberYMax.value.filter(g=>typeof g === "number"));
       }
-      if(numberYMin.value && resetYRef === true){
-        let index = numberYMin.value.indexOf(Math.max(...numberYMin.value));
+      if(JSON.parse(JSON.stringify(numberYMin.value)) && resetYRef.value === true){
+        let index = numberYMin.value.indexOf(Math.min(...numberYMin.value));
         numberYMin.value.slice(index);
         resetYRef.value = false;
+        //console.log("WHAT AM I EMITTING??? YMIN", numberYMin.value.filter(z=>typeof z === "number"));
         emit('numberYMin', numberYMin.value.filter(g=>typeof g === "number"));
       }
       if(resetYRef.value === true){
@@ -396,25 +592,26 @@
         resetYRef.value = false;
       }
       if(currentXLabel !== oldXLabel){
-        console.log('curr x label val: ', JSON.parse(JSON.stringify(valueX.value)));
+        //console.log('curr x label val: ', JSON.parse(JSON.stringify(valueX.value)));
         emit('dataname_x', valueX.value);
        
       }
       if(currentYLabel !== oldYLabel){
-        console.log('curr y label val: ', JSON.parse(JSON.stringify(valueY.value)));
+        //console.log('curr y label val: ', JSON.parse(JSON.stringify(valueY.value)));
         emit('dataname_y',valueY.value);
       }
 
-      let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
-      if(keyBuilder){
-        keyBuilder.style.borderColor = props.colorX;
-      }
       if(valueX.value){
         emit('dataname_x',valueX.value)
       } 
       if(valueY.value){
         emit('dataname_y',valueY.value)
 
+      }
+
+      let keyBuilder = document.getElementById("d3UpdateButtonsWrapper");
+      if(keyBuilder){
+        keyBuilder.style.borderColor = props.colorX;
       }
 
       return;
@@ -516,31 +713,28 @@
         // noun, common, singular or mass
         e.style.backgroundColor = "#e6e4d6";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+ 
         break;
       case "NNP":
         // noun, proper, singular
         e.style.backgroundColor = "#e6e4d6";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
+    
         break;
       case "NNPS":
         // noun, proper, plural
         e.style.backgroundColor = "#e6e4d6";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "NNS":
         // noun, common, plural
         e.style.backgroundColor = "#e6e4d6";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "PRP$":
         // possessive pronoun
         e.style.backgroundColor = "#c1dbd7";
         e.style.color = "rgba(0,0,0,1)";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "RB":
         // adverb
@@ -576,7 +770,7 @@
       case "UH":
         // interjection
         e.style.backgroundColor = "#E6CECA";
-        e.style.color = "#e6e4d6";
+        e.style.color = "#000000";
         break;
       case "VB":
         // verb base form
@@ -614,7 +808,6 @@
         // e.style.backgroundColor = "rgba(0,0,0,1)";
         e.style.backgroundColor = "#9ea5e9";
         e.style.color = "#000000";
-        e.style.border = "solid 0.5px rgba(0,0,0,1)";
         break;
       case "WDT":
         // WH determiner (that what whatever which)
@@ -639,8 +832,7 @@
         e.style.color = "rgba(0,0,0,1)";
         break;
       case "PUNCT":
-      e.style.backgroundColor = "teal";
-      e.style.color = "#000000";
+        e.style.color = "#000000";
         break;
       case "PDT":
         // p#9ea5e9eterminer
@@ -701,33 +893,19 @@
       return;
     } else {
       const elements = document.getElementsByClassName("displayed-grammar");
-      //const elements = document.getElementsByClassName(className);
     while(elements.length > 0){
         elements[0].parentNode.removeChild(elements[0]);
     }
       let s = document.querySelector(".createdGrammarWrapper");
-      // if(t && t.length > 0){
-      //   for(let i=0;i<t.length;i++){
-      //     if(i !== t.length-1){
-      //     parent.remove(t[i]);
-      //     }
-      //   }
-      // }
     }
-    console.log("CHECK CURRENTLY SELECTED: ", currSelected.value);
+
     currSelected.value = selected;
 
-      console.log("IN UPDATE TOOLTIP!!! ", selected);
-      // let grammarArr = [];
-      // let entitiesArr = [];
 
-        console.log("selected ", selected)
-       
       if(Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]){
-        grammarArr.value = [];
+        // grammarArr.value = [];
         Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]['sentenceGrammarArray'].forEach((g)=>{
           // console.log("STILL PUSHING GRAMMAR FINE! ", g);
-          // console.log("BIG MONEY!!! ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5][selected]);
           if(grammarArr.value.indexOf(g['tokenText']) === -1){
             grammarArr.value.push(g['tokenText'],g['sentenceIndex'],g['idx_in_sents'])
           } else {
@@ -763,16 +941,17 @@
   }
 
   function updateTooltipData(){
-    console.log("CHECK CHECK! ", tooltipMsg.value);
+    //console.log("CHECK CHECK! ", tooltipMsg.value);
 
   }
 
   function tryToggleComparative(){
+    console.log("GRAPHSTATE CHANGED!");
     props.graphstate = props.graphstate + 1;
   }
   
   function emitterClose(command){
-    console.log("emitting ", command);
+    //console.log("emitting ", command);
     emit(command);
   }
 
@@ -919,13 +1098,13 @@
         default: () => (0),
       },
     },
-  
+    
     data() {
       return {
         data:[],
         currentXName: "X_",
         currentYName: "Y_",
-        dataHolder1Parent: [],
+        // dataHolder1Parent: [],
         // mode:[1],
         points: [],
         // popupOpen: false,
@@ -947,16 +1126,13 @@
         // clientY:null
       };
     },
-    // mounted() {
-    //   console.log("CHECK MOUNTED PROPS IN GRAPHMODAL: ", JSON.parse(JSON.stringify(this.props)));
-    // },
     margin: {
       type: Object,
       default: () => ({
-        left: 0,
-        right: 0,
-        top: 10,
-        bottom: 10,
+        left: "0px",
+        right: "0px",
+        top: "0px",
+        bottom: "0px",
       }),
     },
 
@@ -969,21 +1145,10 @@
         
       }
     };
-  const dataHolder1Parent = ref([]);
-  // const dataHolder2Parent = ref([]);
-  // const dataHolder3Parent = ref([]);
-  function dataholderemit1(newData1Holder){    
-    dataHolder1Parent.value = newData1Holder;
-    return dataHolder1Parent;
-  }
-  // function dataholderemit2(newData2Holder){    
-  //   dataHolder2Parent.value = newData2Holder;
-  //   return dataHolder2Parent;
-  // }
-  // function dataholderemit3(newData3Holder){    
-  //   dataHolder3Parent.value = newData3Holder;
-  //   return dataHolder3Parent;
-  // }
+  // const dataHolder1Parent = ref([]);
+
+  // TODO: refactor=>this dataholder is a workaround for vue quirks
+
 
   </script>
 
@@ -1003,7 +1168,8 @@
       <AreaChart :data="data" :tooltipmsg="tooltipMsg" :mode="mode" @selected="updateTooltip"></AreaChart> -->
       <TestChart 
         :data="data"
-        :dataHolder1Parent="dataHolder1Parent"
+        :dataHolder1="dataHolder1Parent"
+        :savedLineOneDataObj="savedLineOneDataObj" 
         :selectedXAxisRef="props.selectedXAxisRef"
         :selectedYAxisRef="props.selectedYAxisRef"
         :secondTextRef="props.secondTextRef" 
@@ -1014,6 +1180,7 @@
         :yAxisFramingLast="yAxisFramingLast"
         @selected="updateTooltip"
         @dataholderemit1="dataholderemit1"
+   
  
         :currentLinesCount="props.currentLinesCount"
         :color0="props.color0"
@@ -1030,7 +1197,8 @@
         :valueY="valueY"
         @clientX="locateClientX"
         @clientY="locateClientY"
-  
+        @resetX="resetX"
+        @resetY="resetY"
         :axisColorMatchBool="axisColorMatchBool"
         :graphstate="props.graphstate" 
         @toggleComparative="tryToggleComparative" 
@@ -1096,10 +1264,9 @@
 <style>
 #graphTitle {
   position:absolute;
-  position:relative;
   text-align:center;
   color:white;
-  visibility:hidden;
+  display:none;
 }
 .picker-popup > .slider:before {
   height:0px !important;
@@ -1116,8 +1283,10 @@
   width: 100%;
   position: fixed;
   z-index: 99;
-  top: 16%;
+  height:72%;
+  margin-top:6%;
   height: calc(76%);
+ 
 }
 
 svg {
@@ -1175,8 +1344,7 @@ svg {
 
     flex-direction: row;
     position: fixed;
-    background: var(--color-background);
-    background-color: var(--color-background);
+
     border-radius: 8px;
 
     z-index: 99;
@@ -1184,7 +1352,7 @@ svg {
     text-align: center;
     /* justify-content: right; */
     /* left: 33%; */
-    padding: 8%;
+    padding: 2%;
     top: -12%;
 }
 
@@ -1194,22 +1362,21 @@ svg {
   width: 100%;
   top: 0%;
   z-index: 100;
-  top: 16%;
-  /* left: 8%; */
-  /* right: 8%; */
-  color: white;
-  padding: 16%;
-  /* border: 1px solid white; */
-  border-radius: 8px;
-  bottom: 0%;
+  top: 0%;
+  left: 0%;
+  right: 0%;
+  color: #fff;
+  padding: 1%;
+  /* border-radius: 8px; */
   pointer-events: none;
-  top: 8%;
-  bottom: 0px;
+  /* max-height: 490px; */
+  bottom: 0%;
   min-height: 400px;
   height: 100%;
   z-index: 99;
   background: var(--color-background);
-  padding-top: 8%;
+  padding-top: 16%;
+
 
 
    
@@ -1221,11 +1388,11 @@ svg {
   bottom: 48px;
   position: absolute;
   margin-right: 12px;
-  margin-left: -60px;
+
   border: solid 1px #0097BF;
   border-radius: 8px;
   z-index: 100;
-  width: calc(100% - 64%);
+  width: calc(100% - 76%);
   top: 64px;
   left:0;
   flex-direction: row;
@@ -1277,15 +1444,18 @@ svg {
   justify-content: center;
 }
 #buttonsWrapperTitle,#buttonsWrapperSubtitle,#buttonsInnerWrapper {
+  font-family: monospace;
   background-color:var(--color-background);
 }
 #buttonsWrapperTitle {
   border-radius: 8px 8px 0px 0px;
+  font-size: 20px;
   padding: 12px;
 }
 #buttonsWrapperSubtitle {
-  padding-right:24px;
-  padding-left:24px;
+  padding-right:48px;
+  padding-left:48px;
+  font-size: 15px;
 }
 button.green-btn {
   width:25%;

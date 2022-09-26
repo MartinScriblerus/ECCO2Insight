@@ -1,9 +1,9 @@
 <script lang="ts">
   //import HelloWorld from './components/HelloWorld.vue'
   import TheWelcome from './components/TheWelcome.vue'
-  console.log("RITA! ", window);
+  //console.log(window);
   // @ts-ignore
-  import { ref, onMounted, reactive } from 'vue'
+  import { ref, onMounted, onBeforeUpdate, reactive } from 'vue'
   
   // import "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
   // import "https://unpkg.com/rita"
@@ -23,14 +23,15 @@ const textsToReturn : any = ref([])
 const triedWikiExtension1 = ref(false);
 const triedWikiExtension2 = ref(false);
 const triedWikiExtension3 = ref(false);
-const in_toc = ref(false)
+const in_toc = ref(false);
+const searchStopImgUpload = ref(false);
 export default {
   props: {
     data: {
       type: Object,
       default: () => ({}),
     },
-    watch: [in_toc],
+    // watch: [in_toc],
     loaded: {
       type: Boolean,
       default: () => (false),
@@ -57,7 +58,9 @@ export default {
     }
   },
   data(this:any) {
+    
     return {
+  
         currentState: false,
         comparing:false
     }
@@ -97,14 +100,14 @@ export default {
     const state:any = reactive({
       data: null,
       loaded: null,
-      
+    
     });
     const firstOne = ref(true);
     firstOne.value = true;
     const authorPortraits:any = ref([]);
     // authorPortraits.value = [];
     props = state; 
-  
+   
     function tryWikiExtension1(wikiString,firstName,lastName, title, published, bookId){
 
   
@@ -163,6 +166,9 @@ export default {
       if(wikiString === "https://en.wikipedia.org/wiki/W_Kenrick"){
         wikiString = "https://en.wikipedia.org/wiki/William_Kenrick_(writer)";
       }
+      if(wikiString === "https://en.wikipedia.org/wiki/John_Dennis"){
+        wikiString = "https://en.wikipedia.org/wiki/John_Dennis_(dramatist)"
+      }
    
       let getImg = await fetch('http://localhost:5000/tryWikiImg', {
         headers: {
@@ -191,22 +197,40 @@ export default {
               tryWikiExtension3(wikiString, firstName,lastName, title, published, bookId);
               triedWikiExtension3.value = true;
             }
+
             console.log("what was the problematic wiki string? ", wikiString);
           } 
-          if(relevantImgEl && result && result['img_possible']){
+          if(relevantImgEl && result && result['img_possible'] && result['img_possible'][0]){
             relevantImgEl['src'] = result['img_possible'][0];
+          } else {
+            result.push("https://upload.wikimedia.org/wikipedia/commons/5/53/Blank_woman_placeholder.svg"); 
           }
         if(result.length){
 
           return result;
         } else {
-          return null;
+          // return null;
+         
         }
         }).catch(error => {
         
         });   
     }
     
+
+    onBeforeUpdate(async() => {
+      if(searchStopImgUpload.value === true){
+        return;
+      }
+      let rawAuthorName = {};
+
+      // await state.data.length > 0;
+      if(state.data.length){
+        rawAuthorName = JSON.parse(JSON.stringify(state.data));
+      }
+      tryGetWikiURL(rawAuthorName)
+    })
+
     
     onMounted(async () => {
      
@@ -233,14 +257,18 @@ export default {
       // this.localStorage = localStorage
       // localStorage.setItem("url", "hello");
       const response = await fetch("http://localhost:5000");
+      let unfiltered = await response.json();
 
-      state.data = await response.json();
+      
+      state.data = unfiltered.filter(i=>i);
+      // state.data = await response.json();
       //state.data = state.data.filter(item => item.author.indexOf(props.authorSearch) > -1);    
       // console.log("state data: ", state.data);
    
       let rawAuthorName = JSON.parse(JSON.stringify(state.data));
-      
-      tryGetWikiURL(rawAuthorName)
+      if(searchStopImgUpload.value !== true){
+        tryGetWikiURL(rawAuthorName)
+      }
       
       const totalVuePackages = await state.data;
       if(state && state.data){
@@ -270,8 +298,11 @@ export default {
     async function tryGetWikiURL(rawAuthorName:any){
       // rawAuthorName.forEach((i)=>{ 
         for(let i = 0; i < rawAuthorName.length; i++){
-          if(in_toc.value === true){
-            // console.log("ENDING LOOP!");
+          console.log("in toc? ", in_toc.value);
+          console.log("stop images? ", searchStopImgUpload.value);
+          if(in_toc.value === true || searchStopImgUpload.value === true){
+            //searchStopImgUpload.value = false;
+            console.log("ENDING LOOP!");
             return;
           }
           let published = new Date(); 
@@ -349,7 +380,7 @@ export default {
   }, 
   methods: {
     scrapeBasic: async function (this:any) {
-      console.log("CALLING SCRAPER");
+      //console.log("CALLING SCRAPER");
       scrape.basicData = await fetch('http://localhost:5000/scraper', {
             headers: {
               'Accept': 'application/json',
@@ -358,7 +389,7 @@ export default {
             method: "POST",
             body: JSON.stringify({titleSearch: this.props.titleSearch, authorSearch: this.props.authorSearch, publishedSearch: this.props.yearSearch})
       }); 
-      console.log("BASIC_DAT!A: ", scrape.basicData);
+      //console.log("BASIC_DAT!A: ", scrape.basicData);
     },
     handleKeyUpAuthor: async function (this: any) {
       this.state.data = {};
@@ -401,6 +432,7 @@ export default {
       if(this.props.titleSearch.length < 2){
         return null;
       }
+
       scrape.basicData = await fetch('http://localhost:5000/scraper_title_filter', {
         headers: {
           'Accept': 'application/json',
@@ -488,7 +520,7 @@ export default {
         method: "POST",
         body: JSON.stringify({fullTextSearchInput: "monkeys", filter_mode: this.currentState})
       }).then(response => response.json()).then(result => {
-              console.log("RESULT OF FULLTEXT SEARCH IS... ", result);
+              //console.log("RESULT OF FULLTEXT SEARCH IS... ", result);
               let arr : Array<Object> = [];
               for(let i = 0; i < result.length; i++){
                 
@@ -540,17 +572,29 @@ export default {
     searchBasicOrchestrate: async function(this:any){
       // let authors = this.searchBasicAuthor();
       // let titles = this.searchBasicTitle();
+      console.log("CHECK!");
+      
       let titles : Array<String> = [];
       let authors : Array<String> = [];
+      
+      searchStopImgUpload.value = true;
       // console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
       // console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
-      if(this.props && this.props.titleSearch){
+      console.log("THIS PROPS: ", JSON.parse(JSON.stringify(this.props)))
+      if(JSON.parse(JSON.stringify(this.props)) && JSON.parse(JSON.stringify(this.props)).titleSearch){
+        console.log("hit this... ");
         titles = await this.searchBasicTitle();
+        console.log("titles: ", titles);
+
         textsToReturn.value.push(titles);
+        console.log("does this need JSONString etc> ", textsToReturn.value)
+
       } 
-      if(this.props && this.props.authorSearch){
+      if(JSON.parse(JSON.stringify(this.props)) && JSON.parse(JSON.stringify(this.props)).authorSearch){
         authors = await this.searchBasicAuthor();
-        textsToReturn.value.push(authors);
+        
+        // this.tryGetWikiURL(authors);
+        textsToReturn.value.push(JSON.parse(JSON.stringify(authors)));
       } 
 
       // console.log("Texts to return ", textsToReturn.value); 
@@ -559,10 +603,10 @@ export default {
     searchBasicTitle: async function(this:any){
       this.state.data = {}
       // console.log("here is title search query: ", this.props.titleSearch);
-      if(this.props && this.props.titleSearch && this.props.titleSearch.length < 2){
+      if(!JSON.parse(JSON.stringify(this.props)) || !JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length < 2){
         return null;
       }
-      // console.log("ABOUT TO SEARCH FOR THIS TITLE: ", this.props.titleSearch);
+      console.log("ABOUT TO SEARCH FOR THIS TITLE: ", this.props.titleSearch);
       scrape.basicData = await fetch('http://localhost:5000/scraper_title_filter', {
         headers: {
           'Accept': 'application/json',
@@ -571,15 +615,17 @@ export default {
         method: "POST",
         body: JSON.stringify({title_filter: this.props.titleSearch})
       }).then(response => response.json()).then(result => {
+          console.log("RESULT> ", result);
               if(result.length){
-
+                console.log("caught response ", result);
                 let arr : Array<Object> = [];
                 for(let i = 0; i < result.length; i++){
-                  if(this.props.yearSearchEnd){
+                  if(JSON.parse(JSON.stringify(this.props)).yearSearchEnd){
                     // console.log("we've got to check year search end: ", this.props.yearSearchEnd)
-                    if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
-                      // console.log("this result happened before search end: ", JSON.parse(result[i]))
-                      if(arr.indexOf(JSON.parse(result[i])) !== -1){
+                    if(parseInt(JSON.parse(result[i]).published) < parseInt(JSON.parse(JSON.stringify(this.props)).yearSearchEnd)){
+                      console.log("this result happened before search end: ", JSON.parse(result[i]))
+                      console.log("WHAT IS THIS? ", arr.indexOf(JSON.parse(result[i])));
+                      if(arr.indexOf(JSON.parse(result[i])) === -1){
                         arr.push(JSON.parse(result[i]));
                       }
                     } 
@@ -594,7 +640,7 @@ export default {
                 }
 
                 scrape.basicData = arr;
-                
+                console.log("##### ", scrape.basicData)
                 // tryGetWikiURL(scrape.basicData);
                 return scrape.basicData;
               } else {
@@ -609,6 +655,7 @@ export default {
     },
     searchBasicAuthor: async function(this:any){
       this.state.data = {}
+      
       // console.log("here is author search query: ", this.props.authorSearch);
       if(this.props && this.props.authorSearch && (this.props.authorSearch.length < 2 )){
         // console.log("author search length too short --> returning")
@@ -629,13 +676,13 @@ export default {
           for(let i = 0; i < result.length; i++){
             JSON.parse(result[i]).published = JSON.parse(result[i]).published.slice(0,1);
             
-            if(this.props.yearSearchBegin){
-              if(parseInt(JSON.parse(result[i]).published) > parseInt(this.props.yearSearchBegin)){
-                if(this.props.yearSearchEnd){
-                  if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
-                    if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+            if(JSON.parse(JSON.stringify(this.props)).yearSearchBegin){
+              if(parseInt(JSON.parse(result[i]).published) > parseInt(JSON.parse(JSON.stringify(this.props)).yearSearchBegin)){
+                if(JSON.parse(JSON.stringify(this.props)).yearSearchEnd){
+                  if(parseInt(JSON.parse(result[i]).published) < parseInt(JSON.parse(JSON.stringify(this.props)).yearSearchEnd)){
+                    if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) !== -1){
                     arr.push(JSON.parse(result[i]));
-                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                  } else if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) === -1) {
                     console.log("title mismatch")
                   } else {
                     arr.push(JSON.parse(result[i]));
@@ -644,9 +691,9 @@ export default {
                     console.log("out of year range: ", result[i])
                   }
                 } else {
-                  if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                  if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) !== -1){
                     arr.push(JSON.parse(result[i]));
-                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                  } else if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) === -1) {
                     console.log("title mismatch")
                   } else {
                     arr.push(JSON.parse(result[i]));
@@ -656,11 +703,11 @@ export default {
                 console.log("out of year range: ", result[i])
               }
             } else {
-              if(this.props.yearSearchEnd){
-                  if(parseInt(JSON.parse(result[i]).published) < parseInt(this.props.yearSearchEnd)){
-                    if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+              if(JSON.parse(JSON.stringify(this.props)).yearSearchEnd){
+                  if(parseInt(JSON.parse(result[i]).published) < parseInt(JSON.parse(JSON.stringify(this.props)).yearSearchEnd)){
+                    if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) !== -1){
                     arr.push(JSON.parse(result[i]));
-                  } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                  } else if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) === -1) {
                     console.log("title mismatch")
                   } else {
                     arr.push(JSON.parse(result[i]));
@@ -669,9 +716,9 @@ export default {
                   console.log("out of year range: ", result[i])
                 }
               } else {
-                if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) !== -1){
+                if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) !== -1){
                   arr.push(JSON.parse(result[i]));
-                } else if(this.props.titleSearch && this.props.titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(this.props.titleSearch) === -1) {
+                } else if(JSON.parse(JSON.stringify(this.props)).titleSearch && JSON.parse(JSON.stringify(this.props)).titleSearch.length > 1 && JSON.parse(result[i]).title.indexOf(JSON.parse(JSON.stringify(this.props)).titleSearch) === -1) {
                   console.log("title mismatch")
                 } else {
                   arr.push(JSON.parse(result[i]));
@@ -680,8 +727,9 @@ export default {
             }
           }
           scrape.basicData = arr;
-
-          this.tryGetWikiURL(arr)
+          if(searchStopImgUpload.value !== true){
+            this.tryGetWikiURL(arr)
+          }
           return scrape.basicData;
         } else {
           return null;
@@ -753,11 +801,13 @@ export default {
           </div>
       
         </div>
-        <h3 id="mainTextSubheader">Main Text Subheader</h3>
+        <!-- <h3 id="mainTextSubheader">Main Text Subheader</h3> -->
         <p id="mainText">
-          Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
-          Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem.
-
+          This is an ongoing project to facilitate data exploration in the digitized archives of 
+            <a class="tcp-ref" href="https://quod.lib.umich.edu/e/evans/">Evans Early American Imprint Collection</a>,  
+            <a class="tcp-ref" href="https://quod.lib.umich.edu/e/ecco/">Eighteenth-Century Collections Online</a>, and 
+            <a class="tcp-ref" href="https://quod.lib.umich.edu/e/eebogroup/">Early English Books Online</a>. Visit the <a class="tcp-ref" href="https://github.com/MartinScriblerus">project repo</a> to see the roadmap, recommend features, or contribute.  
+            
         </p>
       </div>
    
@@ -786,15 +836,16 @@ export default {
         <div id="yearsBetweenInputWrapper">
           <div id="letterSearchBtnColumnWrap">
             <button class="green header" v-on:click="letterFilterDisplay">Letter Search</button>
-            <button class="green header" disabled id="disableFullText" v-on:click="fullTextSearchDisplay">Full Text Search</button>
+            <br/>
+            <button class="green header" disabled id="disableFullText" v-on:click="fullTextSearchDisplay">Full Text</button>
             <div id="yearsBetweenRowWrapper">
               <span class="label-wrap">
-                <input id="yearSearch1" placeholder="1660" v-model='props.yearSearchBegin'/>
+                <input id="yearSearch1" placeholder="1660" :maxlength="5"  v-model='props.yearSearchBegin'/>
                 <label class="green" for="yearSearch1">Begin</label>
               </span>
             
               <span class="label-wrap">
-                <input id="yearSearch2" placeholder="1745" v-model='props.yearSearchEnd'/>
+                <input id="yearSearch2" placeholder="1745" :maxlength="5" v-model='props.yearSearchEnd'/>
                 <label class="green" for="yearSearch2">End</label>
               </span>
             </div>
@@ -810,9 +861,10 @@ export default {
 
   </div>
 
-  <main id="main">
+  <main v-if="state.data" id="main">
   
     <TheWelcome 
+   
       :items="state.data" 
       @in_toc_now="in_toc_now"
     />
@@ -890,6 +942,19 @@ header {
   margin: 0 auto 2rem;
 }
 
+a.tcp-ref {
+  text-decoration: none;
+  color: #e6e4d6;
+  justify-content: center;
+  transition: 0.4s;
+  text-align: center;
+  font-weight: 300;
+  font-size: 14px; 
+  padding-left: 0%; 
+  padding-right: 0%; 
+  line-height: 1.7;
+}
+
 a,
 .green {
   text-decoration: none;
@@ -905,6 +970,16 @@ a,
   line-height: 1.7;
 
 }
+
+.step-progress__step:after {
+  min-width:48px;
+  min-height:48px;
+}
+
+/*.step-progress__step--valid:after {
+  min-width:48px;
+  min-height:48px;
+}*/
 
 .letterClick {
     background: #181818;
@@ -946,8 +1021,8 @@ button.green-btn {
   background-color: var(--color-background-mute);
   color: #181818;
   height: 56px;
-  width: 180px;
-  margin: 4px;
+  width: 188px;
+  margin: 6px;
   font-size: 20px;
   color: #e6e4d6;
   margin-bottom: 8px;
@@ -971,6 +1046,8 @@ input {
   border-radius: 4px;
   border: none;
   padding: 8px;
+  color:#ffffff;
+  width:88%;
 }
 
 #main {
@@ -988,17 +1065,16 @@ input {
   border-bottom: solid 1px #9ea5e9;
   top:0px;
 
-  transition: all 6s;
+  transition: all 4s;
 }
 
 #headerDiv {
   visibility:hidden;
-  width:84%;
+  width:60%;
   /*height:100vh;*/
 }
 
 #mainText {
-  padding-top: 4px;
   line-height: 1.5;
   text-align: left;
 
@@ -1006,14 +1082,12 @@ input {
 
   padding-left: 4%;
   padding-right: 0%;
-
+  padding-top:2%;
   width: 100%;
+  height:100%;
 }
 
-#mainTextSubheader {
-  font-size: 24px;
-  padding-left: 4%;
-}
+
 
 #searchBtnMain {
   margin-left:6%;
@@ -1058,7 +1132,7 @@ input {
     height: 18px;
     width: 18px;
     border-radius: 50%;
-    left: 0;
+    left: 0px;
     top: -3px;
     transform: translateX(0);
     transition: all .25s cubic-bezier(.5, -.6, .5, 1.6);
@@ -1106,16 +1180,15 @@ input[type="checkbox"] {
   flex-direction: row;
   text-align:center;
   justify-content: center;
+  top:4px;
 }
 
 #titleAuthorInputWrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 20px;
-  padding-bottom: 20px;
   padding-right: 4%;
-  padding-left: 4%;
+  padding-top:0%;
 }
 #titleAuthorInputWrapper > .label-wrap {
   width:100%;
@@ -1137,7 +1210,7 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 60%;
+  width: 76%;
 }
 
 .inputsRowWrapper {
@@ -1166,7 +1239,7 @@ input[type="checkbox"] {
 .wrapper-outer {
   width:100%;
   max-height:300px;
-  padding-right:2%;
+  padding-right:4%;
 }
 
 .wrapper.search {
@@ -1175,6 +1248,18 @@ input[type="checkbox"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.modal.searching {
+  width: 100vw;
+  margin-left: 12%;
+  margin-right: 12%;
+  width: 76%;
+  top: 4%;
+  bottom: 4%;
+  height: 92%;
+  border-radius: 12px;
+  border: solid 1px #e6e4d6;
 }
 
 .jumbotron {
@@ -1260,10 +1345,10 @@ to   { opacity: 1; }
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
   background-color:#9ea5e9;
   -webkit-transition: 0.4s;
   transition: 0.4s;
@@ -1327,6 +1412,7 @@ input:checked + .slider:before {
 #headerWrapper {
   max-height: 300px;
   padding-left: 4%;
+  height:100%;
 }
 #titleAuthorInputWrapper {
   display:flex;
@@ -1351,10 +1437,12 @@ input:checked + .slider:before {
   }
   #newTextPopup {
     padding: 64px !important;
+    min-width:400px;
+    
   }
 
   #mainText {
-    font-size: 14px;
+    font-size: 16px;
   }
   .toggle-wrapper {
     width: 100%;
@@ -1388,31 +1476,35 @@ input:checked + .slider:before {
     padding-bottom: 0px;
   }
 
-  .modal.searching {
-    width: 100vw;
-    margin-left: 12%;
-    margin-right: 12%;
-    width: 76%;
-    top: 4%;
-    bottom: 4%;
-    height: 92%;
-    border-radius: 12px;
-    border: solid 1px #e6e4d6;
-  }
+
 }
 
 
 @media (min-width: 900px) {
   body {
-    display: flex;
+  
     place-items: center;
-    overflow-y:hidden;
-  }
 
+  }
+  #graphDiv {
+    margin-top: 4%;
+  }
   #app {
-    display: grid;
-    /* grid-template-columns: 1fr 1fr;
-    padding: 0 2rem; */
+  /*max-width: 1280px;*/
+  margin: 0 auto;
+
+  grid-template-columns: 1fr;
+  font-weight: normal;
+  position:absolute;
+  top:0px;
+  left:0px;
+  max-width: 100vw;
+
+  -webkit-animation: fadein 4s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 4s; /* Firefox < 16 */
+   -ms-animation: fadein 4s; /* Internet Explorer */
+    -o-animation: fadein 4s; /* Opera < 12.1 */
+       animation: fadein 4s;
   }
 
   header {
@@ -1426,8 +1518,6 @@ input:checked + .slider:before {
     place-items: flex-start;
     flex-wrap: wrap;
     overflow: auto;
-
-
   }
   #yearsBetweenInputerWrapper {
     width: 40%;
@@ -1457,13 +1547,35 @@ input:checked + .slider:before {
 }
 
 @media(max-width:600px){
+  #graphDiv{
+    margin-top: 10%;
+  }
+  #newTextPopup {
+    left: calc(25% - 200px);
+    right: calc(25% + 200px);
+  }
   .outer-row {
     flex-direction: column;
+  }
+  button.green-btn {
+    width:112px;
   }
   .author-image {
     min-width: 64px;
   }
-
+  #progressMsg {
+    z-index: 1;
+    bottom: 0px;
+    font-size: 20px;
+    text-align: center;
+    top: 0px;
+    position: relative;
+    width: 100%;
+    height:80px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+    line-height:1.5;
+  }
 
   
   #headerDiv, #wrapper-outer {
@@ -1487,8 +1599,24 @@ input:checked + .slider:before {
     max-width: 100%;
     position: relative;
   }
+  #cycleReturnToSearch, #compareButton,#updatePopupButton {
+    top:6%;
+  }
+  #progressMsg {
+    z-index: 1;
+    bottom: 0px;
+    font-size: 28px;
+    text-align: center;
+    top: 0px;
+    position: relative;
+    width: 100%;
+    height:80px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+    line-height:2;
+  }
   #headerDiv, #wrapper-outer {
-    width: 76%;
+    width: 60%;
     height:100%;
   }
   .book-item {
