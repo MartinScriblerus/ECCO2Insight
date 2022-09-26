@@ -5,14 +5,14 @@
 
 ### The current version is a minimal viable demonstration of the site, and future roadmap items include:
     * Automated build and deploy process for ongoing updates
-    * Many more D3 graphs (see the console for a glimpse at the data we're pulling in but not yet displaying), which will track language features related to poetics, linguistic stress patterns, grammar, and entity analysis.
+    * Many more D3 graphs (see the console for a glimpse at available NLP data)
     * Sonification of poetic features
     * Machine Learning for generative tasks, analysis, and comparison
     * The ability to create, label, and graph groups of texts
     * Full Text Searches in EAI, ECCO, and EEBO
-    * An extended database structure that enables more complex grouping and graphing.
-    * User management, data persistence, and features enabling live chat and interaction between users.
-    * A feature section focused on showcasing elucidative charts, writeups, and contributions from users.
+    * An extended database structure including knowledge graphs and text classification
+    * User management, data persistence, and collaboration features
+    * A feature section showcasing contributions from users
 
 ## Build Instructions
 
