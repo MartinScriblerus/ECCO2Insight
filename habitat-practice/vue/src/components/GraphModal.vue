@@ -118,9 +118,9 @@
 
   function hideUpdateButtons(){
     let graph = document.getElementById("svgId");
-    if(graph){
-      graph.style.bottom = "16%";
-    }
+    // if(graph){
+    //   graph.style.bottom = "16%";
+    // }
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -1282,7 +1282,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
   z-index: 99;
   /* min-height: 72%; */
   height: 84%;
-  top: 16%;
+  top:4%;
 }
 
 svg {
