@@ -480,7 +480,7 @@ def nltk_analysis(r, text_in_html):
 
             for id, d in enumerate(last_line_internal):
                 if id + 1 == len(last_line_internal):
-                    print("UP")
+                    # print("UP")
                     break
                 if d in last_rhyme_to_check and len(d) > 3:
                     old_df_internal_rhyme_most_recent.append({"index": index,"end_rhyme":old_df_last_word_per_line[index - 1],"internal_rhyme":d})

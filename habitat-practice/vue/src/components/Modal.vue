@@ -226,7 +226,7 @@ socket.onmessage = event => {
       // We've got the text -> reorder the DOM
       // ----------------------------------------------------
       let results = document.getElementsByClassName('modal-single-text-results');
-      console.log("results length= ", results.length)
+      //console.log("results length= ", results.length)
       if(results.length > 0){
         // results[0].style.visibility = "visible";
         // inGraphs.value = true;
@@ -258,7 +258,7 @@ socket.onmessage = event => {
           if(document.getElementById('graphs')){
             document.getElementById('graphs').style.display = "flex";
           } else {
-            console.log("do we hit this 1?");
+            //console.log("do we hit this 1?");
             inGraphs.value = true;
             //console.log("no graphs");
           }
@@ -271,19 +271,10 @@ socket.onmessage = event => {
           try {
             if(document.getElementById('compareButton')){
               document.getElementById('compareButton').style.visibility = "visible";
-            } else {
-              console.log("no compare button...")
-            }
-            if(document.getElementById("textRowAuthor")){
-              document.getElementById("textRowAuthor").style.display = "none";
-            } else {
-              console.log("no text row author");
-            }
+            } 
             if(document.getElementById("textRowTitle")){
               document.getElementById("textRowTitle").style.display = "none";
-            } else {
-              console.log("no text row title");
-            }
+            } 
             // document.getElementsByClassName("searchTextWrapper").style.display = "none";
             if(document.getElementById('headerDiv')){
               document.getElementById('headerDiv').style.display = 'none';
@@ -295,18 +286,12 @@ socket.onmessage = event => {
             } else {
               console.log("no header div... ");
             }
-            if(document.getElementById('mainText')){
-              document.getElementById('mainText').style.display = "none";
-            } else {
-              console.log("no main text");
-            }
-            // document.getElementById('mainTextSubheader').style.display = "none";
           } 
           catch(e){
-           console.log("err_modal1 ", e);
+           //console.log("err_modal1 ", e);
           }
         } catch(e){
-          console.log("err_modal1 outer", e);
+          //console.log("err_modal1 outer", e);
         }
       }
     }  
@@ -468,16 +453,16 @@ const color1 = ref("");
 color1.value = "#9ea5e9";
 
 const color2 = ref("");
-color2.value = "#00bd7e";
+color2.value = "#e6e4d6";
 
 const color3 = ref("");
 color3.value = "#00bd7e";
 
 const colorX = ref("");
-colorX.value = "#ffffff";
+colorX.value = "#e6e4d6";
 
 const colorY = ref("");
-colorY.value = "#ffffff";
+colorY.value = "#e6e4d6";
 
 const ready = ref(false);
 
@@ -500,7 +485,7 @@ const currentLinesCount = ref(0);
 const additionalTexts = ref([]);
 currentLinesCount.value = 1;
 
-
+const returning = ref(false);
 
 async function trySetReady(){
   
@@ -524,7 +509,12 @@ async function trySetReady(){
       try {
         let searchFields = document.getElementById("searchFields");
         if(searchFields && secondTextRef.value !== true){
-          searchFields.style.visibility = "hidden";
+          if(JSON.parse(JSON.stringify(returning.value)) === true){
+            console.log("FIXED!")
+            returning.value = false;
+          } else {
+            searchFields.style.visibility = "hidden";
+          }
           //searchFields.style.display = "flex";
         } else if(searchFields && secondTextRef.value === true){
           secondTextRef.value = false;
@@ -596,8 +586,11 @@ preservedDataLine1],(graphstateRef,inGraphs,rawtextdata,selectedTitle,selectedAu
   // if(JSON.parse(JSON.stringify(props.inGraphsParent)) === true && inGraphs.value === false){
   //   inGraphs.value = true;
   // }
-
-    trySetReady();
+    if(JSON.parse(JSON.stringify(returning.value)) === true){
+      returning.value = false;
+    } else {
+      trySetReady();
+    }
     if(JSON.parse(JSON.stringify(props.openFull)) !== true){
       return;
     }
@@ -668,6 +661,7 @@ function tryAddNewText(){
 // Opens Keybuilder Popup
 // ----------------------------------------------------
 function openKeyPopup(){
+
   let linepicker = document.getElementById("linePickerPopup");
   if(linepicker){
     linepicker.style.display = "inline-block";
@@ -703,32 +697,18 @@ async function resetRows(){
 
 
   //document.getElementById("newTextPopup").style.display = "flex";
-
-  if(currentLinesCount.value === 4){
-    let row4 = document.getElementById("newRow_3");
-    if(row4){
-      row4.style.display = "flex";
-    } else {
-      row4.style.display = "none";
-      // console.log("what is row 4 ", document.getElementById("newRow_3"));
-    }
-    
-  }
-  if(currentLinesCount.value >= 3){
-    let row3 = document.getElementById("newRow_2");
-    if(row3){
-      row3.style.display = "flex";
-    } else {
-      row3.style.display = "none";
-      // console.log("what is row 3 ", document.getElementById("newRow_2"));
-    }
-  }
+  let addTextBtn = document.getElementById("addTextButton");
   if(currentLinesCount.value >= 2){
+    
+    if(addTextBtn){
+      addTextBtn.style.opacity = "0.3";
+      addTextBtn.style.pointerEvents = "none";
+    }
     let row2 = document.getElementById("newRow_1");
     if(row2 && inGraphs.value === true){
       
       row2.style.display = "flex";
-      console.log("reaching heree!!!");
+      //console.log("reaching heree!!!");
       if(!props.selectedAuthor || !props.selectedTitle){
         console.log(`either missing selected author ${props.selectedAuthor} or props selected title ${props.selectedTitle}`)
       }
@@ -737,6 +717,11 @@ async function resetRows(){
     } else {
       //row2.style.display = "none";
       // console.log("what is row 2 ", document.getElementById("newRow_1"));
+    }
+  } else {
+    if(addTextBtn){
+      addTextBtn.style.opacity = "1";
+      addTextBtn.style.pointerEvents = "all";
     }
   }
 }
@@ -798,6 +783,7 @@ async function tryGetFullModal(url){
           mainPage.style.visibility = "hidden";
       if(inGraphs.value === true){
         inGraphs.value = false;
+        console.log("nope this one...");
         trySetReady();
       }
       console.log()
@@ -832,18 +818,8 @@ async function tryGetFullModal(url){
               modalHeader.style.display = "flex";
             }
             rawtextfromtoc.value = result;
-            console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
+            //console.log("hhhere's the text: ", JSON.parse(JSON.stringify(rawtextfromtoc.value)));
             
-            // try{
-            //   let stressesArr = [];
-            //   let words = JSON.parse(JSON.stringify(rawtextfromtoc.value)).poetic_form.map(i=>i)
-            //   console.log("WORDS? ", words);
-            //   stressesArr.push(window.RiTa.stresses(words))
-            //   console.log("STRESSES ARR: ", stressesArr);
-            // } catch(e){
-            //   console.log("err: ", e);
-            // }
-            //document.getElementById("modalFull").classList.add("awaiting")
             temp.value = JSON.parse(JSON.stringify(rawtextfromtoc.value));
             ///////////////////////////////////////////////////////////////////////////////
             // --> Catch Data in Complex Object (break this all up in future for better user exp)
@@ -857,76 +833,17 @@ async function tryGetFullModal(url){
             initialHumanReadableTextRef.value.textObj.percPoetrySyllables = temp.value.perc_poetry_syllables;
             initialHumanReadableTextRef.value.textObj.percPoetryRhymes = temp.value.perc_poetry_rhymes;
             initialHumanReadableTextRef.value.textObj.placesEntitiesArray = temp.value.places;
-          //   temp.value.last_word_per_line.forEach((li,lineIndex)=>{
-          //     console.log("in line index loooooop 1");
-          //     initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {};
-          //     initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['lastWord'] = li;
-          //     // temp.value.poetic_form.forEach(form=>{
-          //     //   console.log("in poetic form index loooooop 1");
-          //     //   if(form['index'] === lineIndex){
-          //     //     initialHumanReadableTextRef.value.lineObj[lineIndex] = {};
-          //     //   }
-          //     // })
-              
-       
-          // })
+
           initialHumanReadableTextRef.value['poetic_form'] = [];
-          console.log("TEMP VAL POETIC FORM CHECK: ", temp.value.poetic_form.length)
+          //console.log("TEMP VAL POETIC FORM CHECK: ", temp.value.poetic_form.length)
           initialHumanReadableTextRef.value['poetic_form'].push(temp.value.poetic_form)
-          // temp.value.poetic_form.forEach(pf=>{
-          //       console.log("in poetic form loop 2");
-          //       try {
-          //         if(JSON.parse(JSON.stringify(pf))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-          //           initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))] = {
-          //             "thisRhyme": JSON.parse(JSON.stringify(pf))['this_rhyme'] || '',
-          //             "lastRhyme": JSON.parse(JSON.stringify(pf))['last_rhyme'] || '',
-          //             "thisLine": JSON.parse(JSON.stringify(pf))['this_line'] || '',
-          //             "lastLine": JSON.parse(JSON.stringify(pf))['last_line'] || '',
-          //             "thisInterRhyme": JSON.parse(JSON.stringify(pf))['this_interrhyme'] || '',
-          //             "lastInterRhyme": JSON.parse(JSON.stringify(pf))['last_interrhyme'] || '',
-          //             "thisInterLine": JSON.parse(JSON.stringify(pf))['this_interline'] || '',
-          //             "lastInterLine": JSON.parse(JSON.stringify(pf))['last_interline'] || '',
-          //             "poeticForm": JSON.parse(JSON.stringify(pf))['form'] || 'None' 
-          //           }
-          //         }
-          //       } catch(e){
-          //         // console.log("ARE WEE IN GRAPHS? ", inGraphs.value)
-          //         // console.log("IS FULL MODAL OUT? ", modalFull.value)
-          //       }
-          //     })
+
           initialHumanReadableTextRef.value['internal_rhymes_most_recent'] = [];
-          console.log("check on internal rhymes length ", temp.value.internal_rhyme_most_recent.length)
+         // console.log("check on internal rhymes length ", temp.value.internal_rhyme_most_recent.length)
           initialHumanReadableTextRef.value['internal_rhymes_most_recent'].push(temp.value.internal_rhyme_most_recent)
-              // temp.value.internal_rhyme_most_recent.forEach(ry=>{
-              //   console.log("in internal rhyme most recent");
-              //   try {
-              //     if(JSON.parse(JSON.stringify(ry))['index'] === JSON.parse(JSON.stringify(lineIndex))){
-              //       try {
-              //           initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['internalRhymes'] = {
-              //             "endRhyme": JSON.parse(JSON.stringify(ry))['end_rhyme'] || '',
-              //             "internalRhyme": JSON.parse(JSON.stringify(ry))['internal_rhyme']
-              //         }
-              //       } catch (e) {
-              //         console.warn("error getting internal rhymes: ", e);
-              //       }
-              //     }
-              //   } catch(e){
-              //   // console.log("error: ", e);
-              //   } finally {
-              //   }  
-              //   try {
-              //     initialHumanReadableTextRef.value.lineObj[JSON.parse(JSON.stringify(lineIndex))]['syllablesInLine'] = JSON.parse(JSON.stringify(temp.value.syllables_per_line))[lineIndex]
-              //   } catch {
-              //     console.log("error getting syllables in line *** ");
-              //   }
-              // })  
+ 
             const tempGramArr = ref([])
-    
-            // temp.value.most_common_words.forEach((word, rank) => {
-      
-            //   initialHumanReadableTextRef.value.textObj.mostCommonWords[rank]={"word":JSON.parse(JSON.stringify(word[0])),"occurances":JSON.parse(JSON.stringify(word[1]))};
-            // });
-          
+              
             temp.value.sentence_id.forEach(sentence => {
               // console.log("in sentence ID loop");
               initialHumanReadableTextRef.value.sentenceObj[sentence] = {
@@ -949,7 +866,7 @@ async function tryGetFullModal(url){
               })    
             });
             temp.value.spacy_entities.forEach(entity=>{
-              console.log("in entities loop...")
+              //console.log("in entities loop...")
               initialHumanReadableTextRef.value.sentenceObj[JSON.parse(JSON.stringify(Object.keys(entity)))].sentenceSpacyEntities.push(
                 {
                   "text": Object.keys(JSON.parse(JSON.stringify(Object.values(Object.values(entity))))[0])[0],
@@ -964,23 +881,7 @@ async function tryGetFullModal(url){
               localStorage.setItem(url, JSON.stringify(JSON.parse(JSON.stringify(initialHumanReadableTextRef.value))));
             }
             
-            // if(JSON.parse(JSON.stringify(props)).length > 1 && JSON.parse(JSON.stringify(props)).selectedAuthor && JSON.parse(JSON.stringify(props.selectedTitle)) && currentLinesCount.value){
-            //   if(currentLinesCount.value < 2 && additionalTexts[0]){
-            //     console.log(`AUTHOR ${JSON.parse(JSON.stringify(props)).selectedAuthor} / TITLE: ${JSON.parse(JSON.stringify(props)).selectedTitle}`)
-            //     additionalTexts[0].author = JSON.parse(JSON.stringify(props)).selectedAuthor;
-            //     additionalTexts[0].title = JSON.parse(JSON.stringify(props)).selectedTitle;
-            //   } 
-            //   if(currentLinesCount.value == 2 && additionalTexts[1]) {
-            //     additionalTexts[1].author = props.selectedAuthor;
-            //     additionalTexts[1].title = props.selectedTitle;
-            //   }
-            // }
-            console.log("tEEEEEDST: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
-            //let finalObj = JSON.parse(JSON.stringify(initialHumanReadableTextRef.value));
-            // document.getElementById('fullTextGraphWrapper').innerText = (finalObj.textObj);
-            ///////////////////////////////////////////////////////////////////////////////
-            ///////////////////////////////////////////////////////////////////////////////
-            ///////////////////////////////////////////////////////////////////////////////
+            console.log("text data: ", JSON.parse(JSON.stringify(initialHumanReadableTextRef.value)))
 
             return rawtextfromtoc.value;
           } else {
@@ -1088,7 +989,7 @@ async function scrape_text(url){
       // console.log("WHAT ARE GRAPHS? ", graphs);
       let results = document.getElementsByClassName('modal-single-text-results')
       
-      console.log("what are results? ", results);
+      // console.log("what are results? ", results);
       if(results){
         inGraphs.value = true;
         if(results){
@@ -1141,7 +1042,7 @@ function selected(e){
   //console.log("received SELECTED emit in the modal parent: ", e);
 };
 
-const lineThickness = 3;
+const lineThickness = 5;
 
 function colorInputMountedHandler(){
   if(!rawtextfromtoc.value){
@@ -1351,6 +1252,12 @@ function openUpdatePopup(){
   if(cycleBackBtn){
     cycleBackBtn.classList.add("animate-close");
   }
+
+ 
+  let popup = document.getElementById("newTextPopup");
+  if(popup){
+    closeKeyModal() 
+  }
 }
 
 function closeUpdatePopup(){
@@ -1442,17 +1349,30 @@ function clickedLineRow(row){
 
   //console.log('check on selected row in modal: ', selectedRow.value)
 }
+
 function cycleReturnToSearch(){
-  graphstateRef.value = 0;
-  currentLinesCount.value = 0;
+  
+  // if(currentLinesCount.value === 2){
+  //   window.location.href = "/";
+  //   graphstateRef.value = 0;
+  //   return;
+  // } else {
+    returning.value = true;
+  // }
+  // graphstateRef.value = 0;
+  //currentLinesCount.value = 0;
   let moveableGrammarWrapper = document.getElementById("grammarDisplayWrapper");
-      if(moveableGrammarWrapper){
-        moveableGrammarWrapper.style.display = 'none';
-      }
+  if(moveableGrammarWrapper){
+    moveableGrammarWrapper.style.display = 'none';
+  }
   let modalHead = document.getElementById("modalHead");
-      if(modalHead){
-        modalHead.style.display = 'none';
-      }
+  if(modalHead){
+    modalHead.style.display = 'none';
+  }
+  if(document.getElementById("modalFull")){
+    document.getElementById("modalFull").classList.remove("receivedSingleTextData");
+    document.getElementById("modalFull").style.display = "none"
+  }
   inGraphs.value = false;
   ready.value = false;
   let searchArea = document.getElementById("searchFields");
@@ -1463,18 +1383,15 @@ function cycleReturnToSearch(){
   let headerDiv = document.getElementById("headerDiv");
   if(headerDiv){
     headerDiv.style.visibility = "visible";
-  }
-  if(document.getElementById("modalFull")){
-    document.getElementById("modalFull").classList.remove("receivedSingleTextData");
-    document.getElementById("modalFull").style.display = "none"
+    headerDiv.style.display = "flex";
   }
   let main = document.getElementById("main");
   if(main){
     main.style.visibility = "visible";
     main.style.opacity=1;
   }
-  inGraphs.value = false;
-  secondTextRef.value = false;
+  // inGraphs.value = false;
+  // secondTextRef.value = false;
  
   doCloseFullModalChild();
   
@@ -1483,10 +1400,7 @@ function cycleReturnToSearch(){
 
 }
 function dataHolder1Grandparent(savedVal){
-  console.log("THIS IS RIDICULOUS ", savedVal);
-
-    preservedDataLine1.value = JSON.parse(JSON.parse(JSON.stringify(savedVal)));
-
+  preservedDataLine1.value = JSON.parse(JSON.parse(JSON.stringify(savedVal)));
 }
 </script>
 
@@ -1746,7 +1660,7 @@ function dataHolder1Grandparent(savedVal){
                   class="key-popup"
                   @click="removeLine"
                 >
-                Remove Line
+                Add Group
               </button>
               <button
                   type="button"
@@ -2368,16 +2282,16 @@ body.modal-open {
 #newTextPopup {
   display: none;
   flex-direction: column;
-  top: 5%;
-  left: 5%;
-  right: 5%;
+  top: 10%;
+  left: 10%;
+  right: 10%;
   width: 100%;
   bottom: 0%;
   height: auto;
-  max-width: 800px;
+
   /* max-height: 452px; */
   /* overflow-y: scroll; */
-  width: 90%;
+  width: 80%;
 }
 .rangeDisplay {
   width:28%;
@@ -2569,9 +2483,7 @@ button#closeBtn {
 #updatePopupButton {
   right: 8px;
 }
-#newAxis_X, #newAxis_Y {
 
-}
 button.green-btn {
   min-width: 160px;
   font-size: 20px;
@@ -2594,11 +2506,12 @@ button.green-btn {
 
   background: #c1dbd7;
 }
-.selectedLine {
-  border: solid 2px #E6CECA;
-}
 #compareButton {
   right: 116px;
+}
+#removeLineButton {
+  opacity:0.3;
+  pointer-events: none;
 }
 </style>
 <style src="@vueform/multiselect/themes/default.css"></style>

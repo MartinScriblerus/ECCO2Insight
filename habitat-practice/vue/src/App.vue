@@ -298,11 +298,11 @@ export default {
     async function tryGetWikiURL(rawAuthorName:any){
       // rawAuthorName.forEach((i)=>{ 
         for(let i = 0; i < rawAuthorName.length; i++){
-          console.log("in toc? ", in_toc.value);
-          console.log("stop images? ", searchStopImgUpload.value);
+          // console.log("in toc? ", in_toc.value);
+          // console.log("stop images? ", searchStopImgUpload.value);
           if(in_toc.value === true || searchStopImgUpload.value === true){
             //searchStopImgUpload.value = false;
-            console.log("ENDING LOOP!");
+            console.log("***");
             return;
           }
           let published = new Date(); 
@@ -572,7 +572,7 @@ export default {
     searchBasicOrchestrate: async function(this:any){
       // let authors = this.searchBasicAuthor();
       // let titles = this.searchBasicTitle();
-      console.log("CHECK!");
+      // console.log("CHECK!");
       
       let titles : Array<String> = [];
       let authors : Array<String> = [];
@@ -580,15 +580,13 @@ export default {
       searchStopImgUpload.value = true;
       // console.log("TITLE SEARCH IN ORCHESTRATE: ",this.props.titleSearch);
       // console.log("AUTHOR SEARCH IN ORCHESTRATE: ",this.props.authorSearch);
-      console.log("THIS PROPS: ", JSON.parse(JSON.stringify(this.props)))
+      // console.log("THIS PROPS: ", JSON.parse(JSON.stringify(this.props)))
       if(JSON.parse(JSON.stringify(this.props)) && JSON.parse(JSON.stringify(this.props)).titleSearch){
-        console.log("hit this... ");
+
         titles = await this.searchBasicTitle();
         console.log("titles: ", titles);
 
         textsToReturn.value.push(titles);
-        console.log("does this need JSONString etc> ", textsToReturn.value)
-
       } 
       if(JSON.parse(JSON.stringify(this.props)) && JSON.parse(JSON.stringify(this.props)).authorSearch){
         authors = await this.searchBasicAuthor();
@@ -1270,6 +1268,7 @@ width: 100%;
   font-size: 48px;
   font-weight: 100;
   top: 0px;
+  opacity:1;
   left: 0px;
   background: rgba(0, 0, 0, 1);
   transition: height 1s ease-in;
@@ -1312,12 +1311,13 @@ to   { opacity: 1; }
 }
 
 .intro-cover {
-  height: 100vh;
+  height: 68px;
   width:100vw;
   background: #181818;
   color: rgba(255,255,255,1);
   z-index:100;
-  transition: height 3s ease-in;
+  opacity:1;
+  transition: opacity 3s ease-in;
 }
 
 #letterFilterToggleWrapper, #searchModeToggleWrapper {
@@ -1469,7 +1469,9 @@ input:checked + .slider:before {
   /*.switch {
     top:12px;
   }*/
-
+  #graphDiv {
+    top:16%;
+  }
 
   #titleAuthorInputWrapper {
     padding-top: 0px;
@@ -1486,8 +1488,10 @@ input:checked + .slider:before {
     place-items: center;
 
   }
-  #graphDiv {
-    margin-top: 4%;
+  #newTextPopup {
+    left:25%;
+    right:25%;
+    width:50%;
   }
   #app {
   /*max-width: 1280px;*/
@@ -1551,8 +1555,9 @@ input:checked + .slider:before {
     margin-top: 10%;
   }
   #newTextPopup {
-    left: calc(25% - 200px);
-    right: calc(25% + 200px);
+    left: 0% !important;
+    right: 0% !important;
+    width: 100% !important;
   }
   .outer-row {
     flex-direction: column;

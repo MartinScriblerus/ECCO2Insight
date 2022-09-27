@@ -82,17 +82,18 @@
 
     async function locateClientX(x){
       let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
-        console.log("what is X? ", x);
-        if (popupTextWindow && (window.innerWidth - x) > 150){
+        // console.log("what is X? ", x);
+        // console.log("what is inner width? ", window.innerWidth);
+        if (popupTextWindow && (window.innerWidth - x) > 200){
           popupTextWindow.style.left = `${x}px` 
         } else {
           // clientX.value=x-200;
-          popupTextWindow.style.left = `${x-100}px` 
+          popupTextWindow.style.left = `${x-150}px` 
         }
       }
       async function locateClientY(y){
         let popupTextWindow = await document.getElementById("grammarDisplayWrapper")
-        console.log("Y IS ", y)
+        // console.log("Y IS ", y)
         if(popupTextWindow && y < 80){
           popupTextWindow.style.top= `${y + 40}px`;
         } else if(y > window.innerHeight - 200) {
@@ -111,19 +112,15 @@
 
       function dataholderemit1(newData1Holder){ 
  
-        console.log("DATA HOLDER DATA HOLDERE", JSON.parse(JSON.stringify(newData1Holder))); 
-        //dataHolder1Parent.value = JSON.parse(JSON.stringify(newData1Holder));
-        // return dataHolder1Parent;
-        console.log("DATA HOLDER PAREENT: ", JSON.parse(JSON.stringify(dataHolder1Parent)));
       }
 
 
 
   function hideUpdateButtons(){
     let graph = document.getElementById("svgId");
-    // if(graph){
-    //   graph.style.bottom = "16%";
-    // }
+    if(graph){
+      graph.style.bottom = "16%";
+    }
     let wrapperTitle = document.getElementById("buttonsWrapperTitle");
     let wrapperSubtitle = document.getElementById("buttonsWrapperSubtitle");
     let wrapperBtns = document.getElementById("buttonsInnerWrapper");
@@ -240,7 +237,7 @@
 
       if(JSON.parse(JSON.stringify(props)).graphstate === 0){
         let preservedValsText1 = Object.values(JSON.parse(JSON.stringify(props)).dataObj.sentenceObj)
-        console.log("PRESERVED VALS TEXT 1: ", preservedValsText1);
+       // console.log("PRESERVED VALS TEXT 1: ", preservedValsText1);
         emit('dataHolder1Grandparent', JSON.stringify(preservedValsText1))
       }
 
@@ -263,7 +260,7 @@
 
       //console.log("AHHHHHH! ", JSON.parse(JSON.stringify(numberXMax.value)))
       try{
-        console.log("HEY IN BUSINESS!!!! ", JSON.parse(JSON.stringify(this)));
+        //console.log("HEY IN BUSINESS!!!! ", JSON.parse(JSON.stringify(this)));
        
         // numberXMax.value = Math.max(...data.value.length);
         numberXMin.value = numberXMin.value.filter(i=>typeof i === "number");
@@ -291,7 +288,7 @@
       }
       }
       
-      console.log("!!!!!! ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5])
+      //console.log("!!!!!! ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5])
       // sessionStorage.setItem("line1Data", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
       
       //console.log("WORKS@@ ", testSessionStorage);
@@ -368,8 +365,8 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
         }
 
         inGraphsParent.value = true;
-        console.log("in compound ** ", sentenceVizSentimentPlaceholder2);
-        console.log("in compound **saved ", sentenceVizSentimentPlaceholder2_Saved);
+        //console.log("in compound ** ", sentenceVizSentimentPlaceholder2);
+        //console.log("in compound **saved ", sentenceVizSentimentPlaceholder2_Saved);
         tempData = sentenceVizSentimentPlaceholder2.map((i)=>i[0])
         tempDataSaved = sentenceVizSentimentPlaceholder2_Saved.map((i)=>i[1])
         //console.log("in compound ", tempData);
@@ -384,7 +381,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
             // call self-building spinner here
             // console.log("CURR LINES - 1 ", JSON.parse(JSON.stringify(props)).currentLinesCount -1);
             if(tempData.indexOf(Object.values(i.sentenceSentimentCompound)[0]) === -1){
-              console.log("pushing into compound tempdata: ", Object.values(i.sentenceSentimentCompound)[JSON.parse(JSON.stringify(props)).currentLinesCount -1])
+              //console.log("pushing into compound tempdata: ", Object.values(i.sentenceSentimentCompound)[JSON.parse(JSON.stringify(props)).currentLinesCount -1])
               tempData.push(Object.values(i.sentenceSentimentCompound)[0])
             }
           }
@@ -400,7 +397,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
               }
             }
           })
-          console.log("TEMP DATA SAVED IS... ", tempDataSaved);
+         //console.log("TEMP DATA SAVED IS... ", tempDataSaved);
         // }
       }
       if(negative){
@@ -502,8 +499,8 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
 
       }
 
-      console.log("WHAT IS TEMPDATA??? ", tempData);
-      console.log("WHAT IS TEMPDATA_SAVED??? ", tempDataSaved);
+      //console.log("WHAT IS TEMPDATA??? ", tempData);
+      //console.log("WHAT IS TEMPDATA_SAVED??? ", tempDataSaved);
       dataHolder1Parent.value = tempDataSaved;
       if(props.graphstate === 0 && tempData.length > 0 && tempData !== undefined && tempData !== null && tempData !== {}){
         if(!tempData){
@@ -523,7 +520,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
       numberYMin.value = numberYMin.value.filter(d=>typeof d === "number");
       
       //why is ymin not coming through?
-      console.log(`check on ... ${numberXMax.value} / ${numberXMin.value} / ${numberYMax.value} / ${numberYMin.value}`);
+      //console.log(`check on ... ${numberXMax.value} / ${numberXMin.value} / ${numberYMax.value} / ${numberYMin.value}`);
     }
       
     watch([
@@ -936,7 +933,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
 
         updateTooltipData();
       } else {
-        console.log("tooltip failure: ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
+        //console.log("tooltip failure: ", Object.values(JSON.parse(JSON.stringify(props.dataObj)))[5]);
       }
   }
 
@@ -1284,7 +1281,7 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
   position: fixed;
   z-index: 99;
   height:72%;
-  margin-top:6%;
+  margin-top:12%;
   height: calc(76%);
  
 }
@@ -1384,17 +1381,17 @@ svg {
 #grammarDisplayWrapper {
   align-items: center;
   justify-content: center;
-  height: 32%;
-  bottom: 48px;
+
   position: absolute;
   margin-right: 12px;
-
+  max-height:240px;
   border: solid 1px #0097BF;
   border-radius: 8px;
   z-index: 100;
-  width: calc(100% - 76%);
+  width: 40%;
+  max-width:300px;
   top: 64px;
-  left:0;
+
   flex-direction: row;
   object-fit: contain;
   display: inline-block;

@@ -171,7 +171,7 @@ async function doCloseFullModal(){
 
 async function doOpenFullModal(){
 
-  console.log("hit open full modal")
+  // console.log("hit open full modal")
   // openFull.value = true;
 };
 
@@ -262,6 +262,7 @@ function scrapeAnotherUrl(url : String){
   justify-content: center;
   min-width: 164px;
   min-height:200px;
+
 }
 .book-title {
   font-size: 16px;

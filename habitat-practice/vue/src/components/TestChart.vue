@@ -170,17 +170,9 @@ export default {
           // console.log("HEIGHT: ", height);
           // console.log("D3=> ", d3);
 
-          // CURRENTLY TESTING THIS...
-          // if(!JSON.parse(JSON.stringify(props.numberYMax))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1] || !JSON.parse(JSON.stringify(props.numberYMin))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]){
-          //   console.log("RETURNING HERE!!!");
-          //   return;
-          // }
-
           yMinRef.value = JSON.parse(JSON.stringify(props.numberYMin))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1];
           yMaxRef.value = JSON.parse(JSON.stringify(props.numberYMax))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1]
-          // if(!Math.min.apply(Math,JSON.parse(JSON.stringify(props.data))) || !Math.max.apply(Math,JSON.parse(JSON.stringify(props.data)))){
-          //   return;
-          // }
+
           if(JSON.parse(JSON.stringify(Math.min.apply(Math,JSON.parse(JSON.stringify(props.data))))) < yMinRef.value){
             resetYNeeded.value = true;
             // console.log("Y RESET NEEDED");
@@ -188,8 +180,6 @@ export default {
           } else {
             //yMinRef.value = JSON.parse(JSON.stringify(yMinRef.value))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1];
           }
-          // console.log("is this already a proxy? ", JSON.parse(JSON.stringify(yMinRef.value))[JSON.parse(JSON.stringify(props)).currentLinesCount - 1])
-          // console.log("check curr lines count: ", JSON.parse(JSON.stringify(props)).currentLinesCount -1)
 
           if(JSON.parse(JSON.stringify(Math.max.apply(Math,JSON.parse(JSON.stringify(props.data))))) > yMaxRef.value){
             //console.log("RESETTING Y MAX");
@@ -231,16 +221,10 @@ export default {
           }
           // if(props.data.length){
           if(!props.selectedXAxisRef || !props.selectedYAxisRef){
-            console.log("incoming! ", JSON.parse(JSON.stringify(props.data)).length - 1);
+            //console.log("incoming! ", JSON.parse(JSON.stringify(props.data)).length - 1);
             
-
-            // if(JSON.parse(JSON.stringify(props)).currentLinesCount === 1){
-              
-              dataRef1.value = JSON.parse(JSON.stringify(props.data));
-            // } else {
-            //   console.log("looooook: ", JSON.parse(JSON.stringify(dataRef1.value)))
-            //   console.log("not reassigning dataRef1 -> curr lines is not 1");
-            // }
+            dataRef1.value = JSON.parse(JSON.stringify(props.data));
+  
             if((JSON.parse(JSON.stringify(props.data)).length - 1) > xMaxRef.value){
               xMaxRef.value = JSON.parse(JSON.stringify(props.data)).length - 1;
               //console.log("what is XMAX VAL??? ", xMaxRef.value);
@@ -400,7 +384,7 @@ export default {
               if(JSON.parse(JSON.stringify(props)).graphstate === 0){
               
               
-                  console.log("props in test: ", JSON.parse(JSON.stringify(props)));
+                  //console.log("props in test: ", JSON.parse(JSON.stringify(props)));
                   dataRef1.value = JSON.parse(JSON.stringify(props)).data;
                   dataHolder1.value = dataRef1.value;
 
@@ -408,29 +392,15 @@ export default {
                     vueIsGarbageSavedLineOne.value = dataRef1.value; 
                   }
 
-                  createLine([dataRef1.value],props.color0,1.5,"line_0");
+                  createLine([dataRef1.value],props.color0,4,"line_0");
            
                 
- 
-                
-                // if(storedRef.value !== true){
-                //     storedRef.value = true;
-                   // emit("dataholderemit1", dataRef1.value)
-                    // dataHolder1.value = dataRef1.value
-                    // createLine([dataRef1.value],props.color0,1.5,"line_0");
-                // }
               }
            
+              //--------------------------------------------------------
               if(JSON.parse(JSON.stringify(props)).graphstate === 1){
                 // This will be line #2
           
-                // let data2Ready = JSON.parse(JSON.stringify(props)).data;
-                // if(data2Ready !== []){
-                //   emit("dataholderemit2", data2Ready)
-                // }
-
-                // console.log("DATAREEF2: ", JSON.parse(JSON.stringify(dataRef2.value)));
- 
                 let toDel = svg.selectAll(`.line#line_1`);
                 if(toDel.length > 0){
                   for(let i = 0;i<toDel.length - 1;i++){
@@ -450,10 +420,8 @@ export default {
                   } else {
                     // console.log("hit else for min in line 2");
                   }
- 
-
                   // createLine([Object.values(dataHolder1.value)],props.color0,1.5,"line_0");
-                  console.log("initial line just prior to creating: ", Object.values(props.data))
+                  //console.log("initial line just prior to creating: ", Object.values(props.data))
                   createNewLine1([Object.values(props.data)],props.color1,1.75,"line_1");
                 }
               }
@@ -481,7 +449,6 @@ export default {
               }
             }
 
-
             // function to render path element with D3's General Update Pattern
             function createLine(dataIn,strokeColor,strokeWidth,chosenClassName){ 
               // emit("dataholderemit1", dataIn);
@@ -499,7 +466,7 @@ export default {
                   return;
                 }
                 dataIn = dataInTemp;       
-                console.log("WHAT IS DATA IN???? ", dataIn);
+                //console.log("WHAT IS DATA IN???? ", dataIn);
                 if(JSON.parse(JSON.stringify(props)).graphstate === 0){
                   dataHolder1.value = dataIn;
                 }
@@ -559,7 +526,7 @@ export default {
                 let savedVals = Object.values(JSON.parse(JSON.stringify(props.dataHolder1)))
                 savedVals.map(i=>typeof i === "number");
 
-              createLine(savedVals,props.color0,1.5,"line_0");
+              createLine(savedVals,props.color0,4,"line_0");
               
               // createLine([dataHolder1.value],props.color0,1.5,"line_0");
               dataIn1.filter(i=>typeof i === "number");
@@ -611,17 +578,6 @@ export default {
                     .text(JSON.parse(JSON.stringify(props)).valueX));
          
               if(JSON.parse(JSON.stringify(props)).graphstate < 1 && oldXLabel !== xMaxLabel.value){
-
-                let tryGetKeyAxisXMax = document.getElementById("xAxisRangeDisplayMax");
-                let tryGetKeyAxisXMin = document.getElementById("xAxisRangeDisplayMin");
-                let tryGetKeyAxisYMax = document.getElementById("yAxisRangeDisplayMax");
-                let tryGetKeyAxisYMin = document.getElementById("yAxisRangeDisplayMin");
-
-                let tryGetKeyXMax = document.getElementById("xRangeDisplayXMax_0");
-                let tryGetKeyXMin = document.getElementById("xRangeDisplayXMin_0");
-                let tryGetKeyYMax = document.getElementById("xRangeDisplayYMax_0");
-                let tryGetKeyYMin = document.getElementById("xRangeDisplayYMin_0");
-              
 
                 resetXNeeded.value = true;
               }
@@ -741,7 +697,7 @@ export default {
         deep: true,
         handler: function(newVal, oldVal){
           if(newVal !== oldVal){
-            console.log("OLD VAL!!! ", oldVal);
+            // console.log("OLD VAL!!! ", oldVal);
           }
           console.log(newVal)
         }
@@ -1015,8 +971,12 @@ function updateTooltip(newVal){
   top: 8%;
 }
 #svgId {
-    background: rgba(0,0,0,0.98);
- 
+    background: var(--background-color);
+}
+#modalHead {
+  display: flex;
+  top: 2%;
+  z-index: 999;
 }
 #tooltip {
   padding: 5px;
