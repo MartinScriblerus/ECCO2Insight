@@ -117,7 +117,7 @@
 
 
   function hideUpdateButtons(){
-    let graph = document.getElementById("svgId");
+    // let graph = document.getElementById("svgId");
     // if(graph){
     //   graph.style.bottom = "16%";
     // }
