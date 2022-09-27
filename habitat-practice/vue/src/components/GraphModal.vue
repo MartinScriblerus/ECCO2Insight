@@ -1280,10 +1280,9 @@ if(JSON.parse(JSON.stringify(tempData)).length > JSON.parse(JSON.stringify(tempD
   width: 100%;
   position: fixed;
   z-index: 99;
-  height:72%;
-  margin-top:12%;
-  height: calc(76%);
- 
+  /* min-height: 72%; */
+  height: 84%;
+  top: 16%;
 }
 
 svg {

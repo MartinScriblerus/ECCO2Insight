@@ -491,7 +491,7 @@ export default {
                 .attr("id", `line_0`)
                 .attr("class", "line") // attach class (important for updating)
                 .attr("stroke", strokeColor)
-                .attr("stroke-width", strokeWidth)
+                .attr("stroke-width", strokeWidth * 2)
                 .attr("d", lineGen) // shape and form of our line!
                 
                 .append("defs").append("clipPath")
@@ -538,7 +538,7 @@ export default {
                   .join(`path`) // create a new "path" for new pieces of data (if needed)
                   .attr("stroke", strokeColor)
                   .attr("id", "line_1")
-                  .attr("stroke-width", strokeWidth)
+                  .attr("stroke-width", strokeWidth * 2)
                   .attr("d", lineGen); // shape and form of our line!   
                   
               const xAxis = axisBottom(xScale);

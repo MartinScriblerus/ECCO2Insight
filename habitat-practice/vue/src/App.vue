@@ -1469,9 +1469,7 @@ input:checked + .slider:before {
   /*.switch {
     top:12px;
   }*/
-  #graphDiv {
-    top:16%;
-  }
+
 
   #titleAuthorInputWrapper {
     padding-top: 0px;
@@ -1551,9 +1549,7 @@ input:checked + .slider:before {
 }
 
 @media(max-width:600px){
-  #graphDiv{
-    margin-top: 10%;
-  }
+
   #newTextPopup {
     left: 0% !important;
     right: 0% !important;
