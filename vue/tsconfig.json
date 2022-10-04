@@ -1,0 +1,42 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "target": "esnext",
+  "module": "esnext",
+  "strict": true,
+  "jsx": "preserve",
+  "importHelpers": true,
+  "moduleResolution": "node",
+  "skipLibCheck": true,
+  "esModuleInterop": true,
+  "allowSyntheticDefaultImports": true,
+  "sourceMap": true,
+  "baseUrl": ".",
+  "types": [
+    "webpack-env"
+  ],
+  "paths": {
+    "@/*": [
+      "src/*"
+    ]
+  },
+
+  "include": ["vue/src/env.d.ts", "src/**/*", "src/**/*.vue","src/use/ResizeObserver.js","src/libs/ResizeObserver.js"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client", "@types/jest"],
+    "noImplicitAny": false,
+    "allowJs": true,
+  },
+
+  "references": [
+    {
+      "path": "./tsconfig.config.json"
+    }
+  ],
+  "exclude":["./dist/**/*"]
+  
+}
