@@ -135,7 +135,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: books
     expose:
-      - 5432:5432
+      # - 5432:5432
+      - "5432"
     # logging:
     #   driver: awslogs
     #   options:
@@ -165,7 +166,8 @@ services:
     restart: always
     ports:
       # - "127.0.0.1:5000:5000"
-        - 127.0.0.1:5000:5000
+        # - 127.0.0.1:5000:5000
+      - 127.0.0.1:5000:5000
     environment:
       DB_HOST: db
       PORT_APP: 5000
@@ -207,7 +209,7 @@ services:
     #      awslogs-region: us-east-2
     #      awslogs-stream-prefix: tcpdatanew1-web
     ports:
-      - 8080:8080
+      - "8080:8080"
   nginx:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/nginx-app:latest
     container_name: nginx-container
@@ -221,7 +223,7 @@ services:
     volumes:
       - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
-      - 80:80
+      - "80:80"
     # logging:
     #   driver: awslogs
     #   options:
