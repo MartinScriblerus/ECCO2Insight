@@ -129,14 +129,15 @@ services:
     build: 
       context: ./
       dockerfile: ./Dockerfile
-    environment:
-      PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: books
-    expose:
-      # - 5432:5432
-      - "5432"
+    # environment:
+    #   PORT: 5432
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: postgres
+    #   POSTGRES_DB: books
+    env_file: "./.env"
+    # expose:
+    #   - "5432"
+      # - "5432"
     # logging:
     #   driver: awslogs
     #   options:
@@ -167,24 +168,27 @@ services:
     ports:
       # - "127.0.0.1:5000:5000"
         # - 127.0.0.1:5000:5000
-      - 127.0.0.1:5000:5000
-    environment:
-      DB_HOST: db
-      PORT_APP: 5000
-      PORT_API: 5432
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      DB_NAME: books
+      - "5000:5000"
+    env_file:
+      # - ./python/.env.dev
+      - ./python/.env.prod
+    # environment:
+    #   DB_HOST: db
+    #   PORT_APP: 5000
+    #   PORT_API: 5432
+    #   DB_PORT: 5432
+    #   DB_USER: postgres
+    #   DB_PASSWORD: postgres
+    #   POSTGRES_PASSWORD: postgres
+    #   POSTGRES_USER: postgres
+    #   DB_NAME: books
     links:
       - db
     volumes:
      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
-    env_file:
-      # - ./python/.env.dev
-      - ./python/.env.prod
+    # env_file:
+    #   # - ./python/.env.dev
+    #   - ./python/.env.prod
     # logging:
     #   driver: awslogs
     #   options:
