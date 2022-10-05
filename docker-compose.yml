@@ -124,7 +124,7 @@ services:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/postgres
     container_name: postgres-container
     restart: always
-    read_only: true
+    # read_only: true
     # init: true
     build: 
       context: ./
@@ -135,16 +135,19 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: books
     expose:
-      - "5432:5432"
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tcpdatanew1-postgres
-         awslogs-region: us-east-2
-         awslogs-stream-prefix: tcpdatanew1-postgres
+      - 5432:5432
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #      awslogs-group: tcpdatanew1-postgres
+    #      awslogs-region: us-east-2
+    #      awslogs-stream-prefix: tcpdatanew1-postgres
     volumes: 
-      #/Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/tmp
+      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
+      # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
+      - ./postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql:/var/lib/postgresql/data
       - db:/var/lib/postgresql/data
+      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
       # - type: volume
       #   source: db
       #   target: /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql
@@ -155,13 +158,14 @@ services:
   api:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/flask-app:latest
     container_name: flask-container
-    read_only: true
+    # read_only: true
     build:
       context: ./
       dockerfile: ./python/Dockerfile
     restart: always
     ports:
-      - "127.0.0.1:5000:5000"
+      # - "127.0.0.1:5000:5000"
+        - 127.0.0.1:5000:5000
     environment:
       DB_HOST: db
       PORT_APP: 5000
@@ -174,39 +178,40 @@ services:
       DB_NAME: books
     links:
       - db
-    #volumes:
-    #  - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
+    volumes:
+     - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
     env_file:
-      - ./python/.env.dev
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tcpdatanew1-api
-         awslogs-region: us-east-2
-         awslogs-stream-prefix: tcpdatanew1-api
+      # - ./python/.env.dev
+      - ./python/.env.prod
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #      awslogs-group: tcpdatanew1-api
+    #      awslogs-region: us-east-2
+    #      awslogs-stream-prefix: tcpdatanew1-api
     depends_on:
       - db  
   web: 
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/vue-app
     container_name: vue-container
-    read_only: true
+    # read_only: true
     build:
       context: ./
       dockerfile: ./vue/Dockerfile
-    #volumes:
-    #  - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tcpdatanew1-web
-         awslogs-region: us-east-2
-         awslogs-stream-prefix: tcpdatanew1-web
+    volumes:
+     - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #      awslogs-group: tcpdatanew1-web
+    #      awslogs-region: us-east-2
+    #      awslogs-stream-prefix: tcpdatanew1-web
     ports:
       - 8080:8080
   nginx:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/nginx-app:latest
     container_name: nginx-container
-    read_only: true
+    # read_only: true
     build: 
       context: ./
       dockerfile: ./nginx/Dockerfile
@@ -216,13 +221,13 @@ services:
     volumes:
       - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
-      - "80:80"
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tcpdatanew1-nginx
-         awslogs-region: us-east-2
-         awslogs-stream-prefix: tcpdatanew1-nginx
+      - 80:80
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #      awslogs-group: tcpdatanew1-nginx
+    #      awslogs-region: us-east-2
+    #      awslogs-stream-prefix: tcpdatanew1-nginx
     depends_on:
       - api 
       - web  
@@ -231,3 +236,4 @@ services:
     #   - web   
 volumes:
   db: 
+    # driver: local
