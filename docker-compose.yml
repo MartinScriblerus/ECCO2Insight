@@ -1,5 +1,5 @@
 # version: "2"
-## services:
+# services:
 #   db:
 #     # image: postgres:12.12-alpine
 #     # image: matthewfreilly/postgres:12.12-alpine
