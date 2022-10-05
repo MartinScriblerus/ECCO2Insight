@@ -11,6 +11,8 @@ signature.key
 ecs-params.yml
 gunicorn.conf.py
 
+Dockerrun.aws.json
+
 postgresdata/
 
 node_modules
