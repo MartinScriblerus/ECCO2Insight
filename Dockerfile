@@ -10,7 +10,9 @@ USER postgres
 ENV DB_PASSWORD=postgres
 ENV DB_USER=postgres
 ENV DB_NAME=books
-# CMD ["docker-entrypoint.sh", "postgres"]
-# EXPOSE 5432
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_USER=postgres
+EXPOSE 5432
+CMD ["docker-entrypoint.sh", "postgres"]
 
 # /docker-entrypoint-initdb.d/
