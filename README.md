@@ -22,7 +22,7 @@
 
 * Create Docker images and containers for backend, frontend, db, and proxy server by entering the root directory ('habitat-practice') and running 'docker compose build --no-cache' and 'docker compose up --force-recreate'.
 
-* If you want to recreate the database locally, you'll need to uncomment the lines beginning on 239 in App.vue and run the program once. Then you can comment those again (a more efficient process is in the works).  
+* If you want to recreate the database locally, you'll need to uncomment the lines beginning on 239 in App.vue and run the program once. Then you can comment those lines again (a more efficient process is in the works).  
 
 * While the frontend lives at localhost:8080, you can also test updates on localhost:8000 by running 'npm run dev' in the /vue folder
 
