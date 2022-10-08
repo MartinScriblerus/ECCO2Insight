@@ -140,12 +140,12 @@ services:
     expose:
       - "5432"
       # - "5432"
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #      awslogs-group: tcpdatanew1-postgres
-    #      awslogs-region: us-east-2
-    #      awslogs-stream-prefix: tcpdatanew1-postgres
+    logging:
+      driver: awslogs
+      options:
+         awslogs-group: tcpdatanew1-postgres
+         awslogs-region: us-east-2
+         awslogs-stream-prefix: tcpdatanew1-postgres
     volumes: 
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
       # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
@@ -191,29 +191,29 @@ services:
     # env_file:
     #   # - ./python/.env.dev
     #   - ./python/.env.prod
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #      awslogs-group: tcpdatanew1-api
-    #      awslogs-region: us-east-2
-    #      awslogs-stream-prefix: tcpdatanew1-api
+    logging:
+      driver: awslogs
+      options:
+         awslogs-group: tcpdatanew1-api
+         awslogs-region: us-east-2
+         awslogs-stream-prefix: tcpdatanew1-api
     depends_on:
       - db  
   web: 
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/vue-app
     container_name: vue-container
     # read_only: true
-    # build:
-    #   context: ./
-    #   dockerfile: ./vue/Dockerfile
+    build:
+      context: ./
+      dockerfile: ./vue/Dockerfile
     volumes:
      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #      awslogs-group: tcpdatanew1-web
-    #      awslogs-region: us-east-2
-    #      awslogs-stream-prefix: tcpdatanew1-web
+    logging:
+      driver: awslogs
+      options:
+         awslogs-group: tcpdatanew1-web
+         awslogs-region: us-east-2
+         awslogs-stream-prefix: tcpdatanew1-web
     ports:
       - "8080:8080"
   nginx:
@@ -230,12 +230,12 @@ services:
       - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
       - "80:80"
-    # logging:
-    #   driver: awslogs
-    #   options:
-    #      awslogs-group: tcpdatanew1-nginx
-    #      awslogs-region: us-east-2
-    #      awslogs-stream-prefix: tcpdatanew1-nginx
+    logging:
+      driver: awslogs
+      options:
+         awslogs-group: tcpdatanew1-nginx
+         awslogs-region: us-east-2
+         awslogs-stream-prefix: tcpdatanew1-nginx
     depends_on:
       - api 
       - web  

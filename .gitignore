@@ -13,6 +13,10 @@ gunicorn.conf.py
 
 Dockerrun.aws.json
 
+AWSCLIV2.pkg
+configure.sh
+create-cluster.sh
+
 postgresdata/
 
 node_modules
