@@ -176,16 +176,6 @@ services:
     env_file:
       # - ./python/.env.dev
       - ./python/.env.prod
-    # environment:
-    #   DB_HOST: db
-    #   PORT_APP: 5000
-    #   PORT_API: 5432
-    #   DB_PORT: 5432
-    #   DB_USER: postgres
-    #   DB_PASSWORD: postgres
-    #   POSTGRES_PASSWORD: postgres
-    #   POSTGRES_USER: postgres
-    #   DB_NAME: books
     links:
       - db
     volumes:
