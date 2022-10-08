@@ -122,8 +122,8 @@ version: "2"
 services:
   db:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/postgres
-    container_name: postgres-container
-    restart: always
+    #container_name: postgres-container
+    # restart: always
     # read_only: true
     # init: true
     # build: 
@@ -161,7 +161,7 @@ services:
       #- https://tcpdatahelper.s3.us-east-2.amazonaws.com/booksbackup.sql:/docker-entrypoint-initdb.d/booksbackup.sql
   api:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/flask-app:latest
-    container_name: flask-container
+    #container_name: flask-container
     # read_only: true
     # build:
     #   context: ./
@@ -189,11 +189,11 @@ services:
          awslogs-group: tcpdatanew1-api
          awslogs-region: us-east-2
          awslogs-stream-prefix: tcpdatanew1-api
-    depends_on:
-      - db  
+    #depends_on:
+    #  - db  
   web: 
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/vue-app
-    container_name: vue-container
+    #container_name: vue-container
     # read_only: true
     # build:
     #   context: ./
@@ -210,7 +210,7 @@ services:
       - "8080:8080"
   nginx:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/nginx-app:latest
-    container_name: nginx-container
+    #container_name: nginx-container
     # read_only: true
     # build: 
     #   context: ./
@@ -228,9 +228,9 @@ services:
          awslogs-group: tcpdatanew1-nginx
          awslogs-region: us-east-2
          awslogs-stream-prefix: tcpdatanew1-nginx
-    depends_on:
-      - api 
-      - web  
+    # depends_on:
+    #   - api 
+    #   - web  
     # links:
     #   - api 
     #   - web   
