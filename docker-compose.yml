@@ -219,8 +219,8 @@ services:
     environment:
        POSTGRES_PASSWORD: postgres
        POSTGRES_USER: postgres
-    volumes:
-      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
+    #volumes:
+    #  - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
       - "80:80"
     logging:
