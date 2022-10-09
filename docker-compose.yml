@@ -150,7 +150,7 @@ services:
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
       # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/
-      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/tmp/booksbackup.sql
+      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/tmp/booksbackup.sql
       - db:/tmp/booksbackup.sql
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
       # - type: volume
