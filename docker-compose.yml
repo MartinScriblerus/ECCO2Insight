@@ -146,20 +146,7 @@ services:
          awslogs-group: tcpdatanew1-postgres
          awslogs-region: us-east-2
          awslogs-stream-prefix: tcpdatanew1-postgres
-    volumes: 
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
-      # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/tmp/booksbackup.sql
-      - db:/tmp/booksbackup.sql
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
-      # - type: volume
-      #   source: db
-      #   target: /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql
-     # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql
-      #- postgresdata/booksbackup.sql:/var/lib/postgresql/data
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/booksbackup.sql/tmp/
-      #- https://tcpdatahelper.s3.us-east-2.amazonaws.com/booksbackup.sql:/docker-entrypoint-initdb.d/booksbackup.sql
+    
   api:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/flask-app:latest
     #container_name: flask-container
@@ -219,8 +206,8 @@ services:
     environment:
        POSTGRES_PASSWORD: postgres
        POSTGRES_USER: postgres
-    volumes:
-      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
+    #volumes:
+    #  - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
       - "80:80"
     logging:
@@ -235,6 +222,6 @@ services:
     # links:
     #   - api 
     #   - web   
-volumes:
-  db: 
+# volumes:
+#   db: 
     # driver: local 
