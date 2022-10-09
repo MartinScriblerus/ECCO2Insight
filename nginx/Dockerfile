@@ -3,7 +3,7 @@ FROM nginx:1.21-alpine
 # RUN apk add --no-cache nginx-mod-http-perl
 
 RUN mkdir -p /etc/nginx
-COPY /etc/nginx/nginx.conf /docker-entrypoint-initdb.d/etc/nginx/conf.d/
+ADD /etc/nginx/nginx.conf /docker-entrypoint-initdb.d/etc/nginx/conf.d/
 VOLUME ["/etc/nginx"]
 
 # COPY ./etc/nginx/nginx.conf .
