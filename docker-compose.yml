@@ -173,14 +173,14 @@ services:
       # - "127.0.0.1:5000:5000"
       - "5000:5000"
       # - "127.0.0.1:5000:5000"
-    env_file:
+    #env_file:
       # - ./python/.env.dev
-      - ./python/.env.prod
+      #- ./python/.env.prod
     links:
       - db
     #volumes:
     # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
-    # env_file:
+    env_file:
     #   # - ./python/.env.dev
       - ./python/.env.prod
     logging:
