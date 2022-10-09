@@ -178,8 +178,8 @@ services:
       - ./python/.env.prod
     links:
       - db
-    volumes:
-     - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
+    #volumes:
+    # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
     # env_file:
     #   # - ./python/.env.dev
     #   - ./python/.env.prod
@@ -198,8 +198,8 @@ services:
     # build:
     #   context: ./
     #   dockerfile: ./vue/Dockerfile
-    volumes:
-     - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
+    #volumes:
+    # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
     logging:
       driver: awslogs
       options:
