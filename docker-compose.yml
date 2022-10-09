@@ -146,17 +146,22 @@ services:
     #      awslogs-group: tcpdatanew1-postgres
     #      awslogs-region: us-east-2
     #      awslogs-stream-prefix: tcpdatanew1-postgres
-    volumes:
-      - db:/var/lib/postgresql/data
-      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql
+    # volumes:
+    #   - db:/tmp
+      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql
 
     # volumes: 
-      # - type: bind
+    # - type: bind
+    #   source: ./postgresdata/
+    #   target: /docker-entrypoint-initdb.d/tmp/
+     # - db:/var/lib/postgresql/data
+     # - ./postgres_data/books_backup.sql:/docker-entrypoint-initdb.d/books_backup.sql
+
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
       # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
-      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/
-      # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/tmp/booksbackup.sql
-      # - db:/tmp/booksbackup.sql
+      # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
+      # # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/tmp/booksbackup.sql
+      # - db:/var/lib/postgresql/data//booksbackup.sql
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
       # - type: volume
       #   source: db
@@ -182,8 +187,8 @@ services:
     #env_file:
       # - ./python/.env.dev
       #- ./python/.env.prod
-    # links:
-    #   - db
+    links:
+      - db
     #volumes:
     # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
     env_file:
@@ -224,6 +229,10 @@ services:
     environment:
        POSTGRES_PASSWORD: postgres
        POSTGRES_USER: postgres
+    volumes:
+    - type: bind 
+      source: /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf
+      target: /etc/nginx/conf.d/
     # volumes:
     #   - type: bind
     #   - target: /etc/nginx/conf.d/
@@ -235,9 +244,9 @@ services:
     #      awslogs-group: tcpdatanew1-nginx
     #      awslogs-region: us-east-2
     #      awslogs-stream-prefix: tcpdatanew1-nginx
-    # depends_on:
-    #   - api 
-    #   - web  
+    depends_on:
+      - api 
+      - web  
     # links:
     #   - api 
     #   - web   
