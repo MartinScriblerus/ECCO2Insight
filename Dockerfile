@@ -1,10 +1,10 @@
 FROM postgres
 
-# RUN mkdir -p /var/lib/postgresql/data
-# COPY ./postgresdata/booksbackup.sql  /var/lib/postgresql/data/
-# VOLUME ["/var/lib/postgresql/data/"]
+RUN mkdir -p /var/lib/postgresql/data
+COPY ./postgresdata/booksbackup.sql  /var/lib/postgresql/data/
+VOLUME ["/var/lib/postgresql/data/"]
 
-# ADD ./postgresdata/booksbackup.sql /docker-entrypoint-initdb.d/var/lib/postgresql/data
+ADD ./postgresdata/booksbackup.sql /docker-entrypoint-initdb.d/var/lib/postgresql/data
 
 #ADD ./postgresdata/booksbackup.sql /docker-entrypoint-initdb.d
 # ADD ./postgresdata/booksbackup.sql /docker-entrypoint-initdb.d/lib/postgresql/data
