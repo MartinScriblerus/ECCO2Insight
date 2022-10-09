@@ -149,7 +149,7 @@ services:
     volumes: 
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
       # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgres_data/books_backup.sql:/
-      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/
+      #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:/docker-entrypoint-initdb.d/var/lib/postgresql/data/
       - db:/var/lib/postgresql/data/
       #- /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/postgresdata/booksbackup.sql:docker-entrypoint-initdb.d/var/lib/postgresql/data/booksbackup.sql
       # - type: volume
@@ -182,7 +182,7 @@ services:
     # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/:/usr/src/app/
     # env_file:
     #   # - ./python/.env.dev
-    #   - ./python/.env.prod
+      - ./python/.env.prod
     logging:
       driver: awslogs
       options:
