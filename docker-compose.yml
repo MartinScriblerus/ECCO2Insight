@@ -126,9 +126,9 @@ services:
     # restart: always
     # read_only: true
     # init: true
-    # build: 
-    #   context: ./
-    #   dockerfile: ./Dockerfile
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile
     # environment:
     #   PORT: 5432
     #   POSTGRES_USER: postgres
@@ -164,9 +164,9 @@ services:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/flask-app:latest
     #container_name: flask-container
     # read_only: true
-    # build:
-    #   context: ./
-    #   dockerfile: ./python/Dockerfile
+    build:
+      context: ./
+      dockerfile: ./python/Dockerfile
     # restart: always
     ports:
       # - "127.0.0.1:5000:5000"
@@ -196,9 +196,9 @@ services:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/vue-app
     #container_name: vue-container
     # read_only: true
-    # build:
-    #   context: ./
-    #   dockerfile: ./vue/Dockerfile
+    build:
+      context: ./
+      dockerfile: ./vue/Dockerfile
     #volumes:
     # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/vue
     logging:
@@ -213,15 +213,14 @@ services:
     image: 801819443153.dkr.ecr.us-east-2.amazonaws.com/matthewfreilly/nginx-app:latest
     #container_name: nginx-container
     # read_only: true
-    # build: 
-    #   context: ./
-    #   dockerfile: ./nginx/Dockerfile
+    build: 
+      context: ./
+      dockerfile: ./nginx/Dockerfile
     environment:
        POSTGRES_PASSWORD: postgres
        POSTGRES_USER: postgres
     volumes:
-      # - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
-      - nginx:/etc/nginx/conf.d/
+      - /Users/matthewreilly/ecco2insight/ECCO2Insight/habitat-practice/etc/nginx/nginx.conf:/etc/nginx/conf.d/
     ports:
       - "80:80"
     logging:
@@ -237,6 +236,5 @@ services:
     #   - api 
     #   - web   
 volumes:
-  nginx:
   db: 
     # driver: local 
