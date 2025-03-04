@@ -3,17 +3,6 @@
 ## Objectives 
 ### TCP Data Viz aggregates over 50,000 digitized texts from three archives assembled by the Text Creation Partnership: Early American Imprints, Eighteenth-Century Collections Online, and Early English Books Online.
 
-### The current version is a minimal viable demonstration of the site, and future roadmap items include:
-    * Automated build and deploy process for ongoing updates
-    * Many more D3 graphs (see the console for a glimpse at available NLP data)
-    * Sonification of poetic features
-    * Machine Learning for generative tasks, analysis, and comparison
-    * The ability to create, label, and graph groups of texts
-    * Full Text Searches in EAI, ECCO, and EEBO
-    * An extended database structure including knowledge graphs and text classification
-    * User management, data persistence, and collaboration features
-    * A feature section showcasing contributions from users
-
 ## Build Instructions
 
 ### Local Testing
